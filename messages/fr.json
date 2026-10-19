@@ -6,5 +6,74 @@
   "HomePage": {
     "title": "Patrimoine de France",
     "comingSoon": "Le jeu de cartes du patrimoine français arrive bientôt."
+  },
+  "Rarity": {
+    "legendary": "Légendaire",
+    "ultra": "Ultra rare",
+    "super": "Super rare",
+    "rare": "Rare",
+    "uncommon": "Peu commune",
+    "common": "Commune"
+  },
+  "Card": {
+    "protection": {
+      "classe": "Classé MH",
+      "inscrit": "Inscrit MH"
+    },
+    "unesco": "UNESCO",
+    "shiny": "Brillante",
+    "shinySuffix": "· Brillante",
+    "toDiscover": "Monument à découvrir",
+    "photoCredit": "Crédit photo",
+    "photoOverlay": "Photo : {author} · {license} · <link>Commons</link>",
+    "photoCaption": "Photo : {author} · {license} · <link>Wikimedia Commons</link>",
+    "unknownAuthor": "auteur non renseigné",
+    "readArticle": "Lire l'article sur Wikipédia",
+    "textLicense": "Texte : Wikipédia, licence CC BY-SA 4.0",
+    "photoHeading": "Photo",
+    "commonsFile": "Fichier sur Wikimedia Commons",
+    "copiesLarge": "Exemplaires possédés : {count}",
+    "copiesGrid": "{count, plural, one {# exemplaire} other {# exemplaires}}",
+    "copiesBadge": "{count} exemplaires",
+    "new": "Nouveau",
+    "selected": "Sélectionnée",
+    "ariaMasked": "Carte manquante, {rarity}",
+    "ariaMissing": "manquante",
+    "ariaShiny": "brillante",
+    "showBack": "Voir le verso",
+    "showFront": "Voir le recto"
+  },
+  "Pack": {
+    "packs": "{count, plural, one {paquet} other {paquets}}",
+    "packsInReserve": "paquets en réserve",
+    "next": "Prochain",
+    "nextPack": "Prochain paquet",
+    "running": "En cours : un paquet toutes les {minutes} minutes.",
+    "full": "Réserve pleine",
+    "fullHint": "Le minuteur reprend à la prochaine ouverture.",
+    "emptyHint": "Réserve vide : on attend, ou on passe par la <shop>boutique</shop>.",
+    "compact": "{count, plural, one {# paquet} other {# paquets}} en réserve",
+    "compactNext": "prochain dans {time}",
+    "open": "Ouvrir un paquet",
+    "none": "Aucun paquet"
+  },
+  "Purchase": {
+    "packTitle": "Acheter un paquet",
+    "close": "Fermer",
+    "packName": "Paquet {collection}",
+    "packDescription": "{count} cartes tirées au hasard",
+    "inclTax": "TTC",
+    "fictitiousPrice": "Prix fictif, à définir",
+    "odds": "Probabilités par carte",
+    "waiver": "Je demande l'ouverture immédiate de mon paquet et je renonce à mon droit de rétractation.",
+    "monthlyCap": "Plafond mensuel : {available} disponibles sur {cap}.",
+    "noMoneyValue": "Les cartes et la monnaie virtuelle n'ont aucune valeur en argent et ne se revendent pas contre de l'argent.",
+    "cancel": "Annuler",
+    "pay": "Payer {price}",
+    "confirmedTitle": "Paiement confirmé",
+    "confirmedSummary": "{product} · {price} TTC",
+    "confirmedFictitious": "{product} · {price} TTC (prix fictif).",
+    "receiptHint": "Le reçu est dans Compte › Historique des achats.",
+    "openMyPack": "Ouvrir mon paquet"
   }
 }

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 "Patrimoine de France" is a web collectible card game: adult players (18+) open packs of cards depicting protected French monuments, build a collection, and can pay for a subscription or single packs. The specification, [docs/cahier-des-charges-developpement.md](docs/cahier-des-charges-developpement.md) (in French), is the source of truth: read the section relevant to a task before implementing it.
 
-Lot 1 is in progress: the technical foundation (Next.js app, database and migrations, worker, Docker image, compose stack, CI) is in place. Accounts and the design system integration come next.
+Lot 1 is in progress: the technical foundation (Next.js app, database and migrations, worker, Docker image, compose stack, CI) and the design system integration are in place. Accounts come next.
 
 - "worldup" is a placeholder project name (containers, volumes, network, database). It will be replaced everywhere once the game is named, so keep it in config and env files rather than scattered through application code.
 - Work proceeds in delivery lots, each validated in staging before the next: 1 foundations, 2 catalogue, 3 game, 4 payments (only after a lawyer has validated the setup), 5 closed beta and launch.
@@ -124,6 +124,8 @@ The server decides everything: pack contents, timers and balances. The browser o
 
 - The reference design is the "World Up" design system in the Claude Design project linked in the spec's "Interface" section. Import it through the Claude Design MCP server (log in with `/design-login`), starting from `Design system World Up.dc.html`, `_ds/nocturne-b271f891-2d45-439d-a64e-f628131cb069/_ds_bundle.js`, `_ds/nocturne-b271f891-2d45-439d-a64e-f628131cb069/styles.css` and `support.js`.
 - Design tokens become CSS variables for the light and dark themes. Each component (card, button, badge, gauge, timer, purchase dialog) becomes a React component with the same variants and states as in Claude Design.
+- How it is wired: `design/Design system World Up.dc.html` is the mock-up kept for reference. `src/styles/nocturne.css` (the Nocturne base, imported in a cascade layer so everything else overrides it) and `src/styles/theme.css` (shared grounds, text and rarity colors) are global. The theme follows the system setting; `data-theme="dark"` or `"light"` forces it on any element. The accent family and the `--skin-*` variables come from `collections.theme`, validated by `src/lib/collection-theme.ts` and injected as a `<style>` by the root layout. Components live in `src/components/`, as CSS modules.
+- `/design` is the development showcase of every component, variant and state, in both themes: check UI changes there. It returns 404 in production.
 - Public card pages (`/c/heritage/cards/[slug]`) are the search-engine entry points. Each card shows its photo's author and licence with a link to the Commons file; the back shows the excerpt, the article link and "Texte : Wikipédia, licence CC BY-SA 4.0".
 - Targets: LCP under 2.5 s on mobile 4G (lazy-loaded WebP), Lighthouse mobile ≥ 90 performance and ≥ 95 accessibility on a card page, WCAG 2.1 AA. The pack-opening animation lasts at most 3 s, can be skipped, and becomes a simple fade under `prefers-reduced-motion`.
 
