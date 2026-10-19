@@ -1,0 +1,95 @@
+# Fixed project name: volumes and the internal network are prefixed with
+# "worldup" whatever the folder the repo is cloned into.
+name: worldup
+
+services:
+  worldup-db:
+    container_name: worldup-db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: worldup
+      POSTGRES_USER: worldup
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U worldup -d worldup"]
+      interval: 5s
+      retries: 10
+
+  worldup-migrate:
+    container_name: worldup-migrate
+    image: worldup-app
+    build: .
+    command: ["node", "migrate.js"]
+    env_file: .env
+    depends_on:
+      worldup-db: { condition: service_healthy }
+
+  # Only service exposed: served by the Traefik already running on the server
+  # (external "traefik" network, "websecure" entrypoint, "myresolver" ACME).
+  worldup-web:
+    container_name: worldup-web
+    image: worldup-app
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - uploads:/app/uploads
+    labels:
+      - "traefik.enable=true"
+      # worldup-web is on two networks: tell Traefik which one reaches it
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.worldup.rule=Host(`${APP_DOMAIN:?APP_DOMAIN manquant dans .env}`)"
+      - "traefik.http.routers.worldup.entrypoints=websecure"
+      - "traefik.http.routers.worldup.tls=true"
+      - "traefik.http.routers.worldup.tls.certresolver=myresolver"
+      - "traefik.http.services.worldup.loadbalancer.server.port=3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # Traefik only routes to a healthy container: check every 2 s at startup
+      # instead of waiting 30 s after each deploy (Docker Engine 25+).
+      start_period: 30s
+      start_interval: 2s
+    depends_on:
+      worldup-migrate: { condition: service_completed_successfully }
+    networks:
+      - default
+      - traefik
+
+  worldup-worker:
+    container_name: worldup-worker
+    image: worldup-app
+    restart: unless-stopped
+    command: ["node", "worker.js"]
+    env_file: .env
+    # The catalogue import writes the card images and reads the export folder.
+    volumes:
+      - uploads:/app/uploads
+      - ./import:/app/import:ro
+    # Time for the run in progress to finish on a stop (an e-mail waits 10 s at most).
+    stop_grace_period: 30s
+    depends_on:
+      worldup-migrate: { condition: service_completed_successfully }
+
+  worldup-backup:
+    container_name: worldup-backup
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [./backups:/backups]
+    entrypoint: ["/bin/sh", "-c", "while true; do pg_dump -h worldup-db -U worldup -Fc worldup > /backups/worldup-$$(date +%F).dump; find /backups -name '*.dump' -mtime +14 -delete; sleep 86400; done"]
+    depends_on:
+      worldup-db: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  uploads:
+
+networks:
+  traefik:
+    name: traefik
+    external: true

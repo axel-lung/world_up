@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: worldup
+          POSTGRES_USER: worldup
+          POSTGRES_PASSWORD: worldup
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U worldup -d worldup"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://worldup:worldup@localhost:5432/worldup
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Schema changes come with a generated migration
+        run: |
+          npx drizzle-kit generate
+          git status --porcelain drizzle
+          test -z "$(git status --porcelain drizzle)"
+      - run: npm run db:migrate
+      - run: npm run build
+
+  # Same path as a deployment: build the image, migrate, then web turns healthy.
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Start the production stack
+        run: |
+          docker network create traefik
+          cat > .env <<'EOF'
+          APP_DOMAIN=ci.localhost
+          POSTGRES_PASSWORD=ci
+          DATABASE_URL=postgres://worldup:ci@worldup-db:5432/worldup
+          EOF
+          docker compose up -d --build --wait --wait-timeout 180 worldup-web worldup-worker
+      - name: Stack logs
+        if: always()
+        run: docker compose logs

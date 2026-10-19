@@ -1,0 +1,9 @@
+/* The World Up design system tokens replace this file's contents. */
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}

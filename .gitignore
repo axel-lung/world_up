@@ -1,0 +1,21 @@
+node_modules/
+.next/
+dist/
+next-env.d.ts
+*.tsbuildinfo
+coverage/
+test-results/
+playwright-report/
+
+# Secrets: the real .env lives only on the server (and locally for dev)
+.env
+.env.*
+!.env.example
+
+# Runtime data
+uploads/
+import/
+backups/
+
+.DS_Store
+Thumbs.db
