@@ -36,7 +36,7 @@ jobs:
       MAIL_FROM: Patrimoine de France <no-reply@localhost>
       ADMIN_EMAIL: admin@example.test
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -71,7 +71,7 @@ jobs:
   compose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Start the production stack
         run: |
           docker network create traefik
