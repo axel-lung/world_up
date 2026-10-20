@@ -24,6 +24,18 @@
   font-size: 13px;
 }
 
+/* A button that reads as a link (switching to a backup code) */
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent-strong);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .footer {
   margin: 0;
   font-size: 14px;

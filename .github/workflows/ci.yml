@@ -34,6 +34,7 @@ jobs:
       SMTP_HOST: localhost
       SMTP_PORT: 1025
       MAIL_FROM: Patrimoine de France <no-reply@localhost>
+      ADMIN_EMAIL: admin@example.test
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -44,12 +45,16 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - name: Catalogue pipeline tests
+        run: python3 -m unittest discover -s scripts
       - name: Schema changes come with a generated migration
         run: |
           npx drizzle-kit generate
           git status --porcelain drizzle
           test -z "$(git status --porcelain drizzle)"
       - run: npm run db:migrate
+      - name: Database tests (catalogue import)
+        run: npm run test:db
       - run: npm run build
       # Against the production build (`next start`), where the rate limits are on.
       - run: npx playwright install --with-deps chromium

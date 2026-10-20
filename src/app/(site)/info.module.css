@@ -1,0 +1,100 @@
+/* The public information pages: rules, odds, leaderboard. */
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header h1 {
+  margin: 0;
+  font-family: var(--skin-display-font, var(--font-heading));
+  font-size: 30px;
+  line-height: 1.15;
+}
+
+.header p,
+.section p {
+  margin: 0;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.section ul {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.table th,
+.table td {
+  padding: 10px 12px 10px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--color-divider);
+  vertical-align: top;
+}
+
+.table th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.table td.number,
+.table th.number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table tr[data-me] td {
+  font-weight: 600;
+}
+
+.me {
+  color: var(--color-accent-strong);
+}
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.history h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}

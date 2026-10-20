@@ -3,8 +3,9 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError, createAuthMiddleware, getSessionFromCtx } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
+import { twoFactor } from 'better-auth/plugins';
 import { db } from '@/db';
-import { accounts, consents, sessions, users, verifications } from '@/db/schema';
+import { accounts, consents, sessions, twoFactors, users, verifications } from '@/db/schema';
 import {
   isAdult,
   isValidBirthDate,
@@ -74,7 +75,7 @@ function createAuth() {
     secret: requireEnv('AUTH_SECRET'),
     database: drizzleAdapter(db, {
       provider: 'pg',
-      schema: { user: users, session: sessions, account: accounts, verification: verifications },
+      schema: { user: users, session: sessions, account: accounts, verification: verifications, twoFactor: twoFactors },
     }),
     advanced: { database: { generateId: 'uuid' } },
     // Its info messages contain e-mail addresses: keep them out of the logs.
@@ -111,6 +112,9 @@ function createAuth() {
     session: {
       expiresIn: 30 * 24 * 60 * 60,
       updateAge: 24 * 60 * 60,
+      additionalFields: {
+        twoFactorVerified: { type: 'boolean', required: false, defaultValue: false, input: false },
+      },
     },
 
     // On in production only (Better Auth's default), in memory: one web process.
@@ -123,6 +127,7 @@ function createAuth() {
         '/send-verification-email': { window: 60 * 60, max: 5 },
         '/change-password': { window: 15 * 60, max: 10 },
         '/delete-user': { window: 15 * 60, max: 10 },
+        '/two-factor/*': { window: 15 * 60, max: 10 },
       },
     },
 
@@ -139,13 +144,24 @@ function createAuth() {
       session: {
         create: {
           // We collect e-mail, birth date and purchases only: no IP or browser.
-          before: async (session) => ({ data: { ...session, ipAddress: null, userAgent: null } }),
+          // Only a session opened by a second factor (code from the app, or a
+          // backup code) gets to /admin.
+          before: async (session, ctx) => ({
+            data: {
+              ...session,
+              ipAddress: null,
+              userAgent: null,
+              twoFactorVerified: Boolean(ctx?.path.startsWith('/two-factor/verify')),
+            },
+          }),
         },
       },
     },
 
-    // Lets server actions set the session cookie; must stay last.
-    plugins: [nextCookies()],
+    // Authenticator app for the back-office account (src/lib/admin.ts), without
+    // "trust this device": every sign-in to /admin asks for a code.
+    // nextCookies lets server actions set the session cookie; it must stay last.
+    plugins: [twoFactor(), nextCookies()],
   });
 }
 

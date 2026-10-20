@@ -1,0 +1,144 @@
+.opener {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resultHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.resultHeader h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.resultHeader h2:focus {
+  outline: none;
+}
+
+.summary {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.stage {
+  position: relative;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px 8px;
+  margin: 0;
+  padding: 10px 0 0;
+  list-style: none;
+  perspective: 1200px;
+}
+
+@media (min-width: 600px) {
+  .cards {
+    gap: 24px 16px;
+  }
+}
+
+/* The closed pack, in the collection's skin, over the cards it is about to release */
+.pack {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 40px;
+  width: 150px;
+  aspect-ratio: 5 / 7;
+  margin-left: -75px;
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, transparent 0 46%, var(--skin-fill-ink, #efe3d4) 46% 54%, transparent 54%),
+    var(--skin-fill, var(--color-accent));
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  animation: pack-open 0.6s ease-in both;
+}
+
+.result[data-revealing] .reveal {
+  animation: reveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(0.5s + var(--index) * 0.4s);
+}
+
+@keyframes pack-open {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.06) rotate(-3deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85) translateY(-24px);
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px) rotateY(80deg) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pack {
+    display: none;
+  }
+
+  .result[data-revealing] .reveal {
+    animation: fade 0.3s ease-out both;
+    animation-delay: 0s;
+  }
+}
+
+.unlocked {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unlocked li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

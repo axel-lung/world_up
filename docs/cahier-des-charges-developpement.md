@@ -234,7 +234,7 @@ Toute la logique de jeu s'exécute sur le serveur : le navigateur affiche, il ne
 **Progression et classement**
 
 - Progression par série = cartes différentes possédées / cartes visibles de la série, recalculée à chaque ouverture.
-- Classement : nombre de cartes différentes, à égalité la rareté des cartes (règle à confirmer).
+- Classement : nombre de cartes différentes ; à égalité, le plus de Légendaires passe devant, puis le plus d'Ultra rares, et ainsi de suite.
 
 **Anti-abus**
 

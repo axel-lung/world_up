@@ -1,0 +1,186 @@
+/* Two rows: the brand and the player's packs and coins, then the links, which
+   scroll sideways on a narrow screen rather than wrapping. */
+.header {
+  position: relative;
+  background: var(--color-surface);
+  box-shadow: 0 1px 0 var(--color-divider);
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  z-index: 10;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.skip:focus {
+  top: 8px;
+}
+
+.bar {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 8px 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 60px;
+}
+
+.brand {
+  font-family: var(--skin-display-font, var(--font-heading));
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reserve {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 999px;
+}
+
+.reserve > * {
+  align-self: center;
+}
+
+.reserve:hover > * {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+.coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.coins svg {
+  color: var(--color-accent);
+}
+
+.account {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  min-width: 44px;
+  justify-content: center;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.account:hover {
+  color: var(--color-accent-strong);
+}
+
+.nav {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav ul {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--color-text);
+}
+
+.navLink[aria-current="page"] {
+  color: var(--color-text);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
+}
+
+.footer {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--color-divider);
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--color-text-muted);
+}
+
+.footer a:hover {
+  color: var(--color-text);
+}
+
+.footer p {
+  margin: 0;
+}
+
+/* Narrow screens: the account link keeps its icon and the coins their number (both
+   still read out), the signup button goes */
+@media (max-width: 479px) {
+  .accountLabel,
+  .coinsWord {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .signup {
+    display: none;
+  }
+
+  .brand {
+    font-size: 16px;
+  }
+}

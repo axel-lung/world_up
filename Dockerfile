@@ -3,7 +3,7 @@
 # One image, "worldup-app", for three services (see docker-compose.yml):
 #   worldup-web     default CMD, Next.js standalone server on port 3000
 #   worldup-migrate node migrate.js
-#   worldup-worker  node worker.js
+#   worldup-worker  node worker.js, and node import-catalog.js (catalogue import)
 
 FROM node:22-alpine AS deps
 WORKDIR /app
@@ -26,7 +26,7 @@ ENV NODE_ENV=production \
 
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
-COPY --from=build /app/dist/migrate.js /app/dist/worker.js ./
+COPY --from=build /app/dist/migrate.js /app/dist/worker.js /app/dist/import-catalog.js ./
 COPY --from=build /app/drizzle ./drizzle
 
 # Mount point of the "uploads" volume: a new named volume takes this ownership.

@@ -21,7 +21,7 @@ test('a player signs up, confirms the address, edits the profile, exports and de
   expect(data.consents).toEqual([expect.objectContaining({ document: 'terms', version: expect.any(String) })]);
 
   await page.getByRole('button', { name: 'Se déconnecter' }).click();
-  await expect(page.getByRole('link', { name: 'Se connecter' })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: 'Se connecter' })).toBeVisible();
   await page.goto('/account');
   await expect(page).toHaveURL(/\/login\?next=%2Faccount$/);
 
@@ -76,7 +76,10 @@ test('signing in before confirming sends a new link', async ({ page }) => {
 
   await logIn(page, player.email, player.password);
   await expect(page.getByText("Votre adresse e-mail n'est pas encore confirmée.")).toBeVisible();
-  await expect.poll(() => countEmails(page.request, player.email, 'Confirmez votre adresse e-mail')).toBe(2);
+  // The new e-mail goes through the queue, like the first one
+  await expect
+    .poll(() => countEmails(page.request, player.email, 'Confirmez votre adresse e-mail'), { timeout: 15_000 })
+    .toBe(2);
 
   // The new link signs the player in and leads to the page they were going to.
   await page.goto(await linkFromEmail(page.request, player.email, 'Confirmez votre adresse e-mail'));

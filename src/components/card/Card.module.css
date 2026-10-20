@@ -89,7 +89,8 @@
 }
 
 .card[data-selected],
-.card:has(.flipButton:focus-visible) {
+.card:has(.flipButton:focus-visible),
+.card:has(.nameLink:focus-visible) {
   outline-color: var(--color-accent);
 }
 
@@ -266,6 +267,8 @@
   border: 0;
   cursor: pointer;
   color: #e9e9ed;
+  /* Above the card's link */
+  z-index: 2;
 }
 
 .infoButton > span {
@@ -288,6 +291,7 @@
   font-size: 10px;
   line-height: 1.35;
   color: #e4e7f5;
+  z-index: 2;
 }
 
 .creditOverlay a,
@@ -335,6 +339,25 @@
   -webkit-line-clamp: 3;
   line-clamp: 3;
   text-wrap: pretty;
+}
+
+/* The card's link: its area covers the whole front, under the photo credit button */
+.nameLink {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.nameLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--card-radius);
+}
+
+.nameLink:hover {
+  text-decoration: underline;
 }
 
 .toDiscover {

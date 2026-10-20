@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
@@ -7,6 +7,8 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.ts'],
+    // Database tests run apart, with `npm run test:db` (vitest.db.config.mts)
+    exclude: [...configDefaults.exclude, 'src/**/*.db.test.ts'],
     environment: 'node',
   },
 });

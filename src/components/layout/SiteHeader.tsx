@@ -1,0 +1,108 @@
+import { CoinsIcon, UserCircleIcon } from '@phosphor-icons/react/ssr';
+import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { PackReserveCompact } from '@/components/pack/PackReserve';
+import { ButtonLink } from '@/components/ui/Button';
+import { db } from '@/db';
+import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
+import { coinBalance } from '@/lib/game/coins';
+import { gamePath } from '@/lib/game/paths';
+import { getReserve } from '@/lib/game/packs';
+import { getActiveCollection } from '@/lib/game/rules';
+import { getSession } from '@/lib/session';
+import { NavLinks } from './NavLinks';
+import styles from './SiteHeader.module.css';
+
+/** The site's header: the game's pages, and the player's packs and coins once signed in. */
+export async function SiteHeader() {
+  const [t, session, collection] = await Promise.all([
+    getTranslations('Nav'),
+    getSession(),
+    getActiveCollection(DEFAULT_COLLECTION_SLUG),
+  ]);
+  const now = new Date();
+  const player =
+    session && collection
+      ? await Promise.all([getReserve(session.user.id, collection.id, now), coinBalance(db, session.user.id)])
+      : null;
+  const game = collection ? gamePath(collection.slug) : null;
+
+  const items = [
+    ...(session && game
+      ? [
+          { href: game.home, label: t('home') },
+          { href: game.open, label: t('open') },
+          { href: game.collection, label: t('collection'), prefix: true },
+        ]
+      : []),
+    { href: '/leaderboard', label: t('leaderboard') },
+    { href: '/rules', label: t('rules') },
+  ];
+
+  return (
+    <header className={styles.header}>
+      <a href="#content" className={styles.skip}>
+        {t('skip')}
+      </a>
+      <div className={styles.bar}>
+        <Link href={session && game ? game.home : '/'} className={styles.brand}>
+          {collection?.name ?? t('brand')}
+        </Link>
+        <div className={styles.player}>
+          {player && game ? (
+            <>
+              {/* Named by the reserve's own sentence: "7 paquets en réserve, prochain dans 04:32" */}
+              <Link href={game.open} className={styles.reserve}>
+                <PackReserveCompact
+                  available={player[0].packs}
+                  max={player[0].maxReserve}
+                  nextPackAt={player[0].nextPackAt?.toISOString() ?? null}
+                  serverNow={now.toISOString()}
+                />
+              </Link>
+              <span className={styles.coins}>
+                <CoinsIcon aria-hidden size={18} />
+                <span>{t.rich('coins', { count: player[1], word: (chunks) => <span className={styles.coinsWord}>{chunks}</span> })}</span>
+              </span>
+              <Link href="/account" className={styles.account}>
+                <UserCircleIcon aria-hidden size={22} />
+                <span className={styles.accountLabel}>{t('account')}</span>
+              </Link>
+            </>
+          ) : (
+            <>
+              <ButtonLink href="/login">{t('login')}</ButtonLink>
+              <ButtonLink href="/signup" variant="primary" className={styles.signup}>
+                {t('signup')}
+              </ButtonLink>
+            </>
+          )}
+        </div>
+      </div>
+      <NavLinks items={items} label={t('label')} />
+    </header>
+  );
+}
+
+export async function SiteFooter() {
+  const t = await getTranslations('Nav');
+  return (
+    <footer className={styles.footer}>
+      <ul>
+        <li>
+          <Link href="/rules">{t('rules')}</Link>
+        </li>
+        <li>
+          <Link href="/odds">{t('odds')}</Link>
+        </li>
+        <li>
+          <Link href="/leaderboard">{t('leaderboard')}</Link>
+        </li>
+        <li>
+          <Link href="/credits">{t('credits')}</Link>
+        </li>
+      </ul>
+      <p>{t('noMoneyValue')}</p>
+    </footer>
+  );
+}
