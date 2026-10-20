@@ -1,0 +1,25 @@
+/* Over Nocturne's compact .btn: every touch target is 44 px at least. */
+.button {
+  min-height: 44px;
+  padding: 0 16px;
+  gap: 8px;
+}
+
+.ghost {
+  padding: 0 10px;
+}
+
+.danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.iconOnly {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+.block {
+  width: 100%;
+}

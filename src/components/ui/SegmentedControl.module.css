@@ -1,0 +1,8 @@
+.seg {
+  align-self: flex-start;
+}
+
+.option {
+  min-height: 44px;
+  padding: 0 14px;
+}

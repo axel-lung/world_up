@@ -1,0 +1,165 @@
+.panel {
+  flex: 1 1 360px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -6px -8px -4px 0;
+}
+
+.titleRow h2 {
+  margin: 0;
+}
+
+.close {
+  color: var(--color-text-muted);
+}
+
+.product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}
+
+/* A miniature pack in the collection's skin. */
+.packThumb {
+  flex: none;
+  width: 40px;
+  height: 52px;
+  border-radius: 5px;
+  background: var(--skin-fill);
+  box-shadow: inset 0 0 0 3px var(--skin-fill), inset 0 0 0 4.5px var(--skin-fill-ink);
+}
+
+.productText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.muted {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.amount {
+  font-size: 18px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.tax {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.draft {
+  align-self: flex-start;
+}
+
+/* The odds go in two columns only when the dialog is wide enough for them. */
+.odds {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oddsTitle {
+  font-size: 13px;
+}
+
+.oddsList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@container (min-width: 360px) {
+  .oddsList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.oddsItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.oddsPips {
+  display: flex;
+  width: 34px;
+}
+
+.oddsLabel {
+  flex: 1;
+}
+
+.oddsValue {
+  white-space: nowrap;
+}
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.note {
+  display: flex;
+  gap: 6px;
+}
+
+.note > svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.success {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-success-tint);
+  color: var(--color-success);
+}
+
+.confirmedBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.receipt {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.wrapActions {
+  flex-wrap: wrap;
+}

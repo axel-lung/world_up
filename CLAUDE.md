@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 "Patrimoine de France" is a web collectible card game: adult players (18+) open packs of cards depicting protected French monuments, build a collection, and can pay for a subscription or single packs. The specification, [docs/cahier-des-charges-developpement.md](docs/cahier-des-charges-developpement.md) (in French), is the source of truth: read the section relevant to a task before implementing it.
 
-Lot 1 is in progress: the technical foundation (Next.js app, database and migrations, worker, Docker image, compose stack, CI) is in place. Accounts and the design system integration come next.
+Lot 1 is in progress: the technical foundation (Next.js app, database and migrations, worker, Docker image, compose stack, CI), the design system integration and player accounts are in place. Two-factor authentication for `/admin` comes with the back-office in lot 2.
 
 - "worldup" is a placeholder project name (containers, volumes, network, database). It will be replaced everywhere once the game is named, so keep it in config and env files rather than scattered through application code.
 - Work proceeds in delivery lots, each validated in staging before the next: 1 foundations, 2 catalogue, 3 game, 4 payments (only after a lawyer has validated the setup), 5 closed beta and launch.
@@ -21,7 +21,8 @@ Lot 1 is in progress: the technical foundation (Next.js app, database and migrat
 - The launch collection's slug is `heritage` (routes under `/c/heritage/...`); a card's slug derives from its name (`chateau-de-chambord`). The full route table is in the spec's "Interface" section.
 - Every game table carries `collection_id`, and per-collection styling is read from `collections.theme`: adding a collection must not require new UI code.
 - Tunable rules (rarity odds, refill interval and reserve size, prices, duplicate resale value, subscriber perks) are database parameters, never code constants. Seed defaults: 10 packs at signup, 1 pack every 10 minutes, reserve capped at 10.
-- Stack decisions: Drizzle (database access and migrations), Better Auth (accounts), GitHub (Actions CI, Dependabot). Still open: Brevo or Postmark for e-mail, Matomo or Plausible for analytics. Ask before picking one, then record the decision here.
+- Stack decisions: Drizzle (database access and migrations), Better Auth (accounts), GitHub (Actions CI, Dependabot), Brevo for e-mail (EU company; reached over SMTP, so only `.env` names it). Still open: Matomo or Plausible for analytics. Ask before picking one, then record the decision here.
+- UI text addresses the player as "vous", like the design system.
 - `scripts/` is reserved for the Python catalogue pipeline. Node entry points live in `src/entrypoints/`.
 
 ## Stack and runtime architecture
@@ -44,7 +45,8 @@ How the code maps onto it:
 - Card images live in the `uploads` volume (`/app/uploads`) and are served by `src/app/uploads/[...path]/route.ts` with `Cache-Control: public, max-age=31536000, immutable`. Because of that cache, a changed photo must be written under a new file name, never over an existing one.
 - Server code that builds a filesystem path from runtime values needs a `/*turbopackIgnore: true*/` comment (see `src/lib/uploads.ts`). Without it, Next.js file tracing copies the whole project into `.next/standalone`, and the build prints a "Dynamic filesystem access" warning.
 - `src/db/index.ts` holds the one `pg` pool per process; `src/db/schema.ts` is the Drizzle schema, and `drizzle/` holds the generated SQL migrations, which are committed.
-- The worker registers its queues in `src/worker/jobs.ts` and must stop within the 30 s `stop_grace_period`. Test shutdown with `docker stop worldup-worker`: on Windows, a signal sent to `npm` doesn't reach the Node process.
+- pg-boss queues are declared in `src/lib/queues.ts`. `migrate.js` installs the pg-boss schema and creates them, so the web app can send jobs (`src/lib/job-queue.ts`) before the worker has ever run. The worker registers the handlers in `src/worker/jobs.ts` and must stop within the 30 s `stop_grace_period`. Test shutdown with `docker stop worldup-worker`: on Windows, a signal sent to `npm` doesn't reach the Node process.
+- E-mails: the web app queues `{ template, to, url }`, and the worker renders the text from `messages/fr.json` (`Email`) and sends it over SMTP (`src/worker/send-email.ts`). Finished jobs are deleted after a day, since they hold an address and a one-time link.
 - `.env.example` holds local development values and documents the production ones. The real `.env` exists only on the server.
 
 Staging is a copy of the compose file with a different `name`, container names, Traefik router name and `APP_DOMAIN` (and Stripe in test mode); otherwise the two stacks collide on the server.
@@ -53,10 +55,10 @@ Staging is a copy of the compose file with a different `name`, container names, 
 
 ```sh
 cp .env.example .env      # once; its values suit local development
-npm run db:up             # Postgres 16 on localhost:5432 (docker-compose.dev.yml)
-npm run db:migrate        # apply the migrations in drizzle/
+npm run db:up             # Postgres on localhost:5432, Mailpit inbox on http://localhost:8025 (docker-compose.dev.yml)
+npm run db:migrate        # apply the migrations in drizzle/, create the job queues
 npm run dev               # http://localhost:3000
-npm run worker            # pg-boss worker, in a second terminal
+npm run worker            # pg-boss worker (sends the e-mails), in a second terminal
 
 npm run lint
 npm run typecheck         # next typegen (route types such as RouteContext), then tsc
@@ -66,11 +68,15 @@ npx vitest run -t "rejects"              # tests whose name matches
 
 npm run db:generate -- --name <change>   # after editing src/db/schema.ts; commit drizzle/
 npm run build             # next build, then the esbuild bundles in dist/
+
+npm run test:e2e          # Playwright, e2e/: reuses `npm run dev`, starts its own worker
+npx playwright test -g "under 18"        # tests whose name matches
+CI=1 npm run test:e2e     # after `npm run build`: against `next start`, rate limits on
 ```
 
-Playwright (end-to-end tests) is not set up yet; it comes with the first user flow.
+The end-to-end tests need `db:up` and `db:migrate`, and read the e-mails from Mailpit's API (`e2e/helpers.ts`). Each test sends its own `X-Forwarded-For`, so the auth rate limits count tests apart. Better Auth only applies them in production, hence the `CI=1` run.
 
-CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests, migrations and the build. It fails when `schema.ts` changes without a generated migration. It also starts the production stack with `docker compose up -d --build --wait worldup-web worldup-worker`, on a throwaway `traefik` network. To do the same locally, create that network and point `.env` at `worldup-db` (save the development `.env` first).
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests, migrations, the build and the end-to-end tests (with a Mailpit service). It fails when `schema.ts` changes without a generated migration. It also starts the production stack with `docker compose up -d --build --wait worldup-web worldup-worker`, on a throwaway `traefik` network. To do the same locally, create that network and point `.env` at `worldup-db` (save the development `.env` first).
 
 The spec defines these server commands:
 
@@ -115,6 +121,10 @@ The server decides everything: pack contents, timers and balances. The browser o
 ## Security and personal data
 
 - Passwords hashed with argon2id; rate limits on signup, login and pack opening.
+- Accounts (`src/lib/auth.ts`): Better Auth with e-mail and password, a confirmed address required before signing in, a public pseudo (unique whatever the case), a birth date (18+, checked in Paris time), terms acceptance stored in `consents`. Those checks run in a request hook before Better Auth, so a signup with a known address gets the same answer as any other (no account enumeration) and its owner gets an e-mail instead.
+- The forms call `/api/auth` from the browser (`src/lib/auth-client.ts`): Better Auth's rate limits apply to HTTP requests only, not to server-side `auth.api` calls. They are in memory (one web process) and key on the `X-Forwarded-For` header Traefik sets.
+- Server components read the session with `getSession()` / `requireSession()` (`src/lib/session.ts`). `getAuth()` builds the auth instance on first use, since `next build` loads the modules without the runtime secrets.
+- Sessions store no IP address or user agent (a database hook drops them).
 - `/admin` requires two-factor authentication, and every back-office action writes to `audit_log`.
 - Collect only e-mail, birth date and purchase history, and keep personal data out of technical logs. Account export and deletion are self-service from `/account`.
 - Multi-account detection uses the payment method and the normalised e-mail only: no device fingerprinting without consent.
@@ -124,6 +134,8 @@ The server decides everything: pack contents, timers and balances. The browser o
 
 - The reference design is the "World Up" design system in the Claude Design project linked in the spec's "Interface" section. Import it through the Claude Design MCP server (log in with `/design-login`), starting from `Design system World Up.dc.html`, `_ds/nocturne-b271f891-2d45-439d-a64e-f628131cb069/_ds_bundle.js`, `_ds/nocturne-b271f891-2d45-439d-a64e-f628131cb069/styles.css` and `support.js`.
 - Design tokens become CSS variables for the light and dark themes. Each component (card, button, badge, gauge, timer, purchase dialog) becomes a React component with the same variants and states as in Claude Design.
+- How it is wired: `design/Design system World Up.dc.html` is the mock-up kept for reference. `src/styles/nocturne.css` (the Nocturne base, imported in a cascade layer so everything else overrides it) and `src/styles/theme.css` (shared grounds, text and rarity colors) are global. The theme follows the system setting; `data-theme="dark"` or `"light"` forces it on any element. The accent family and the `--skin-*` variables come from `collections.theme`, validated by `src/lib/collection-theme.ts` and injected as a `<style>` by the root layout. Components live in `src/components/`, as CSS modules.
+- `/design` is the development showcase of every component, variant and state, in both themes: check UI changes there. It returns 404 in production.
 - Public card pages (`/c/heritage/cards/[slug]`) are the search-engine entry points. Each card shows its photo's author and licence with a link to the Commons file; the back shows the excerpt, the article link and "Texte : Wikipédia, licence CC BY-SA 4.0".
 - Targets: LCP under 2.5 s on mobile 4G (lazy-loaded WebP), Lighthouse mobile ≥ 90 performance and ≥ 95 accessibility on a card page, WCAG 2.1 AA. The pack-opening animation lasts at most 3 s, can be skipped, and becomes a simple fade under `prefers-reduced-motion`.
 

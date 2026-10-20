@@ -23,8 +23,17 @@ jobs:
           --health-cmd "pg_isready -U worldup -d worldup"
           --health-interval 5s
           --health-retries 10
+      # The worker delivers here; the end-to-end tests read the e-mails back.
+      mailpit:
+        image: axllent/mailpit:v1.29
+        ports: ["1025:1025", "8025:8025"]
     env:
       DATABASE_URL: postgres://worldup:worldup@localhost:5432/worldup
+      APP_URL: http://localhost:3000
+      AUTH_SECRET: ci-only-secret-for-throwaway-test-databases
+      SMTP_HOST: localhost
+      SMTP_PORT: 1025
+      MAIL_FROM: Patrimoine de France <no-reply@localhost>
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -42,6 +51,16 @@ jobs:
           test -z "$(git status --porcelain drizzle)"
       - run: npm run db:migrate
       - run: npm run build
+      # Against the production build (`next start`), where the rate limits are on.
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - name: Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
 
   # Same path as a deployment: build the image, migrate, then web turns healthy.
   compose:
@@ -53,8 +72,12 @@ jobs:
           docker network create traefik
           cat > .env <<'EOF'
           APP_DOMAIN=ci.localhost
+          APP_URL=https://ci.localhost
           POSTGRES_PASSWORD=ci
           DATABASE_URL=postgres://worldup:ci@worldup-db:5432/worldup
+          AUTH_SECRET=ci-only-secret-for-throwaway-test-databases
+          SMTP_HOST=localhost
+          MAIL_FROM=Patrimoine de France <no-reply@ci.localhost>
           EOF
           docker compose up -d --build --wait --wait-timeout 180 worldup-web worldup-worker
       - name: Stack logs

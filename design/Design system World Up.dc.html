@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/nocturne-b271f891-2d45-439d-a64e-f628131cb069/styles.css">
+  <script src="_ds/nocturne-b271f891-2d45-439d-a64e-f628131cb069/_ds_bundle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@500;600;700&display=swap">
+  <style>
+    body { margin: 0; background: var(--color-bg); }
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+    a { color: var(--color-accent); }
+    a:hover { color: var(--color-accent-300); }
+  </style>
+</helmet>
+<div style="{{ pageVars }}">
+<div style="min-height:100vh; background:var(--color-bg); color:var(--color-text); font-family:var(--font-body)">
+<div style="max-width:1440px; margin:0 auto; padding:0 48px 120px; display:flex; flex-direction:column; gap:80px">
+
+  <nav class="nav" style="position:sticky; top:0; z-index:20; flex-wrap:wrap; margin:0 -48px; padding:10px 48px; background:color-mix(in srgb, var(--color-bg) 90%, transparent); backdrop-filter:blur(10px)">
+    <span class="nav-brand" style="display:flex; align-items:center; gap:8px">World Up <span class="tag" style="font-size:10px; padding:2px 6px; background:var(--color-surface-2); color:var(--color-text-muted)">nom provisoire</span></span>
+    <a href="#couleurs" style="min-height:44px; display:flex; align-items:center">Couleurs</a>
+    <a href="#raretes" style="min-height:44px; display:flex; align-items:center">Raretés</a>
+    <a href="#typographie" style="min-height:44px; display:flex; align-items:center">Typographie</a>
+    <a href="#espacements" style="min-height:44px; display:flex; align-items:center">Espacements</a>
+    <a href="#composants" style="min-height:44px; display:flex; align-items:center">Composants</a>
+    <a href="#carte" style="min-height:44px; display:flex; align-items:center">La carte</a>
+  </nav>
+
+  <header data-screen-label="Introduction" style="display:flex; flex-direction:column; gap:14px; max-width:860px; padding-top:24px">
+    <span style="font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-accent)">Patrimoine de France · habillage 1a «&nbsp;Panneau touristique&nbsp;»</span>
+    <h1 style="margin:0; font-size:56px; line-height:1.05">Design system</h1>
+    <p style="margin:0; font-size:17px; line-height:1.55; color:var(--color-text-muted); text-wrap:pretty">Un socle commun à toutes les collections (fond neutre, Inter, boutons au trait, couleurs de rareté) et un habillage propre à chaque collection, qui ne remplace que l'accent et les variables <code style="font-family:ui-monospace, monospace; font-size:0.9em">--skin-*</code>. Les composants et les états de carte sont montrés dans les deux thèmes.</p>
+  </header>
+
+  <section id="couleurs" data-screen-label="01 Couleurs" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+      <span style="font-size:12px; letter-spacing:0.1em; color:var(--color-accent)">01</span>
+      <h2 style="margin:0; font-size:32px">Couleurs</h2>
+      <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Texte sur fond&nbsp;: 4,5:1 au minimum dans les deux thèmes. L'accent atteint 3:1 (icônes, traits, gros texte)&#8239;; pour le texte courant, on prend <code style="font-family:ui-monospace, monospace">--color-accent-strong</code>.</p>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table" style="min-width:760px">
+        <thead><tr><th>Token</th><th>Rôle</th><th>Sombre</th><th>Clair</th></tr></thead>
+        <tbody>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-bg</code></td><td>Fond</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#161826; box-shadow:inset 0 0 0 1px rgba(233,233,237,0.25)"></span>#161826</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#e4e7f5"></span>#e4e7f5</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-surface</code></td><td>Surface&nbsp;: barres, panneaux, fenêtres</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#232532; box-shadow:inset 0 0 0 1px rgba(233,233,237,0.25)"></span>#232532</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#f3f5fe"></span>#f3f5fe</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-surface-2</code></td><td>Surface surélevée, champs, récapitulatifs</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#2b2d3b; box-shadow:inset 0 0 0 1px rgba(233,233,237,0.25)"></span>#2b2d3b</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#eceffa"></span>#eceffa</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-text</code></td><td>Texte</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#e9e9ed"></span>#e9e9ed</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#292b31; box-shadow:inset 0 0 0 1px rgba(233,233,237,0.25)"></span>#292b31</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-text-muted</code></td><td>Texte secondaire</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#b2b6ca"></span>#b2b6ca</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#595d6c"></span>#595d6c</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-line</code></td><td>Filets et bordures</td><td>texte à 16&nbsp;%</td><td>texte à 16&nbsp;%</td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-track</code></td><td>Fond de jauge, réserve vide</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#3f424d"></span>#3f424d</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#cfd3e5"></span>#cfd3e5</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-accent</code></td><td style="display:flex; align-items:center; gap:8px">Accent de collection&nbsp;: traits, icônes, boutons <span class="tag tag-accent" style="font-size:10px; padding:2px 6px">habillage</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#d9a273"></span>#d9a273</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#8a5a34"></span>#8a5a34</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-accent-strong</code></td><td style="display:flex; align-items:center; gap:8px">Accent pour le texte courant <span class="tag tag-accent" style="font-size:10px; padding:2px 6px">habillage</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#ebc6a4"></span>#ebc6a4</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#6e4526"></span>#6e4526</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-accent-tint</code></td><td style="display:flex; align-items:center; gap:8px">Fond teinté d'accent <span class="tag tag-accent" style="font-size:10px; padding:2px 6px">habillage</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#4a3221"></span>#4a3221</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#efe0d0"></span>#efe0d0</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-on-accent</code></td><td style="display:flex; align-items:center; gap:8px">Texte posé sur l'accent <span class="tag tag-accent" style="font-size:10px; padding:2px 6px">habillage</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#161826; box-shadow:inset 0 0 0 1px rgba(233,233,237,0.25)"></span>#161826</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#f6efe7"></span>#f6efe7</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-success</code></td><td>Succès</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#4cc7a0"></span>#4cc7a0</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#16795b"></span>#16795b</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-warning</code></td><td>Alerte</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#f0a54a"></span>#f0a54a</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#995500"></span>#995500</span></td></tr>
+          <tr><td><code style="font-family:ui-monospace, monospace; font-size:13px">--color-danger</code></td><td>Erreur</td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#f2726f"></span>#f2726f</span></td><td><span style="display:inline-flex; align-items:center; gap:8px"><span style="width:18px; height:18px; border-radius:4px; background:#b52f2a"></span>#b52f2a</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:32px; align-items:flex-start">
+      <div style="flex:none; width:220px; height:140px; border-radius:10px; background:#5a3820; box-shadow:inset 0 0 0 6px #5a3820, inset 0 0 0 8.5px #efe3d4; display:flex; flex-direction:column; justify-content:flex-end; gap:4px; padding:20px; color:#f6efe7; font-family:var(--skin-display-font)">
+        <span style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#e2cdb9">Habillage</span>
+        <span style="font-size:22px; font-weight:700; line-height:1.02">Patrimoine<br>de France</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; flex:1; min-width:280px">
+        <h3 style="margin:0; font-size:20px">Habillage «&nbsp;Patrimoine de France&nbsp;»</h3>
+        <p style="margin:0; font-size:14px; color:var(--color-text-muted); max-width:620px; text-wrap:pretty">Le brun et le filet crème des panneaux touristiques. Identiques dans les deux thèmes&nbsp;: la carte et le paquet sont des objets, pas des surfaces d'interface.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:20px">
+          <div style="display:flex; align-items:center; gap:8px"><span style="width:28px; height:28px; border-radius:6px; background:#5a3820"></span><span style="display:flex; flex-direction:column; font-size:12px; line-height:1.35"><code style="font-family:ui-monospace, monospace">--skin-fill</code><span style="color:var(--color-text-muted)">Brun panneau #5a3820</span></span></div>
+          <div style="display:flex; align-items:center; gap:8px"><span style="width:28px; height:28px; border-radius:6px; background:#efe3d4"></span><span style="display:flex; flex-direction:column; font-size:12px; line-height:1.35"><code style="font-family:ui-monospace, monospace">--skin-fill-ink</code><span style="color:var(--color-text-muted)">Filet crème #efe3d4</span></span></div>
+          <div style="display:flex; align-items:center; gap:8px"><span style="width:28px; height:28px; border-radius:6px; background:#f6efe7"></span><span style="display:flex; flex-direction:column; font-size:12px; line-height:1.35"><code style="font-family:ui-monospace, monospace">--skin-card-ink</code><span style="color:var(--color-text-muted)">Texte sur brun #f6efe7 · 9,6:1</span></span></div>
+          <div style="display:flex; align-items:center; gap:8px"><span style="width:28px; height:28px; border-radius:6px; background:#e2cdb9"></span><span style="display:flex; flex-direction:column; font-size:12px; line-height:1.35"><code style="font-family:ui-monospace, monospace">--skin-card-muted</code><span style="color:var(--color-text-muted)">Secondaire sur brun #e2cdb9 · 7,1:1</span></span></div>
+          <div style="display:flex; align-items:center; gap:8px"><span style="width:28px; height:28px; border-radius:6px; display:grid; place-items:center; background:var(--color-surface-2); font-family:var(--skin-display-font); font-weight:700">Aa</span><span style="display:flex; flex-direction:column; font-size:12px; line-height:1.35"><code style="font-family:ui-monospace, monospace">--skin-display-font</code><span style="color:var(--color-text-muted)">Overpass, police d'appoint</span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="raretes" data-screen-label="02 Raretés" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+      <span style="font-size:12px; letter-spacing:0.1em; color:var(--color-accent)">02</span>
+      <h2 style="margin:0; font-size:32px">Raretés</h2>
+      <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Communes à toutes les collections. La rareté n'est jamais portée par la seule couleur&nbsp;: le bandeau affiche toujours son nom et de 1 à 6 repères en losange. L'encre du bandeau (#161826) dépasse 4,5:1 sur les six couleurs.</p>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table" style="min-width:760px">
+        <thead><tr><th>Bandeau</th><th>Part du catalogue</th><th>Cartes</th><th>Remplissage</th><th>Trait, thème clair</th></tr></thead>
+        <tbody>
+          <tr><td><span style="display:inline-flex; align-items:center; justify-content:space-between; gap:12px; width:190px; height:28px; padding:0 10px; border-radius:4px; background:#ef5a55; color:#161826"><span style="font-size:12px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase">Légendaire</span><span style="display:flex; gap:4px"><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span></span></span></td><td style="font-variant-numeric:tabular-nums">0,25&nbsp;%</td><td style="font-variant-numeric:tabular-nums">67</td><td>#ef5a55</td><td><span style="color:#c4302b; background:#f3f5fe; padding:2px 6px; border-radius:3px">#c4302b</span></td></tr>
+          <tr><td><span style="display:inline-flex; align-items:center; justify-content:space-between; gap:12px; width:190px; height:28px; padding:0 10px; border-radius:4px; background:#e8b84b; color:#161826"><span style="font-size:12px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase">Ultra rare</span><span style="display:flex; gap:4px"><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span></span></span></td><td style="font-variant-numeric:tabular-nums">2,5&nbsp;%</td><td style="font-variant-numeric:tabular-nums">669</td><td>#e8b84b</td><td><span style="color:#8a6100; background:#f3f5fe; padding:2px 6px; border-radius:3px">#8a6100</span></td></tr>
+          <tr><td><span style="display:inline-flex; align-items:center; justify-content:space-between; gap:12px; width:190px; height:28px; padding:0 10px; border-radius:4px; background:#b87df2; color:#161826"><span style="font-size:12px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase">Super rare</span><span style="display:flex; gap:4px"><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span></span></span></td><td style="font-variant-numeric:tabular-nums">7&nbsp;%</td><td style="font-variant-numeric:tabular-nums">1&#8239;873</td><td>#b87df2</td><td><span style="color:#8040c0; background:#f3f5fe; padding:2px 6px; border-radius:3px">#8040c0</span></td></tr>
+          <tr><td><span style="display:inline-flex; align-items:center; justify-content:space-between; gap:12px; width:190px; height:28px; padding:0 10px; border-radius:4px; background:#4f9cf0; color:#161826"><span style="font-size:12px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase">Rare</span><span style="display:flex; gap:4px"><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span></span></span></td><td style="font-variant-numeric:tabular-nums">20&nbsp;%</td><td style="font-variant-numeric:tabular-nums">5&#8239;351</td><td>#4f9cf0</td><td><span style="color:#1f66c2; background:#f3f5fe; padding:2px 6px; border-radius:3px">#1f66c2</span></td></tr>
+          <tr><td><span style="display:inline-flex; align-items:center; justify-content:space-between; gap:12px; width:190px; height:28px; padding:0 10px; border-radius:4px; background:#4cc27a; color:#161826"><span style="font-size:12px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase">Peu commune</span><span style="display:flex; gap:4px"><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span></span></span></td><td style="font-variant-numeric:tabular-nums">20&nbsp;%</td><td style="font-variant-numeric:tabular-nums">5&#8239;351</td><td>#4cc27a</td><td><span style="color:#1d7f45; background:#f3f5fe; padding:2px 6px; border-radius:3px">#1d7f45</span></td></tr>
+          <tr><td><span style="display:inline-flex; align-items:center; justify-content:space-between; gap:12px; width:190px; height:28px; padding:0 10px; border-radius:4px; background:#a9a398; color:#161826"><span style="font-size:12px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase">Commune</span><span style="display:flex; gap:4px"><span style="width:6px; height:6px; transform:rotate(45deg); background:#161826"></span></span></span></td><td style="font-variant-numeric:tabular-nums">50,25&nbsp;%</td><td style="font-variant-numeric:tabular-nums">13&#8239;444</td><td>#a9a398</td><td><span style="color:#6e695e; background:#f3f5fe; padding:2px 6px; border-radius:3px">#6e695e</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:0; font-size:13px; color:var(--color-text-muted); max-width:760px; text-wrap:pretty">Le trait sert aux cartes manquantes et aux filtres sur fond clair, là où le remplissage serait trop pâle.</p>
+  </section>
+
+  <section id="typographie" data-screen-label="03 Typographie" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+      <span style="font-size:12px; letter-spacing:0.1em; color:var(--color-accent)">03</span>
+      <h2 style="margin:0; font-size:32px">Typographie</h2>
+      <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Inter pour les titres, le texte et les chiffres (tabulaires). Overpass, la police d'appoint de l'habillage, ne sert qu'au paquet, aux en-têtes de série et aux noms sur la carte. Titres au poids 500&nbsp;: la hiérarchie passe par la taille et l'espace.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:160px minmax(0, 1fr); gap:20px 32px; align-items:baseline">
+      <span style="font-size:12px; color:var(--color-text-muted)">Titre 1 · 42/1,12</span><span style="font-size:42px; font-weight:500; line-height:1.12; letter-spacing:-0.015em">Patrimoine de France</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Titre 2 · 32</span><span style="font-size:32px; font-weight:500; line-height:1.12; letter-spacing:-0.015em">Mes séries</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Titre 3 · 25</span><span style="font-size:25px; font-weight:500; line-height:1.12">Ouverture de paquet</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Titre 4 · 20</span><span style="font-size:20px; font-weight:500; line-height:1.2">Dernières cartes</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Texte · 15/1,55</span><span style="font-size:15px; line-height:1.55; max-width:640px; text-wrap:pretty">Un paquet gratuit arrive toutes les 10&nbsp;minutes, même quand vous n'êtes pas connecté. La réserve en garde 10 au plus.</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Petit · 13</span><span style="font-size:13px; line-height:1.5">Les probabilités de chaque rareté sont publiques.</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Légende · 12</span><span style="font-size:12px; line-height:1.45; color:var(--color-text-muted)">Photo&nbsp;: Benh LIEU SONG · domaine public</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Chiffres · tabulaires</span><span style="font-size:25px; font-weight:500; font-variant-numeric:tabular-nums">26&#8239;755 · 04:32 · 1,99&nbsp;€ · 4,8&nbsp;%</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Habillage · Overpass 700</span><span style="font-family:var(--skin-display-font); font-size:28px; font-weight:700; line-height:1.05">Patrimoine de France</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Nom de carte · Overpass 500</span><span style="font-family:var(--skin-display-font); font-size:22px; font-weight:500; line-height:1.15">Cathédrale Saint-Gervais-et-Saint-Protais de Soissons</span>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:12px 28px; font-size:13px; color:var(--color-text-muted)">
+      <span>«&nbsp;Guillemets français&nbsp;»</span>
+      <span>Espace insécable avant :&nbsp;;&nbsp;!&nbsp;?</span>
+      <span>Espace fine dans les nombres&nbsp;: 26&#8239;755</span>
+      <span>Virgule décimale&nbsp;: 1,99&nbsp;€</span>
+      <span>Signe ×&nbsp;: ×2, ×3</span>
+    </div>
+  </section>
+
+  <section id="espacements" data-screen-label="04 Espacements" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+      <span style="font-size:12px; letter-spacing:0.1em; color:var(--color-accent)">04</span>
+      <h2 style="margin:0; font-size:32px">Espacements et rayons</h2>
+      <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">L'échelle compacte de Nocturne (densité 0,7). Seule exception à la densité&nbsp;: toute zone tactile fait 44&nbsp;px au moins.</p>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:48px; align-items:flex-end">
+      <div style="display:flex; align-items:flex-end; gap:20px">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:var(--space-1); height:40px; background:var(--color-accent); border-radius:1px"></span><span style="font-size:12px; color:var(--color-text-muted)">space-1</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:var(--space-2); height:40px; background:var(--color-accent); border-radius:1px"></span><span style="font-size:12px; color:var(--color-text-muted)">space-2</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:var(--space-3); height:40px; background:var(--color-accent); border-radius:1px"></span><span style="font-size:12px; color:var(--color-text-muted)">space-3</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:var(--space-4); height:40px; background:var(--color-accent); border-radius:1px"></span><span style="font-size:12px; color:var(--color-text-muted)">space-4</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:var(--space-6); height:40px; background:var(--color-accent); border-radius:1px"></span><span style="font-size:12px; color:var(--color-text-muted)">space-6</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:var(--space-8); height:40px; background:var(--color-accent); border-radius:1px"></span><span style="font-size:12px; color:var(--color-text-muted)">space-8</span></div>
+      </div>
+      <div style="display:flex; align-items:flex-end; gap:20px">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:56px; height:56px; border-radius:var(--radius-sm); box-shadow:inset 0 0 0 1px var(--color-accent)"></span><span style="font-size:12px; color:var(--color-text-muted)">radius-sm · 4</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:56px; height:56px; border-radius:var(--radius-md); box-shadow:inset 0 0 0 1px var(--color-accent)"></span><span style="font-size:12px; color:var(--color-text-muted)">radius-md · 8</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:56px; height:56px; border-radius:var(--radius-lg); box-shadow:inset 0 0 0 1px var(--color-accent)"></span><span style="font-size:12px; color:var(--color-text-muted)">radius-lg · 14</span></div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:44px; height:44px; display:grid; place-items:center; border-radius:var(--radius-md); background:var(--color-accent-tint); color:var(--color-accent); font-size:20px"><i class="ph ph-hand-tap"></i></span><span style="font-size:12px; color:var(--color-text-muted)">Zone tactile · 44 × 44</span></div>
+    </div>
+  </section>
+
+  <section id="composants" data-screen-label="05 Composants" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+      <span style="font-size:12px; letter-spacing:0.1em; color:var(--color-accent)">05</span>
+      <h2 style="margin:0; font-size:32px">Composants</h2>
+      <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Boutons au trait, jamais remplis. Les deux colonnes sont interactives&nbsp;: onglets, affichage, case de renonciation.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 600px), 1fr)); gap:24px; align-items:start">
+      <sc-for list="{{ themes }}" as="t" hint-placeholder-count="2">
+        <div style="{{ t.vars }}">
+          <div style="display:flex; flex-direction:column; gap:36px; padding:28px; border-radius:var(--radius-lg); background:var(--color-bg); color:var(--color-text); box-shadow:0 0 0 1px var(--color-line)">
+            <span style="font-size:13px; color:var(--color-text-muted)">{{ t.label }}</span>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-text-muted)">Boutons</h3>
+              <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center">
+                <button type="button" class="btn btn-primary" style="min-height:44px; padding:0 16px; gap:8px"><i class="ph ph-package" style="font-size:18px"></i>Ouvrir un paquet</button>
+                <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 16px">Voir la collection</button>
+                <button type="button" class="btn btn-ghost" style="min-height:44px; padding:0 10px">Lire les règles</button>
+                <button type="button" class="btn btn-secondary btn-icon" aria-label="Informations" style="width:44px; height:44px"><i class="ph ph-info" style="font-size:20px"></i></button>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center">
+                <button type="button" class="btn btn-primary" disabled="{{ true }}" style="min-height:44px; padding:0 16px; gap:8px"><i class="ph ph-package" style="font-size:18px"></i>Aucun paquet</button>
+                <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 16px">Résilier mon abonnement</button>
+                <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 16px; color:var(--color-danger); border-color:var(--color-danger)">Supprimer le compte</button>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-text-muted)">Badges</h3>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center">
+                <span class="tag" style="border:1px solid var(--color-line); color:var(--color-text-muted)">Classé MH</span>
+                <span class="tag" style="border:1px solid var(--color-line); color:var(--color-text-muted)">Inscrit MH</span>
+                <span class="tag" style="border:1px solid var(--color-line); color:var(--color-text-muted)">UNESCO</span>
+                <span class="tag" style="background:var(--color-accent); color:var(--color-on-accent); font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase">Nouveau</span>
+                <span class="tag" style="background:var(--color-text); color:var(--color-bg); font-weight:600; font-variant-numeric:tabular-nums; border-radius:999px">×2</span>
+                <span class="tag tag-outline" style="gap:4px"><i class="ph-fill ph-sparkle"></i>Brillante</span>
+                <span class="tag tag-accent" style="gap:4px"><i class="ph ph-medal"></i>Abonné</span>
+                <span class="tag" style="background:var(--color-surface-2); color:var(--color-text-muted)">nom provisoire</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center">
+                <span class="tag" style="gap:5px; background:var(--color-success-tint); color:var(--color-success)"><i class="ph ph-check"></i>Échange accepté</span>
+                <span class="tag" style="gap:5px; background:var(--color-warning-tint); color:var(--color-warning)"><i class="ph ph-hourglass"></i>En attente</span>
+                <span class="tag" style="gap:5px; background:var(--color-danger-tint); color:var(--color-danger)"><i class="ph ph-x"></i>Refusé</span>
+                <span class="tag" style="gap:5px; border:1px dashed var(--color-warning); color:var(--color-warning)">Prix fictif</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:8px">
+                <sc-for list="{{ t.rar }}" as="r" hint-placeholder-count="6">
+                  <span style="display:inline-flex; align-items:center; gap:7px; height:24px; padding:0 8px; border-radius:4px; background:{{ r.c }}; color:#161826; font-size:10.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase">{{ r.label }}<span aria-hidden="true" style="display:flex; gap:3px"><sc-for list="{{ r.pips }}" as="p"><span style="width:5px; height:5px; transform:rotate(45deg); background:#161826"></span></sc-for></span></span>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-text-muted)">Jauges</h3>
+              <div style="display:flex; flex-direction:column; gap:7px">
+                <div style="display:flex; justify-content:space-between; gap:12px; font-size:13px"><span>Ma collection</span><span style="color:var(--color-text-muted); font-variant-numeric:tabular-nums">1&#8239;284 / 26&#8239;755 · 4,8&nbsp;%</span></div>
+                <div style="height:6px; border-radius:3px; background:var(--color-track); overflow:hidden"><div style="width:4.8%; height:100%; background:var(--color-accent)"></div></div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:7px">
+                <div style="display:flex; justify-content:space-between; gap:12px; font-size:13px"><span>Sites UNESCO</span><span style="color:var(--color-text-muted); font-variant-numeric:tabular-nums">23 / 57 · 40&nbsp;%</span></div>
+                <div style="height:6px; border-radius:3px; background:var(--color-track); overflow:hidden"><div style="width:40%; height:100%; background:var(--color-accent)"></div></div>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; padding:14px; border-radius:var(--radius-md); background:var(--color-surface)">
+                <div style="display:flex; flex-direction:column; gap:7px">
+                  <span style="font-size:13px">Dépensé ce mois-ci</span>
+                  <div style="height:6px; border-radius:3px; background:var(--color-track); overflow:hidden"><div style="width:43%; height:100%; background:var(--color-accent)"></div></div>
+                  <span style="font-size:12px; color:var(--color-text-muted); font-variant-numeric:tabular-nums">12,98&nbsp;€ sur 30&nbsp;€</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:7px">
+                  <span style="font-size:13px">Dépensé ce mois-ci</span>
+                  <div style="height:6px; border-radius:3px; background:var(--color-track); overflow:hidden"><div style="width:90%; height:100%; background:var(--color-warning)"></div></div>
+                  <span style="display:flex; gap:5px; font-size:12px; color:var(--color-warning); font-variant-numeric:tabular-nums"><i class="ph ph-warning" style="margin-top:2px"></i>Plus que 3,03&nbsp;€ ce mois-ci</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:7px">
+                  <span style="font-size:13px">Dépensé ce mois-ci</span>
+                  <div style="height:6px; border-radius:3px; background:var(--color-track); overflow:hidden"><div style="width:100%; height:100%; background:var(--color-danger)"></div></div>
+                  <span style="display:flex; gap:5px; font-size:12px; color:var(--color-danger)"><i class="ph ph-prohibit" style="margin-top:2px; flex:none"></i><span>Plafond atteint, achats bloqués jusqu'au 1<sup>er</sup>&nbsp;novembre</span></span>
+                </div>
+              </div>
+              <span style="font-size:12px; color:var(--color-text-muted)">Montants fictifs.</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-text-muted)">Onglets et affichage</h3>
+              <div role="tablist" aria-label="Filtrer la collection" style="display:flex; gap:2px; overflow-x:auto; box-shadow:inset 0 -1px 0 var(--color-line)">
+                <sc-for list="{{ t.tabs }}" as="tb" hint-placeholder-count="4">
+                  <button type="button" role="tab" aria-selected="{{ tb.on }}" onClick="{{ tb.onClick }}" style="display:flex; align-items:center; gap:6px; min-height:44px; padding:0 12px; background:transparent; border:0; border-radius:var(--radius-sm) var(--radius-sm) 0 0; cursor:pointer; font:inherit; font-size:14px; white-space:nowrap; color:{{ tb.col }}; box-shadow:{{ tb.sh }}" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">{{ tb.label }}<span style="font-size:12px; color:var(--color-text-muted); font-variant-numeric:tabular-nums">{{ tb.n }}</span></button>
+                </sc-for>
+              </div>
+              <div class="seg" role="radiogroup" aria-label="Affichage" style="align-self:flex-start">
+                <label class="seg-opt" style="min-height:44px; padding:0 14px"><input type="radio" name="{{ t.segName }}" checked="{{ t.segGrid }}" onChange="{{ t.onGrid }}"><i class="ph ph-squares-four" style="font-size:16px"></i>Grille</label>
+                <label class="seg-opt" style="min-height:44px; padding:0 14px"><input type="radio" name="{{ t.segName }}" checked="{{ t.segList }}" onChange="{{ t.onList }}"><i class="ph ph-list" style="font-size:16px"></i>Liste</label>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-text-muted)">Minuteur et réserve</h3>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px">
+                <div style="display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:var(--radius-md); background:var(--color-surface)">
+                  <div style="display:flex; align-items:flex-end; gap:16px">
+                    <div style="flex:1; display:flex; flex-direction:column; gap:7px">
+                      <div style="display:flex; align-items:baseline; gap:6px"><span style="font-size:24px; font-weight:500; line-height:1; font-variant-numeric:tabular-nums">7/10</span><span style="font-size:12px; color:var(--color-text-muted)">paquets</span></div>
+                      <div aria-hidden="true" style="display:flex; gap:3px"><sc-for list="{{ t.pips7 }}" as="p" hint-placeholder-count="10"><span style="flex:1; height:4px; border-radius:2px; background:{{ p.c }}"></span></sc-for></div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px">
+                      <span style="font-size:12px; color:var(--color-text-muted)">Prochain</span>
+                      <span style="display:flex; align-items:center; gap:5px; font-size:18px; line-height:1; font-variant-numeric:tabular-nums"><i class="ph ph-timer" style="color:var(--color-accent)"></i>{{ t.timer }}</span>
+                    </div>
+                  </div>
+                  <span style="font-size:12px; color:var(--color-text-muted)">En cours&nbsp;: un paquet toutes les 10&nbsp;minutes.</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:var(--radius-md); background:var(--color-surface)">
+                  <div style="display:flex; align-items:flex-end; gap:16px">
+                    <div style="flex:1; display:flex; flex-direction:column; gap:7px">
+                      <div style="display:flex; align-items:baseline; gap:6px"><span style="font-size:24px; font-weight:500; line-height:1; font-variant-numeric:tabular-nums">10/10</span><span style="font-size:12px; color:var(--color-text-muted)">paquets</span></div>
+                      <div aria-hidden="true" style="display:flex; gap:3px"><sc-for list="{{ t.pips10 }}" as="p" hint-placeholder-count="10"><span style="flex:1; height:4px; border-radius:2px; background:{{ p.c }}"></span></sc-for></div>
+                    </div>
+                    <span class="tag tag-accent" style="gap:4px; flex:none; white-space:nowrap"><i class="ph ph-pause"></i>Réserve pleine</span>
+                  </div>
+                  <span style="font-size:12px; color:var(--color-text-muted)">Le minuteur reprend à la prochaine ouverture.</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:var(--radius-md); background:var(--color-surface)">
+                  <div style="display:flex; align-items:flex-end; gap:16px">
+                    <div style="flex:1; display:flex; flex-direction:column; gap:7px">
+                      <div style="display:flex; align-items:baseline; gap:6px"><span style="font-size:24px; font-weight:500; line-height:1; font-variant-numeric:tabular-nums">0/10</span><span style="font-size:12px; color:var(--color-text-muted)">paquet</span></div>
+                      <div aria-hidden="true" style="display:flex; gap:3px"><sc-for list="{{ t.pips0 }}" as="p" hint-placeholder-count="10"><span style="flex:1; height:4px; border-radius:2px; background:{{ p.c }}"></span></sc-for></div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px">
+                      <span style="font-size:12px; color:var(--color-text-muted)">Prochain</span>
+                      <span style="display:flex; align-items:center; gap:5px; font-size:18px; line-height:1; font-variant-numeric:tabular-nums"><i class="ph ph-timer" style="color:var(--color-accent)"></i>09:12</span>
+                    </div>
+                  </div>
+                  <span style="font-size:12px; color:var(--color-text-muted)">Réserve vide&nbsp;: on attend, ou on passe par la <a href="#" style="color:var(--color-accent-strong)">boutique</a>.</span>
+                </div>
+                <div style="display:flex; flex-direction:column; justify-content:center; gap:10px; padding:14px; border-radius:var(--radius-md); background:var(--color-surface)">
+                  <div style="display:inline-flex; align-self:flex-start; align-items:center; gap:10px; min-height:44px; padding:0 12px; border-radius:999px; box-shadow:inset 0 0 0 1px var(--color-line); font-size:14px; font-variant-numeric:tabular-nums">
+                    <span style="display:flex; align-items:center; gap:5px"><i class="ph ph-package" style="font-size:18px; color:var(--color-accent)"></i>7</span>
+                    <span style="width:1px; height:16px; background:var(--color-line)"></span>
+                    <span style="display:flex; align-items:center; gap:5px"><i class="ph ph-timer" style="font-size:18px; color:var(--color-accent)"></i>{{ t.timer }}</span>
+                  </div>
+                  <span style="font-size:12px; color:var(--color-text-muted)">Version compacte, pour l'en-tête.</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-text-muted)">Fenêtre d'achat</h3>
+              <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start; padding:20px; border-radius:var(--radius-md); background:color-mix(in srgb, var(--color-text) 6%, transparent)">
+                <div class="dialog" role="dialog" aria-label="Acheter un paquet" style="flex:1 1 360px">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin:-6px -8px -4px 0">
+                    <span class="dialog-title">Acheter un paquet</span>
+                    <button type="button" class="btn btn-ghost btn-icon" aria-label="Fermer" style="width:44px; height:44px; color:var(--color-text-muted)"><i class="ph ph-x" style="font-size:20px"></i></button>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:var(--radius-md); background:var(--color-surface-2)">
+                    <span aria-hidden="true" style="flex:none; width:40px; height:52px; border-radius:5px; background:#5a3820; box-shadow:inset 0 0 0 3px #5a3820, inset 0 0 0 4.5px #efe3d4"></span>
+                    <div style="flex:1; display:flex; flex-direction:column; gap:2px; min-width:0"><span style="font-size:14px">Paquet Patrimoine de France</span><span style="font-size:12px; color:var(--color-text-muted)">5 cartes tirées au hasard</span></div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end"><span style="font-size:18px; font-weight:500; font-variant-numeric:tabular-nums">1,99&nbsp;€</span><span style="font-size:11px; color:var(--color-text-muted)">TTC</span></div>
+                  </div>
+                  <span class="tag" style="align-self:flex-start; border:1px dashed var(--color-warning); color:var(--color-warning)">Prix fictif, à définir</span>
+                  <div style="display:flex; flex-direction:column; gap:8px">
+                    <span style="font-size:13px">Probabilités par carte</span>
+                    <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:6px 16px">
+                      <sc-for list="{{ t.rar }}" as="r" hint-placeholder-count="6">
+                        <div style="display:flex; align-items:center; gap:8px; font-size:12px"><span aria-hidden="true" style="display:flex; gap:2px; width:34px"><sc-for list="{{ r.pips }}" as="p"><span style="width:4px; height:4px; transform:rotate(45deg); background:{{ r.line }}"></span></sc-for></span><span style="flex:1">{{ r.label }}</span><span style="font-variant-numeric:tabular-nums; color:var(--color-text-muted)">{{ r.part }}</span></div>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <label style="position:relative; display:flex; gap:10px; align-items:flex-start; min-height:44px; padding:4px 0; cursor:pointer; font-size:13px; line-height:1.45">
+                    <input type="checkbox" checked="{{ t.agree }}" onChange="{{ t.onAgree }}" style="position:absolute; opacity:0; width:1px; height:1px">
+                    <span aria-hidden="true" style="flex:none; width:20px; height:20px; margin-top:1px; display:grid; place-items:center; border-radius:4px; border-width:1.5px; border-style:solid; border-color:{{ t.boxLine }}; background:{{ t.boxBg }}; color:var(--color-on-accent); font-size:14px"><sc-if value="{{ t.agree }}" hint-placeholder-val="{{ false }}"><i class="ph ph-check"></i></sc-if></span>
+                    <span>Je demande l'ouverture immédiate de mon paquet et je renonce à mon droit de rétractation.</span>
+                  </label>
+                  <div style="display:flex; flex-direction:column; gap:6px; font-size:12px; line-height:1.45; color:var(--color-text-muted)">
+                    <span style="display:flex; gap:6px"><i class="ph ph-gauge" style="margin-top:2px"></i>Plafond mensuel&nbsp;: 17,02&nbsp;€ disponibles sur 30&nbsp;€.</span>
+                    <span style="display:flex; gap:6px"><i class="ph ph-info" style="margin-top:2px"></i>Les cartes et la monnaie virtuelle n'ont aucune valeur en argent et ne se revendent pas contre de l'argent.</span>
+                  </div>
+                  <div class="dialog-actions">
+                    <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 16px">Annuler</button>
+                    <button type="button" class="btn btn-primary" disabled="{{ t.payDisabled }}" style="min-height:44px; padding:0 16px">Payer 1,99&nbsp;€</button>
+                  </div>
+                </div>
+                <div class="dialog" role="dialog" aria-label="Paiement confirmé" style="flex:1 1 260px">
+                  <span style="width:44px; height:44px; display:grid; place-items:center; border-radius:50%; background:var(--color-success-tint); color:var(--color-success); font-size:24px"><i class="ph ph-check-circle"></i></span>
+                  <span class="dialog-title">Paiement confirmé</span>
+                  <div class="dialog-body" style="display:flex; flex-direction:column; gap:6px"><span>Paquet Patrimoine de France · 1,99&nbsp;€ TTC (prix fictif).</span><span style="font-size:13px; color:var(--color-text-muted)">Le reçu est dans Compte › Historique des achats.</span></div>
+                  <div class="dialog-actions" style="flex-wrap:wrap">
+                    <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 16px">Fermer</button>
+                    <button type="button" class="btn btn-primary" style="min-height:44px; padding:0 16px; gap:8px"><i class="ph ph-package" style="font-size:18px"></i>Ouvrir mon paquet</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="carte" data-screen-label="06 La carte" style="display:flex; flex-direction:column; gap:56px">
+    <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+      <span style="font-size:12px; letter-spacing:0.1em; color:var(--color-accent)">06</span>
+      <h2 style="margin:0; font-size:32px">La carte</h2>
+      <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Lisible à 160&nbsp;px dans la grille mobile, grand format à partir de 300&nbsp;px. Le cadre est celui de l'habillage&nbsp;; le bandeau, la structure et les états appartiennent au socle.</p>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; gap:32px; align-items:flex-start">
+      <div style="display:flex; flex-direction:column; gap:10px; width:320px">
+        <dc-import name="Carte" card="{{ c.eiffel }}" taille="grand" retournable="{{ true }}" exemplaires="{{ 2 }}" cadrage="{{ cadrage }}" hint-size="320px,500px"></dc-import>
+        <span style="font-size:12px; color:var(--color-text-muted)">Recto · cliquer ou Entrée pour retourner</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; width:320px">
+        <dc-import name="Carte" card="{{ c.eiffel }}" taille="grand" face="verso" exemplaires="{{ 2 }}" cadrage="{{ cadrage }}" hint-size="320px,500px"></dc-import>
+        <span style="font-size:12px; color:var(--color-text-muted)">Verso</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:20px; flex:1; min-width:280px; max-width:440px">
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <h3 style="margin:0; font-size:20px">Recto</h3>
+          <ol style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px; font-size:14px; line-height:1.45; color:var(--color-text-muted)">
+            <li><span style="color:var(--color-text)">Bandeau de rareté</span>&nbsp;: couleur, nom, 1 à 6 repères.</li>
+            <li><span style="color:var(--color-text)">Photo 4:3</span> recadrée au centre&#8239;; verticales et panoramas posés sur un fond flouté de la même photo.</li>
+            <li><span style="color:var(--color-text)">Nom</span>, 3 lignes au plus.</li>
+            <li><span style="color:var(--color-text)">Lieu</span>&nbsp;: département, plus la région en grand format.</li>
+            <li><span style="color:var(--color-text)">Badges</span>&nbsp;: Classé MH ou Inscrit MH, UNESCO.</li>
+            <li><span style="color:var(--color-text)">Numéro</span> dans la série régionale.</li>
+          </ol>
+          <p style="margin:0; font-size:13px; color:var(--color-text-muted); text-wrap:pretty">Crédit photo sous l'image en grand format, derrière le «&nbsp;i&nbsp;» en grille.</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <h3 style="margin:0; font-size:20px">Verso</h3>
+          <p style="margin:0; font-size:14px; line-height:1.45; color:var(--color-text-muted); text-wrap:pretty">Extrait de l'article et lien, mention «&nbsp;Texte&nbsp;: Wikipédia, licence CC BY-SA 4.0&nbsp;», crédit photo complet avec lien vers Commons, exemplaires possédés.</p>
+          <p style="margin:0; font-size:12px; color:var(--color-text-muted); text-wrap:pretty">Les extraits de cette page sont provisoires, rédigés pour la maquette&nbsp;: l'intégration reprendra l'extrait réel de chaque article.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <h3 style="margin:0; font-size:20px">Les six raretés, grille 160&nbsp;px</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, 160px); gap:24px; padding-top:6px">
+        <dc-import name="Carte" card="{{ c.notredame }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.soissons }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.isle }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.napoleon }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.compiegne }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.horloge }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <div style="display:flex; flex-direction:column; gap:8px">
+          <dc-import name="Carte" card="{{ c.thoronet }}" face="verso" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        </div>
+      </div>
+      <span style="font-size:12px; color:var(--color-text-muted)">La dernière carte montre le verso en grille&nbsp;: extrait abrégé, crédit et exemplaires, sans lien (l'appui ouvre la fiche).</span>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <h3 style="margin:0; font-size:20px">Les six raretés, grand format</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, 300px); gap:28px">
+        <dc-import name="Carte" card="{{ c.chambord }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import>
+        <dc-import name="Carte" card="{{ c.thoronet }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import>
+        <dc-import name="Carte" card="{{ c.stuarts }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import>
+        <dc-import name="Carte" card="{{ c.napoleon }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import>
+        <dc-import name="Carte" card="{{ c.compiegne }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import>
+        <dc-import name="Carte" card="{{ c.attigny }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+        <h3 style="margin:0; font-size:20px">États</h3>
+        <p style="margin:0; font-size:14px; color:var(--color-text-muted); text-wrap:pretty">Proposition pour les manquantes&nbsp;: nom visible pour aider à compléter une série, nom masqué pour les Légendaires et Ultra rares, qui gardent leur surprise. Brillante, proposition&nbsp;: 1 tirage sur 25, toutes raretés, compté comme un exemplaire de plus.</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 600px), 1fr)); gap:24px; align-items:start">
+        <sc-for list="{{ themes }}" as="t" hint-placeholder-count="2">
+          <div style="{{ t.vars }}">
+            <div style="display:flex; flex-direction:column; gap:20px; padding:28px; border-radius:var(--radius-lg); background:var(--color-bg); color:var(--color-text); box-shadow:0 0 0 1px var(--color-line)">
+              <span style="font-size:13px; color:var(--color-text-muted)">{{ t.label }}</span>
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, 160px); gap:28px 24px; padding-top:6px">
+                <div style="display:flex; flex-direction:column; gap:8px"><dc-import name="Carte" card="{{ t.c.napoleon }}" cadrage="{{ t.cadrage }}" hint-size="160px,250px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Possédée</span></div>
+                <div style="display:flex; flex-direction:column; gap:8px"><dc-import name="Carte" card="{{ t.c.thoronet }}" nouveau="{{ true }}" cadrage="{{ t.cadrage }}" hint-size="160px,250px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Nouvelle</span></div>
+                <div style="display:flex; flex-direction:column; gap:8px"><dc-import name="Carte" card="{{ t.c.compiegne }}" doublon="{{ 3 }}" cadrage="{{ t.cadrage }}" hint-size="160px,250px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Doublon ×3</span></div>
+                <div style="display:flex; flex-direction:column; gap:8px"><dc-import name="Carte" card="{{ t.c.stuarts }}" brillante="{{ true }}" cadrage="{{ t.cadrage }}" hint-size="160px,250px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Brillante</span></div>
+                <div style="display:flex; flex-direction:column; gap:8px"><dc-import name="Carte" card="{{ t.c.attigny }}" selectionnee="{{ true }}" cadrage="{{ t.cadrage }}" hint-size="160px,250px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Sélectionnée pour un échange</span></div>
+                <div style="display:flex; flex-direction:column; gap:8px"><dc-import name="Carte" card="{{ t.c.horloge }}" etat="manquante" cadrage="{{ t.cadrage }}" hint-size="160px,250px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Manquante, nom visible</span></div>
+                <div style="display:flex; flex-direction:column; gap:8px"><dc-import name="Carte" card="{{ t.c.chambord }}" etat="masquee" cadrage="{{ t.cadrage }}" hint-size="160px,250px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Manquante, nom masqué</span></div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+        <h3 style="margin:0; font-size:20px">Cas limites</h3>
+        <p style="margin:0; font-size:14px; color:var(--color-text-muted); text-wrap:pretty">Hors du rapport 1,1 à 1,9, la photo entière se pose sur un fond flouté d'elle-même au lieu d'être tronquée. Le réglage «&nbsp;Cadrage&nbsp;» permet de comparer avec un recadrage centré strict.</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, 300px); gap:28px">
+        <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="Carte" card="{{ c.gard }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Panorama 12&#8239;648 × 4&#8239;882</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="Carte" card="{{ c.soissons }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Nom de 53 caractères, auteur non renseigné</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="Carte" card="{{ c.horloge }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Photo de 396 × 528&nbsp;px</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="Carte" card="{{ c.isle }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Photo de 768 × 1&#8239;024&nbsp;px</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="Carte" card="{{ c.boyard }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,470px"></dc-import><span style="font-size:12px; color:var(--color-text-muted)">Photo indisponible&nbsp;: aplat au nom du monument</span></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, 160px); gap:24px; padding-top:6px">
+        <dc-import name="Carte" card="{{ c.eiffel }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.gard }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.soissons }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.horloge }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+        <dc-import name="Carte" card="{{ c.boyard }}" cadrage="{{ cadrage }}" hint-size="160px,250px"></dc-import>
+      </div>
+    </div>
+  </section>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;cadrage&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Fond flouté&quot;,&quot;Recadrage centré&quot;],&quot;default&quot;:&quot;Fond flouté&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Carte&quot;},&quot;themes&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Les deux&quot;,&quot;Sombre&quot;,&quot;Clair&quot;],&quot;default&quot;:&quot;Les deux&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Thèmes&quot;}}">
+class Component extends DCLogic {
+  state = { sec: 272, agree: [false, false], tab: [0, 0], seg: ['grille', 'grille'] };
+  componentDidMount() {
+    this.t = setInterval(() => this.setState(s => ({ sec: s.sec > 0 ? s.sec - 1 : 599 })), 1000);
+  }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const P = (f, w) => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + f + (w ? '?width=' + w : '');
+    const mk = (f, o, w = 640) => Object.assign({ photo: P(f, w), fichier: 'https://commons.wikimedia.org/wiki/File:' + f }, o);
+    const c = {
+      eiffel: mk('Tour_Eiffel_Wikimedia_Commons.jpg', { nom: 'tour Eiffel', rarete: 'legendaire', dept: 'Paris', region: 'Île-de-France', classement: 'Inscrit MH', unesco: true, serie: 'Île-de-France', num: 1, total: 2386, w: 2900, h: 5367, auteur: 'Benh LIEU SONG', licence: 'domaine public', wiki: 'https://fr.wikipedia.org/wiki/Tour_Eiffel', extrait: 'Élevée par l’entreprise de Gustave Eiffel pour l’Exposition universelle de 1889, la tour de fer puddlé domine le Champ-de-Mars du haut de ses 330 mètres. D’abord décriée par une partie des artistes, elle est devenue l’emblème de Paris et l’un des monuments les plus visités au monde.' }, 720),
+      notredame: mk('Notre-Dame_de_Paris_2013-07-24.jpg', { nom: 'cathédrale Notre-Dame de Paris', rarete: 'legendaire', dept: 'Paris', region: 'Île-de-France', classement: 'Classé MH', unesco: true, serie: 'Île-de-France', num: 2, total: 2386, auteur: 'P e z i', licence: 'CC BY-SA 3.0' }),
+      chambord: mk('France_Loir-et-Cher_Chambord_Chateau_03.jpg', { nom: 'château de Chambord', rarete: 'legendaire', dept: 'Loir-et-Cher', region: 'Centre-Val de Loire', classement: 'Classé MH', unesco: true, serie: 'Centre-Val de Loire', num: 1, total: 1874, auteur: 'Calips', licence: 'CC BY-SA 3.0' }),
+      gard: mk('Pont_du_Gard_BLS.jpg', { nom: 'pont du Gard', rarete: 'legendaire', dept: 'Gard', region: 'Occitanie', classement: 'Classé MH', unesco: true, serie: 'Occitanie', num: 2, total: 3512, w: 12648, h: 4882, auteur: 'Benh LIEU SONG', licence: 'CC BY-SA 3.0' }),
+      boyard: { nom: 'fort Boyard', rarete: 'legendaire', dept: 'Charente-Maritime', region: 'Nouvelle-Aquitaine', classement: 'Inscrit MH', serie: 'Nouvelle-Aquitaine', num: 3, total: 4135, auteur: 'ERIC SALARD', licence: 'CC BY-SA 2.0', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Photo_indisponible_maquette.jpg', fichier: 'https://commons.wikimedia.org/wiki/File:Fort_Boyard_%2851269094270%29.jpg' },
+      thoronet: mk('Thoronet_Cloister_Garden.JPG', { nom: 'abbaye du Thoronet', rarete: 'ultra', dept: 'Var', region: 'Provence-Alpes-Côte d’Azur', classement: 'Classé MH', serie: 'Provence-Alpes-Côte d’Azur', num: 4, total: 1452, auteur: 'SiefkinDR', licence: 'domaine public', wiki: 'https://fr.wikipedia.org/wiki/Abbaye_du_Thoronet', extrait: 'Fondée par des moines cisterciens au XIIe siècle dans un vallon boisé du Var, l’abbaye forme avec Sénanque et Silvacane les « trois sœurs provençales ». Son architecture dépouillée, toute de pierre nue, a profondément marqué Le Corbusier.' }),
+      soissons: mk('Soissons-cathedrale-facade.jpg', { nom: 'cathédrale Saint-Gervais-et-Saint-Protais de Soissons', rarete: 'ultra', dept: 'Aisne', region: 'Hauts-de-France', classement: 'Classé MH', serie: 'Hauts-de-France', num: 7, total: 1911, auteur: null, licence: 'CC BY-SA 2.5' }),
+      stuarts: mk('AUBIGNY-SUR-N%C3%88RE_-_CH%C3%82TEAU_DES_STUARTS_-_COUR.JPG', { nom: 'château des Stuarts', rarete: 'super', dept: 'Cher', region: 'Centre-Val de Loire', classement: 'Classé MH', serie: 'Centre-Val de Loire', num: 31, total: 1874, auteur: 'MOSSOT', licence: 'CC BY-SA 3.0' }),
+      isle: mk('Palais_de_l%27Isle_Annecy_%28%C3%A9t%C3%A9_2005%29.jpg', { nom: 'palais de l’Isle', rarete: 'super', dept: 'Haute-Savoie', region: 'Auvergne-Rhône-Alpes', classement: 'Classé MH', serie: 'Auvergne-Rhône-Alpes', num: 18, total: 3197, w: 768, h: 1024, auteur: 'Droopy nico', licence: 'CC BY-SA 1.0' }),
+      napoleon: mk('Statue_r%C3%A9nov%C3%A9e_de_Napol%C3%A9on_Ier_%C3%A0_Cherbourg-en-Cotentin.jpg', { nom: 'monument à Napoléon', rarete: 'rare', dept: 'Manche', region: 'Normandie', classement: 'Classé MH', serie: 'Normandie', num: 112, total: 2241, auteur: 'JMEnault, Ville de Cherbourg-en-Cotentin', licence: 'CC BY-SA 4.0' }),
+      compiegne: mk('Remparts_de_Compi%C3%A8gne.jpg', { nom: 'remparts de Compiègne', rarete: 'peu', dept: 'Oise', region: 'Hauts-de-France', classement: 'Inscrit MH', serie: 'Hauts-de-France', num: 486, total: 1911, auteur: 'Raisonnier', licence: 'CC BY-SA 3.0' }),
+      attigny: mk('%C3%89glise_Notre-Dame_d%27Attigny.JPG', { nom: 'église Notre-Dame d’Attigny', rarete: 'commune', dept: 'Ardennes', region: 'Grand Est', classement: 'Classé MH', serie: 'Grand Est', num: 1204, total: 2752, auteur: 'Adri08', licence: 'CC BY-SA 3.0' }),
+      horloge: mk('Nevers_beffroi_01.JPG', { nom: 'tour de l’Horloge', rarete: 'commune', dept: 'Nièvre', region: 'Bourgogne-Franche-Comté', classement: 'Inscrit MH', serie: 'Bourgogne-Franche-Comté', num: 1873, total: 2398, w: 396, h: 528, auteur: 'Cypris', licence: 'CC BY-SA 3.0' }, null),
+    };
+    const SKIN = {
+      '--skin-fill': '#5a3820', '--skin-fill-ink': '#efe3d4',
+      '--skin-card-bg': '#5a3820', '--skin-card-border': '1px solid #3b2414',
+      '--skin-card-shadow': 'inset 0 0 0 3px #5a3820, inset 0 0 0 4.5px #efe3d4',
+      '--skin-card-ink': '#f6efe7', '--skin-card-muted': '#e2cdb9', '--skin-card-line': 'rgba(239,227,212,0.45)',
+      '--skin-name-font': '"Overpass", var(--font-body)', '--skin-name-weight': '500', '--skin-name-scale': '0.96', '--skin-name-tracking': '0',
+      '--skin-display-font': '"Overpass", var(--font-body)', '--skin-photo-bg': '#2a1a0e',
+    };
+    const DARK = {
+      '--color-bg': '#161826', '--color-surface': '#232532', '--color-surface-2': '#2b2d3b',
+      '--color-text': '#e9e9ed', '--color-text-muted': '#b2b6ca',
+      '--color-line': 'rgba(233,233,237,0.16)', '--color-divider': 'rgba(233,233,237,0.16)', '--color-track': '#3f424d',
+      '--color-accent': '#d9a273', '--color-accent-strong': '#ebc6a4', '--color-accent-300': '#ebc6a4', '--color-accent-tint': '#4a3221',
+      '--color-accent-800': '#4a3221', '--color-accent-100': '#f7ebe0', '--color-on-accent': '#161826',
+      '--color-success': '#4cc7a0', '--color-warning': '#f0a54a', '--color-danger': '#f2726f',
+      '--color-success-tint': '#1f3a33', '--color-warning-tint': '#3d2f1c', '--color-danger-tint': '#432427',
+      '--shadow-sm': '0 0 0 1px #3f424d', '--shadow-md': '0 0 0 1px #595d6c, 0 6px 18px rgba(0,0,0,0.55)', '--shadow-lg': '0 0 0 1px #595d6c, 0 16px 40px rgba(0,0,0,0.6)',
+      '--card-miss-bg': '#1b1d2a', '--card-miss-line': '#595d6c', '--card-miss-ink': '#b2b6ca', '--card-miss-muted': '#9397ab', '--card-miss-photo': '#10121c',
+      '--card-miss-filter': 'grayscale(1) brightness(0.45) contrast(1.1)',
+    };
+    const LIGHT = {
+      '--color-bg': '#e4e7f5', '--color-surface': '#f3f5fe', '--color-surface-2': '#eceffa',
+      '--color-text': '#292b31', '--color-text-muted': '#595d6c',
+      '--color-line': 'rgba(41,43,49,0.16)', '--color-divider': 'rgba(41,43,49,0.18)', '--color-track': '#cfd3e5',
+      '--color-accent': '#8a5a34', '--color-accent-strong': '#6e4526', '--color-accent-300': '#6e4526', '--color-accent-tint': '#efe0d0',
+      '--color-accent-800': '#efe0d0', '--color-accent-100': '#4a2d17', '--color-on-accent': '#f6efe7',
+      '--color-success': '#16795b', '--color-warning': '#995500', '--color-danger': '#b52f2a',
+      '--color-success-tint': '#e1f3ec', '--color-warning-tint': '#f8ead6', '--color-danger-tint': '#fbe6e4',
+      '--shadow-sm': '0 0 0 1px #cfd3e5', '--shadow-md': '0 0 0 1px #cfd3e5, 0 6px 18px rgba(41,43,49,0.12)', '--shadow-lg': '0 0 0 1px #b2b6ca, 0 16px 40px rgba(41,43,49,0.18)',
+      '--card-miss-bg': '#eceffa', '--card-miss-line': '#9397ab', '--card-miss-ink': '#3f424d', '--card-miss-muted': '#595d6c', '--card-miss-photo': '#dfe2ef',
+      '--card-miss-filter': 'grayscale(1) brightness(1.1) contrast(0.6)',
+      '--rar-line-legendaire': '#c4302b', '--rar-line-ultra': '#8a6100', '--rar-line-super': '#8040c0', '--rar-line-rare': '#1f66c2', '--rar-line-peu': '#1d7f45', '--rar-line-commune': '#6e695e',
+    };
+    const pipsOf = n => Array.from({ length: n }, (_, i) => i);
+    const RAR = [
+      ['Légendaire', '#ef5a55', '#c4302b', 6, '0,25\u00a0%'], ['Ultra rare', '#e8b84b', '#8a6100', 5, '2,5\u00a0%'],
+      ['Super rare', '#b87df2', '#8040c0', 4, '7\u00a0%'], ['Rare', '#4f9cf0', '#1f66c2', 3, '20\u00a0%'],
+      ['Peu commune', '#4cc27a', '#1d7f45', 2, '20\u00a0%'], ['Commune', '#a9a398', '#6e695e', 1, '50,25\u00a0%'],
+    ];
+    const TABS = [['Toutes', '26\u202f755'], ['Possédées', '1\u202f284'], ['Manquantes', '25\u202f471'], ['Doublons', '212']];
+    const s = this.state.sec;
+    const timer = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    const cadrage = this.props.cadrage === 'Recadrage centré' ? 'centre' : 'auto';
+    const pips = n => Array.from({ length: 10 }, (_, i) => ({ c: i < n ? 'var(--color-accent)' : 'var(--color-track)' }));
+    const upd = (key, i, v) => this.setState(st => { const a = st[key].slice(); a[i] = typeof v === 'function' ? v(a[i]) : v; return { [key]: a }; });
+    const all = [['Thème sombre', DARK, true], ['Thème clair', LIGHT, false]].map(([label, vars, dark], i) => {
+      const agree = this.state.agree[i];
+      return {
+        label, c, cadrage, timer,
+        vars: Object.assign({}, vars, SKIN),
+        rar: RAR.map(([l, col, line, n, part]) => ({ label: l, c: col, line: dark ? col : line, pips: pipsOf(n), part })),
+        pips7: pips(7), pips10: pips(10), pips0: pips(0),
+        agree, onAgree: () => upd('agree', i, a => !a), payDisabled: !agree,
+        boxBg: agree ? 'var(--color-accent)' : 'transparent', boxLine: agree ? 'var(--color-accent)' : 'var(--color-text-muted)',
+        tabs: TABS.map(([tl, n], j) => {
+          const on = this.state.tab[i] === j;
+          return { label: tl, n, on, col: on ? 'var(--color-text)' : 'var(--color-text-muted)', sh: on ? 'inset 0 -2px 0 var(--color-accent)' : 'none', onClick: () => upd('tab', i, j) };
+        }),
+        segName: 'affichage-' + i, segGrid: this.state.seg[i] === 'grille', segList: this.state.seg[i] === 'liste',
+        onGrid: () => upd('seg', i, 'grille'), onList: () => upd('seg', i, 'liste'),
+      };
+    });
+    const show = this.props.themes || 'Les deux';
+    const themes = show === 'Sombre' ? [all[0]] : show === 'Clair' ? [all[1]] : all;
+    return {
+      c, cadrage, themes,
+      pageVars: Object.assign({}, show === 'Clair' ? LIGHT : DARK, SKIN),
+    };
+  }
+}
+</script>
+</body>
+</html>

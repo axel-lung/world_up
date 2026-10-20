@@ -1,0 +1,37 @@
+/* Shared by the signup, login and password forms, and the account page forms. */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.intro {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.inlineLink {
+  align-self: flex-start;
+  margin-top: -8px;
+  font-size: 13px;
+}
+
+.footer {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}

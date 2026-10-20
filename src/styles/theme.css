@@ -1,0 +1,154 @@
+/* World Up base layer over Nocturne: the light and dark themes and the rarity
+   colors shared by every collection. Values come from the DARK and LIGHT maps of
+   design/Design system World Up.dc.html. The accent family (--color-accent*) and
+   the --skin-* variables belong to each collection: see src/lib/collection-theme.ts.
+
+   The theme follows the system setting; data-theme="dark" or "light" forces one,
+   on <html> or on any element. */
+
+:root {
+  --font-heading: var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+
+  /* Rarity fills and the ink printed on them (over 4.5:1 on all six). */
+  --rar-legendary: #ef5a55;
+  --rar-ultra: #e8b84b;
+  --rar-super: #b87df2;
+  --rar-rare: #4f9cf0;
+  --rar-uncommon: #4cc27a;
+  --rar-common: #a9a398;
+  --rar-ink: #161826;
+}
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #161826;
+  --color-surface: #232532;
+  --color-surface-2: #2b2d3b;
+  --color-text: #e9e9ed;
+  --color-text-muted: #b2b6ca;
+  --color-line: rgba(233, 233, 237, 0.16);
+  --color-divider: rgba(233, 233, 237, 0.16);
+  --color-track: #3f424d;
+  --color-success: #4cc7a0;
+  --color-warning: #f0a54a;
+  --color-danger: #f2726f;
+  --color-success-tint: #1f3a33;
+  --color-warning-tint: #3d2f1c;
+  --color-danger-tint: #432427;
+  --shadow-sm: 0 0 0 1px #3f424d;
+  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 0 0 1px #595d6c, 0 16px 40px rgba(0, 0, 0, 0.6);
+
+  /* Missing cards: a dashed outline and a greyed photo. */
+  --card-miss-bg: #1b1d2a;
+  --card-miss-line: #595d6c;
+  --card-miss-ink: #b2b6ca;
+  --card-miss-muted: #9397ab;
+  --card-miss-photo: #10121c;
+  --card-miss-filter: grayscale(1) brightness(0.45) contrast(1.1);
+
+  /* Rarity strokes (missing cards, filters): the fill itself on a dark ground. */
+  --rar-line-legendary: var(--rar-legendary);
+  --rar-line-ultra: var(--rar-ultra);
+  --rar-line-super: var(--rar-super);
+  --rar-line-rare: var(--rar-rare);
+  --rar-line-uncommon: var(--rar-uncommon);
+  --rar-line-common: var(--rar-common);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-bg: #e4e7f5;
+    --color-surface: #f3f5fe;
+    --color-surface-2: #eceffa;
+    --color-text: #292b31;
+    --color-text-muted: #595d6c;
+    --color-line: rgba(41, 43, 49, 0.16);
+    --color-divider: rgba(41, 43, 49, 0.18);
+    --color-track: #cfd3e5;
+    --color-success: #16795b;
+    --color-warning: #995500;
+    --color-danger: #b52f2a;
+    --color-success-tint: #e1f3ec;
+    --color-warning-tint: #f8ead6;
+    --color-danger-tint: #fbe6e4;
+    --shadow-sm: 0 0 0 1px #cfd3e5;
+    --shadow-md: 0 0 0 1px #cfd3e5, 0 6px 18px rgba(41, 43, 49, 0.12);
+    --shadow-lg: 0 0 0 1px #b2b6ca, 0 16px 40px rgba(41, 43, 49, 0.18);
+    --card-miss-bg: #eceffa;
+    --card-miss-line: #9397ab;
+    --card-miss-ink: #3f424d;
+    --card-miss-muted: #595d6c;
+    --card-miss-photo: #dfe2ef;
+    --card-miss-filter: grayscale(1) brightness(1.1) contrast(0.6);
+    --rar-line-legendary: #c4302b;
+    --rar-line-ultra: #8a6100;
+    --rar-line-super: #8040c0;
+    --rar-line-rare: #1f66c2;
+    --rar-line-uncommon: #1d7f45;
+    --rar-line-common: #6e695e;
+  }
+}
+
+/* Same values as the media query above, for a forced light theme. */
+[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #e4e7f5;
+  --color-surface: #f3f5fe;
+  --color-surface-2: #eceffa;
+  --color-text: #292b31;
+  --color-text-muted: #595d6c;
+  --color-line: rgba(41, 43, 49, 0.16);
+  --color-divider: rgba(41, 43, 49, 0.18);
+  --color-track: #cfd3e5;
+  --color-success: #16795b;
+  --color-warning: #995500;
+  --color-danger: #b52f2a;
+  --color-success-tint: #e1f3ec;
+  --color-warning-tint: #f8ead6;
+  --color-danger-tint: #fbe6e4;
+  --shadow-sm: 0 0 0 1px #cfd3e5;
+  --shadow-md: 0 0 0 1px #cfd3e5, 0 6px 18px rgba(41, 43, 49, 0.12);
+  --shadow-lg: 0 0 0 1px #b2b6ca, 0 16px 40px rgba(41, 43, 49, 0.18);
+  --card-miss-bg: #eceffa;
+  --card-miss-line: #9397ab;
+  --card-miss-ink: #3f424d;
+  --card-miss-muted: #595d6c;
+  --card-miss-photo: #dfe2ef;
+  --card-miss-filter: grayscale(1) brightness(1.1) contrast(0.6);
+  --rar-line-legendary: #c4302b;
+  --rar-line-ultra: #8a6100;
+  --rar-line-super: #8040c0;
+  --rar-line-rare: #1f66c2;
+  --rar-line-uncommon: #1d7f45;
+  --rar-line-common: #6e695e;
+}
+
+/* data-rarity="<key>" exposes that rarity's fill and stroke to its subtree. */
+[data-rarity="legendary"] { --rar-fill: var(--rar-legendary); --rar-line: var(--rar-line-legendary); }
+[data-rarity="ultra"] { --rar-fill: var(--rar-ultra); --rar-line: var(--rar-line-ultra); }
+[data-rarity="super"] { --rar-fill: var(--rar-super); --rar-line: var(--rar-line-super); }
+[data-rarity="rare"] { --rar-fill: var(--rar-rare); --rar-line: var(--rar-line-rare); }
+[data-rarity="uncommon"] { --rar-fill: var(--rar-uncommon); --rar-line: var(--rar-line-uncommon); }
+[data-rarity="common"] { --rar-fill: var(--rar-common); --rar-line: var(--rar-line-common); }
+
+/* An element with data-theme paints its own ground. */
+[data-theme] {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+a:hover { color: var(--color-accent-300); }
+
+/* Read by screen readers, invisible on screen. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
