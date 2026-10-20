@@ -45,6 +45,10 @@ Tests: `python -m unittest discover -s scripts`.
 - **Slug**: from the article title, which is unique on Wikipedia (`chateau-de-chambord`). The import keeps a card's slug once it exists, so its public address never changes.
 - **Series**: region, family (except "Autres"), Patrimoine mondial de l'UNESCO, Patrimoine en péril.
 
+## Replacing the rejected photos of rare cards
+
+The spec asks for a photo chosen by hand when a rare card's photo is rejected. `python scripts/suggest_photos.py data/cards.json data/photo_candidates.csv` lists, for each legendary, ultra rare and super rare card without a usable photo (pass other rarities as extra arguments), the three best files among the monument's other Wikidata photos and its Commons category, checked against the same rules. Look at them on Commons, then either put the chosen file in `photo_overrides.csv` and run the pipeline again from step 6, or set it on the card in the back-office.
+
 ## Export
 
 `import/` holds `catalog.json` and `images/`, where each photo is `<sha1>-400.webp` and `<sha1>-800.webp`. The name comes from the photo's SHA-1 on Commons, so a new photo always gets a new file name: the game serves them with a one-year cache.

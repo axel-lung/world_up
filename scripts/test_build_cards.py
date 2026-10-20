@@ -57,6 +57,11 @@ class PhotoTest(unittest.TestCase):
         self.assertEqual(card["photo"]["commons_file"], "Better.jpg")
         self.assertIsNone(card["hidden_reason"])
 
+    def test_letterbox_matches_the_card_component(self):
+        self.assertFalse(bc.needs_letterbox(4000, 3000))
+        self.assertTrue(bc.needs_letterbox(2900, 5367))
+        self.assertTrue(bc.needs_letterbox(12648, 4882))
+
     def test_cleans_generated_author_lines(self):
         self.assertEqual(bc.clean_author("No machine-readable author provided. Calips assumed (based on copyright claims)."), "Calips")
         self.assertIsNone(bc.clean_author("Unknown authorUnknown author"))

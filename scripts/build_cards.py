@@ -135,6 +135,12 @@ def photo_problem(info):
     return None
 
 
+def needs_letterbox(width, height):
+    """Shown whole on a blurred copy instead of cropped to 4:3, as the card component does."""
+    ratio = width / height
+    return ratio < 1.1 or ratio > 1.9
+
+
 def clean_author(text):
     """Simplifies the author lines Commons generates, None when unknown."""
     text = re.sub(r"No machine-readable author provided\. (.+?) assumed \(based on copyright claims\)\.?",
