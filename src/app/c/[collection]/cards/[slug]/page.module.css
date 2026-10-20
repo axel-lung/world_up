@@ -159,3 +159,54 @@
     font-size: 40px;
   }
 }
+
+.report summary {
+  cursor: pointer;
+  color: var(--color-accent-strong);
+}
+
+.reportForm {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.reportForm :global(.field) {
+  align-self: stretch;
+}
+
+.reportForm textarea {
+  resize: vertical;
+}
+
+.reportTypes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.reportTypes legend {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.reportTypes label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.sources {
+  font-size: 14px;
+}

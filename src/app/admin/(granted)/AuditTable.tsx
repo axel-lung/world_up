@@ -12,6 +12,8 @@ const ACTION_LABELS = {
   'card.show': 'cardShow',
   'card.rarity': 'cardRarity',
   'card.photo': 'cardPhoto',
+  'report.resolve': 'reportResolve',
+  'report.dismiss': 'reportDismiss',
 } as const;
 const actionLabel = (action: string) => ACTION_LABELS[action as keyof typeof ACTION_LABELS];
 
@@ -21,6 +23,8 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
 
   const reason = (value: unknown) =>
     typeof value === 'string' ? t(`card.hiddenReasons.${value as 'admin'}`) : t('cards.visible');
+  const reportStatus = (value: unknown) =>
+    ['open', 'resolved', 'dismissed'].includes(value as string) ? t(`reports.statuses.${value as 'open'}`) : String(value);
   const rarity = (value: unknown) => (RARITIES.includes(value as Rarity) ? tRarity(value as Rarity) : String(value));
   function describe(row: AuditRow): string {
     const details = row.details as { from?: unknown; to?: unknown; note?: string };
@@ -29,7 +33,9 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
         ? `${reason(details.from)} → ${reason(details.to)}`
         : row.action === 'card.rarity'
           ? `${rarity(details.from)} → ${rarity(details.to)}`
-          : `${details.from ?? t('card.none')} → ${details.to ?? t('card.none')}`;
+          : row.action.startsWith('report.')
+            ? `${reportStatus(details.from)} → ${reportStatus(details.to)}`
+            : `${details.from ?? t('card.none')} → ${details.to ?? t('card.none')}`;
     return details.note ? `${change} · ${details.note}` : change;
   }
 
@@ -55,6 +61,8 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
                 <td>
                   {row.targetType === 'card' ? (
                     <Link href={`/admin/cards/${row.targetId}`}>#{row.targetId}</Link>
+                  ) : row.targetType === 'report' ? (
+                    <Link href="/admin/reports">#{row.targetId}</Link>
                   ) : (
                     `${row.targetType} ${row.targetId}`
                   )}

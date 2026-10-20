@@ -8,6 +8,7 @@ import styles from '../admin.module.css';
 const LINKS = [
   { href: '/admin', key: 'dashboard' },
   { href: '/admin/cards', key: 'cards' },
+  { href: '/admin/reports', key: 'reports' },
   { href: '/admin/audit', key: 'audit' },
 ] as const;
 

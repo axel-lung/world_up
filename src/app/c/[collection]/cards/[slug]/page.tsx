@@ -12,6 +12,7 @@ import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { articleUrl, cardImageUrl, cardPath, commonsFileUrl, getVisibleCard, type VisibleCard } from '@/lib/catalog/cards';
 import { getSession } from '@/lib/session';
 import styles from './page.module.css';
+import { ReportForm } from './ReportForm';
 
 // Public card pages are the game's entry points from search engines: the
 // photo, the excerpt and their credits, readable without an account.
@@ -139,6 +140,10 @@ export default async function CardPage({ params }: PageProps<'/c/[collection]/ca
               link: external(commonsFileUrl(card.photoCommonsFile!)),
             })}
           </p>
+          <Link href="/credits" className={styles.sources}>
+            {t('sources')}
+          </Link>
+          {session && <ReportForm cardId={card.id} />}
         </section>
 
         {!session && (

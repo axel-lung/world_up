@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 "Patrimoine de France" is a web collectible card game: adult players (18+) open packs of cards depicting protected French monuments, build a collection, and can pay for a subscription or single packs. The specification, [docs/cahier-des-charges-developpement.md](docs/cahier-des-charges-developpement.md) (in French), is the source of truth: read the section relevant to a task before implementing it.
 
-Lot 1 (technical foundation, design system integration, player accounts) is validated in staging. Lot 2, the catalogue, is in progress: the Python pipeline (`scripts/`), the import, the public card pages and the catalogue back-office (`/admin`, with two-factor authentication) are written; the full catalogue still has to be imported and validated in staging. Player reports (signalements) are not built yet.
+Lot 1 (technical foundation, design system integration, player accounts) is validated in staging. Lot 2, the catalogue, is in progress: the Python pipeline (`scripts/`), the import, the public card pages and the catalogue back-office (`/admin`, with two-factor authentication) are written; player reports (signalements, from the card page to `/admin/reports`) and `/credits` too. The full catalogue still has to be imported and validated in staging.
 
 - "worldup" is a placeholder project name (containers, volumes, network, database). It will be replaced everywhere once the game is named, so keep it in config and env files rather than scattered through application code.
 - Work proceeds in delivery lots, each validated in staging before the next: 1 foundations, 2 catalogue, 3 game, 4 payments (only after a lawyer has validated the setup), 5 closed beta and launch.

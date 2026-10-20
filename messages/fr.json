@@ -1,7 +1,8 @@
 {
   "Metadata": {
     "title": "Patrimoine de France",
-    "description": "Ouvrez des paquets et collectionnez les monuments du patrimoine français."
+    "description": "Ouvrez des paquets et collectionnez les monuments du patrimoine français.",
+    "creditsDescription": "D'où viennent les monuments, les textes et les photos des cartes de Patrimoine de France, et sous quelles licences."
   },
   "HomePage": {
     "title": "Patrimoine de France",
@@ -208,7 +209,28 @@
     "collectHeading": "Collectionnez cette carte",
     "collectText": "Créez votre compte : 10 paquets de 5 cartes vous attendent pour commencer votre collection.",
     "signup": "Créer un compte",
-    "login": "Se connecter"
+    "login": "Se connecter",
+    "report": {
+      "summary": "Signaler un problème sur cette carte",
+      "intro": "Photo inadaptée, texte erroné, crédit manquant ? Dites-nous ce qui ne va pas : chaque signalement est examiné.",
+      "type": "Ce qui pose problème",
+      "types": {
+        "photo": "La photo",
+        "text": "Le texte",
+        "other": "Autre chose"
+      },
+      "message": "Votre message",
+      "messageHint": "Entre 10 et 1 000 caractères.",
+      "submit": "Envoyer le signalement",
+      "sent": "Merci : votre signalement a été transmis.",
+      "errors": {
+        "invalid": "Choisissez ce qui pose problème et écrivez un message de 10 à 1 000 caractères.",
+        "tooMany": "Vous avez envoyé beaucoup de signalements aujourd'hui : réessayez demain.",
+        "notFound": "Cette carte n'est plus disponible.",
+        "signedOut": "Connectez-vous pour signaler un problème."
+      }
+    },
+    "sources": "Sources et crédits"
   },
   "Pack": {
     "packs": "{count, plural, one {paquet} other {paquets}}",
@@ -250,7 +272,8 @@
       "dashboard": "Tableau de bord",
       "cards": "Cartes",
       "audit": "Journal",
-      "site": "Retour au site"
+      "site": "Retour au site",
+      "reports": "Signalements"
     },
     "twoFactor": {
       "title": "Double authentification",
@@ -284,7 +307,8 @@
       },
       "empty": "Le catalogue est vide : lancez l'import (scripts/README.md).",
       "recent": "Dernières actions",
-      "seeAll": "Tout le journal"
+      "seeAll": "Tout le journal",
+      "reports": "Signalements à traiter"
     },
     "cards": {
       "title": "Cartes",
@@ -387,12 +411,58 @@
         "cardHide": "Carte masquée",
         "cardShow": "Carte rendue visible",
         "cardRarity": "Rareté changée",
-        "cardPhoto": "Photo remplacée"
+        "cardPhoto": "Photo remplacée",
+        "reportResolve": "Signalement traité",
+        "reportDismiss": "Signalement écarté"
       },
       "empty": "Aucune action pour l'instant.",
       "deletedAdmin": "compte supprimé",
       "previous": "Plus récentes",
       "next": "Plus anciennes"
+    },
+    "reports": {
+      "title": "Signalements",
+      "open": "À traiter",
+      "closed": "Traités récemment",
+      "when": "Date",
+      "card": "Carte",
+      "type": "Objet",
+      "message": "Message",
+      "by": "Par",
+      "status": "Suite",
+      "actions": "Actions",
+      "types": {
+        "photo": "Photo",
+        "text": "Texte",
+        "other": "Autre"
+      },
+      "statuses": {
+        "open": "à traiter",
+        "resolved": "traité",
+        "dismissed": "écarté"
+      },
+      "resolve": "Traité",
+      "dismiss": "Écarté",
+      "empty": "Aucun signalement à traiter.",
+      "emptyClosed": "Aucun signalement traité pour l'instant.",
+      "deletedPlayer": "compte supprimé",
+      "alreadyClosed": "Ce signalement a déjà été traité."
     }
+  },
+  "Credits": {
+    "title": "Sources et crédits",
+    "intro": "Les cartes de Patrimoine de France sont faites à partir de données ouvertes. Chaque carte crédite le texte et la photo qu'elle reprend.",
+    "monumentsTitle": "Les monuments",
+    "monuments": "La liste des monuments, leur protection (classé ou inscrit au titre des monuments historiques, patrimoine mondial de l'UNESCO) et leur localisation viennent de <link>Wikidata</link>, publié dans le domaine public (CC0). Chaque monument retenu a un identifiant de la base Mérimée du ministère de la Culture.",
+    "textsTitle": "Les textes",
+    "texts": "Les extraits sont tirés des articles de <link>Wikipédia en français</link>, sous licence Creative Commons Attribution – Partage dans les mêmes conditions 4.0 (CC BY-SA 4.0). Le verso de chaque carte et sa fiche renvoient à l'article.",
+    "photosTitle": "Les photos",
+    "photos": "Les photos viennent de <link>Wikimedia Commons</link>. Chaque carte indique l'auteur et la licence de sa photo, avec un lien vers le fichier d'origine. Les photos sont copiées sur nos serveurs : votre navigateur ne contacte jamais Wikimedia en jouant.",
+    "rarityTitle": "La rareté",
+    "rarity": "La rareté d'une carte reflète la notoriété du monument : elle vient du nombre de visites de son article sur Wikipédia pendant douze mois, d'après les données « clickstream » publiées par la Wikimedia Foundation.",
+    "reportTitle": "Une erreur ?",
+    "report": "Un crédit manque, une photo ne convient pas, un texte est faux : connectez-vous et utilisez « Signaler un problème » sur la fiche de la carte.",
+    "notAffiliated": "Patrimoine de France n'est ni affilié à la Wikimedia Foundation ni soutenu par elle. Wikipédia, Wikidata et Wikimedia Commons sont des marques de la Wikimedia Foundation.",
+    "home": "Patrimoine de France"
   }
 }

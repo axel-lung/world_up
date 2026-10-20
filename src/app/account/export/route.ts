@@ -2,6 +2,7 @@ import { asc, eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { consents, users } from '@/db/schema';
 import { getAuth } from '@/lib/auth';
+import { playerReports } from '@/lib/catalog/reports';
 
 // Self-service export of the player's data (GDPR right of access and
 // portability). Each lot adds its own tables: collection, coins, purchases.
@@ -26,7 +27,9 @@ export async function GET(request: Request) {
     .where(eq(consents.userId, userId))
     .orderBy(asc(consents.acceptedAt));
 
-  const body = JSON.stringify({ exportedAt: new Date(), account, consents: acceptedDocuments }, null, 2);
+  const reports = await playerReports(userId);
+
+  const body = JSON.stringify({ exportedAt: new Date(), account, consents: acceptedDocuments, reports }, null, 2);
   return new Response(body, {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',

@@ -1,0 +1,40 @@
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  line-height: 1.6;
+}
+
+.page h1 {
+  margin: 0;
+  font-family: var(--skin-display-font, var(--font-heading));
+  font-size: 32px;
+  line-height: 1.15;
+}
+
+.page h2 {
+  margin: 16px 0 4px;
+  font-size: 20px;
+}
+
+.page p {
+  margin: 0;
+}
+
+.home {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-strong);
+  text-decoration: none;
+}
+
+.note {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}

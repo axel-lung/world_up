@@ -266,3 +266,29 @@ export const auditLog = pgTable(
     index('audit_log_created_at_idx').on(table.createdAt),
   ],
 );
+
+export const reportType = pgEnum('report_type', ['photo', 'text', 'other']);
+export const reportStatus = pgEnum('report_status', ['open', 'resolved', 'dismissed']);
+
+// A player's report about a card's photo or text, handled in the back-office.
+export const reports = pgTable(
+  'reports',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    // Null once the player deletes the account: the report stays, anonymous
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id, { onDelete: 'cascade' }),
+    type: reportType('type').notNull(),
+    message: text('message').notNull(),
+    status: reportStatus('status').notNull().default('open'),
+    createdAt: createdAt(),
+    closedAt: timestamp('closed_at', { withTimezone: true }),
+  },
+  (table) => [
+    index('reports_status_created_at_idx').on(table.status, table.createdAt),
+    index('reports_user_id_idx').on(table.userId),
+    index('reports_card_id_idx').on(table.cardId),
+  ],
+);

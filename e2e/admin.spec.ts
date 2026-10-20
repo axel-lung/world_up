@@ -2,14 +2,17 @@ import { randomUUID } from 'node:crypto';
 import { and, eq, inArray } from 'drizzle-orm';
 // The pool stays open: Playwright runs the next test files in the same worker
 import { db } from '@/db';
-import { auditLog, cards, collections, series, users } from '@/db/schema';
+import { auditLog, cards, collections, reports, series, users } from '@/db/schema';
 import { importCatalog } from '@/lib/catalog/import';
+import { createReport } from '@/lib/catalog/reports';
 import { testCard, testCatalog } from '@/lib/catalog/testing';
 import { expect, logIn, newPlayer, signUpAndVerify, test, totp } from './helpers';
 
 // ADMIN_EMAIL comes from .env, as for the web server
 const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
 const collection = `e2e-${randomUUID().slice(0, 8)}`;
+// Each worker runs beforeAll: its own collection, and its own report
+const reportMessage = `La photo est floue (${collection}).`;
 let collectionId: number;
 
 test.describe('back-office', () => {
@@ -19,11 +22,25 @@ test.describe('back-office', () => {
     const [row] = await db.insert(collections).values({ slug: collection, name: 'Patrimoine de France', active: true }).returning();
     collectionId = row.id;
     await importCatalog(db, testCatalog([testCard(1, { name: 'château de Test' })], collection));
+    // A player's report for the admin to handle
+    const id = randomUUID().slice(0, 8);
+    const [player] = await db
+      .insert(users)
+      .values({ name: `e2e_${id}`, email: `${id}@example.test`, emailVerified: true, birthDate: '1990-01-01' })
+      .returning();
+    const [card] = await db.select().from(cards).where(eq(cards.collectionId, collectionId));
+    await createReport(db, player.id, card.id, 'photo', reportMessage);
   });
 
   test.afterAll(async () => {
     const ids = (await db.select({ id: cards.id }).from(cards).where(eq(cards.collectionId, collectionId))).map((c) => String(c.id));
     if (ids.length > 0) await db.delete(auditLog).where(and(eq(auditLog.targetType, 'card'), inArray(auditLog.targetId, ids)));
+    const reportIds = (
+      await db.select({ id: reports.id }).from(reports).innerJoin(cards, eq(cards.id, reports.cardId)).where(eq(cards.collectionId, collectionId))
+    ).map((r) => String(r.id));
+    if (reportIds.length > 0) {
+      await db.delete(auditLog).where(and(eq(auditLog.targetType, 'report'), inArray(auditLog.targetId, reportIds)));
+    }
     await db.delete(cards).where(eq(cards.collectionId, collectionId));
     await db.delete(series).where(eq(series.collectionId, collectionId));
     await db.delete(collections).where(eq(collections.id, collectionId));
@@ -66,6 +83,13 @@ test.describe('back-office', () => {
     await expect(page.getByText('Cette carte est masquée (masquée à la main).')).toBeVisible();
     await expect(page.getByRole('cell', { name: 'Visible → masquée à la main · photo floue' })).toBeVisible();
     expect((await page.request.get(`/c/${collection}/cards/${card.slug}`)).status()).toBe(404);
+
+    // The player's report: handled, it moves to the closed list
+    await page.getByRole('link', { name: 'Signalements' }).click();
+    const open = page.getByRole('region', { name: 'À traiter' });
+    await open.getByRole('row').filter({ hasText: reportMessage }).getByRole('button', { name: 'Traité' }).click();
+    const closed = page.getByRole('region', { name: 'Traités récemment' });
+    await expect(closed.getByRole('row').filter({ hasText: reportMessage })).toContainText('traité');
   });
 
   test('is a 404 for players', async ({ page }) => {

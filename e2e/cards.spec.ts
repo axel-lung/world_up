@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { expect, test } from '@playwright/test';
 import { inArray } from 'drizzle-orm';
 // The pool stays open: Playwright runs the next test files in the same worker
 import { db } from '@/db';
 import { cards, collections, series } from '@/db/schema';
 import { importCatalog } from '@/lib/catalog/import';
 import { testCard, testCatalog } from '@/lib/catalog/testing';
+import { expect, newPlayer, signUpAndVerify, test } from './helpers';
 
 // A throwaway collection with one visible card and one hidden card.
 const collection = `e2e-${randomUUID().slice(0, 8)}`;
@@ -64,6 +64,18 @@ test('a card page credits the photo and the text, and loads nothing from Wikimed
   await expect(card.getByRole('link', { name: 'Fichier sur Wikimedia Commons' })).toBeVisible();
 
   expect(wikimedia).toEqual([]);
+  // Reporting a problem needs an account
+  await expect(page.getByText('Signaler un problème sur cette carte')).toHaveCount(0);
+});
+
+test('a signed-in player reports a problem with a card', async ({ page }) => {
+  await signUpAndVerify(page, newPlayer());
+  await page.goto(`/c/${collection}/cards/monument-1`);
+  await page.getByText('Signaler un problème sur cette carte').click();
+  await page.getByLabel('Le texte').check();
+  await page.getByLabel('Votre message').fill('La date de construction est fausse.');
+  await page.getByRole('button', { name: 'Envoyer le signalement' }).click();
+  await expect(page.getByText('Merci : votre signalement a été transmis.')).toBeVisible();
 });
 
 test('a hidden card has no page', async ({ page }) => {

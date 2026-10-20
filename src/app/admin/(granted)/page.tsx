@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { requireAdmin } from '@/lib/admin';
 import { catalogStats, HIDDEN_REASONS, listAudit } from '@/lib/catalog/admin';
+import { countOpenReports } from '@/lib/catalog/reports';
 import { AuditTable } from './AuditTable';
 import styles from '../admin.module.css';
 
@@ -13,16 +14,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdminDashboardPage() {
   await requireAdmin();
-  const [t, format, stats, recent] = await Promise.all([
+  const [t, format, stats, recent, openReports] = await Promise.all([
     getTranslations('Admin.dashboard'),
     getFormatter(),
     catalogStats(),
     listAudit({ limit: 10 }),
+    countOpenReports(),
   ]);
   const tiles = [
     { label: t('visible'), value: stats.visible, href: '/admin/cards?status=visible' },
     { label: t('hidden'), value: stats.hidden, href: '/admin/cards?status=hidden' },
     { label: t('toReview'), value: stats.review, href: '/admin/cards?status=review', hint: t('toReviewHint') },
+    { label: t('reports'), value: openReports, href: '/admin/reports' },
   ];
 
   return (
