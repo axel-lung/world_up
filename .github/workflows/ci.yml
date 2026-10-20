@@ -34,6 +34,7 @@ jobs:
       SMTP_HOST: localhost
       SMTP_PORT: 1025
       MAIL_FROM: Patrimoine de France <no-reply@localhost>
+      ADMIN_EMAIL: admin@example.test
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

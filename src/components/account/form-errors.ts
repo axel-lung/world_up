@@ -19,6 +19,12 @@ const CODES = [
   'INVALID_TOKEN',
   'TOKEN_EXPIRED',
   'SESSION_EXPIRED',
+  // Second factor of the back-office account
+  'INVALID_CODE',
+  'INVALID_BACKUP_CODE',
+  'INVALID_TWO_FACTOR_COOKIE',
+  'TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE',
+  'ACCOUNT_TEMPORARILY_LOCKED',
 ] as const;
 
 export type FormErrorCode =

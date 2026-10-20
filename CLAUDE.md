@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 "Patrimoine de France" is a web collectible card game: adult players (18+) open packs of cards depicting protected French monuments, build a collection, and can pay for a subscription or single packs. The specification, [docs/cahier-des-charges-developpement.md](docs/cahier-des-charges-developpement.md) (in French), is the source of truth: read the section relevant to a task before implementing it.
 
-Lot 1 (technical foundation, design system integration, player accounts) is validated in staging. Lot 2, the catalogue, is in progress: the Python pipeline is in `scripts/`; the import, the public card pages and the back-office (with two-factor authentication for `/admin`) come next.
+Lot 1 (technical foundation, design system integration, player accounts) is validated in staging. Lot 2, the catalogue, is in progress: the Python pipeline (`scripts/`), the import, the public card pages and the catalogue back-office (`/admin`, with two-factor authentication) are written; the full catalogue still has to be imported and validated in staging. Player reports (signalements) are not built yet.
 
 - "worldup" is a placeholder project name (containers, volumes, network, database). It will be replaced everywhere once the game is named, so keep it in config and env files rather than scattered through application code.
 - Work proceeds in delivery lots, each validated in staging before the next: 1 foundations, 2 catalogue, 3 game, 4 payments (only after a lawyer has validated the setup), 5 closed beta and launch.
@@ -92,7 +92,7 @@ docker compose exec worldup-worker node import-catalog.js
 
 ## Catalogue pipeline
 
-The catalogue is built offline, then imported. Production never calls Wikimedia: no API calls while playing and no images hotlinked from Commons.
+The catalogue is built offline, then imported. Production never calls Wikimedia: no API calls while playing and no images hotlinked from Commons. The one exception is the back-office's "replace the photo" (`src/lib/catalog/commons-photo.ts`): on the admin's request, the server checks a Commons file against the pipeline's photo rules, downloads it once and stores its WebP files in `uploads`.
 
 - Flow, in 10 steps run on a workstation (`scripts/README.md` has the commands, the rules and the export format): Wikidata extraction, rarity from 12 months of Wikipedia clickstream visits, Commons photo metadata, excerpts, editorial triage (`build_cards.py`), WebP images at 400 and 800 px named after the photo's SHA-1, then `import/catalog.json`. The `import/` folder is copied to the server's `./import` (mounted read-only in the worker), and `import-catalog.js` copies the images into `uploads` and upserts the cards.
 - `scripts/` holds Python only, with no dependency on the app; `data/` (downloads and intermediate files) and `import/` are git-ignored.
@@ -130,7 +130,8 @@ The server decides everything: pack contents, timers and balances. The browser o
 - The forms call `/api/auth` from the browser (`src/lib/auth-client.ts`): Better Auth's rate limits apply to HTTP requests only, not to server-side `auth.api` calls. They are in memory (one web process) and key on the `X-Forwarded-For` header Traefik sets.
 - Server components read the session with `getSession()` / `requireSession()` (`src/lib/session.ts`). `getAuth()` builds the auth instance on first use, since `next build` loads the modules without the runtime secrets.
 - Sessions store no IP address or user agent (a database hook drops them).
-- `/admin` requires two-factor authentication, and every back-office action writes to `audit_log`.
+- `/admin` requires two-factor authentication, and every back-office action writes to `audit_log`. The back-office account is the one whose e-mail is `ADMIN_EMAIL`; players get a 404. It sets up an authenticator app (Better Auth's `twoFactor` plugin, TOTP with backup codes, no "trust this device") at `/admin/two-factor`. A session hook sets `sessions.two_factor_verified` only on sessions created by a second-factor verification, and `requireAdmin()` (`src/lib/admin.ts`) demands it: an older session of the same account, opened before the app was set up, has to sign in again.
+- Pages under `src/app/admin/(granted)/` and every server action call `requireAdmin()` themselves, since a layout is not rendered again on navigation. Catalogue changes go through `src/lib/catalog/admin.ts`, one transaction each with its `audit_log` row; showing or hiding a card renumbers the series.
 - Collect only e-mail, birth date and purchase history, and keep personal data out of technical logs. Account export and deletion are self-service from `/account`.
 - Multi-account detection uses the payment method and the normalised e-mail only: no device fingerprinting without consent.
 - No advertising trackers; analytics must stay in the CNIL consent-exempt configuration, so an information banner is enough.

@@ -39,7 +39,15 @@
       "submit": "Se connecter",
       "noAccount": "Pas encore de compte ?",
       "signup": "Créer un compte",
-      "notVerified": "Votre adresse e-mail n'est pas encore confirmée. Nous venons de vous renvoyer un lien de confirmation, valable 24 heures."
+      "notVerified": "Votre adresse e-mail n'est pas encore confirmée. Nous venons de vous renvoyer un lien de confirmation, valable 24 heures.",
+      "codeTitle": "Code de vérification",
+      "codeIntro": "Ouvrez votre application d'authentification et saisissez le code à 6 chiffres de Patrimoine de France.",
+      "code": "Code à 6 chiffres",
+      "backupIntro": "Saisissez l'un des codes de secours obtenus à l'activation. Chaque code ne sert qu'une fois.",
+      "backupCode": "Code de secours",
+      "useBackup": "Utiliser un code de secours",
+      "useApp": "Utiliser l'application d'authentification",
+      "verify": "Vérifier"
     },
     "forgot": {
       "title": "Mot de passe oublié",
@@ -83,7 +91,12 @@
     "PASSWORD_TOO_LONG": "Le mot de passe doit compter {max} caractères au plus.",
     "INVALID_TOKEN": "Ce lien n'est plus valable.",
     "TOKEN_EXPIRED": "Ce lien a expiré.",
-    "SESSION_EXPIRED": "Par sécurité, reconnectez-vous avant de faire cette modification."
+    "SESSION_EXPIRED": "Par sécurité, reconnectez-vous avant de faire cette modification.",
+    "INVALID_CODE": "Code incorrect. Vérifiez qu'il s'agit du code actuel de l'application.",
+    "INVALID_BACKUP_CODE": "Code de secours incorrect.",
+    "INVALID_TWO_FACTOR_COOKIE": "La vérification a expiré : reconnectez-vous.",
+    "TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE": "Trop de codes incorrects : reconnectez-vous.",
+    "ACCOUNT_TEMPORARILY_LOCKED": "Trop de codes incorrects : réessayez dans 15 minutes."
   },
   "Account": {
     "title": "Mon compte",
@@ -229,5 +242,157 @@
     "confirmedFictitious": "{product} · {price} TTC (prix fictif).",
     "receiptHint": "Le reçu est dans Compte › Historique des achats.",
     "openMyPack": "Ouvrir mon paquet"
+  },
+  "Admin": {
+    "title": "Back-office",
+    "nav": {
+      "label": "Back-office",
+      "dashboard": "Tableau de bord",
+      "cards": "Cartes",
+      "audit": "Journal",
+      "site": "Retour au site"
+    },
+    "twoFactor": {
+      "title": "Double authentification",
+      "intro": "Le back-office demande un code à chaque connexion. Activez-le avec une application d'authentification (Google Authenticator, 1Password, Bitwarden…).",
+      "password": "Mot de passe du compte",
+      "start": "Activer la double authentification",
+      "scan": "Scannez ce QR code avec votre application, ou saisissez la clé à la main.",
+      "qrAlt": "QR code de configuration",
+      "secret": "Clé de configuration",
+      "backupTitle": "Codes de secours",
+      "backupIntro": "Notez ces codes et gardez-les en lieu sûr : chacun permet une connexion si vous perdez votre téléphone. Ils ne seront plus affichés.",
+      "code": "Code affiché par l'application",
+      "confirm": "Confirmer et ouvrir le back-office",
+      "reauthTitle": "Reconnexion nécessaire",
+      "reauth": "Cette session a été ouverte sans code de vérification. Reconnectez-vous : l'application vous demandera votre code.",
+      "signOut": "Se reconnecter"
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "visible": "Cartes visibles",
+      "hidden": "Cartes masquées",
+      "toReview": "À revoir",
+      "toReviewHint": "XXᵉ siècle et photos à remplacer",
+      "reasonsTitle": "Cartes masquées, par motif",
+      "reasons": {
+        "memorial": "Lieux de mémoire",
+        "commercial": "Établissements commerciaux",
+        "twentieth_century": "XXᵉ siècle : droits à vérifier",
+        "photo": "Sans photo utilisable",
+        "admin": "Masquées à la main"
+      },
+      "empty": "Le catalogue est vide : lancez l'import (scripts/README.md).",
+      "recent": "Dernières actions",
+      "seeAll": "Tout le journal"
+    },
+    "cards": {
+      "title": "Cartes",
+      "search": "Recherche",
+      "searchHint": "Nom, slug ou identifiant Wikidata",
+      "status": "État",
+      "statuses": {
+        "all": "Toutes",
+        "visible": "Visibles",
+        "hidden": "Masquées",
+        "review": "À revoir"
+      },
+      "rarity": "Rareté",
+      "allRarities": "Toutes",
+      "filter": "Filtrer",
+      "count": "{count, plural, =0 {Aucune carte} one {# carte} other {# cartes}}",
+      "name": "Nom",
+      "place": "Lieu",
+      "visibility": "Visibilité",
+      "visible": "Visible",
+      "pagination": "Pages",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "page": "Page {page} sur {pages}"
+    },
+    "card": {
+      "back": "Toutes les cartes",
+      "publicPage": "Voir la fiche publique",
+      "facts": "Fiche",
+      "collection": "Collection",
+      "wikidata": "Wikidata",
+      "rank": "Rang de popularité",
+      "family": "Famille",
+      "article": "Article Wikipédia",
+      "commonsFile": "Fichier Commons",
+      "none": "aucun",
+      "flags": "Repères du pipeline",
+      "noFlags": "Aucun",
+      "flag": {
+        "memorial": "Lieu de mémoire",
+        "commercial": "Établissement commercial",
+        "twentieth_century": "XXᵉ siècle : vérifier les droits de l'architecte"
+      },
+      "photoProblem": "Photo écartée par l'import : {problem}",
+      "photoProblems": {
+        "missing": "introuvable",
+        "too_small": "moins de 1 000 px",
+        "license": "licence non admise",
+        "download": "téléchargement échoué"
+      },
+      "photoLocked": "Photo choisie dans le back-office : l'import ne la remplace plus.",
+      "noPhoto": "Pas de photo",
+      "visibilityTitle": "Visibilité",
+      "visibleNow": "Cette carte est visible : elle peut sortir des paquets, et sa fiche est publique.",
+      "hiddenNow": "Cette carte est masquée ({reason}). Elle ne sort d'aucun paquet et n'a pas de fiche publique.",
+      "hiddenReasons": {
+        "memorial": "lieu de mémoire",
+        "commercial": "établissement commercial",
+        "twentieth_century": "XXᵉ siècle, droits de l'architecte à vérifier",
+        "photo": "pas de photo utilisable",
+        "admin": "masquée à la main"
+      },
+      "hideReason": "Motif",
+      "note": "Note pour le journal (facultative)",
+      "hide": "Masquer la carte",
+      "show": "Rendre visible",
+      "showReviewed": "Droits vérifiés : rendre visible",
+      "rarityTitle": "Rareté",
+      "rarityIntro": "Fixée à l'import, elle change les tirages : chaque changement est inscrit au journal.",
+      "newRarity": "Nouvelle rareté",
+      "rarityConfirm": "Je confirme le changement de rareté",
+      "changeRarity": "Changer la rareté",
+      "photoTitle": "Photo",
+      "photoIntro": "Nom d'un fichier de Wikimedia Commons, sans « File: ». Le serveur vérifie sa taille et sa licence, puis l'enregistre en WebP : la photo n'est plus jamais chargée depuis Commons.",
+      "changePhoto": "Remplacer la photo",
+      "saved": "Modification enregistrée.",
+      "history": "Historique",
+      "noHistory": "Aucune action sur cette carte."
+    },
+    "errors": {
+      "photoMissing": "Ce fichier est introuvable sur Wikimedia Commons.",
+      "photoTooSmall": "Cette photo est trop petite : il faut 1 000 px au moins sur son plus grand côté.",
+      "photoLicense": "La licence de cette photo n'est pas admise (GFDL seule, ou pas de licence).",
+      "photoDownload": "Le téléchargement de la photo a échoué. Réessayez dans un instant.",
+      "noPhoto": "Cette carte n'a pas de photo utilisable : remplacez-la avant de la rendre visible.",
+      "rarityUnchanged": "Choisissez une rareté différente de l'actuelle.",
+      "confirmRequired": "Cochez la case de confirmation.",
+      "invalid": "Vérifiez les champs du formulaire.",
+      "generic": "Une erreur est survenue. Réessayez dans un instant."
+    },
+    "audit": {
+      "title": "Journal",
+      "intro": "Chaque action du back-office, la plus récente d'abord.",
+      "when": "Date",
+      "who": "Par",
+      "action": "Action",
+      "target": "Cible",
+      "details": "Détails",
+      "actions": {
+        "cardHide": "Carte masquée",
+        "cardShow": "Carte rendue visible",
+        "cardRarity": "Rareté changée",
+        "cardPhoto": "Photo remplacée"
+      },
+      "empty": "Aucune action pour l'instant.",
+      "deletedAdmin": "compte supprimé",
+      "previous": "Plus récentes",
+      "next": "Plus anciennes"
+    }
   }
 }

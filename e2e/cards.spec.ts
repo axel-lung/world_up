@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import { inArray } from 'drizzle-orm';
-import { db, pool } from '@/db';
+// The pool stays open: Playwright runs the next test files in the same worker
+import { db } from '@/db';
 import { cards, collections, series } from '@/db/schema';
 import { importCatalog } from '@/lib/catalog/import';
 import { testCard, testCatalog } from '@/lib/catalog/testing';
@@ -29,7 +30,6 @@ test.afterAll(async () => {
   await db.delete(cards).where(inArray(cards.collectionId, [collectionId]));
   await db.delete(series).where(inArray(series.collectionId, [collectionId]));
   await db.delete(collections).where(inArray(collections.id, [collectionId]));
-  await pool.end();
 });
 
 test('a card page credits the photo and the text, and loads nothing from Wikimedia', async ({ page }) => {

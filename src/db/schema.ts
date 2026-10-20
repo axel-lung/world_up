@@ -45,6 +45,8 @@ export const users = pgTable(
     image: text('image'),
     // Players must be 18 or older; set at signup and never changed by the player.
     birthDate: date('birth_date', { mode: 'string' }).notNull(),
+    // Better Auth's two-factor plugin; only the back-office account turns it on.
+    twoFactorEnabled: boolean('two_factor_enabled').notNull().default(false),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -63,6 +65,8 @@ export const sessions = pgTable(
     // Always empty: the auth config drops them to keep personal data minimal.
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
+    // Created by a two-factor verification: required for /admin (src/lib/admin.ts).
+    twoFactorVerified: boolean('two_factor_verified').notNull().default(false),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -105,6 +109,25 @@ export const verifications = pgTable(
     updatedAt: updatedAt(),
   },
   (table) => [index('verifications_identifier_idx').on(table.identifier)],
+);
+
+// The back-office account's authenticator app secret and backup codes, both
+// encrypted by Better Auth.
+export const twoFactors = pgTable(
+  'two_factors',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    secret: text('secret').notNull(),
+    backupCodes: text('backup_codes').notNull(),
+    // False until the first code from the app is checked
+    verified: boolean('verified').notNull().default(true),
+    failedVerificationCount: integer('failed_verification_count').notNull().default(0),
+    lockedUntil: timestamp('locked_until', { withTimezone: true }),
+  },
+  (table) => [index('two_factors_user_id_idx').on(table.userId)],
 );
 
 // Proof that a player accepted a legal document (terms of use at signup).
@@ -221,5 +244,25 @@ export const cardSeries = pgTable(
   (table) => [
     primaryKey({ columns: [table.cardId, table.seriesId] }),
     index('card_series_series_position_idx').on(table.seriesId, table.position),
+  ],
+);
+
+// Every back-office action: who did what to which target, and the values before
+// and after. Never updated or deleted.
+export const auditLog = pgTable(
+  'audit_log',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    // Kept when the admin account is deleted
+    adminId: uuid('admin_id').references(() => users.id, { onDelete: 'set null' }),
+    action: text('action').notNull(),
+    targetType: text('target_type').notNull(),
+    targetId: text('target_id').notNull(),
+    details: jsonb('details').notNull().default({}),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index('audit_log_target_idx').on(table.targetType, table.targetId),
+    index('audit_log_created_at_idx').on(table.createdAt),
   ],
 );

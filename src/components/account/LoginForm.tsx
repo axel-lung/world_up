@@ -17,6 +17,9 @@ export function LoginForm({ returnTo }: { returnTo: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<FormError | null>(null);
+  // Accounts with two-factor authentication (the back-office one) answer
+  // the password with a request for a code
+  const [step, setStep] = useState<'password' | 'code' | 'backup'>('password');
   useFocusOnError(formRef, error);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -24,16 +27,78 @@ export function LoginForm({ returnTo }: { returnTo: string }) {
     const data = new FormData(event.currentTarget);
     setPending(true);
     setError(null);
-    // On success, the client follows callbackURL with a full page load.
-    const { error } = await authClient.signIn.email({
-      email: String(data.get('email')),
-      password: String(data.get('password')),
-      callbackURL: returnTo,
-    });
+    if (step === 'password') {
+      // On success, the client follows callbackURL with a full page load.
+      const { data: result, error } = await authClient.signIn.email({
+        email: String(data.get('email')),
+        password: String(data.get('password')),
+        callbackURL: returnTo,
+      });
+      setPending(false);
+      if (error) setError(toFormError(error));
+      else if (result && 'twoFactorRedirect' in result) setStep('code');
+      return;
+    }
+    const code = String(data.get('code')).replace(/\s+/g, '');
+    const { error } =
+      step === 'code'
+        ? await authClient.twoFactor.verifyTotp({ code })
+        : await authClient.twoFactor.verifyBackupCode({ code });
     if (error) {
       setPending(false);
       setError(toFormError(error));
+      if (error.code === 'INVALID_TWO_FACTOR_COOKIE' || error.code === 'TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE') {
+        setStep('password');
+      }
+      return;
     }
+    window.location.assign(returnTo);
+  }
+
+  const notice =
+    error?.code === 'EMAIL_NOT_VERIFIED' ? (
+      <Notice>
+        <p>{t('notVerified')}</p>
+      </Notice>
+    ) : (
+      error && (
+        <Notice tone="danger">
+          <p>{error.message}</p>
+        </Notice>
+      )
+    );
+
+  if (step !== 'password') {
+    const backup = step === 'backup';
+    return (
+      <form ref={formRef} method="post" className={styles.form} onSubmit={onSubmit}>
+        <h1 className={styles.title}>{t('codeTitle')}</h1>
+        <p className={styles.intro}>{backup ? t('backupIntro') : t('codeIntro')}</p>
+        <TextField
+          key={step}
+          label={backup ? t('backupCode') : t('code')}
+          name="code"
+          autoComplete="one-time-code"
+          inputMode={backup ? 'text' : 'numeric'}
+          autoFocus
+          required
+        />
+        {notice}
+        <SubmitButton variant="primary" block pending={pending}>
+          {t('verify')}
+        </SubmitButton>
+        <button
+          type="button"
+          className={`${styles.inlineLink} ${styles.linkButton}`}
+          onClick={() => {
+            setError(null);
+            setStep(backup ? 'code' : 'backup');
+          }}
+        >
+          {backup ? t('useApp') : t('useBackup')}
+        </button>
+      </form>
+    );
   }
 
   return (
@@ -45,17 +110,7 @@ export function LoginForm({ returnTo }: { returnTo: string }) {
       <Link href="/forgot-password" className={styles.inlineLink}>
         {t('forgot')}
       </Link>
-      {error?.code === 'EMAIL_NOT_VERIFIED' ? (
-        <Notice>
-          <p>{t('notVerified')}</p>
-        </Notice>
-      ) : (
-        error && (
-          <Notice tone="danger">
-            <p>{error.message}</p>
-          </Notice>
-        )
-      )}
+      {notice}
       <SubmitButton variant="primary" block pending={pending}>
         {t('submit')}
       </SubmitButton>

@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
-import { Card, type CardData } from '@/components/card/Card';
+import { Card } from '@/components/card/Card';
 import { displayName } from '@/components/card/card-format';
 import { ButtonLink } from '@/components/ui/Button';
 import { Tag } from '@/components/ui/Tag';
+import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { articleUrl, cardImageUrl, cardPath, commonsFileUrl, getVisibleCard, type VisibleCard } from '@/lib/catalog/cards';
 import { getSession } from '@/lib/session';
 import styles from './page.module.css';
@@ -23,32 +24,6 @@ function shorten(text: string, max: number): string {
 }
 
 const place = (card: VisibleCard) => [card.department, card.region].filter(Boolean).join(' · ');
-
-function toCardData(card: VisibleCard, licenseLabel: string): CardData {
-  const [printed] = card.series;
-  const small = cardImageUrl(card.photoImage, 400);
-  const large = cardImageUrl(card.photoImage, 800);
-  return {
-    name: card.name,
-    rarity: card.rarity,
-    department: card.department,
-    region: card.region,
-    protection: card.protection,
-    unesco: card.unesco,
-    series: printed ? { name: printed.name, number: printed.number, total: printed.total } : null,
-    photo: {
-      src: large,
-      srcSet: `${small} 400w, ${large} 800w`,
-      width: card.photoWidth ?? undefined,
-      height: card.photoHeight ?? undefined,
-      author: card.photoAuthor,
-      license: licenseLabel,
-      fileUrl: commonsFileUrl(card.photoCommonsFile!),
-    },
-    excerpt: card.excerpt ?? undefined,
-    articleUrl: articleUrl(card.articleTitle),
-  };
-}
 
 export async function generateMetadata({ params }: PageProps<'/c/[collection]/cards/[slug]'>): Promise<Metadata> {
   const { collection, slug } = await params;
@@ -87,11 +62,11 @@ export default async function CardPage({ params }: PageProps<'/c/[collection]/ca
     getSession(),
   ]);
   const name = displayName(card.name);
-  const license = !card.photoLicense
-    ? tCard('unknownLicense')
-    : /^public domain$/i.test(card.photoLicense)
-      ? tCard('publicDomain')
-      : card.photoLicense;
+  const license = photoLicenseLabel(card.photoLicense, {
+    publicDomain: tCard('publicDomain'),
+    unknownLicense: tCard('unknownLicense'),
+  });
+  const [printed] = card.series;
   const external = (href: string) =>
     function ExternalLink(chunks: ReactNode) {
       return (
@@ -123,7 +98,9 @@ export default async function CardPage({ params }: PageProps<'/c/[collection]/ca
         <h2 id="card-heading" className="sr-only">
           {t('cardHeading')}
         </h2>
-        <Card card={toCardData(card, license)} size="large" flippable priority sizes="(max-width: 392px) calc(100vw - 32px), 360px" />
+        <Card
+          card={toCardData(card, printed ? { name: printed.name, number: printed.number, total: printed.total } : null, license)}
+          size="large" flippable priority sizes="(max-width: 392px) calc(100vw - 32px), 360px" />
       </section>
 
       <div className={styles.details}>
