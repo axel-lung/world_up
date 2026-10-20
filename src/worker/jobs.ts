@@ -1,4 +1,5 @@
 import type { WorkHandler } from 'pg-boss';
+import { createEmailJob } from './send-email';
 
 export interface JobDefinition {
   name: string;
@@ -6,5 +7,9 @@ export interface JobDefinition {
   handler: WorkHandler<any>;
 }
 
-// Queues the worker consumes. E-mail sending and the catalogue import register here.
-export const jobs: JobDefinition[] = [];
+// Handlers of the queues declared in src/lib/queues.ts. Built at startup, so a
+// missing setting stops the worker instead of failing every job. The catalogue
+// import registers here in lot 2.
+export function createJobs(): JobDefinition[] {
+  return [createEmailJob()];
+}

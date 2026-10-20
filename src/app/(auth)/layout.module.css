@@ -1,0 +1,35 @@
+.page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 40px 16px 64px;
+}
+
+.brand {
+  font-family: var(--skin-display-font, var(--font-heading));
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.panel {
+  width: 100%;
+  max-width: 440px;
+  padding: 28px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding-top: 24px;
+  }
+
+  .panel {
+    padding: 24px 16px;
+  }
+}

@@ -1,10 +1,11 @@
 'use client';
 
-import { CheckCircleIcon, CheckIcon, GaugeIcon, InfoIcon, PackageIcon, XIcon } from '@phosphor-icons/react';
+import { CheckCircleIcon, GaugeIcon, InfoIcon, PackageIcon, XIcon } from '@phosphor-icons/react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useId, useState } from 'react';
 import { RarityPips } from '@/components/rarity/Rarity';
 import { Button } from '@/components/ui/Button';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { Tag } from '@/components/ui/Tag';
 import type { Rarity } from '@/lib/rarity';
 import styles from './PackPurchase.module.css';
@@ -91,13 +92,9 @@ export function PackPurchasePanel({
         </ul>
       </div>
 
-      <label className={styles.waiver}>
-        <input type="checkbox" checked={waived} onChange={(event) => setWaived(event.target.checked)} />
-        <span className={styles.checkbox} aria-hidden="true">
-          {waived && <CheckIcon />}
-        </span>
-        <span>{t('waiver')}</span>
-      </label>
+      <Checkbox checked={waived} onChange={(event) => setWaived(event.target.checked)}>
+        {t('waiver')}
+      </Checkbox>
 
       <div className={styles.notes}>
         {monthlyCap && (

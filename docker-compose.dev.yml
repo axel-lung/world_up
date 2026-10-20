@@ -1,5 +1,6 @@
-# Local development only: the database that `npm run dev` and `npm run worker`
-# reach from the host. Production and staging use docker-compose.yml.
+# Local development only: the database and the e-mail catcher that
+# `npm run dev` and `npm run worker` reach from the host. Production and
+# staging use docker-compose.yml.
 name: worldup-dev
 
 services:
@@ -15,6 +16,12 @@ services:
       test: ["CMD-SHELL", "pg_isready -U worldup -d worldup"]
       interval: 5s
       retries: 10
+
+  # Catches every e-mail the worker sends: SMTP on 1025, inbox on
+  # http://localhost:8025. The end-to-end tests read it through its API.
+  mailpit:
+    image: axllent/mailpit:v1.29
+    ports: ["127.0.0.1:1025:1025", "127.0.0.1:8025:8025"]
 
 volumes:
   pgdata:
