@@ -1,4 +1,5 @@
-import { ArrowUpRightIcon } from '@phosphor-icons/react/ssr';
+import { randomUUID } from 'node:crypto';
+import { ArrowUpRightIcon, CoinsIcon } from '@phosphor-icons/react/ssr';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -6,11 +7,17 @@ import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { Card } from '@/components/card/Card';
 import { displayName } from '@/components/card/card-format';
-import { ButtonLink } from '@/components/ui/Button';
+import { Button, ButtonLink } from '@/components/ui/Button';
 import { Tag } from '@/components/ui/Tag';
+import { db } from '@/db';
 import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { articleUrl, cardImageUrl, cardPath, commonsFileUrl, getVisibleCard, type VisibleCard } from '@/lib/catalog/cards';
+import { ownedCopies } from '@/lib/game/collection';
+import { getResaleValues } from '@/lib/game/rules';
 import { getSession } from '@/lib/session';
+import { resellAction } from '../../collection/actions';
+import { parseResaleParams } from '../../filters';
+import { ResaleNotice } from '../../ResaleNotice';
 import styles from './page.module.css';
 import { ReportForm } from './ReportForm';
 
@@ -51,17 +58,22 @@ export async function generateMetadata({ params }: PageProps<'/c/[collection]/ca
   };
 }
 
-export default async function CardPage({ params }: PageProps<'/c/[collection]/cards/[slug]'>) {
+export default async function CardPage({ params, searchParams }: PageProps<'/c/[collection]/cards/[slug]'>) {
   const { collection, slug } = await params;
   const card = await getVisibleCard(collection, slug);
   if (!card) notFound();
 
-  const [t, tCard, tRarity, session] = await Promise.all([
+  const [t, tCard, tRarity, session, query] = await Promise.all([
     getTranslations('CardPage'),
     getTranslations('Card'),
     getTranslations('Rarity'),
     getSession(),
+    searchParams,
   ]);
+  // The signed-in player's copies, and what one duplicate resells for
+  const [copies, resale] = session
+    ? await Promise.all([ownedCopies(session.user.id, card.id), getResaleValues(db, card.collectionId)])
+    : [0, null];
   const name = displayName(card.name);
   const license = photoLicenseLabel(card.photoLicense, {
     publicDomain: tCard('publicDomain'),
@@ -101,10 +113,31 @@ export default async function CardPage({ params }: PageProps<'/c/[collection]/ca
         </h2>
         <Card
           card={toCardData(card, printed ? { name: printed.name, number: printed.number, total: printed.total } : null, license)}
-          size="large" flippable priority sizes="(max-width: 392px) calc(100vw - 32px), 360px" />
+          size="large" flippable priority sizes="(max-width: 392px) calc(100vw - 32px), 360px"
+          copies={Math.max(copies, 1)} />
       </section>
 
       <div className={styles.details}>
+        {session && (
+          <section className={styles.section} aria-labelledby="owned-heading">
+            <h2 id="owned-heading">{t('ownedHeading')}</h2>
+            <ResaleNotice outcome={parseResaleParams(query)} />
+            <p>{copies > 0 ? t('owned', { count: copies }) : t('notOwned')}</p>
+            {copies > 1 && resale && (
+              <form action={resellAction} className={styles.actions}>
+                <input type="hidden" name="collection" value={collection} />
+                <input type="hidden" name="cardId" value={card.id} />
+                {/* A new key each time the page renders: sending the form twice sells once */}
+                <input type="hidden" name="key" value={randomUUID()} />
+                <input type="hidden" name="back" value={cardPath(collection, card.slug)} />
+                <Button type="submit" icon={<CoinsIcon size={18} aria-hidden />}>
+                  {t('resellOne', { coins: resale[card.rarity] })}
+                </Button>
+              </form>
+            )}
+          </section>
+        )}
+
         {card.excerpt && (
           <section className={styles.section} aria-labelledby="about-heading">
             <h2 id="about-heading">{t('aboutHeading')}</h2>

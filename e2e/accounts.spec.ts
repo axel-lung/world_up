@@ -21,7 +21,7 @@ test('a player signs up, confirms the address, edits the profile, exports and de
   expect(data.consents).toEqual([expect.objectContaining({ document: 'terms', version: expect.any(String) })]);
 
   await page.getByRole('button', { name: 'Se déconnecter' }).click();
-  await expect(page.getByRole('link', { name: 'Se connecter' })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: 'Se connecter' })).toBeVisible();
   await page.goto('/account');
   await expect(page).toHaveURL(/\/login\?next=%2Faccount$/);
 

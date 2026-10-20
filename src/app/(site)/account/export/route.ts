@@ -1,8 +1,11 @@
 import { asc, eq } from 'drizzle-orm';
 import { db } from '@/db';
-import { consents, users } from '@/db/schema';
+import { achievements, consents, packState, userAchievements, users } from '@/db/schema';
 import { getAuth } from '@/lib/auth';
 import { playerReports } from '@/lib/catalog/reports';
+import { coinBalance, playerLedger } from '@/lib/game/coins';
+import { playerCards } from '@/lib/game/collection';
+import { playerOpenings } from '@/lib/game/packs';
 
 // Self-service export of the player's data (GDPR right of access and
 // portability). Each lot adds its own tables: collection, coins, purchases.
@@ -27,9 +30,35 @@ export async function GET(request: Request) {
     .where(eq(consents.userId, userId))
     .orderBy(asc(consents.acceptedAt));
 
-  const reports = await playerReports(userId);
+  const [reports, packReserve, openings, collection, coins, ledger, obtained] = await Promise.all([
+    playerReports(userId),
+    db
+      .select({ packs: packState.packs, lastRefill: packState.lastRefill })
+      .from(packState)
+      .where(eq(packState.userId, userId)),
+    playerOpenings(userId),
+    playerCards(userId),
+    coinBalance(db, userId),
+    playerLedger(userId),
+    db
+      .select({ achievement: achievements.code, obtainedAt: userAchievements.obtainedAt })
+      .from(userAchievements)
+      .innerJoin(achievements, eq(achievements.id, userAchievements.achievementId))
+      .where(eq(userAchievements.userId, userId))
+      .orderBy(asc(userAchievements.obtainedAt)),
+  ]);
 
-  const body = JSON.stringify({ exportedAt: new Date(), account, consents: acceptedDocuments, reports }, null, 2);
+  const body = JSON.stringify(
+    {
+      exportedAt: new Date(),
+      account,
+      consents: acceptedDocuments,
+      reports,
+      game: { packReserve, openings, collection, coins: { balance: coins, ledger }, achievements: obtained },
+    },
+    null,
+    2,
+  );
   return new Response(body, {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',

@@ -14,7 +14,12 @@ const ACTION_LABELS = {
   'card.photo': 'cardPhoto',
   'report.resolve': 'reportResolve',
   'report.dismiss': 'reportDismiss',
+  'rules.update': 'rulesUpdate',
+  'resale.update': 'resaleUpdate',
+  'odds.publish': 'oddsPublish',
 } as const;
+
+const RULE_FIELDS = ['cardsPerPack', 'signupPacks', 'refillMinutes', 'maxReserve'] as const;
 const actionLabel = (action: string) => ACTION_LABELS[action as keyof typeof ACTION_LABELS];
 
 export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]; showTarget?: boolean }) {
@@ -26,8 +31,28 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
   const reportStatus = (value: unknown) =>
     ['open', 'resolved', 'dismissed'].includes(value as string) ? t(`reports.statuses.${value as 'open'}`) : String(value);
   const rarity = (value: unknown) => (RARITIES.includes(value as Rarity) ? tRarity(value as Rarity) : String(value));
+  // Only the values that changed: "Réserve maximale : 10 → 12"
+  const changes = (from: Record<string, unknown>, to: Record<string, unknown>, label: (key: string) => string) =>
+    Object.keys(to)
+      .filter((key) => from[key] !== to[key])
+      .map((key) => `${label(key)} : ${from[key]} → ${to[key]}`)
+      .join(' · ');
   function describe(row: AuditRow): string {
-    const details = row.details as { from?: unknown; to?: unknown; note?: string };
+    const details = row.details as { from?: unknown; to?: unknown; note?: string; odds?: Record<string, number>; validFrom?: string };
+    if (row.action === 'rules.update' || row.action === 'resale.update') {
+      const label =
+        row.action === 'rules.update'
+          ? (key: string) => (RULE_FIELDS.includes(key as 'maxReserve') ? t(`rules.fields.${key as 'maxReserve'}`) : key)
+          : rarity;
+      return changes((details.from ?? {}) as Record<string, unknown>, (details.to ?? {}) as Record<string, unknown>, label);
+    }
+    if (row.action === 'odds.publish' && details.odds && details.validFrom) {
+      const odds = RARITIES.map(
+        (r) => `${tRarity(r)} ${format.number((details.odds![r] ?? 0) / 1_000_000, { style: 'percent', maximumFractionDigits: 4 })}`,
+      );
+      const from = format.dateTime(new Date(details.validFrom), { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
+      return `${t('rules.fromDate', { date: from })} · ${odds.join(' · ')}`;
+    }
     const change =
       row.action === 'card.hide' || row.action === 'card.show'
         ? `${reason(details.from)} → ${reason(details.to)}`
@@ -63,6 +88,8 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
                     <Link href={`/admin/cards/${row.targetId}`}>#{row.targetId}</Link>
                   ) : row.targetType === 'report' ? (
                     <Link href="/admin/reports">#{row.targetId}</Link>
+                  ) : row.targetType === 'collection' ? (
+                    <Link href="/admin/rules">{t('audit.collectionTarget')}</Link>
                   ) : (
                     `${row.targetType} ${row.targetId}`
                   )}

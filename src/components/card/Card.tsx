@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpRightIcon, CameraIcon, CheckIcon, ImageIcon, InfoIcon, MapPinIcon, SparkleIcon } from '@phosphor-icons/react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { type MouseEvent, type ReactNode, useState } from 'react';
 import { RARITY_PIPS, type Rarity } from '@/lib/rarity';
@@ -57,6 +58,8 @@ export interface CardProps {
   sizes?: string;
   /** Eager, high-priority photo: the card is the page's main content. */
   priority?: boolean;
+  /** The card's page: the name becomes a link covering the whole front. */
+  href?: string;
 }
 
 function Banner({ rarity, label, icon, suffix }: { rarity: Rarity; label: string; icon?: ReactNode; suffix?: ReactNode }) {
@@ -92,12 +95,15 @@ export function Card({
   framing = 'auto',
   sizes,
   priority = false,
+  href,
 }: CardProps) {
   const t = useTranslations('Card');
   const tRarity = useTranslations('Rarity');
   const [flipped, setFlipped] = useState(false);
   const [showCredit, setShowCredit] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
+  // A masked card comes without its photo
+  const noPhoto = photoFailed || !card.photo.src;
 
   const large = size === 'large';
   const missing = state !== 'owned';
@@ -157,11 +163,11 @@ export function Card({
           />
 
           <div className={styles.photo}>
-            {letterbox && !missing && !photoFailed && (
+            {letterbox && !missing && !noPhoto && (
               // eslint-disable-next-line @next/next/no-img-element -- see below
               <img className={styles.photoBackdrop} src={card.photo.src} {...imageLoading} alt="" aria-hidden="true" />
             )}
-            {photoFailed ? (
+            {noPhoto ? (
               <div className={styles.photoFallback}>
                 <ImageIcon aria-hidden />
                 <span>{masked ? '?' : name}</span>
@@ -178,7 +184,7 @@ export function Card({
                 onError={() => setPhotoFailed(true)}
               />
             )}
-            {!large && !missing && !photoFailed && (
+            {!large && !missing && !noPhoto && (
               <button
                 type="button"
                 className={styles.infoButton}
@@ -208,7 +214,19 @@ export function Card({
             </div>
           )}
 
-          {masked ? <div className={styles.toDiscover}>{name}</div> : <h3 className={styles.name}>{name}</h3>}
+          {masked ? (
+            <div className={styles.toDiscover}>{name}</div>
+          ) : (
+            <h3 className={styles.name}>
+              {href ? (
+                <Link href={href} className={styles.nameLink} onClick={stop}>
+                  {name}
+                </Link>
+              ) : (
+                name
+              )}
+            </h3>
+          )}
           <div className={styles.place}>
             <MapPinIcon aria-hidden />
             <span>{place}</span>

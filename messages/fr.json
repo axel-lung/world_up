@@ -6,10 +6,11 @@
   },
   "HomePage": {
     "title": "Patrimoine de France",
-    "comingSoon": "Le jeu de cartes du patrimoine français arrive bientôt.",
+    "intro": "Ouvrez des paquets de cartes et collectionnez les monuments protégés de France : châteaux, cathédrales, phares, grottes ornées…",
+    "learnMore": "Tout est expliqué dans les <rules>règles du jeu</rules>, et les chances de chaque rareté sur la page des <odds>probabilités</odds>.",
     "signup": "Créer un compte",
     "login": "Se connecter",
-    "account": "Mon compte",
+    "play": "Jouer",
     "deleted": "Votre compte et ses données ont été supprimés."
   },
   "Auth": {
@@ -230,7 +231,11 @@
         "signedOut": "Connectez-vous pour signaler un problème."
       }
     },
-    "sources": "Sources et crédits"
+    "sources": "Sources et crédits",
+    "ownedHeading": "Dans votre collection",
+    "owned": "{count, plural, one {Vous avez # exemplaire de cette carte.} other {Vous avez # exemplaires de cette carte.}}",
+    "notOwned": "Vous n'avez pas encore cette carte : elle peut sortir de votre prochain paquet.",
+    "resellOne": "Revendre un doublon pour {coins, plural, one {# pièce} other {# pièces}}"
   },
   "Pack": {
     "packs": "{count, plural, one {paquet} other {paquets}}",
@@ -244,7 +249,8 @@
     "compact": "{count, plural, one {# paquet} other {# paquets}} en réserve",
     "compactNext": "prochain dans {time}",
     "open": "Ouvrir un paquet",
-    "none": "Aucun paquet"
+    "none": "Aucun paquet",
+    "emptyHintNoShop": "Réserve vide : le prochain paquet arrive avec le minuteur."
   },
   "Purchase": {
     "packTitle": "Acheter un paquet",
@@ -273,7 +279,8 @@
       "cards": "Cartes",
       "audit": "Journal",
       "site": "Retour au site",
-      "reports": "Signalements"
+      "reports": "Signalements",
+      "rules": "Règles du jeu"
     },
     "twoFactor": {
       "title": "Double authentification",
@@ -426,12 +433,16 @@
         "cardRarity": "Rareté changée",
         "cardPhoto": "Photo remplacée",
         "reportResolve": "Signalement traité",
-        "reportDismiss": "Signalement écarté"
+        "reportDismiss": "Signalement écarté",
+        "rulesUpdate": "Règles des paquets changées",
+        "resaleUpdate": "Valeurs de revente changées",
+        "oddsPublish": "Probabilités publiées"
       },
       "empty": "Aucune action pour l'instant.",
       "deletedAdmin": "compte supprimé",
       "previous": "Plus récentes",
-      "next": "Plus anciennes"
+      "next": "Plus anciennes",
+      "collectionTarget": "Règles du jeu"
     },
     "reports": {
       "title": "Signalements",
@@ -460,6 +471,40 @@
       "emptyClosed": "Aucun signalement traité pour l'instant.",
       "deletedPlayer": "compte supprimé",
       "alreadyClosed": "Ce signalement a déjà été traité."
+    },
+    "rules": {
+      "title": "Règles du jeu",
+      "intro": "Les règles chiffrées de la collection {collection}. Chaque changement s'applique aussitôt et entre au journal.",
+      "packsHeading": "Paquets",
+      "fields": {
+        "cardsPerPack": "Cartes par paquet",
+        "signupPacks": "Paquets à l'arrivée",
+        "refillMinutes": "Minutes entre deux paquets",
+        "maxReserve": "Réserve maximale"
+      },
+      "saveRules": "Enregistrer les règles",
+      "resaleHeading": "Revente des doublons",
+      "resaleIntro": "Pièces gagnées pour un doublon revendu, selon sa rareté.",
+      "saveResale": "Enregistrer les valeurs",
+      "oddsHeading": "Probabilités",
+      "oddsIntro": "Une modification ajoute un nouvel ensemble daté, publié sur la <link>page des probabilités</link> ; les ensembles précédents restent tels quels. La somme doit faire exactement 100 %.",
+      "rarity": "Rareté",
+      "currentOdds": "En vigueur",
+      "visibleCards": "Cartes en jeu",
+      "percentOf": "{rarity} (%)",
+      "validFrom": "À partir du (heure de Paris)",
+      "validFromHint": "Maintenant ou plus tard : les tirages passés gardent leurs probabilités.",
+      "publishOdds": "Publier ces probabilités",
+      "fromDate": "À partir du {date}",
+      "historyHeading": "Dernières modifications",
+      "saved": "C'est enregistré.",
+      "errors": {
+        "invalid": "Vérifiez les valeurs : des nombres entiers, et des pourcentages à 4 décimales au plus.",
+        "unchanged": "Aucune valeur n'a changé.",
+        "oddsSum": "Les probabilités doivent faire 100 % en tout.",
+        "oddsNoCards": "Une rareté sans carte en jeu ne peut pas avoir de probabilité.",
+        "oddsInPast": "La date de début ne peut pas être dans le passé."
+      }
     }
   },
   "Credits": {
@@ -477,5 +522,168 @@
     "report": "Un crédit manque, une photo ne convient pas, un texte est faux : connectez-vous et utilisez « Signaler un problème » sur la fiche de la carte.",
     "notAffiliated": "Patrimoine de France n'est ni affilié à la Wikimedia Foundation ni soutenu par elle. Wikipédia, Wikidata et Wikimedia Commons sont des marques de la Wikimedia Foundation.",
     "home": "Patrimoine de France"
+  },
+  "Nav": {
+    "label": "Navigation principale",
+    "skip": "Aller au contenu",
+    "brand": "Patrimoine de France",
+    "home": "Accueil",
+    "open": "Ouvrir",
+    "collection": "Collection",
+    "leaderboard": "Classement",
+    "rules": "Règles du jeu",
+    "odds": "Probabilités",
+    "credits": "Sources et crédits",
+    "account": "Mon compte",
+    "login": "Se connecter",
+    "signup": "Créer un compte",
+    "coins": "{count, number} <word>{count, plural, one {pièce} other {pièces}}</word>",
+    "noMoneyValue": "Les cartes et les pièces n'ont aucune valeur en argent : elles ne s'échangent pas contre des euros et ne quittent jamais le jeu."
+  },
+  "Game": {
+    "welcome": "Bonjour {pseudo}",
+    "packsHeading": "Vos paquets",
+    "openPack": "Ouvrir un paquet",
+    "collectionHeading": "Votre collection",
+    "myCollection": "Ma collection",
+    "balance": "<strong>{count, number}</strong> {count, plural, one {pièce} other {pièces}}",
+    "duplicates": "{copies, plural, one {# doublon} other {# doublons}} à revendre, pour {coins, plural, one {# pièce} other {# pièces}}.",
+    "seeCollection": "Voir ma collection",
+    "seeDuplicates": "Revendre les doublons",
+    "seriesHeading": "Séries",
+    "seriesTypes": {
+      "region": "Régions",
+      "family": "Familles de monuments",
+      "unesco": "Patrimoine mondial",
+      "endangered": "Patrimoine en péril"
+    },
+    "achievementsHeading": "Succès",
+    "achievementsCount": "{obtained} sur {total} obtenus",
+    "obtainedOn": "Obtenu le {date}",
+    "progress": "{progress} sur {threshold}",
+    "reward": "+{coins, plural, one {# pièce} other {# pièces}}",
+    "errors": {
+      "noPack": "Votre réserve est vide : le prochain paquet arrive avec le minuteur.",
+      "tooFast": "Vous ouvrez des paquets très vite : attendez une minute avant le suivant.",
+      "noDuplicate": "Vous n'avez pas de doublon à revendre.",
+      "notEnoughCoins": "Vous n'avez pas assez de pièces.",
+      "server": "L'ouverture n'a pas abouti. Réessayez dans un instant."
+    }
+  },
+  "Achievements": {
+    "packs_opened": "{count, plural, one {Ouvrir votre premier paquet} other {Ouvrir # paquets}}",
+    "distinct_cards": "{count, plural, one {Obtenir votre première carte} other {Collectionner # cartes différentes}}",
+    "rarity_owned": "{count, plural, one {Obtenir une carte {rarity}} other {Obtenir # cartes {rarity}}}",
+    "series_completed": "{count, plural, one {Compléter une série} other {Compléter # séries}}"
+  },
+  "Open": {
+    "title": "Ouvrir un paquet",
+    "intro": "Chaque carte est tirée par le serveur : sa rareté d'abord, selon les <odds>probabilités publiées</odds>, puis une carte de cette rareté au hasard.",
+    "open": "Ouvrir un paquet",
+    "opening": "Ouverture…",
+    "openAnother": "Ouvrir un autre paquet",
+    "seeCollection": "Voir ma collection",
+    "resultHeading": "Votre paquet {collection}",
+    "skip": "Passer l'animation",
+    "summary": "{count, plural, one {# carte} other {# cartes}}, dont {new, plural, =0 {aucune nouvelle} one {# nouvelle} other {# nouvelles}}.",
+    "unlocked": "Succès obtenu : {title} · +{coins, plural, one {# pièce} other {# pièces}}"
+  },
+  "Collection": {
+    "title": "Ma collection",
+    "progress": "Cartes différentes",
+    "rarity": "Rareté",
+    "allRarities": "Toutes les raretés",
+    "series": "Série",
+    "allSeries": "Toutes les séries",
+    "filter": "Filtrer",
+    "tabsLabel": "Cartes affichées",
+    "tabs": {
+      "all": "Toutes",
+      "owned": "Possédées",
+      "missing": "Manquantes",
+      "duplicates": "Doublons"
+    },
+    "resellAll": "Revendre {copies, plural, one {# doublon} other {les # doublons}} pour {coins, plural, one {# pièce} other {# pièces}}",
+    "resellHint": "Vous gardez un exemplaire de chaque carte.",
+    "sold": "{copies, plural, one {# doublon revendu} other {# doublons revendus}} : +{coins, plural, one {# pièce} other {# pièces}}.",
+    "empty": {
+      "all": "Aucune carte ne correspond à ces filtres.",
+      "owned": "Vous n'avez encore aucune carte ici : ouvrez un paquet !",
+      "missing": "Vous avez toutes les cartes de cette sélection.",
+      "duplicates": "Aucun doublon pour l'instant."
+    },
+    "pagination": "Pages",
+    "previous": "Page précédente",
+    "next": "Page suivante",
+    "page": "Page {page} sur {pages}",
+    "seriesTypes": {
+      "region": "Série régionale",
+      "family": "Famille de monuments",
+      "unesco": "Patrimoine mondial de l'UNESCO",
+      "endangered": "Patrimoine en péril"
+    },
+    "seriesProgress": "Cartes de la série",
+    "seriesComplete": "Série complète !"
+  },
+  "Leaderboard": {
+    "title": "Classement",
+    "description": "Les collectionneurs de Patrimoine de France, classés par nombre de cartes différentes.",
+    "rule": "{collection} : classement par nombre de cartes différentes. À égalité, le plus de Légendaires passe devant, puis le plus d'Ultra rares, et ainsi de suite.",
+    "caption": "Les {count} premiers joueurs",
+    "rank": "Rang",
+    "player": "Joueur",
+    "distinct": "Cartes différentes",
+    "you": "(vous)",
+    "empty": "Personne n'a encore ouvert de paquet.",
+    "notRanked": "Ouvrez votre premier paquet pour entrer au classement.",
+    "legendary": "Légendaires",
+    "ultra": "Ultra rares"
+  },
+  "Odds": {
+    "title": "Probabilités",
+    "description": "Les chances d'obtenir chaque rareté dans un paquet, et l'historique de leurs modifications.",
+    "intro": "Un paquet {collection} contient {cards} cartes. Voici la probabilité de chaque rareté, pour chacune de ces cartes.",
+    "currentHeading": "Probabilités en vigueur",
+    "since": "En vigueur depuis le {date}",
+    "upcoming": "À partir du {date}",
+    "period": "Du {from} au {to}",
+    "none": "Aucune probabilité n'est encore publiée.",
+    "rarity": "Rareté",
+    "probability": "Probabilité par carte",
+    "cards": "Cartes en jeu",
+    "howHeading": "Comment une carte est tirée",
+    "howRarity": "Le serveur tire d'abord la rareté de la carte, avec les probabilités ci-dessus et un générateur aléatoire cryptographique.",
+    "howCard": "Il choisit ensuite la carte au hasard parmi les cartes en jeu de cette rareté : chacune a la même chance de sortir.",
+    "howHidden": "Les cartes retirées du jeu (lieux de mémoire, photos à revoir…) ne sortent jamais d'un paquet.",
+    "howDuplicates": "Chaque carte d'un paquet est tirée indépendamment des autres : un paquet peut contenir une carte que vous avez déjà, ou deux fois la même.",
+    "historyHeading": "Historique",
+    "historyIntro": "Chaque modification des probabilités est datée et reste publiée ici."
+  },
+  "Rules": {
+    "title": "Règles du jeu",
+    "description": "Paquets, collection, pièces et succès : les règles de Patrimoine de France.",
+    "intro": "Collectionnez les monuments protégés de France en ouvrant des paquets de cartes {collection}. Les chiffres de cette page sont ceux qu'applique le jeu.",
+    "packsHeading": "Les paquets",
+    "packsStart": "À votre arrivée, {packs} paquets vous attendent. Chaque paquet contient {cards} cartes.",
+    "packsRefill": "Un paquet gratuit s'ajoute à votre réserve toutes les {minutes} minutes, jusqu'à {max} paquets.",
+    "packsFull": "Quand la réserve est pleine, le minuteur s'arrête ; il repart à l'ouverture suivante.",
+    "packsDraw": "Le contenu d'un paquet est tiré par le serveur à l'ouverture, selon les <odds>probabilités publiées</odds>.",
+    "collectionHeading": "La collection",
+    "collectionSeries": "Chaque carte appartient à une ou plusieurs séries : sa région, sa famille de monuments, le patrimoine mondial ou le patrimoine en péril.",
+    "collectionMissing": "Les cartes qui vous manquent restent visibles, sauf les Légendaires et les Ultra rares, qui gardent leur surprise.",
+    "collectionDuplicates": "Une carte obtenue plusieurs fois compte autant d'exemplaires : ce sont vos doublons.",
+    "coinsHeading": "Les pièces",
+    "coinsIntro": "Vous gagnez des pièces en revendant vos doublons (vous gardez toujours un exemplaire de chaque carte) et en obtenant des succès. Un doublon rapporte selon sa rareté :",
+    "resaleCaption": "Pièces par doublon revendu",
+    "rarity": "Rareté",
+    "resaleValue": "Un doublon revendu",
+    "coins": "{count, plural, one {# pièce} other {# pièces}}",
+    "noMoneyValue": "Les pièces ne s'achètent pas et ne se convertissent pas en euros. Les cartes et les pièces ne se transfèrent pas d'un compte à un autre.",
+    "achievementsHeading": "Les succès",
+    "achievement": "Succès",
+    "reward": "Récompense",
+    "leaderboardHeading": "Le classement",
+    "leaderboardRule": "Le <link>classement</link> compte vos cartes différentes. À égalité, le plus de Légendaires passe devant, puis le plus d'Ultra rares, et ainsi de suite.",
+    "serverDecides": "Le serveur décide de tout : contenu des paquets, minuteurs et soldes. Votre navigateur ne fait que les afficher."
   }
 }

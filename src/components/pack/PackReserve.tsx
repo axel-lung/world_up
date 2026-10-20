@@ -15,7 +15,8 @@ export interface PackReserveProps {
   /** Server time at render (ISO date): see useCountdown. */
   serverNow: string;
   refillMinutes: number;
-  shopHref?: string;
+  /** The empty reserve's hint points to the shop; null until the shop opens (lot 4). */
+  shopHref?: string | null;
 }
 
 /** Packs in reserve, as a count and one mark per slot, with the next-pack timer. */
@@ -58,7 +59,9 @@ export function PackReserve({ available, max, nextPackAt, serverNow, refillMinut
         {full
           ? t('fullHint')
           : available === 0
-            ? t.rich('emptyHint', { shop: (chunks) => <Link href={shopHref}>{chunks}</Link> })
+            ? shopHref
+              ? t.rich('emptyHint', { shop: (chunks) => <Link href={shopHref}>{chunks}</Link> })
+              : t('emptyHintNoShop')
             : t('running', { minutes: refillMinutes })}
       </span>
     </div>
