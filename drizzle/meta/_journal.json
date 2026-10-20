@@ -50,6 +50,20 @@
       "when": 1792495161134,
       "tag": "0006_review_dates",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792497019748,
+      "tag": "0007_game",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792497024101,
+      "tag": "0008_seed_game_rules",
+      "breakpoints": true
     }
   ]
 }

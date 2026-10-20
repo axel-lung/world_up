@@ -208,8 +208,10 @@ export const cards = pgTable(
   (table) => [
     uniqueIndex('cards_collection_wikidata_key').on(table.collectionId, table.wikidataId),
     uniqueIndex('cards_collection_slug_key').on(table.collectionId, table.slug),
-    // Pack draws pick among the visible cards of one rarity.
-    index('cards_visible_rarity_idx').on(table.collectionId, table.rarity).where(sql`${table.hiddenReason} IS NULL`),
+    // Pack draws pick the n-th visible card of one rarity, in id order.
+    index('cards_visible_rarity_idx')
+      .on(table.collectionId, table.rarity, table.id)
+      .where(sql`${table.hiddenReason} IS NULL`),
   ],
 );
 
@@ -294,4 +296,198 @@ export const reports = pgTable(
     index('reports_user_id_idx').on(table.userId),
     index('reports_card_id_idx').on(table.cardId),
   ],
+);
+
+// The game (lot 3). Every tunable rule is a row here, never a code constant:
+// src/lib/game/ reads them on each refill, opening and resale.
+
+// Pack rules of a collection. Subscribers get their own values in lot 4.
+export const gameRules = pgTable('game_rules', {
+  collectionId: integer('collection_id')
+    .primaryKey()
+    .references(() => collections.id),
+  cardsPerPack: integer('cards_per_pack').notNull().default(5),
+  // Packs a player has on first entering the collection
+  signupPacks: integer('signup_packs').notNull().default(10),
+  refillMinutes: integer('refill_minutes').notNull().default(10),
+  maxReserve: integer('max_reserve').notNull().default(10),
+  updatedAt: updatedAt(),
+});
+
+// Coins for reselling one duplicate copy, by rarity.
+export const resaleValues = pgTable(
+  'resale_values',
+  {
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    rarity: rarity('rarity').notNull(),
+    coins: integer('coins').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.collectionId, table.rarity] })],
+);
+
+// Published odds: a change is a new set of rows for every rarity, sharing one
+// valid_from, and is never overwritten. /odds shows the whole history.
+export const rarityOdds = pgTable(
+  'rarity_odds',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    rarity: rarity('rarity').notNull(),
+    // Parts per million: a set sums to 1,000,000 (0.25 % is 2,500)
+    perMillion: integer('per_million').notNull(),
+    validFrom: timestamp('valid_from', { withTimezone: true }).notNull(),
+    createdAt: createdAt(),
+  },
+  (table) => [uniqueIndex('rarity_odds_collection_valid_from_key').on(table.collectionId, table.validFrom, table.rarity)],
+);
+
+// Free packs in reserve, refilled on read (src/lib/game/refill.ts). The row
+// also serves as the player's lock while a pack opens.
+export const packState = pgTable(
+  'pack_state',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    packs: integer('packs').notNull(),
+    lastRefill: timestamp('last_refill', { withTimezone: true }).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.collectionId] })],
+);
+
+export const packOrigin = pgEnum('pack_origin', ['free', 'subscription', 'bonus', 'purchase']);
+
+export const packOpenings = pgTable(
+  'pack_openings',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    origin: packOrigin('origin').notNull(),
+    // Sent by the page: a second request with the same key opens nothing
+    idempotencyKey: uuid('idempotency_key').notNull(),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex('pack_openings_user_key').on(table.userId, table.idempotencyKey),
+    index('pack_openings_user_created_at_idx').on(table.userId, table.createdAt),
+  ],
+);
+
+export const packCards = pgTable(
+  'pack_cards',
+  {
+    openingId: integer('opening_id')
+      .notNull()
+      .references(() => packOpenings.id, { onDelete: 'cascade' }),
+    // 1 to cards_per_pack, in reveal order
+    position: integer('position').notNull(),
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id),
+    // The player's first copy of the card
+    isNew: boolean('is_new').notNull(),
+    // The shiny variant is a version 2 option: always false for now
+    shiny: boolean('shiny').notNull().default(false),
+  },
+  (table) => [primaryKey({ columns: [table.openingId, table.position] })],
+);
+
+export const userCards = pgTable(
+  'user_cards',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id),
+    quantity: integer('quantity').notNull(),
+    firstObtainedAt: timestamp('first_obtained_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.cardId] }),
+    index('user_cards_collection_user_idx').on(table.collectionId, table.userId),
+  ],
+);
+
+export const coinReason = pgEnum('coin_reason', ['resale', 'achievement']);
+
+// Append-only: the balance is the sum of the player's entries and never goes
+// below zero (src/lib/game/coins.ts).
+export const coinLedger = pgTable(
+  'coin_ledger',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    amount: integer('amount').notNull(),
+    reason: coinReason('reason').notNull(),
+    // Unique per player and reason, so the same credit is never written twice:
+    // "<request key>:<card id>" for a resale, the achievement's ID for a reward
+    reference: text('reference').notNull(),
+    details: jsonb('details').notNull().default({}),
+    createdAt: createdAt(),
+  },
+  (table) => [uniqueIndex('coin_ledger_user_reason_reference_key').on(table.userId, table.reason, table.reference)],
+);
+
+export const achievementKind = pgEnum('achievement_kind', [
+  'distinct_cards',
+  'packs_opened',
+  'rarity_owned',
+  'series_completed',
+]);
+
+// An achievement is reached when the player's count for its kind (distinct
+// visible cards, packs opened, visible cards of `rarity`, completed series)
+// reaches `threshold`. Its title comes from messages/fr.json (Achievements).
+export const achievements = pgTable(
+  'achievements',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    code: text('code').notNull(),
+    kind: achievementKind('kind').notNull(),
+    threshold: integer('threshold').notNull(),
+    rarity: rarity('rarity'),
+    rewardCoins: integer('reward_coins').notNull(),
+    // Display order on the player's page
+    position: integer('position').notNull(),
+  },
+  (table) => [uniqueIndex('achievements_collection_code_key').on(table.collectionId, table.code)],
+);
+
+export const userAchievements = pgTable(
+  'user_achievements',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    achievementId: integer('achievement_id')
+      .notNull()
+      .references(() => achievements.id),
+    obtainedAt: timestamp('obtained_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.achievementId] })],
 );
