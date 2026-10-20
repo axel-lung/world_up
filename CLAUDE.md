@@ -21,7 +21,7 @@ Lot 1 is in progress: the technical foundation (Next.js app, database and migrat
 - The launch collection's slug is `heritage` (routes under `/c/heritage/...`); a card's slug derives from its name (`chateau-de-chambord`). The full route table is in the spec's "Interface" section.
 - Every game table carries `collection_id`, and per-collection styling is read from `collections.theme`: adding a collection must not require new UI code.
 - Tunable rules (rarity odds, refill interval and reserve size, prices, duplicate resale value, subscriber perks) are database parameters, never code constants. Seed defaults: 10 packs at signup, 1 pack every 10 minutes, reserve capped at 10.
-- Stack decisions: Drizzle (database access and migrations), Better Auth (accounts), GitHub (Actions CI, Dependabot), Brevo for e-mail (EU company; reached over SMTP, so only `.env` names it). Still open: Matomo or Plausible for analytics. Ask before picking one, then record the decision here.
+- Stack decisions: Drizzle (database access and migrations), Better Auth (accounts), GitHub (Actions CI, Dependabot), Brevo for e-mail (EU company; its transactional API in production and staging). Still open: Matomo or Plausible for analytics. Ask before picking one, then record the decision here.
 - UI text addresses the player as "vous", like the design system.
 - `scripts/` is reserved for the Python catalogue pipeline. Node entry points live in `src/entrypoints/`.
 
@@ -46,7 +46,7 @@ How the code maps onto it:
 - Server code that builds a filesystem path from runtime values needs a `/*turbopackIgnore: true*/` comment (see `src/lib/uploads.ts`). Without it, Next.js file tracing copies the whole project into `.next/standalone`, and the build prints a "Dynamic filesystem access" warning.
 - `src/db/index.ts` holds the one `pg` pool per process; `src/db/schema.ts` is the Drizzle schema, and `drizzle/` holds the generated SQL migrations, which are committed.
 - pg-boss queues are declared in `src/lib/queues.ts`. `migrate.js` installs the pg-boss schema and creates them, so the web app can send jobs (`src/lib/job-queue.ts`) before the worker has ever run. The worker registers the handlers in `src/worker/jobs.ts` and must stop within the 30 s `stop_grace_period`. Test shutdown with `docker stop worldup-worker`: on Windows, a signal sent to `npm` doesn't reach the Node process.
-- E-mails: the web app queues `{ template, to, url }`, and the worker renders the text from `messages/fr.json` (`Email`) and sends it over SMTP (`src/worker/send-email.ts`). Finished jobs are deleted after a day, since they hold an address and a one-time link.
+- E-mails: the web app queues `{ template, to, url }`, and the worker renders the text from `messages/fr.json` (`Email`) and sends it through Brevo's API, or over SMTP to Mailpit when `BREVO_API_KEY` is unset, as locally and in CI (`src/worker/send-email.ts`). A failure is logged with the addresses masked. Finished jobs are deleted after a day, since they hold an address and a one-time link.
 - `.env.example` holds local development values and documents the production ones. The real `.env` exists only on the server.
 
 Staging is a copy of the compose file with a different `name`, container names, Traefik router name and `APP_DOMAIN` (and Stripe in test mode); otherwise the two stacks collide on the server.

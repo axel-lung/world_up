@@ -42,28 +42,72 @@ export function renderEmail({ template, url }: EmailJob): RenderedEmail {
 
 // An e-mail waits 10 s at most, within the worker's 30 s stop grace period.
 const TIMEOUT_MS = 10_000;
+const BREVO_URL = 'https://api.brevo.com/v3/smtp/email';
 
-/** SMTP settings come from the environment: Mailpit locally, Brevo in production. */
-export function createEmailJob(): JobDefinition {
-  const user = process.env.SMTP_USER;
+type Send = (to: string, email: RenderedEmail) => Promise<void>;
+
+export interface Sender {
+  name?: string;
+  email: string;
+}
+
+/** Reads MAIL_FROM: `Name <address>` or a bare address. */
+export function parseSender(value: string): Sender {
+  const match = /^\s*"?([^"<]*?)"?\s*<([^<>\s]+)>\s*$/.exec(value);
+  return match ? { name: match[1] || undefined, email: match[2] } : { email: value.trim() };
+}
+
+function brevoSend(apiKey: string, sender: Sender): Send {
+  return async (to, { subject, text, html }) => {
+    const response = await fetch(BREVO_URL, {
+      method: 'POST',
+      headers: { 'api-key': apiKey, 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ sender, to: [{ email: to }], subject, htmlContent: html, textContent: text }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!response.ok) throw new Error(`Brevo answered ${response.status}: ${await response.text()}`);
+  };
+}
+
+function smtpSend(host: string, from: string): Send {
   const transport = nodemailer.createTransport({
-    host: requireEnv('SMTP_HOST'),
-    port: Number(process.env.SMTP_PORT ?? 587),
-    secure: process.env.SMTP_PORT === '465',
-    // Never send credentials over an unencrypted connection.
-    requireTLS: Boolean(user),
-    auth: user ? { user, pass: requireEnv('SMTP_PASSWORD') } : undefined,
+    host,
+    port: Number(process.env.SMTP_PORT ?? 1025),
     connectionTimeout: TIMEOUT_MS,
     greetingTimeout: TIMEOUT_MS,
     socketTimeout: TIMEOUT_MS,
   });
+  return async (to, email) => {
+    await transport.sendMail({ from, to, ...email });
+  };
+}
+
+const maskAddresses = (text: string) => text.replace(/[^\s<>"':,]+@[^\s<>"':,]+/g, '<address>');
+
+/**
+ * Brevo's transactional API when BREVO_API_KEY is set (production, staging),
+ * otherwise SMTP to the mail catcher at SMTP_HOST (Mailpit, locally and in CI).
+ */
+export function createEmailJob(): JobDefinition {
   const from = requireEnv('MAIL_FROM');
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey && !process.env.SMTP_HOST) {
+    throw new Error('Missing environment variable BREVO_API_KEY (or SMTP_HOST for a local mail catcher)');
+  }
+  const send = apiKey ? brevoSend(apiKey, parseSender(from)) : smtpSend(process.env.SMTP_HOST!, from);
 
   return {
     name: queues.email.name,
     handler: async ([job]: { data: EmailJob }[]) => {
-      // No address in the logs: a failure is recorded on the job by pg-boss.
-      await transport.sendMail({ from, to: job.data.to, ...renderEmail(job.data) });
+      try {
+        await send(job.data.to, renderEmail(job.data));
+      } catch (error) {
+        // Logged so that `docker compose logs` shows why, with no address in it.
+        // pg-boss keeps the same reason on the job and retries it.
+        const reason = maskAddresses(error instanceof Error ? error.message : String(error));
+        console.error(`E-mail ${job.data.template} not sent: ${reason}`);
+        throw new Error(reason);
+      }
     },
   };
 }
