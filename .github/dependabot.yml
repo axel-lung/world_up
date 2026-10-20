@@ -11,6 +11,10 @@ updates:
       # Types follow the Node.js version of the Docker image.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # typescript-eslint (through eslint-config-next) doesn't support TypeScript 7
+      # yet: lint fails. Remove once it does (typescript-eslint issue #10940).
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
