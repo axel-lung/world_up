@@ -21,6 +21,8 @@ export function testCard(id: number, overrides: Partial<CatalogCard> & { image?:
     department_code: '41',
     department: 'Loir-et-Cher',
     region: 'Centre-Val de Loire',
+    inception: 1519,
+    architect_death: null,
     excerpt: `Le monument ${id}.`,
     article: { title: `Monument ${id}`, revision: 1000 + id },
     photo: {

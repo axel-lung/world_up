@@ -16,8 +16,8 @@ FORMAT = 1
 COLLECTION = "heritage"
 # What the game stores of each card; the rest of data/cards.json only serves the pipeline
 CARD_FIELDS = ("wikidata_id", "slug", "name", "rank", "rarity", "protection", "unesco", "endangered", "family",
-               "department_code", "department", "region", "excerpt", "article", "photo_problem",
-               "memorial", "commercial", "twentieth_century", "hidden_reason", "series")
+               "department_code", "department", "region", "inception", "architect_death", "excerpt", "article",
+               "photo_problem", "memorial", "commercial", "twentieth_century", "hidden_reason", "series")
 PHOTO_FIELDS = ("commons_file", "width", "height", "author", "license", "license_url")
 
 

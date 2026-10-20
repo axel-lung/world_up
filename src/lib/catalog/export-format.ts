@@ -33,6 +33,10 @@ const cardSchema = z.object({
   department_code: z.string().nullable(),
   department: z.string().nullable(),
   region: z.string().nullable(),
+  // Year of construction and the last architect's death: the review of the
+  // 20th-century cards depends on them
+  inception: z.number().int().nullable(),
+  architect_death: z.number().int().nullable(),
   excerpt: z.string().nullable(),
   article: z.object({ title: z.string().min(1), revision: z.number().int().positive().nullable() }),
   photo: photoSchema.nullable(),

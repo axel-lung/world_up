@@ -78,6 +78,10 @@ class EditorialTest(unittest.TestCase):
         self.assertFalse(bc.twentieth_century(item(architect_deaths=[1955, None]), TODAY))
         self.assertTrue(bc.twentieth_century(item(designations=["Q3214312"]), TODAY))
 
+    def test_keeps_the_dates_the_review_needs(self):
+        [card], _ = build(item(inception=1931, architect_deaths=[1960, None, 1940]))
+        self.assertEqual((card["inception"], card["architect_death"]), (1931, 1960))
+
     def test_review_reason_comes_before_a_missing_photo(self):
         [card], _ = build(item(inception=1931), commons={})
         self.assertEqual((card["hidden_reason"], card["photo_problem"]), ("twentieth_century", "missing"))

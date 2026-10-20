@@ -64,6 +64,7 @@ The spec asks for a photo chosen by hand when a rare card's photo is rejected. `
     "wikidata_id": "Q243", "slug": "tour-eiffel", "name": "tour Eiffel", "rank": 1, "rarity": "legendary",
     "protection": "inscrit", "unesco": true, "endangered": false, "family": "Autres",
     "department_code": "75", "department": "Paris", "region": "Île-de-France",
+    "inception": 1887, "architect_death": null,
     "excerpt": "…", "article": { "title": "Tour Eiffel", "revision": 230000000 },
     "photo": {
       "commons_file": "Tour Eiffel Wikimedia Commons.jpg", "width": 2900, "height": 5367,

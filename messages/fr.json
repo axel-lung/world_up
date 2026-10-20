@@ -332,7 +332,9 @@
       "pagination": "Pages",
       "previous": "Page précédente",
       "next": "Page suivante",
-      "page": "Page {page} sur {pages}"
+      "page": "Page {page} sur {pages}",
+      "dates": "Repères",
+      "architectDeath": "† {year}"
     },
     "card": {
       "back": "Toutes les cartes",
@@ -386,7 +388,12 @@
       "changePhoto": "Remplacer la photo",
       "saved": "Modification enregistrée.",
       "history": "Historique",
-      "noHistory": "Aucune action sur cette carte."
+      "noHistory": "Aucune action sur cette carte.",
+      "inception": "Construction",
+      "architectDeath": "Mort de l'architecte",
+      "architectDeathValue": "{year} : domaine public le 1er janvier {free}",
+      "yearBC": "{year} av. J.-C.",
+      "unknown": "inconnue"
     },
     "errors": {
       "photoMissing": "Ce fichier est introuvable sur Wikimedia Commons.",

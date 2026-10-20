@@ -179,6 +179,9 @@ export const cards = pgTable(
     departmentCode: text('department_code'),
     department: text('department'),
     region: text('region'),
+    // For the review of the 20th-century cards (architect's copyright)
+    inceptionYear: integer('inception_year'),
+    architectDeathYear: integer('architect_death_year'),
     excerpt: text('excerpt'),
     articleTitle: text('article_title').notNull(),
     articleRevision: integer('article_revision'),

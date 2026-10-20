@@ -92,6 +92,7 @@ export default async function AdminCardsPage({ searchParams }: PageProps<'/admin
                 <th scope="col">{t('cards.rarity')}</th>
                 <th scope="col">{t('cards.place')}</th>
                 <th scope="col">{t('cards.visibility')}</th>
+                <th scope="col">{t('cards.dates')}</th>
               </tr>
             </thead>
             <tbody>
@@ -103,6 +104,18 @@ export default async function AdminCardsPage({ searchParams }: PageProps<'/admin
                   <td>{tRarity(card.rarity)}</td>
                   <td>{[card.department, card.region].filter(Boolean).join(' · ')}</td>
                   <td>{card.hiddenReason ? t(`card.hiddenReasons.${card.hiddenReason}`) : t('cards.visible')}</td>
+                  <td>
+                    {[
+                      card.inceptionYear !== null &&
+                        (card.inceptionYear < 0
+                          ? t('card.yearBC', { year: String(-card.inceptionYear) })
+                          : String(card.inceptionYear)),
+                      card.architectDeathYear !== null &&
+                        t('cards.architectDeath', { year: String(card.architectDeathYear) }),
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </td>
                 </tr>
               ))}
             </tbody>

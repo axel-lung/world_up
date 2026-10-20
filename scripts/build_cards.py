@@ -216,6 +216,8 @@ def build(base, views, commons, extracts, labels, overrides, today):
             "department_code": dept, "department": (base["depts"].get(dept) or {}).get("label") if dept else None,
             "region": DEPT_REGION.get(dept, OVERSEAS if dept and dept[:2] in ("97", "98") else None),
             "inception": it["inception"],
+            # The last known death among the architects: what copyright depends on
+            "architect_death": max((y for y in it["architect_deaths"] if y is not None), default=None),
             "article": {"title": article.get("title") or it["article"].replace("_", " "), "revision": article.get("revision")},
             "excerpt": excerpt(article.get("extract")),
             "photo": None if problem else {

@@ -35,6 +35,12 @@ export default async function AdminCardPage({ params }: PageProps<'/admin/cards/
     listAudit({ targetType: 'card', targetId: String(card.id), limit: 50 }),
   ]);
   const name = displayName(card.name);
+  // As strings: the formatter would print "1 931"
+  const year = (value: number) => (value < 0 ? t('yearBC', { year: String(-value) }) : String(value));
+  // French copyright ends on 1 January, 70 years after the year of death
+  const architectDeath = card.architectDeathYear
+    ? t('architectDeathValue', { year: year(card.architectDeathYear), free: String(card.architectDeathYear + 71) })
+    : t('unknown');
   const license = photoLicenseLabel(card.photoLicense, {
     publicDomain: tCard('publicDomain'),
     unknownLicense: tCard('unknownLicense'),
@@ -89,6 +95,14 @@ export default async function AdminCardPage({ params }: PageProps<'/admin/cards/
               <div>
                 <dt>{t('rank')}</dt>
                 <dd>{card.rank}</dd>
+              </div>
+              <div>
+                <dt>{t('inception')}</dt>
+                <dd>{card.inceptionYear !== null ? year(card.inceptionYear) : t('unknown')}</dd>
+              </div>
+              <div>
+                <dt>{t('architectDeath')}</dt>
+                <dd>{architectDeath}</dd>
               </div>
               <div>
                 <dt>{t('family')}</dt>

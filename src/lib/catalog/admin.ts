@@ -67,6 +67,8 @@ export async function searchCards({
       department: cards.department,
       region: cards.region,
       hiddenReason: cards.hiddenReason,
+      inceptionYear: cards.inceptionYear,
+      architectDeathYear: cards.architectDeathYear,
     })
     .from(cards)
     .where(where)

@@ -58,7 +58,13 @@ describe('importCatalog', () => {
     expect(report).toMatchObject({ inserted: 3, updated: 0, series: 2, hidden: { memorial: 1 } });
     expect(await seriesNumbers('centre-val-de-loire')).toEqual({ numbers: { Q1: 1, Q2: null, Q3: 2 }, count: 2 });
     expect(await seriesNumbers('chateaux-forteresses')).toEqual({ numbers: { Q3: 1 }, count: 1 });
-    expect((await cardRows()).get('Q1')).toMatchObject({ slug: 'monument-1', photoImage: '1aaaaaaaaaaaaaaaaaaa', hiddenReason: null });
+    expect((await cardRows()).get('Q1')).toMatchObject({
+      slug: 'monument-1',
+      photoImage: '1aaaaaaaaaaaaaaaaaaa',
+      hiddenReason: null,
+      inceptionYear: 1519,
+      architectDeathYear: null,
+    });
   });
 
   it('changes nothing when run again with the same export', async () => {
