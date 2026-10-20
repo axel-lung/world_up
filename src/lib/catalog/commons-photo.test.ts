@@ -62,8 +62,8 @@ describe('importCommonsPhoto', () => {
         width: 4000,
         height: 3000,
         sha1: 'cd'.repeat(20),
-        url: 'https://upload.example/original.jpg',
-        thumburl: 'https://upload.example/960px.jpg',
+        url: 'https://upload.wikimedia.org/original.jpg',
+        thumburl: 'https://upload.wikimedia.org/960px.jpg',
         extmetadata: {
           LicenseShortName: { value: 'CC BY-SA 4.0' },
           LicenseUrl: { value: 'https://creativecommons.org/licenses/by-sa/4.0' },
@@ -89,13 +89,19 @@ describe('importCommonsPhoto', () => {
     expect((await readdir(dir)).sort()).toEqual([`${'cd'.repeat(10)}-400.webp`, `${'cd'.repeat(10)}-800.webp`]);
     expect((await sharp(await readFile(path.join(dir, `${'cd'.repeat(10)}-400.webp`))).metadata()).width).toBe(400);
     // The download is the 960 px thumbnail, with a User-Agent that has a contact
-    expect(fetch).toHaveBeenLastCalledWith('https://upload.example/960px.jpg', expect.anything());
+    expect(fetch).toHaveBeenLastCalledWith('https://upload.wikimedia.org/960px.jpg', expect.anything());
     expect(fetch.mock.calls[0][1]).toMatchObject({ headers: { 'User-Agent': 'PatrimoineDeFrance/1.0 (https://jeu.example)' } });
   });
 
   it('refuses a photo that breaks the rules, before downloading it', async () => {
     const fetch = stubCommons({ ...page, imageinfo: [{ ...page.imageinfo[0], width: 800, height: 600 }] });
     await expect(importCommonsPhoto('Petite.jpg', dir)).rejects.toMatchObject({ code: 'photoTooSmall' });
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('only downloads from Wikimedia', async () => {
+    const fetch = stubCommons({ ...page, imageinfo: [{ ...page.imageinfo[0], thumburl: 'https://evil.example/x.jpg' }] });
+    await expect(importCommonsPhoto('Château de Test.jpg', dir)).rejects.toMatchObject({ code: 'photoDownload' });
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 

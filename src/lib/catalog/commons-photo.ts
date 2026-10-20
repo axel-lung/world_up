@@ -147,6 +147,8 @@ export async function importCommonsPhoto(file: string, dir: string = CARD_IMAGES
   const problem = photoProblem(info);
   if (problem) throw new PhotoRejected(problem);
   const image = info!.sha1.slice(0, 20);
+  // The address comes from the API's answer: only ever download from Wikimedia
+  if (!/^https:\/\/([a-z0-9-]+\.)*wikimedia\.org\//.test(info!.downloadUrl)) throw new PhotoRejected('photoDownload');
   const data = Buffer.from(await (await get(info!.downloadUrl)).arrayBuffer());
   const files = await toWebp(data).catch(() => {
     throw new PhotoRejected('photoDownload');
