@@ -1,10 +1,13 @@
 import { randomUUID } from 'node:crypto';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { inArray } from 'drizzle-orm';
 // The pool stays open: Playwright runs the next test files in the same worker
 import { db } from '@/db';
 import { cards, collections, series } from '@/db/schema';
 import { importCatalog } from '@/lib/catalog/import';
 import { testCard, testCatalog } from '@/lib/catalog/testing';
+import { CARD_IMAGES_DIR } from '@/lib/uploads';
 import { expect, newPlayer, signUpAndVerify, test } from './helpers';
 
 // A throwaway collection with one visible card and one hidden card.
@@ -76,6 +79,23 @@ test('a signed-in player reports a problem with a card', async ({ page }) => {
   await page.getByLabel('Votre message').fill('La date de construction est fausse.');
   await page.getByRole('button', { name: 'Envoyer le signalement' }).click();
   await expect(page.getByText('Merci : votre signalement a été transmis.')).toBeVisible();
+});
+
+// The server runs from the same folder as the tests: they share ./uploads
+test('serves a card photo from the uploads folder, cached for good', async ({ request }) => {
+  const name = `${randomUUID().replaceAll('-', '').slice(0, 20)}-400.webp`;
+  const file = path.join(CARD_IMAGES_DIR, name);
+  await mkdir(CARD_IMAGES_DIR, { recursive: true });
+  await writeFile(file, 'une photo de test');
+  try {
+    const response = await request.get(`/uploads/cards/${name}`);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toBe('image/webp');
+    expect(response.headers()['cache-control']).toBe('public, max-age=31536000, immutable');
+    expect((await request.get('/uploads/cards/absente-400.webp')).status()).toBe(404);
+  } finally {
+    await rm(file);
+  }
 });
 
 test('a hidden card has no page', async ({ page }) => {
