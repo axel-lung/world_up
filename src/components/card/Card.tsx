@@ -4,7 +4,7 @@ import { ArrowUpRightIcon, CameraIcon, CheckIcon, ImageIcon, InfoIcon, MapPinIco
 import { useTranslations } from 'next-intl';
 import { type MouseEvent, type ReactNode, useState } from 'react';
 import { RARITY_PIPS, type Rarity } from '@/lib/rarity';
-import { displayName, needsLetterbox, seriesNumber } from './card-format';
+import { displayName, needsLetterbox, photoSizes, seriesNumber } from './card-format';
 import styles from './Card.module.css';
 
 export interface CardPhoto {
@@ -107,6 +107,16 @@ export function Card({
   const hasBack = !missing && (canFlip || face === 'back');
   const showBack = hasBack && (face === 'back') !== flipped;
   const letterbox = framing === 'auto' && needsLetterbox(card.photo.width, card.photo.height);
+  const imageSizes = letterbox ? photoSizes(sizes, card.photo.width, card.photo.height) : sizes;
+  // Both images of a letterboxed photo load the same file, so they share its
+  // srcSet and priority: the blurred copy is often the page's largest paint
+  const imageLoading = {
+    srcSet: card.photo.srcSet,
+    sizes: imageSizes,
+    loading: priority ? ('eager' as const) : ('lazy' as const),
+    fetchPriority: priority ? ('high' as const) : undefined,
+    decoding: 'async' as const,
+  };
 
   const rarityLabel = tRarity(card.rarity);
   const name = masked ? t('toDiscover') : displayName(card.name);
@@ -137,7 +147,8 @@ export function Card({
       onClick={canFlip ? () => setFlipped((value) => !value) : undefined}
     >
       <div className={styles.inner} data-flipped={showBack || undefined}>
-        <div className={`${styles.face} ${styles.front}`} aria-hidden={showBack || undefined}>
+        {/* inert: the links and buttons of the face turned away can't take the focus */}
+        <div className={`${styles.face} ${styles.front}`} aria-hidden={showBack || undefined} inert={showBack || undefined}>
           <Banner
             rarity={card.rarity}
             label={rarityLabel}
@@ -148,7 +159,7 @@ export function Card({
           <div className={styles.photo}>
             {letterbox && !missing && !photoFailed && (
               // eslint-disable-next-line @next/next/no-img-element -- see below
-              <img className={styles.photoBackdrop} src={card.photo.src} alt="" aria-hidden="true" />
+              <img className={styles.photoBackdrop} src={card.photo.src} {...imageLoading} alt="" aria-hidden="true" />
             )}
             {photoFailed ? (
               <div className={styles.photoFallback}>
@@ -162,12 +173,8 @@ export function Card({
               <img
                 className={styles.photoImage}
                 src={card.photo.src}
-                srcSet={card.photo.srcSet}
-                sizes={sizes}
+                {...imageLoading}
                 alt={name}
-                loading={priority ? 'eager' : 'lazy'}
-                fetchPriority={priority ? 'high' : undefined}
-                decoding="async"
                 onError={() => setPhotoFailed(true)}
               />
             )}
@@ -221,7 +228,7 @@ export function Card({
         </div>
 
         {hasBack && (
-          <div className={`${styles.face} ${styles.back}`} aria-hidden={!showBack || undefined}>
+          <div className={`${styles.face} ${styles.back}`} aria-hidden={!showBack || undefined} inert={!showBack || undefined}>
             <Banner rarity={card.rarity} label={rarityLabel} />
             <h3 className={styles.backName}>{name}</h3>
             {card.excerpt && <p className={styles.excerpt}>{card.excerpt}</p>}
