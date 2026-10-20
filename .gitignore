@@ -12,13 +12,14 @@ playwright-report/
 .env.*
 !.env.example
 
-# Runtime data
-uploads/
-import/
+# Runtime data, at the root only: src/app/uploads/ is the route that serves the photos
+/uploads/
+/import/
+/import.tar
 # Catalogue pipeline downloads and intermediate files (scripts/)
 /data/
 __pycache__/
-backups/
+/backups/
 
 .DS_Store
 Thumbs.db
