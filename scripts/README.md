@@ -41,7 +41,7 @@ Tests: `python -m unittest discover -s scripts`.
   - `twentieth_century`: possibly still under the architect's copyright (built from 1900, a "XXe siècle" label, or an architect dead less than 70 years ago). To review in the back-office before showing it;
   - `photo`: no usable photo. Photos under 1,000 px on their long side, under the GFDL alone or without a licence are rejected, as are failed downloads.
 - **Photos chosen by hand**: `photo_overrides.csv` replaces a monument's Wikidata photo, for example to keep a day photo of the Eiffel Tower (its night lighting is protected). Add a line there, or use the back-office, for a rare card whose photo was rejected.
-- **Excerpt**: the first paragraph of the article's introduction, at most 600 characters, with the article's revision number.
+- **Excerpt**: the start of the article's introduction, whole paragraphs until 300 characters (a first paragraph is often a single sentence saying where the monument is), cut after a sentence past 600, with the article's revision number.
 - **Slug**: from the article title, which is unique on Wikipedia (`chateau-de-chambord`). The import keeps a card's slug once it exists, so its public address never changes.
 - **Series**: region, family (except "Autres"), Patrimoine mondial de l'UNESCO, Patrimoine en péril.
 

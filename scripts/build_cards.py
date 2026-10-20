@@ -74,6 +74,7 @@ ENDANGERED = {"Q54556283", "Q62018102", "Q96755602", "Q106392009", "Q111244206",
 
 # Photos with a shorter long side, or under the GFDL alone, are rejected
 MIN_LONG_SIDE = 1000
+EXCERPT_MIN = 300
 EXCERPT_MAX = 600
 
 
@@ -150,11 +151,18 @@ def clean_paragraph(text):
 
 
 def excerpt(text):
-    """First paragraph of the article's introduction, cut after a sentence when too long."""
-    paragraph = next((p for p in (clean_paragraph(p) for p in (text or "").split("\n")) if p), "")
-    if len(paragraph) <= EXCERPT_MAX:
-        return paragraph or None
-    cut = paragraph[:EXCERPT_MAX]
+    """The start of the article's introduction: whole paragraphs until EXCERPT_MIN
+    characters (a first paragraph is often a single sentence that only says where
+    the monument is), cut after a sentence when over EXCERPT_MAX."""
+    paragraphs = [p for p in (clean_paragraph(p) for p in (text or "").split("\n")) if p]
+    result = ""
+    for paragraph in paragraphs:
+        if len(result) >= EXCERPT_MIN:
+            break
+        result = f"{result} {paragraph}".strip()
+    if len(result) <= EXCERPT_MAX:
+        return result or None
+    cut = result[:EXCERPT_MAX]
     end = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "))
     return cut[:end + 1] if end > EXCERPT_MAX // 3 else cut.rsplit(" ", 1)[0] + "…"
 

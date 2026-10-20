@@ -100,8 +100,14 @@ class SeriesAndSlugTest(unittest.TestCase):
 
 
 class ExcerptTest(unittest.TestCase):
-    def test_keeps_the_first_paragraph(self):
-        self.assertEqual(bc.excerpt("Le château.\n\nSecond paragraphe."), "Le château.")
+    def test_keeps_a_long_enough_first_paragraph(self):
+        first = ("Le château de Test est un château de la Renaissance. " * 7).strip()
+        self.assertEqual(bc.excerpt(f"{first}\n\nSecond paragraphe."), first)
+
+    def test_adds_paragraphs_to_a_short_first_one(self):
+        second = ("Construit au XVIe siècle, il a abrité la cour du roi, puis une école et un musée. " * 4).strip()
+        self.assertEqual(bc.excerpt(f"Le château de Test est situé à Test.\n{second}\nTroisième."),
+                         f"Le château de Test est situé à Test. {second}")
 
     def test_drops_pronunciations(self):
         self.assertEqual(bc.excerpt("La tour Eiffel [tuʁɛfɛl]  est une tour ( écouter) de fer."),
