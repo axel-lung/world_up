@@ -109,6 +109,30 @@ test.describe('back-office', () => {
     await open.getByRole('row').filter({ hasText: reportMessage }).getByRole('button', { name: 'Traité' }).click();
     const closed = page.getByRole('region', { name: 'Traités récemment' });
     await expect(closed.getByRole('row').filter({ hasText: reportMessage })).toContainText('traité');
+
+    // The game rules: odds must sum to 100 %, and a resale value change is logged
+    await page.getByRole('link', { name: 'Règles du jeu' }).click();
+    const odds = page.getByRole('region', { name: 'Probabilités' });
+    await odds.getByLabel('Légendaire (%)').fill('1');
+    await odds.getByRole('button', { name: 'Publier ces probabilités' }).click();
+    await expect(odds.getByText('Les probabilités doivent faire 100 % en tout.')).toBeVisible();
+
+    const resale = page.getByRole('region', { name: 'Revente des doublons' });
+    const common = resale.getByLabel('Commune', { exact: true });
+    const before = await common.inputValue();
+    await resale.getByRole('button', { name: 'Enregistrer les valeurs' }).click();
+    await expect(resale.getByText("Aucune valeur n'a changé.")).toBeVisible();
+    const after = String(Number(before) + 1);
+    await common.fill(after);
+    await resale.getByRole('button', { name: 'Enregistrer les valeurs' }).click();
+    await expect(resale.getByText("C'est enregistré.")).toBeVisible();
+    await expect(page.getByRole('cell', { name: `Commune : ${before} → ${after}` })).toBeVisible();
+    // Back to the value the other tests read on /rules
+    await common.fill(before);
+    await resale.getByRole('button', { name: 'Enregistrer les valeurs' }).click();
+    await expect(page.getByRole('cell', { name: `Commune : ${after} → ${before}` })).toBeVisible();
+    const [account] = await db.select({ id: users.id }).from(users).where(eq(users.email, adminEmail!));
+    await db.delete(auditLog).where(and(eq(auditLog.adminId, account.id), eq(auditLog.targetType, 'collection')));
   });
 
   test('is a 404 for players', async ({ page }) => {
