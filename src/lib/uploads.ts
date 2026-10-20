@@ -6,6 +6,8 @@ import path from 'node:path';
 // The turbopackIgnore comments keep runtime files out of Next.js file tracing,
 // which would otherwise copy them (or the whole project) into the build.
 export const UPLOADS_DIR = path.join(/*turbopackIgnore: true*/ process.cwd(), 'uploads');
+// Card photos, <sha1>-400.webp and <sha1>-800.webp, served at /uploads/cards/.
+export const CARD_IMAGES_DIR = path.join(/*turbopackIgnore: true*/ UPLOADS_DIR, 'cards');
 
 const CONTENT_TYPES: Record<string, string> = {
   '.webp': 'image/webp',

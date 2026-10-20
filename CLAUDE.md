@@ -39,7 +39,7 @@ A single multi-stage `Dockerfile` (Node 22 Alpine, Next.js `standalone` output) 
 `worldup-db` (Postgres) and `worldup-backup` (daily `pg_dump`, 14 days kept in `./backups`) complete the stack.
 
 How the code maps onto it:
-- The standalone output only ships what the web app imports, so the Node entry points in `src/entrypoints/*.ts` are bundled by `esbuild.config.mjs` into self-contained `dist/*.js` files, which the Dockerfile copies next to `server.js` in `/app`. A new entry point (`import-catalog.js` in lot 2) needs a line in both files.
+- The standalone output only ships what the web app imports, so the Node entry points in `src/entrypoints/*.ts` are bundled by `esbuild.config.mjs` into self-contained `dist/*.js` files, which the Dockerfile copies next to `server.js` in `/app`. There are three (`migrate.js`, `worker.js`, `import-catalog.js`); a new one needs a line in both files.
 - `/api/health` (`src/app/api/health/route.ts`) returns 503 when the database is down. Traefik only routes to a healthy `worldup-web`.
 - Card images live in the `uploads` volume (`/app/uploads`) and are served by `src/app/uploads/[...path]/route.ts` with `Cache-Control: public, max-age=31536000, immutable`. Because of that cache, a changed photo must be written under a new file name, never over an existing one.
 - Server code that builds a filesystem path from runtime values needs a `/*turbopackIgnore: true*/` comment (see `src/lib/uploads.ts`). Without it, Next.js file tracing copies the whole project into `.next/standalone`, and the build prints a "Dynamic filesystem access" warning.
@@ -58,10 +58,12 @@ npm run db:up             # Postgres on localhost:5432, Mailpit inbox on http://
 npm run db:migrate        # apply the migrations in drizzle/, create the job queues
 npm run dev               # http://localhost:3000
 npm run worker            # pg-boss worker (sends the e-mails), in a second terminal
+npm run import-catalog    # load ./import (the pipeline's export) into the database and ./uploads
 
 npm run lint
 npm run typecheck         # next typegen (route types such as RouteContext), then tsc
 npm test                  # Vitest, src/**/*.test.ts
+npm run test:db           # Vitest against the database, src/**/*.db.test.ts (needs db:up and db:migrate)
 npx vitest run src/lib/uploads.test.ts   # one file
 npx vitest run -t "rejects"              # tests whose name matches
 python -m unittest discover -s scripts   # catalogue pipeline tests
@@ -94,7 +96,9 @@ The catalogue is built offline, then imported. Production never calls Wikimedia:
 
 - Flow, in 10 steps run on a workstation (`scripts/README.md` has the commands, the rules and the export format): Wikidata extraction, rarity from 12 months of Wikipedia clickstream visits, Commons photo metadata, excerpts, editorial triage (`build_cards.py`), WebP images at 400 and 800 px named after the photo's SHA-1, then `import/catalog.json`. The `import/` folder is copied to the server's `./import` (mounted read-only in the worker), and `import-catalog.js` copies the images into `uploads` and upserts the cards.
 - `scripts/` holds Python only, with no dependency on the app; `data/` (downloads and intermediate files) and `import/` are git-ignored.
-- The import upserts by Wikidata ID and must be re-runnable without creating duplicates. Rarities are frozen at launch: the 6-monthly re-import adds monuments or better photos but never changes an existing card's rarity. Only the back-office can change a rarity, and that change is logged.
+- The import (`src/lib/catalog/`) checks the whole export, copies the photos, then upserts by Wikidata ID in one transaction; running it again changes nothing. Rarities are frozen at launch: the 6-monthly re-import adds monuments or better photos but never changes an existing card's rarity. Only the back-office can change a rarity, and that change is logged.
+- An existing card also keeps its rank, its slug (its public address) and its visibility: `hidden_reason` is the import's on new cards only, except that a card hidden for want of a photo comes back when the export has one. A photo chosen in the back-office sets `photo_locked`, and the import then leaves it.
+- `card_series.position` is a card's stable place in a series (new cards go last); `number` ("004/1452") counts only visible cards, and `series.card_count` holds the total. Call `renumberSeries()` after anything that shows or hides a card.
 - Wikimedia access rules: a User-Agent with a contact address (otherwise the limit drops to 10 requests/min), at most 3 parallel requests, honour `Retry-After`.
 - Photo rejection rules and the editorial hiding rules (with their counts) are in the spec's "Catalogue" section.
 

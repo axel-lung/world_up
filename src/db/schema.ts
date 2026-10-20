@@ -1,5 +1,19 @@
 import { sql } from 'drizzle-orm';
-import { boolean, date, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  date,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core';
+import { RARITIES } from '@/lib/rarity';
 
 const createdAt = () => timestamp('created_at', { withTimezone: true }).notNull().defaultNow();
 const updatedAt = () => timestamp('updated_at', { withTimezone: true }).notNull().defaultNow();
@@ -106,4 +120,106 @@ export const consents = pgTable(
     acceptedAt: timestamp('accepted_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index('consents_user_id_idx').on(table.userId)],
+);
+
+// The catalogue, loaded by import-catalog.js from the pipeline's export
+// (scripts/README.md) and edited in the back-office.
+export const rarity = pgEnum('rarity', RARITIES);
+export const protection = pgEnum('protection', ['classe', 'inscrit']);
+// Why a card is out of packs and pages; null means visible. The import sets it
+// on new cards only (except "photo" once a usable photo arrives): afterwards
+// only the back-office changes it.
+export const hiddenReason = pgEnum('hidden_reason', ['memorial', 'commercial', 'twentieth_century', 'photo', 'admin']);
+export const photoProblem = pgEnum('photo_problem', ['missing', 'too_small', 'license', 'download']);
+export const seriesType = pgEnum('series_type', ['region', 'family', 'unesco', 'endangered']);
+
+export const cards = pgTable(
+  'cards',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    wikidataId: text('wikidata_id').notNull(),
+    // Public address (/c/<collection>/cards/<slug>): never changes once imported.
+    slug: text('slug').notNull(),
+    // Lowercase like the Wikidata label; the card capitalizes it.
+    name: text('name').notNull(),
+    // Frozen at import: only the back-office changes it, and logs the change.
+    rarity: rarity('rarity').notNull(),
+    // Popularity rank the rarity came from.
+    rank: integer('rank').notNull(),
+    protection: protection('protection'),
+    unesco: boolean('unesco').notNull().default(false),
+    endangered: boolean('endangered').notNull().default(false),
+    family: text('family'),
+    departmentCode: text('department_code'),
+    department: text('department'),
+    region: text('region'),
+    excerpt: text('excerpt'),
+    articleTitle: text('article_title').notNull(),
+    articleRevision: integer('article_revision'),
+    // The photo: the files are uploads/cards/<photo_image>-400.webp and -800.webp.
+    photoImage: text('photo_image'),
+    photoCommonsFile: text('photo_commons_file'),
+    photoWidth: integer('photo_width'),
+    photoHeight: integer('photo_height'),
+    photoAuthor: text('photo_author'),
+    photoLicense: text('photo_license'),
+    photoLicenseUrl: text('photo_license_url'),
+    // Chosen in the back-office: the import no longer replaces it.
+    photoLocked: boolean('photo_locked').notNull().default(false),
+    // Why the export had no usable photo for this card.
+    photoProblem: photoProblem('photo_problem'),
+    // Editorial flags from the pipeline, shown in the back-office.
+    memorial: boolean('memorial').notNull().default(false),
+    commercial: boolean('commercial').notNull().default(false),
+    twentiethCentury: boolean('twentieth_century').notNull().default(false),
+    hiddenReason: hiddenReason('hidden_reason'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    uniqueIndex('cards_collection_wikidata_key').on(table.collectionId, table.wikidataId),
+    uniqueIndex('cards_collection_slug_key').on(table.collectionId, table.slug),
+    // Pack draws pick among the visible cards of one rarity.
+    index('cards_visible_rarity_idx').on(table.collectionId, table.rarity).where(sql`${table.hiddenReason} IS NULL`),
+  ],
+);
+
+export const series = pgTable(
+  'series',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    slug: text('slug').notNull(),
+    type: seriesType('type').notNull(),
+    name: text('name').notNull(),
+    // Visible cards in the series, kept by renumberSeries().
+    cardCount: integer('card_count').notNull().default(0),
+  },
+  (table) => [uniqueIndex('series_collection_slug_key').on(table.collectionId, table.slug)],
+);
+
+export const cardSeries = pgTable(
+  'card_series',
+  {
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id, { onDelete: 'cascade' }),
+    seriesId: integer('series_id')
+      .notNull()
+      .references(() => series.id, { onDelete: 'cascade' }),
+    // Stable order in the series: rank at first import, later cards after.
+    position: integer('position').notNull(),
+    // "004/1452" on the card: position among the visible cards, null when the
+    // card is hidden. Kept by renumberSeries().
+    number: integer('number'),
+  },
+  (table) => [
+    primaryKey({ columns: [table.cardId, table.seriesId] }),
+    index('card_series_series_position_idx').on(table.seriesId, table.position),
+  ],
 );

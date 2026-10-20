@@ -52,6 +52,8 @@ jobs:
           git status --porcelain drizzle
           test -z "$(git status --porcelain drizzle)"
       - run: npm run db:migrate
+      - name: Database tests (catalogue import)
+        run: npm run test:db
       - run: npm run build
       # Against the production build (`next start`), where the rate limits are on.
       - run: npx playwright install --with-deps chromium

@@ -74,6 +74,10 @@ Tests: `python -m unittest discover -s scripts`.
 
 `photo` is `null` when no photo is usable; `photo_problem` then says why (`missing`, `too_small`, `license`, `download`). Names start lowercase, as on Wikidata: the card capitalizes them.
 
+## Loading it into the game
+
+Copy `import/` next to `docker-compose.yml` on the server (the worker mounts it read-only at `/app/import`), then run `docker compose exec worldup-worker node import-catalog.js`. Locally, `npm run import-catalog` reads `./import` and writes the photos to `./uploads`. The import checks the whole export and copies the photos before it changes the database, in one transaction, and running it again changes nothing.
+
 ## Every six months
 
 Run the steps again from step 1, with the latest 12 months at step 4. New monuments and better photos come in; the cards already in the game keep their rarity and slug.
