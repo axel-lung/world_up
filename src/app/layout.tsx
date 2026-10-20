@@ -7,8 +7,9 @@ import { getDefaultThemeCss } from '@/lib/collections';
 import { indexingAllowed } from '@/lib/indexing';
 import '@/styles/global.css';
 
-// Self-hosted by Next.js: no request to Google from the visitor's browser.
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+// Self-hosted by Next.js: no request to Google from the visitor's browser. Not
+// preloaded either: on a card page it would share the bandwidth with the photo.
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap', preload: false });
 // Display face of the heritage skin (pack, series headers, card names). Not
 // preloaded: it would compete with the card photo, the pages' largest paint.
 const overpass = Overpass({
