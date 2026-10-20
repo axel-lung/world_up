@@ -44,6 +44,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - name: Catalogue pipeline tests
+        run: python3 -m unittest discover -s scripts
       - name: Schema changes come with a generated migration
         run: |
           npx drizzle-kit generate

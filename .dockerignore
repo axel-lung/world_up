@@ -14,3 +14,5 @@ import
 backups
 docs
 *.md
+data
+scripts

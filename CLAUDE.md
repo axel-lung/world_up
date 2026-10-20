@@ -8,12 +8,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 "Patrimoine de France" is a web collectible card game: adult players (18+) open packs of cards depicting protected French monuments, build a collection, and can pay for a subscription or single packs. The specification, [docs/cahier-des-charges-developpement.md](docs/cahier-des-charges-developpement.md) (in French), is the source of truth: read the section relevant to a task before implementing it.
 
-Lot 1 is in progress: the technical foundation (Next.js app, database and migrations, worker, Docker image, compose stack, CI), the design system integration and player accounts are in place. Two-factor authentication for `/admin` comes with the back-office in lot 2.
+Lot 1 (technical foundation, design system integration, player accounts) is validated in staging. Lot 2, the catalogue, is in progress: the Python pipeline is in `scripts/`; the import, the public card pages and the back-office (with two-factor authentication for `/admin`) come next.
 
 - "worldup" is a placeholder project name (containers, volumes, network, database). It will be replaced everywhere once the game is named, so keep it in config and env files rather than scattered through application code.
 - Work proceeds in delivery lots, each validated in staging before the next: 1 foundations, 2 catalogue, 3 game, 4 payments (only after a lawyer has validated the setup), 5 closed beta and launch.
 - Version 2 features (player trades, auctions, friends, a second collection, shiny variant, card stats) are out of scope unless asked for. Never in scope: native mobile app, NFT/blockchain, any conversion of virtual currency to euros.
-- The Python catalogue scripts (spec pipeline steps 1–3) are meant to live in `scripts/` but haven't been added to the repo yet.
 
 ## Conventions
 
@@ -49,7 +48,7 @@ How the code maps onto it:
 - E-mails: the web app queues `{ template, to, url }`, and the worker renders the text from `messages/fr.json` (`Email`) and sends it through Brevo's API, or over SMTP to Mailpit when `BREVO_API_KEY` is unset, as locally and in CI (`src/worker/send-email.ts`). A failure is logged with the addresses masked. Finished jobs are deleted after a day, since they hold an address and a one-time link.
 - `.env.example` holds local development values and documents the production ones. The real `.env` exists only on the server.
 
-Staging is a copy of the compose file with a different `name`, container names, Traefik router name and `APP_DOMAIN` (and Stripe in test mode); otherwise the two stacks collide on the server.
+Staging is a copy of the compose file with a different `name`, container names, Traefik router name and `APP_DOMAIN` (and Stripe in test mode); otherwise the two stacks collide on the server. On the server, staging is its own clone: each deploy regenerates `docker-compose.staging.yml` with `sed 's/worldup/worldup-staging/g' docker-compose.yml`, and its `.env` sets `COMPOSE_FILE=docker-compose.staging.yml`, so a plain `docker compose` there never starts the production stack.
 
 ## Commands
 
@@ -65,6 +64,7 @@ npm run typecheck         # next typegen (route types such as RouteContext), the
 npm test                  # Vitest, src/**/*.test.ts
 npx vitest run src/lib/uploads.test.ts   # one file
 npx vitest run -t "rejects"              # tests whose name matches
+python -m unittest discover -s scripts   # catalogue pipeline tests
 
 npm run db:generate -- --name <change>   # after editing src/db/schema.ts; commit drizzle/
 npm run build             # next build, then the esbuild bundles in dist/
@@ -92,7 +92,8 @@ docker compose exec worldup-worker node import-catalog.js
 
 The catalogue is built offline, then imported. Production never calls Wikimedia: no API calls while playing and no images hotlinked from Commons.
 
-- Flow: Python scripts (Wikidata extraction, rarity from 12 months of Wikipedia clickstream visits, Commons photo metadata) → excerpts and editorial triage → WebP images at 400 and 800 px written to `uploads` → export in `./import` (mounted read-only in the worker) → `import-catalog.js`.
+- Flow, in 10 steps run on a workstation (`scripts/README.md` has the commands, the rules and the export format): Wikidata extraction, rarity from 12 months of Wikipedia clickstream visits, Commons photo metadata, excerpts, editorial triage (`build_cards.py`), WebP images at 400 and 800 px named after the photo's SHA-1, then `import/catalog.json`. The `import/` folder is copied to the server's `./import` (mounted read-only in the worker), and `import-catalog.js` copies the images into `uploads` and upserts the cards.
+- `scripts/` holds Python only, with no dependency on the app; `data/` (downloads and intermediate files) and `import/` are git-ignored.
 - The import upserts by Wikidata ID and must be re-runnable without creating duplicates. Rarities are frozen at launch: the 6-monthly re-import adds monuments or better photos but never changes an existing card's rarity. Only the back-office can change a rarity, and that change is logged.
 - Wikimedia access rules: a User-Agent with a contact address (otherwise the limit drops to 10 requests/min), at most 3 parallel requests, honour `Retry-After`.
 - Photo rejection rules and the editorial hiding rules (with their counts) are in the spec's "Catalogue" section.

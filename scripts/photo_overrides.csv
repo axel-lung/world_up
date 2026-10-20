@@ -1,0 +1,5 @@
+# Photos chosen by hand, used instead of the monument's Wikidata photo (P18).
+# One line per card: Wikidata ID; Commons file name, without "File:"; why.
+# Run fetch_commons.py again after adding a line, so that it checks the new file.
+wikidata_id;photo;note
+Q243;Tour Eiffel Wikimedia Commons.jpg;Photo de jour seulement : l'éclairage de nuit de la tour Eiffel est protégé
