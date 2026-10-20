@@ -174,7 +174,28 @@
     "ariaMissing": "manquante",
     "ariaShiny": "brillante",
     "showBack": "Voir le verso",
-    "showFront": "Voir le recto"
+    "showFront": "Voir le recto",
+    "publicDomain": "domaine public",
+    "unknownLicense": "licence non renseignée"
+  },
+  "CardPage": {
+    "description": "{name}, {place} : une carte de la collection {collection}.",
+    "cardHeading": "La carte",
+    "protection": {
+      "classe": "Classé monument historique",
+      "inscrit": "Inscrit monument historique"
+    },
+    "unesco": "Patrimoine mondial de l'UNESCO",
+    "endangered": "Patrimoine en péril",
+    "aboutHeading": "Le monument",
+    "seriesHeading": "Séries",
+    "seriesNumber": "n° {number} sur {total, number}",
+    "photoHeading": "La photo",
+    "photoCredit": "{author} · {license} · <link>fichier sur Wikimedia Commons</link>",
+    "collectHeading": "Collectionnez cette carte",
+    "collectText": "Créez votre compte : 10 paquets de 5 cartes vous attendent pour commencer votre collection.",
+    "signup": "Créer un compte",
+    "login": "Se connecter"
   },
   "Pack": {
     "packs": "{count, plural, one {paquet} other {paquets}}",

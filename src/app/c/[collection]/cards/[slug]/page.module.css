@@ -1,0 +1,161 @@
+/* Mobile: title, card, details. From 860 px: the card on the left, sticky. */
+.page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 16px 80px;
+  display: grid;
+  gap: 24px;
+  grid-template-areas:
+    "header"
+    "card"
+    "details";
+}
+
+.header {
+  grid-area: header;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header h1 {
+  margin: 0;
+  font-family: var(--skin-display-font, var(--font-heading));
+  font-size: 32px;
+  line-height: 1.15;
+}
+
+.collection {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-strong);
+  text-decoration: none;
+}
+
+.collection:hover {
+  text-decoration: underline;
+}
+
+.place {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.rarity {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--rar-fill);
+  color: var(--rar-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.card {
+  grid-area: card;
+  width: 100%;
+  max-width: 360px;
+  justify-self: center;
+}
+
+.details {
+  grid-area: details;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.section h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.section p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.external {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  color: var(--color-accent-strong);
+}
+
+.license {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.series {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.series li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.number {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.collect {
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (min-width: 860px) {
+  .page {
+    grid-template-columns: 360px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "card header"
+      "card details";
+    column-gap: 48px;
+    align-items: start;
+  }
+
+  .card {
+    position: sticky;
+    top: 32px;
+  }
+
+  .header h1 {
+    font-size: 40px;
+  }
+}

@@ -22,11 +22,13 @@ export interface CardPhoto {
 export interface CardData {
   name: string;
   rarity: Rarity;
-  department: string;
-  region: string;
-  protection: 'classe' | 'inscrit';
+  department: string | null;
+  region: string | null;
+  /** null for the few World Heritage monuments that are not historic monuments. */
+  protection: 'classe' | 'inscrit' | null;
   unesco: boolean;
-  series: { name: string; number: number; total: number };
+  /** The series printed in the footer, usually the region; a few cards have none. */
+  series: { name: string; number: number; total: number } | null;
   photo: CardPhoto;
   excerpt?: string;
   articleUrl?: string;
@@ -108,10 +110,10 @@ export function Card({
 
   const rarityLabel = tRarity(card.rarity);
   const name = masked ? t('toDiscover') : displayName(card.name);
-  const number = seriesNumber(card.series.number, card.series.total);
+  const number = card.series ? seriesNumber(card.series.number, card.series.total) : null;
   const author = card.photo.author ?? t('unknownAuthor');
-  const place = large ? `${card.department} · ${card.region}` : card.department;
-  const badges = [t(`protection.${card.protection}`), card.unesco ? t('unesco') : null].filter(Boolean);
+  const place = (large ? [card.department, card.region] : [card.department ?? card.region]).filter(Boolean).join(' · ');
+  const badges = [card.protection && t(`protection.${card.protection}`), card.unesco ? t('unesco') : null].filter(Boolean);
   const commonsLink = (chunks: ReactNode) => (
     <a href={card.photo.fileUrl} target="_blank" rel="noopener" onClick={stop}>
       {chunks}
@@ -212,7 +214,7 @@ export function Card({
             ))}
           </div>
           <div className={styles.footer}>
-            <span>{card.series.name}</span>
+            <span>{card.series?.name}</span>
             <span>{number}</span>
           </div>
           {shiny && <div className={styles.shine} aria-hidden="true" />}

@@ -76,7 +76,7 @@ npx playwright test -g "under 18"        # tests whose name matches
 CI=1 npm run test:e2e     # after `npm run build`: against `next start`, rate limits on
 ```
 
-The end-to-end tests need `db:up` and `db:migrate`, and read the e-mails from Mailpit's API (`e2e/helpers.ts`). Each test sends its own `X-Forwarded-For`, so the auth rate limits count tests apart. Better Auth only applies them in production, hence the `CI=1` run.
+The end-to-end tests need `db:up` and `db:migrate`, and read the e-mails from Mailpit's API (`e2e/helpers.ts`). `e2e/cards.spec.ts` imports a throwaway collection with `importCatalog()` and deletes it afterwards. Each test sends its own `X-Forwarded-For`, so the auth rate limits count tests apart. Better Auth only applies them in production, hence the `CI=1` run.
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests, migrations, the build and the end-to-end tests (with a Mailpit service). It fails when `schema.ts` changes without a generated migration. It also starts the production stack with `docker compose up -d --build --wait worldup-web worldup-worker`, on a throwaway `traefik` network. To do the same locally, create that network and point `.env` at `worldup-db` (save the development `.env` first).
 
@@ -142,6 +142,7 @@ The server decides everything: pack contents, timers and balances. The browser o
 - How it is wired: `design/Design system World Up.dc.html` is the mock-up kept for reference. `src/styles/nocturne.css` (the Nocturne base, imported in a cascade layer so everything else overrides it) and `src/styles/theme.css` (shared grounds, text and rarity colors) are global. The theme follows the system setting; `data-theme="dark"` or `"light"` forces it on any element. The accent family and the `--skin-*` variables come from `collections.theme`, validated by `src/lib/collection-theme.ts` and injected as a `<style>` by the root layout. Components live in `src/components/`, as CSS modules.
 - `/design` is the development showcase of every component, variant and state, in both themes: check UI changes there. It returns 404 in production.
 - Public card pages (`/c/heritage/cards/[slug]`) are the search-engine entry points. Each card shows its photo's author and licence with a link to the Commons file; the back shows the excerpt, the article link and "Texte : Wikipédia, licence CC BY-SA 4.0".
+- Card pages read `getVisibleCard()` (`src/lib/catalog/cards.ts`): a hidden card, or one of an inactive collection, has no page (404). `/sitemap.xml` lists every visible card, built at request time from the database. `NOINDEX=1` in staging's `.env` turns `robots.txt` into a disallow-all and adds a noindex robots meta to every page, since staging is public too.
 - Targets: LCP under 2.5 s on mobile 4G (lazy-loaded WebP), Lighthouse mobile ≥ 90 performance and ≥ 95 accessibility on a card page, WCAG 2.1 AA. The pack-opening animation lasts at most 3 s, can be skipped, and becomes a simple fade under `prefers-reduced-motion`.
 
 ## Acceptance
