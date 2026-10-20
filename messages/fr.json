@@ -334,7 +334,13 @@
       "next": "Page suivante",
       "page": "Page {page} sur {pages}",
       "dates": "Repères",
-      "architectDeath": "† {year}"
+      "architectDeath": "† {year}",
+      "select": "Choisir",
+      "selectCard": "Choisir {name}",
+      "bulkNote": "Note pour le journal (facultative)",
+      "showSelected": "Rendre visibles les cartes choisies",
+      "bulkShown": "{count, plural, =0 {Aucune carte rendue visible.} one {# carte rendue visible.} other {# cartes rendues visibles.}}",
+      "bulkSkipped": "{count, plural, one {# carte sans photo utilisable reste masquée.} other {# cartes sans photo utilisable restent masquées.}}"
     },
     "card": {
       "back": "Toutes les cartes",

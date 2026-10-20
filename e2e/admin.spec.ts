@@ -21,14 +21,24 @@ test.describe('back-office', () => {
   test.beforeAll(async () => {
     const [row] = await db.insert(collections).values({ slug: collection, name: 'Patrimoine de France', active: true }).returning();
     collectionId = row.id;
-    await importCatalog(db, testCatalog([testCard(1, { name: 'château de Test' })], collection));
+    await importCatalog(
+      db,
+      testCatalog(
+        [
+          testCard(1, { name: 'château de Test' }),
+          // A 20th-century card to review: its architect died in 1945
+          testCard(2, { name: `villa ${collection}`, twentieth_century: true, hidden_reason: 'twentieth_century', architect_death: 1945 }),
+        ],
+        collection,
+      ),
+    );
     // A player's report for the admin to handle
     const id = randomUUID().slice(0, 8);
     const [player] = await db
       .insert(users)
       .values({ name: `e2e_${id}`, email: `${id}@example.test`, emailVerified: true, birthDate: '1990-01-01' })
       .returning();
-    const [card] = await db.select().from(cards).where(eq(cards.collectionId, collectionId));
+    const [card] = await db.select().from(cards).where(and(eq(cards.collectionId, collectionId), eq(cards.wikidataId, 'Q1')));
     await createReport(db, player.id, card.id, 'photo', reportMessage);
   });
 
@@ -73,7 +83,7 @@ test.describe('back-office', () => {
     await expect(page.getByRole('heading', { name: 'Mon compte', exact: true })).toBeVisible();
 
     // Hiding a card takes its public page away and goes to the log
-    const [card] = await db.select().from(cards).where(eq(cards.collectionId, collectionId));
+    const [card] = await db.select().from(cards).where(and(eq(cards.collectionId, collectionId), eq(cards.wikidataId, 'Q1')));
     await page.goto(`/admin/cards/${card.id}`);
     await expect(page.getByRole('heading', { name: 'Château de Test', level: 1 })).toBeVisible();
     await page.getByLabel('Motif').selectOption('admin');
@@ -83,6 +93,15 @@ test.describe('back-office', () => {
     await expect(page.getByText('Cette carte est masquée (masquée à la main).')).toBeVisible();
     await expect(page.getByRole('cell', { name: 'Visible → masquée à la main · photo floue' })).toBeVisible();
     expect((await page.request.get(`/c/${collection}/cards/${card.slug}`)).status()).toBe(404);
+
+    // The review of the 20th-century cards, with the architect's death year, in bulk
+    await page.goto(`/admin/cards?status=review&q=${collection}`);
+    const villa = page.getByRole('row').filter({ hasText: `Villa ${collection}` });
+    await expect(villa).toContainText('† 1945');
+    await villa.getByRole('checkbox').check();
+    await page.getByRole('button', { name: 'Rendre visibles les cartes choisies' }).click();
+    await expect(page.getByText('1 carte rendue visible.')).toBeVisible();
+    expect((await page.request.get(`/c/${collection}/cards/monument-2`)).status()).toBe(200);
 
     // The player's report: handled, it moves to the closed list
     await page.getByRole('link', { name: 'Signalements' }).click();

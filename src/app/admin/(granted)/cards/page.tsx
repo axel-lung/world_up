@@ -4,10 +4,12 @@ import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
 import { displayName } from '@/components/card/card-format';
 import { Button } from '@/components/ui/Button';
+import { Notice } from '@/components/ui/Notice';
 import { TextField } from '@/components/ui/TextField';
 import { requireAdmin } from '@/lib/admin';
 import { PAGE_SIZE, searchCards } from '@/lib/catalog/admin';
 import { RARITIES } from '@/lib/rarity';
+import { showCards } from './actions';
 import styles from '../../admin.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -35,6 +37,9 @@ export default async function AdminCardsPage({ searchParams }: PageProps<'/admin
     rarity: one(params.rarity) || null,
     page: one(params.page) ?? 1,
   });
+  // Counts sent back by the bulk action
+  const shown = Number(one(params.shown));
+  const skipped = Number(one(params.skipped)) || 0;
   const [t, tRarity, { total, rows }] = await Promise.all([
     getTranslations('Admin'),
     getTranslations('Rarity'),
@@ -49,6 +54,8 @@ export default async function AdminCardsPage({ searchParams }: PageProps<'/admin
     query.set('page', String(page));
     return `/admin/cards?${query}`;
   };
+  // Hidden cards can be shown in bulk: the 20th-century review
+  const bulk = filters.status === 'review' || filters.status === 'hidden';
 
   return (
     <main className={styles.stack}>
@@ -83,44 +90,77 @@ export default async function AdminCardsPage({ searchParams }: PageProps<'/admin
         <Button type="submit">{t('cards.filter')}</Button>
       </form>
 
+      {Number.isInteger(shown) && (
+        <Notice tone="success">
+          <p>{t('cards.bulkShown', { count: shown })}</p>
+          {skipped > 0 && <p>{t('cards.bulkSkipped', { count: skipped })}</p>}
+        </Notice>
+      )}
+
       {rows.length > 0 && (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th scope="col">{t('cards.name')}</th>
-                <th scope="col">{t('cards.rarity')}</th>
-                <th scope="col">{t('cards.place')}</th>
-                <th scope="col">{t('cards.visibility')}</th>
-                <th scope="col">{t('cards.dates')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((card) => (
-                <tr key={card.id}>
-                  <td>
-                    <Link href={`/admin/cards/${card.id}`}>{displayName(card.name)}</Link>
-                  </td>
-                  <td>{tRarity(card.rarity)}</td>
-                  <td>{[card.department, card.region].filter(Boolean).join(' · ')}</td>
-                  <td>{card.hiddenReason ? t(`card.hiddenReasons.${card.hiddenReason}`) : t('cards.visible')}</td>
-                  <td>
-                    {[
-                      card.inceptionYear !== null &&
-                        (card.inceptionYear < 0
-                          ? t('card.yearBC', { year: String(-card.inceptionYear) })
-                          : String(card.inceptionYear)),
-                      card.architectDeathYear !== null &&
-                        t('cards.architectDeath', { year: String(card.architectDeathYear) }),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </td>
+        <form action={showCards} className={styles.stack}>
+          <input type="hidden" name="back" value={pageLink(filters.page)} />
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  {bulk && (
+                    <th scope="col">
+                      <span className="sr-only">{t('cards.select')}</span>
+                    </th>
+                  )}
+                  <th scope="col">{t('cards.name')}</th>
+                  <th scope="col">{t('cards.rarity')}</th>
+                  <th scope="col">{t('cards.place')}</th>
+                  <th scope="col">{t('cards.visibility')}</th>
+                  <th scope="col">{t('cards.dates')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {rows.map((card) => (
+                  <tr key={card.id}>
+                    {bulk && (
+                      <td>
+                        <input
+                          type="checkbox"
+                          name="cardId"
+                          value={card.id}
+                          aria-label={t('cards.selectCard', { name: displayName(card.name) })}
+                        />
+                      </td>
+                    )}
+                    <td>
+                      <Link href={`/admin/cards/${card.id}`}>{displayName(card.name)}</Link>
+                    </td>
+                    <td>{tRarity(card.rarity)}</td>
+                    <td>{[card.department, card.region].filter(Boolean).join(' · ')}</td>
+                    <td>{card.hiddenReason ? t(`card.hiddenReasons.${card.hiddenReason}`) : t('cards.visible')}</td>
+                    <td>
+                      {[
+                        card.inceptionYear !== null &&
+                          (card.inceptionYear < 0
+                            ? t('card.yearBC', { year: String(-card.inceptionYear) })
+                            : String(card.inceptionYear)),
+                        card.architectDeathYear !== null &&
+                          t('cards.architectDeath', { year: String(card.architectDeathYear) }),
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {bulk && (
+            <div className={styles.filters}>
+              <TextField label={t('cards.bulkNote')} name="note" maxLength={500} />
+              <Button type="submit" variant="primary">
+                {t('cards.showSelected')}
+              </Button>
+            </div>
+          )}
+        </form>
       )}
 
       {pages > 1 && (
