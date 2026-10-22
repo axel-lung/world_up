@@ -139,7 +139,7 @@ export function PackOpener({
   }, []);
 
   // The focus follows the action: the card to turn over, then the summary,
-  // then the next pack's button
+  // and the pack's button again after a failed opening
   useEffect(() => {
     if (phase === 'stack') cardButton.current?.focus();
     if (phase === 'done') doneHeading.current?.focus();
@@ -149,10 +149,15 @@ export function PackOpener({
     }
   }, [phase]);
 
+  // From the closed pack, or straight from the end of the previous one
   const open = async () => {
-    if (phase !== 'pack' || !canOpen) return;
+    if ((phase !== 'pack' && phase !== 'done') || !canOpen) return;
     const reduced = reducedMotion();
+    clearTimers();
     setError(null);
+    setOpened(null);
+    setIndex(0);
+    setRevealed(false);
     setPhase('shake');
     const shaken = new Promise((resolve) => later(() => resolve(null), reduced ? 0 : SHAKE_MS));
     const result = await openPackAction({ collection, key });
@@ -160,6 +165,7 @@ export function PackOpener({
     if (!result.ok) {
       clearTimers();
       setError(result.error);
+      focusOpen.current = true;
       setPhase('pack');
       return;
     }
@@ -208,15 +214,6 @@ export function PackOpener({
     setRevealed(false);
     setIndex(opened.cards.length);
     setPhase('done');
-  };
-
-  const nextPack = () => {
-    clearTimers();
-    focusOpen.current = true;
-    setOpened(null);
-    setIndex(0);
-    setRevealed(false);
-    setPhase('pack');
   };
 
   const count = opened?.cards.length ?? cardsPerPack;
@@ -299,13 +296,15 @@ export function PackOpener({
                     data-hidden={phase === 'tear' || undefined}
                     data-face={faceUp ? 'up' : 'down'}
                     data-top={isTop || undefined}
-                    // The cards still to see, or put away, are out of reach until the end
-                    inert={!(done || (isTop && revealed)) || undefined}
+                    // The cards below the top one, or put away, are out of reach
+                    // until the end. The top one takes clicks (an inert element
+                    // takes none) and hides only its face while turned down.
+                    inert={!(done || isTop) || undefined}
                     onClick={isTop ? tap : undefined}
                   >
                     <div className={styles.tilt} data-suspense={(isTop && suspense && (RARITY_PIPS[entry.card.data.rarity] >= 6 ? 'strong' : 'soft')) || undefined}>
                       <div className={styles.flip}>
-                        <div className={styles.front}>
+                        <div className={styles.front} inert={!faceUp || undefined}>
                           <div className={styles.cardScaler}>
                             <Card
                               card={entry.card.data}
@@ -449,7 +448,7 @@ export function PackOpener({
                 </ul>
               </Notice>
             )}
-            <Button variant="primary" size="large" block onClick={nextPack} disabled={!canOpen} icon={<PackageOpen aria-hidden />}>
+            <Button variant="primary" size="large" block onClick={open} disabled={!canOpen} icon={<PackageOpen aria-hidden />}>
               {canOpen ? t('openNext', { count: Math.max(1, reserve.available) }) : t('noPack')}
             </Button>
             {!canOpen && <p className={styles.reserve}>{nextPackIn}</p>}
