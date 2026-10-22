@@ -1,4 +1,5 @@
 import { CircleUser, Coins } from 'lucide-react';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { PackReserveCompact } from '@/components/pack/PackReserve';
@@ -10,8 +11,10 @@ import { gamePath } from '@/lib/game/paths';
 import { getReserve } from '@/lib/game/packs';
 import { getActiveCollection } from '@/lib/game/rules';
 import { getSession } from '@/lib/session';
+import { themePreference } from '@/lib/theme-preference';
 import { NavLinks } from './NavLinks';
 import styles from './SiteHeader.module.css';
+import { ThemeSwitch } from './ThemeSwitch';
 
 /** The site's header: the game's pages, and the player's packs and coins once signed in. */
 export async function SiteHeader() {
@@ -85,7 +88,7 @@ export async function SiteHeader() {
 }
 
 export async function SiteFooter() {
-  const t = await getTranslations('Nav');
+  const [t, cookieStore] = await Promise.all([getTranslations('Nav'), cookies()]);
   return (
     <footer className={styles.footer}>
       <ul>
@@ -102,6 +105,7 @@ export async function SiteFooter() {
           <Link href="/credits">{t('credits')}</Link>
         </li>
       </ul>
+      <ThemeSwitch initial={themePreference(cookieStore)} />
       <p>{t('noMoneyValue')}</p>
     </footer>
   );

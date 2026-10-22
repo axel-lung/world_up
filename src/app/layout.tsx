@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import { Caprasimo, Figtree } from 'next/font/google';
+import { cookies } from 'next/headers';
 import { connection } from 'next/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { getDefaultThemeCss } from '@/lib/collections';
 import { indexingAllowed } from '@/lib/indexing';
+import { themeAttribute, themePreference } from '@/lib/theme-preference';
 import '@/styles/global.css';
 
 // Self-hosted by Next.js: no request to Google from the visitor's browser. Not
@@ -35,9 +37,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
   // The collection theme lives in the database: render at request time.
   await connection();
-  const [locale, themeCss] = await Promise.all([getLocale(), getDefaultThemeCss()]);
+  const [locale, themeCss, cookieStore] = await Promise.all([getLocale(), getDefaultThemeCss(), cookies()]);
   return (
-    <html lang={locale} className={`${figtree.variable} ${caprasimo.variable}`}>
+    // The visitor's theme choice (src/components/layout/ThemeSwitch.tsx), if any
+    <html
+      lang={locale}
+      className={`${figtree.variable} ${caprasimo.variable}`}
+      data-theme={themeAttribute(themePreference(cookieStore))}
+    >
       <head>
         {/* Validated by parseCollectionTheme: only custom properties, no markup. */}
         {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}

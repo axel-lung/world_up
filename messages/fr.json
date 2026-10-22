@@ -539,6 +539,12 @@
     "coins": "{count, number} <word>{count, plural, one {pièce} other {pièces}}</word>",
     "noMoneyValue": "Les cartes et les pièces n'ont aucune valeur en argent : elles ne s'échangent pas contre des euros et ne quittent jamais le jeu."
   },
+  "Theme": {
+    "label": "Thème",
+    "system": "Auto",
+    "light": "Clair",
+    "dark": "Sombre"
+  },
   "Game": {
     "welcome": "Bonjour {pseudo}",
     "packsHeading": "Vos paquets",
