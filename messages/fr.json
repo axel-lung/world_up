@@ -71,7 +71,7 @@
     "verified": {
       "title": "Adresse confirmée",
       "done": "Votre adresse e-mail est confirmée : votre compte est actif.",
-      "continue": "Accéder à mon compte",
+      "continue": "Commencer à jouer",
       "invalidTitle": "Lien expiré",
       "invalid": "Ce lien de confirmation n'est plus valable. Connectez-vous : un nouveau lien vous sera envoyé.",
       "login": "Se connecter"

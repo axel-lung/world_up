@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import styles from '@/components/account/AuthForm.module.css';
 import { ButtonLink } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Notice';
+import { PLAYER_HOME } from '@/lib/collections';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Auth.verified');
@@ -35,7 +36,7 @@ export default async function EmailVerifiedPage({ searchParams }: PageProps<'/em
       <Notice tone="success">
         <p>{t('done')}</p>
       </Notice>
-      <ButtonLink href="/account" variant="primary" block>
+      <ButtonLink href={PLAYER_HOME} variant="primary" block>
         {t('continue')}
       </ButtonLink>
     </div>
