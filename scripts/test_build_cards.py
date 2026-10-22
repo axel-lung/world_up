@@ -39,12 +39,21 @@ class RarityTest(unittest.TestCase):
 
 
 class PhotoTest(unittest.TestCase):
-    def test_rejects_small_photos_and_gfdl_alone(self):
+    def test_rejects_small_photos_and_gfdl_or_gpl_alone(self):
         self.assertIsNone(bc.photo_problem(photo(width=1000, height=700)))
         self.assertEqual(bc.photo_problem(photo(width=999, height=700)), "too_small")
         self.assertEqual(bc.photo_problem(photo(license="GFDL")), "license")
+        self.assertEqual(bc.photo_problem(photo(license="GPL")), "license")
+        self.assertEqual(bc.photo_problem(photo(license="GNU GPL")), "license")
         self.assertEqual(bc.photo_problem(photo(license="")), "license")
         self.assertEqual(bc.photo_problem(None), "missing")
+        self.assertIsNone(bc.photo_problem(photo(license="FAL")))
+
+    def test_rejects_a_photo_whose_licence_wants_an_author_it_lacks(self):
+        anonymous = {**photo(), "artist": "", "uploader": "BetacommandBot"}
+        self.assertEqual(bc.photo_problem(anonymous), "license")
+        self.assertIsNone(bc.photo_problem({**anonymous, "license": "Public domain"}))
+        self.assertIsNone(bc.photo_problem({**anonymous, "uploader": "Vpe"}))
 
     def test_rejected_photo_hides_the_card(self):
         [card], _ = build(item(), commons={"Q1.jpg": photo(width=640, height=480)})
@@ -66,6 +75,19 @@ class PhotoTest(unittest.TestCase):
         self.assertEqual(bc.clean_author("No machine-readable author provided. Calips assumed (based on copyright claims)."), "Calips")
         self.assertIsNone(bc.clean_author("Unknown authorUnknown author"))
 
+    def test_credits_the_required_line_then_the_author_then_the_uploader(self):
+        self.assertEqual(bc.photo_author({"attribution": "© Jean Photo / CC BY-SA", "artist": "Jean"}), "© Jean Photo / CC BY-SA")
+        self.assertEqual(bc.photo_author({"attribution": "", "artist": "Jean Photo", "uploader": "Jp"}), "Jean Photo")
+        self.assertEqual(bc.photo_author({"attribution": "", "artist": "", "uploader": "Manfred Heyde"}), "Manfred Heyde")
+        self.assertIsNone(bc.photo_author({"artist": "Unknown author"}))
+        self.assertEqual(bc.photo_author({"attribution": "I, Semnoz", "artist": "Semnoz (talk)"}), "Semnoz")
+        self.assertEqual(bc.photo_author({"attribution": "x" * 200, "artist": "Wolfgang Pehlemann"}), "Wolfgang Pehlemann")
+        self.assertIsNone(bc.photo_author({"artist": "", "uploader": "File Upload Bot (Magnus Manske)"}))
+        self.assertEqual(bc.photo_author({"artist": "", "uploader": "Donna Nobot"}), "Donna Nobot")
+        commons = {"Q1.jpg": {**photo(), "artist": "", "uploader": "Manfred Heyde"}}
+        [card], _ = build(item(), commons=commons)
+        self.assertEqual(card["photo"]["author"], "Manfred Heyde")
+
 
 class EditorialTest(unittest.TestCase):
     def test_hides_places_of_remembrance_and_businesses(self):
@@ -85,6 +107,14 @@ class EditorialTest(unittest.TestCase):
     def test_review_reason_comes_before_a_missing_photo(self):
         [card], _ = build(item(inception=1931), commons={})
         self.assertEqual((card["hidden_reason"], card["photo_problem"]), ("twentieth_century", "missing"))
+
+    def test_national_domains_go_to_review_first(self):
+        louvre = item("Q1075988", label="palais du Louvre", designations=["Q3214312"])
+        cards, _ = build(item("Q205367", label="château de Chambord"), louvre, item("Q2"))
+        by_id = {c["wikidata_id"]: c for c in cards}
+        self.assertEqual({q: (c["national_domain"], c["hidden_reason"]) for q, c in by_id.items()},
+                         {"Q205367": (True, "national_domain"), "Q1075988": (True, "national_domain"), "Q2": (False, None)})
+        self.assertTrue(by_id["Q1075988"]["twentieth_century"])
 
 
 class SeriesAndSlugTest(unittest.TestCase):

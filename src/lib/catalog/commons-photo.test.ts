@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { type CommonsInfo, cleanAuthor, importCommonsPhoto, photoProblem } from './commons-photo';
+import { type CommonsInfo, cleanAttribution, cleanAuthor, importCommonsPhoto, photoProblem } from './commons-photo';
 
 const info = (overrides: Partial<CommonsInfo> = {}): CommonsInfo => ({
   title: 'Château de Test.jpg',
@@ -14,14 +14,16 @@ const info = (overrides: Partial<CommonsInfo> = {}): CommonsInfo => ({
   license: 'CC BY-SA 4.0',
   licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
   artist: 'Jean Photo',
+  attribution: '',
   ...overrides,
 });
 
 describe('photo rules', () => {
-  it('follow the pipeline: 1,000 px on the long side, no GFDL alone, a licence', () => {
+  it('follow the pipeline: 1,000 px on the long side, no GFDL or GPL alone, a licence', () => {
     expect(photoProblem(info({ width: 1000, height: 600 }))).toBeNull();
     expect(photoProblem(info({ width: 999, height: 600 }))).toBe('photoTooSmall');
     expect(photoProblem(info({ license: 'GFDL' }))).toBe('photoLicense');
+    expect(photoProblem(info({ license: 'GPL' }))).toBe('photoLicense');
     expect(photoProblem(info({ license: null }))).toBe('photoLicense');
     expect(photoProblem(info({ license: 'Public domain' }))).toBeNull();
     expect(photoProblem(null)).toBe('photoMissing');
@@ -30,6 +32,8 @@ describe('photo rules', () => {
   it('simplify the author lines Commons generates', () => {
     expect(cleanAuthor('No machine-readable author provided. Calips assumed (based on copyright claims).')).toBe('Calips');
     expect(cleanAuthor('Unknown author')).toBeNull();
+    expect(cleanAttribution('I, Semnoz')).toBe('Semnoz');
+    expect(cleanAttribution('x'.repeat(200))).toBeNull();
   });
 });
 
@@ -91,6 +95,28 @@ describe('importCommonsPhoto', () => {
     // The download is the 960 px thumbnail, with a User-Agent that has a contact
     expect(fetch).toHaveBeenLastCalledWith('https://upload.wikimedia.org/960px.jpg', expect.anything());
     expect(fetch.mock.calls[0][1]).toMatchObject({ headers: { 'User-Agent': 'WorldUp/1.0 (https://jeu.example)' } });
+  });
+
+  it('credits the line the author asks for, or else the first uploader', async () => {
+    const jpeg = await sharp({ create: { width: 960, height: 720, channels: 3, background: '#8a5a34' } }).jpeg().toBuffer();
+    const meta = page.imageinfo[0].extmetadata;
+    stubCommons({ ...page, imageinfo: [{ ...page.imageinfo[0], extmetadata: { ...meta, Attribution: { value: '© Jean Photo' } } }] }, jpeg);
+    expect(await importCommonsPhoto('Château de Test.jpg', dir)).toMatchObject({ author: '© Jean Photo' });
+
+    // No author in the description: the uploader of the oldest version
+    const versions = [{ user: 'Recadreur' }, { user: 'Manfred Heyde' }];
+    const anonymous = { ...page.imageinfo[0], extmetadata: { LicenseShortName: meta.LicenseShortName } };
+    const fetch = vi.fn<(url: string) => Promise<Response>>(async (url) => {
+      if (!url.startsWith('https://commons.wikimedia.org/w/api.php')) return new Response(new Uint8Array(jpeg));
+      const uploaders = new URL(url).searchParams.get('iiprop') === 'user';
+      return Response.json({ query: { pages: [{ ...page, imageinfo: uploaders ? versions : [anonymous] }] } });
+    });
+    vi.stubGlobal('fetch', fetch);
+    expect(await importCommonsPhoto('Château de Test.jpg', dir)).toMatchObject({ author: 'Manfred Heyde' });
+
+    // A bot transferred it: no author to credit, so a CC photo is refused
+    versions.push({ user: 'File Upload Bot (Magnus Manske)' });
+    await expect(importCommonsPhoto('Château de Test.jpg', dir)).rejects.toMatchObject({ code: 'photoLicense' });
   });
 
   it('refuses a photo that breaks the rules, before downloading it', async () => {

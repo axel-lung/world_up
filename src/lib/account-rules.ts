@@ -4,9 +4,12 @@
 export const MIN_PASSWORD_LENGTH = 12;
 export const MAX_PASSWORD_LENGTH = 128;
 
-// Version of the terms of use a new player accepts, stored in `consents`.
-// Bump it when the published text changes.
-export const TERMS_VERSION = '2026-10-draft';
+// Version of the terms of use (/terms), the date of their text, stored in
+// `consents`. Bump it when the published text changes: every player then
+// accepts the new version on their next visit (/accept-terms).
+export const TERMS_VERSION = '2026-10-22';
+// Last change of the privacy policy (/privacy).
+export const PRIVACY_VERSION = '2026-10-22';
 
 // Letters (accents included), digits, dot, dash and underscore; 3 to 20 characters.
 const PSEUDO_PATTERN = /^[\p{L}\p{N}._-]{3,20}$/u;

@@ -12,7 +12,7 @@ from html import unescape
 from pathlib import Path
 
 import wikimedia
-from build_cards import read_photo_overrides
+from build_cards import clean_author, read_photo_overrides
 
 API = "https://commons.wikimedia.org/w/api.php"
 BATCH = 50
@@ -32,7 +32,7 @@ def fetch_batch(s, names):
         "titles": "|".join("File:" + n for n in names),
         "prop": "imageinfo|categories", "iiprop": "size|mime|sha1|url|extmetadata",
         "iiurlwidth": str(DOWNLOAD_WIDTH),
-        "iiextmetadatafilter": "LicenseShortName|Artist|LicenseUrl",
+        "iiextmetadatafilter": "LicenseShortName|Artist|LicenseUrl|Attribution",
         "clcategories": "|".join(QUALITY), "cllimit": "max",
     }
     q = wikimedia.request(s, "POST", API, data=data).json()["query"]
@@ -56,9 +56,20 @@ def fetch_batch(s, names):
             "license": meta.get("LicenseShortName", {}).get("value"),
             "license_url": meta.get("LicenseUrl", {}).get("value"),
             "artist": strip_html(meta.get("Artist", {}).get("value")),
+            # The credit line some authors require, when they give one
+            "attribution": strip_html(meta.get("Attribution", {}).get("value")),
             "labels": sorted(QUALITY[c["title"]] for c in p.get("categories", []) if c["title"] in QUALITY),
         }
     return out
+
+
+def fetch_uploader(s, name):
+    """Who uploaded the file's first version, or None: the API lists the versions newest first."""
+    data = {"action": "query", "format": "json", "formatversion": "2", "redirects": "1",
+            "titles": "File:" + name, "prop": "imageinfo", "iiprop": "user", "iilimit": "max"}
+    pages = wikimedia.request(s, "POST", API, data=data).json()["query"].get("pages", [])
+    versions = pages[0].get("imageinfo", []) if pages else []
+    return versions[-1].get("user") if versions else None
 
 
 def main(catalog, out):
@@ -67,8 +78,9 @@ def main(catalog, out):
     names |= set(read_photo_overrides().values())
     out_path = Path(out)
     result = json.loads(out_path.read_text(encoding="utf-8")) if out_path.exists() else {}
-    # Entries from an older run without a download address are fetched again
-    todo = sorted(n for n in names if n not in result or (result[n] and "download_url" not in result[n]))
+    # Entries from an older run, without a download address or a credit line, are fetched again
+    todo = sorted(n for n in names if n not in result
+                  or (result[n] and not {"download_url", "attribution"} <= result[n].keys()))
     batches = [todo[i:i + BATCH] for i in range(0, len(todo), BATCH)]
     print(f"{len(names)} photos, {len(batches)} batches to fetch", flush=True)
     s = wikimedia.session()
@@ -77,6 +89,18 @@ def main(catalog, out):
         if n % 10 == 0:
             out_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
             print(f"{n}/{len(batches)}", flush=True)
+        time.sleep(wikimedia.PAUSE)
+    out_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+
+    # A description that names no author: the card credits the first uploader instead
+    anonymous = sorted(n for n in names if result.get(n) and "uploader" not in result[n]
+                       and not (clean_author(result[n]["attribution"]) or clean_author(result[n]["artist"])))
+    print(f"{len(anonymous)} photos without an author, looking up their uploader", flush=True)
+    for n, name in enumerate(anonymous, 1):
+        result[name]["uploader"] = fetch_uploader(s, name)
+        if n % 50 == 0:
+            out_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+            print(f"{n}/{len(anonymous)}", flush=True)
         time.sleep(wikimedia.PAUSE)
     out_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     print(f"done: {sum(1 for n in names if result.get(n))} photos found out of {len(names)}", flush=True)

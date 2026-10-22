@@ -197,9 +197,9 @@ Le catalogue est produit hors ligne, puis importé en base. Le jeu n'appelle jam
 
 1. **Monuments** : extraction Wikidata des monuments ayant un identifiant Mérimée et un statut classé, inscrit ou UNESCO, avec une photo et un article Wikipédia en français.
 2. **Popularité et rareté** : visites des articles dans les fichiers « clickstream » de Wikipédia, sur 12 mois (et non 2 mois comme dans l'étude), puis classement et découpage selon les parts de chaque rareté.
-3. **Photos** : taille, licence et auteur de chaque photo via l'API de Wikimedia Commons. Rejeter les photos de moins de 1 000 px et les licences GFDL seule ; choisir à la main une autre photo pour les cartes rares concernées.
+3. **Photos** : taille, licence et auteur de chaque photo via l'API de Wikimedia Commons. Rejeter les photos de moins de 1 000 px, les licences GFDL ou GPL seules (elles exigent leur texte complet avec chaque copie) et les photos sous licence CC ou Art libre dont l'auteur ne peut pas être nommé ; choisir à la main une autre photo pour les cartes rares concernées. Le crédit reprend la ligne imposée par l'auteur s'il en donne une, sinon l'auteur, sinon la personne qui a déposé le fichier (hors robots de transfert).
 4. **Extraits** : résumé de chaque article Wikipédia, stocké avec son numéro de révision et la mention CC BY-SA 4.0.
-5. **Tri éditorial** : masquer par défaut les 94 lieux de mémoire et les 134 établissements commerciaux ; mettre les 956 monuments du XXᵉ siècle « à revoir » dans le back-office (date de décès de l'architecte) ; photos de jour seulement pour la tour Eiffel.
+5. **Tri éditorial** : masquer par défaut les 94 lieux de mémoire et les 134 établissements commerciaux ; mettre les 956 monuments du XXᵉ siècle « à revoir » dans le back-office (date de décès de l'architecte) ; mettre aussi « à revoir » les 39 monuments situés dans un domaine national (Chambord, Versailles, l'Élysée, le Palais-Royal…), car l'usage commercial de leur image demande l'autorisation du gestionnaire du domaine (Code du patrimoine, art. L621-42 ; décrets de 2017, 2021, 2022 et 2024, liste à vérifier avant chaque mise à jour) ; photos de jour seulement pour la tour Eiffel.
 6. **Images** : télécharger chaque photo une fois, produire des versions WebP de 400 et 800 px, les déposer dans le volume « uploads ». Pas de lien direct vers Commons en production.
 7. **Import** : mise à jour par identifiant Wikidata, rejouable sans doublon. Les raretés sont figées au lancement ; seul le back-office peut en changer une, avec une trace.
 8. **Mise à jour** : tous les 6 mois, pour ajouter de nouveaux monuments ou de meilleures photos, sans changer la rareté des cartes existantes.
@@ -251,13 +251,13 @@ Stripe gère tous les paiements, et ses webhooks font foi : un paquet acheté n'
 
 - Interrupteur en base (feature flag) : on le désactive sans redéployer, et la boutique s'adapte.
 - Avant le paiement, le serveur vérifie l'âge, l'e-mail vérifié et le plafond de dépenses du mois civil (achats et abonnement).
-- La case de renonciation à la rétractation est obligatoire. Son texte, sa version et l'heure du clic sont enregistrés dans l'achat.
+- La case de renonciation à la rétractation est obligatoire. Son texte, sa version et l'heure du clic sont enregistrés dans l'achat, et l'e-mail de confirmation d'achat la reprend : c'est la confirmation sur support durable que demande le Code de la consommation (art. L221-13 et L221-28).
 - Traitement des webhooks idempotent : un même événement reçu deux fois ne crédite qu'une fois.
 
 **Abonnement**
 
 - Stripe Billing, renouvellement mensuel.
-- Résiliation en 3 clics au plus depuis l'espace compte (bouton, confirmation, terminé), sans passer par un e-mail ou un support.
+- Résiliation en 3 clics au plus depuis l'espace compte (bouton, confirmation, terminé), sans passer par un e-mail ou un support : une fonction « résilier votre contrat » au sens du décret n° 2023-417, suivie d'un e-mail qui confirme la résiliation et sa date d'effet.
 - Date du prochain renouvellement et montant toujours affichés ; avantages actifs jusqu'à la fin de la période payée.
 
 **Factures et remboursements**
@@ -265,14 +265,17 @@ Stripe gère tous les paiements, et ses webhooks font foi : un paquet acheté n'
 - Factures Stripe accessibles dans l'historique d'achats.
 - Mention de TVA selon le statut juridique retenu (par exemple « TVA non applicable, art. 293 B du CGI » en franchise de TVA).
 - Remboursement depuis le back-office, avec retrait des avantages et trace dans le journal d'audit.
+- Un médiateur de la consommation désigné avant la première vente, et nommé dans les CGV.
 
 **Pour rester hors des jeux d'argent**
 
 - Aucune valeur en argent : pas de rachat, pas de retrait, pas de vente de monnaie virtuelle, pas de transfert de compte.
 - CGU qui interdisent la revente contre de l'argent, et bannissement en cas d'infraction.
 - Probabilités publiques, avec leur historique.
+- Pas de paquet payant pour les joueurs résidant en Belgique, où la commission des jeux de hasard assimile les « loot boxes » payantes à des jeux de hasard (à confirmer par l'avocat).
+- Les échanges et le marché de la version 2 rendraient les cartes cessibles à titre onéreux : des cartes tirées de paquets payants deviendraient des « objets numériques monétisables » (loi SREN, art. 40 ; décret n° 2026-60), un régime soumis à déclaration auprès de l'ANJ. À soumettre à l'avocat avant d'écrire le cahier de la version 2.
 
-**Pages obligatoires** : mentions légales, CGU, CGV, politique de confidentialité, probabilités, sources et crédits.
+**Pages obligatoires** : mentions légales, CGU et politique de confidentialité (écrites au lot 3 : elles doivent exister avant que le site ne s'ouvre à quiconque), CGV (lot 4), probabilités, sources et crédits. Les coordonnées de l'éditeur et de l'hébergeur viennent du fichier .env du serveur. Une nouvelle version des CGU est présentée au joueur à sa visite suivante, et il l'accepte pour continuer à jouer.
 
 **Cookies** : sans traceur publicitaire et avec une mesure d'audience exemptée de consentement (configuration CNIL), un simple bandeau d'information suffit. Sinon, refuser doit être aussi simple qu'accepter.
 
@@ -339,8 +342,9 @@ Le site est hébergé dans l'Union européenne et ne collecte que l'e-mail, la d
 
 - Registre des traitements et politique de confidentialité à jour.
 - Export et suppression du compte en libre-service depuis l'espace compte.
-- Conservation : compte inactif supprimé après 3 ans, après un e-mail de prévenance ; pièces comptables gardées 10 ans, comme l'exige la loi.
+- Conservation : inscription dont l'adresse n'est jamais confirmée supprimée après 30 jours ; compte inactif supprimé après 3 ans, 30 jours après un e-mail de prévenance (tâche quotidienne du worker) ; pièces comptables gardées 10 ans, comme l'exige la loi.
 - Contrats de sous-traitance signés avec l'hébergeur, Stripe et le service d'e-mails.
+- Les journaux d'accès de Traefik, s'ils sont activés, contiennent les adresses IP : durée de conservation à fixer et à indiquer dans la politique de confidentialité.
 - Pas de données personnelles inutiles dans les journaux techniques.
 
 **Exploitation**
@@ -363,7 +367,8 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 
 **Cartes et crédits**
 
-- [ ] Chaque carte affiche l'auteur et la licence de sa photo, avec un lien vers le fichier Commons.
+- [ ] Chaque carte affiche l'auteur et la licence de sa photo, avec un lien vers le fichier Commons et vers le texte de la licence.
+- [ ] Aucune carte d'un domaine national n'est visible sans l'autorisation de son gestionnaire (ou l'avis de l'avocat).
 - [ ] Chaque verso affiche l'extrait, le lien vers l'article et la mention « Texte : Wikipédia, licence CC BY-SA 4.0 ».
 - [ ] Aucune image n'est chargée depuis un serveur Wikimedia en production.
 
@@ -376,6 +381,7 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 - [ ] Désactiver le paquet à l'unité le retire de la boutique sans erreur ni trou dans la page.
 - [ ] Inscription refusée sous 18 ans.
 - [ ] Export et suppression du compte fonctionnent.
+- [ ] Un joueur qui n'a pas accepté la version en vigueur des CGU l'accepte avant de rejouer ; son compte reste accessible.
 
 **Qualité**
 
@@ -390,12 +396,12 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 
 ## Lots de livraison et questions ouvertes
 
-Le développement avance en cinq lots, chacun livré en préproduction et validé avant le suivant. Les paiements n'arrivent qu'au lot 3, après l'avis de l'avocat.
+Le développement avance en cinq lots, chacun livré en préproduction et validé avant le suivant. Les paiements n'arrivent qu'au lot 4, après l'avis de l'avocat.
 
 1. **Fondations** : dépôt, Docker Compose derrière Traefik, base de données, comptes, design system intégré, intégration continue.
 2. **Catalogue** : pipeline d'import, tri éditorial, back-office du catalogue, fiches cartes publiques.
-3. **Jeu** : recharge et ouverture de paquets, collection, séries, monnaie virtuelle, classement.
-4. **Paiements** : boutique, Stripe, abonnement, plafond de dépenses, pages légales.
+3. **Jeu** : recharge et ouverture de paquets, collection, séries, monnaie virtuelle, classement, mentions légales, CGU et politique de confidentialité.
+4. **Paiements** : boutique, Stripe, abonnement, plafond de dépenses, CGV.
 5. **Lancement** : bêta fermée avec quelques dizaines de joueurs, corrections, ouverture au public.
 
 La version 2 (échanges, marché, deuxième collection) fera l'objet d'un cahier à part.
@@ -404,5 +410,7 @@ La version 2 (échanges, marché, deuxième collection) fera l'objet d'un cahier
 
 - Prix de l'abonnement et du paquet à l'unité, et avantages exacts de l'abonnement.
 - Statut juridique (micro-entreprise ou société) : il conditionne Stripe, la TVA et les mentions légales.
+- Domaines nationaux : demander l'autorisation des gestionnaires (Centre des monuments nationaux, établissements publics de Chambord, de Versailles…), ou faire confirmer par l'avocat que l'exception culturelle de l'article L621-42 couvre le jeu.
+- Disponibilité des noms « World Up » et « Patrimoine de France » comme marques (INPI, EUIPO).
 - Statistiques de jeu sur les cartes et variante brillante : oui ou non ?
 - Qui développe : un prestataire, un freelance, ou toi avec Claude Code ?

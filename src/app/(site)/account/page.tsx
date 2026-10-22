@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Subscription, spending cap and purchase history join this page in lot 4.
 export default async function AccountPage() {
-  const { user } = await requireSession('/account');
+  const { user } = await requireSession('/account', { terms: false });
   const t = await getTranslations('Account');
   const format = await getFormatter();
   // birthDate is a calendar date: format it in UTC so it never shifts by a day.

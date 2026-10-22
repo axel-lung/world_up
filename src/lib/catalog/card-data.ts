@@ -1,6 +1,7 @@
 import type { CardData } from '@/components/card/Card';
 import type { cards } from '@/db/schema';
 import { articleUrl, cardImageUrl, commonsFileUrl } from './cards';
+import { licenseLinkUrl } from './licenses';
 
 type CardRow = Pick<
   typeof cards.$inferSelect,
@@ -18,6 +19,7 @@ type CardRow = Pick<
   | 'photoHeight'
   | 'photoAuthor'
   | 'photoLicense'
+  | 'photoLicenseUrl'
 >;
 
 /** Commons says "Public domain"; the cards say it in French. */
@@ -52,6 +54,7 @@ export function toCardData(
       height: card.photoHeight ?? undefined,
       author: card.photoAuthor,
       license: licenseLabel,
+      licenseUrl: licenseLinkUrl(card.photoLicenseUrl),
       fileUrl: commonsFileUrl(card.photoCommonsFile ?? ''),
     },
     excerpt: card.excerpt ?? undefined,

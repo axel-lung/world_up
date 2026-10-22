@@ -37,6 +37,7 @@ export function testCard(id: number, overrides: Partial<CatalogCard> & { image?:
     photo_problem: null,
     memorial: false,
     commercial: false,
+    national_domain: false,
     twentieth_century: false,
     hidden_reason: null,
     series: ['centre-val-de-loire'],

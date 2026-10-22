@@ -24,7 +24,7 @@ Run from the repository root. Steps 6, 7 and 9 resume where they stopped when ru
 | 3 | `python scripts/fetch_type_labels.py data/catalogue_base.json data/raw/type_labels.json` | Labels of the monument types, which give the families |
 | 4 | `python scripts/fetch_clickstream.py data/dumps 2025-10 2026-09` | The last 12 months of French Wikipedia clickstream, about 60 MB each |
 | 5 | `python scripts/clickstream_views.py data/catalogue_base.json data/dumps data/raw/views.json` | Visits of each article over those months |
-| 6 | `python scripts/fetch_commons.py data/catalogue_base.json data/raw/commons.json` | Size, licence, author and download address of each photo (about 540 batches) |
+| 6 | `python scripts/fetch_commons.py data/catalogue_base.json data/raw/commons.json` | Size, licence, author, required credit line and download address of each photo (about 540 batches), then the first uploader of the photos whose description names no author |
 | 7 | `python scripts/fetch_extracts.py data/catalogue_base.json data/raw/extracts.json` | Introduction and revision number of each article (about 1,340 batches) |
 | 8 | `python scripts/build_cards.py data` | `data/cards.json`: rarity, editorial flags, photo, excerpt, slug and series of each card |
 | 9 | `python scripts/fetch_images.py data/cards.json import/images` | 400 and 800 px wide WebP files of each photo (about 26,000 photos, a few hours) |
@@ -38,8 +38,10 @@ Tests: `python -m unittest discover -s scripts`.
 - **Hidden cards** (`hidden_reason`), which never come out of a pack:
   - `memorial`: places of remembrance (camps, necropolises, prisons…);
   - `commercial`: businesses still trading, whose name is often a brand;
+  - `national_domain`: inside a "domaine national" (Code du patrimoine, art. L621-42), where a commercial use of the monument's image needs the authorisation of the domain's manager. The cards are listed by Wikidata ID in `NATIONAL_DOMAINS`, from the decrees of 2017, 2021, 2022 and 2024; doubtful ones are in too. Show one in the back-office once the authorisation is obtained, or the lawyer has ruled the use exempt. Check Légifrance for new decrees before each re-import: the import hides a visible card that newly enters the list;
   - `twentieth_century`: possibly still under the architect's copyright (built from 1900, a "XXe siècle" label, or an architect dead less than 70 years ago). To review in the back-office before showing it;
-  - `photo`: no usable photo. Photos under 1,000 px on their long side, under the GFDL alone or without a licence are rejected, as are failed downloads.
+  - `photo`: no usable photo. Photos under 1,000 px on their long side, under the GFDL or the GPL alone (both want their full text with every copy) or without a licence are rejected, as are failed downloads, and photos under a licence that wants the author named (CC BY, CC BY-SA, Free Art) when no author can be named. The import also hides a visible card whose photo the export now refuses for its licence, unless the back-office chose that photo.
+- **Photo credit**: the credit line the author requires (Commons' `Attribution` field, without the "I, " of the licence templates, when under 120 characters), else the author (`Artist`), else whoever uploaded the file's first version, unless a bot that transferred it.
 - **Photos chosen by hand**: `photo_overrides.csv` replaces a monument's Wikidata photo, for example to keep a day photo of the Eiffel Tower (its night lighting is protected). Add a line there, or use the back-office, for a rare card whose photo was rejected.
 - **Excerpt**: the start of the article's introduction, whole paragraphs until 300 characters (a first paragraph is often a single sentence saying where the monument is), cut after a sentence past 600, with the article's revision number.
 - **Slug**: from the article title, which is unique on Wikipedia (`chateau-de-chambord`). The import keeps a card's slug once it exists, so its public address never changes.
@@ -71,7 +73,7 @@ The spec asks for a photo chosen by hand when a rare card's photo is rejected. `
       "author": "Benh LIEU SONG", "license": "Public domain", "license_url": null,
       "files": { "400": "….-400.webp", "800": "….-800.webp" }
     },
-    "photo_problem": null, "memorial": false, "commercial": false, "twentieth_century": false,
+    "photo_problem": null, "memorial": false, "commercial": false, "national_domain": false, "twentieth_century": false,
     "hidden_reason": null, "series": ["ile-de-france", "patrimoine-mondial"]
   }]
 }

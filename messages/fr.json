@@ -2,7 +2,10 @@
   "Metadata": {
     "title": "World Up",
     "description": "Ouvrez des paquets et collectionnez les monuments du patrimoine français.",
-    "creditsDescription": "D'où viennent les monuments, les textes et les photos des cartes de World Up, et sous quelles licences."
+    "creditsDescription": "D'où viennent les monuments, les textes et les photos des cartes de World Up, et sous quelles licences.",
+    "legalNoticeDescription": "Éditeur et hébergeur de World Up.",
+    "termsDescription": "Les conditions générales d'utilisation de World Up.",
+    "privacyDescription": "Les données que World Up collecte, pourquoi, combien de temps, et vos droits."
   },
   "HomePage": {
     "title": "World Up",
@@ -31,7 +34,8 @@
       "login": "Se connecter",
       "sentTitle": "Confirmez votre adresse e-mail",
       "sent": "Nous avons envoyé un e-mail à {email}. Ouvrez le lien qu'il contient pour activer votre compte : il est valable 24 heures.",
-      "sentHint": "Rien reçu après quelques minutes ? Regardez dans les courriers indésirables, ou connectez-vous pour recevoir un nouveau lien."
+      "sentHint": "Rien reçu après quelques minutes ? Regardez dans les courriers indésirables, ou connectez-vous pour recevoir un nouveau lien.",
+      "privacy": "Votre adresse e-mail et votre date de naissance servent à gérer votre compte et à vérifier votre âge. Votre pseudo apparaît au classement. En savoir plus : <link>politique de confidentialité</link>."
     },
     "login": {
       "title": "Se connecter",
@@ -153,6 +157,12 @@
       "intro": "Quelqu'un a tenté de créer un compte World Up avec votre adresse e-mail, qui en a déjà un.",
       "action": "Me connecter",
       "note": "Si c'était vous, connectez-vous avec votre compte existant : la page de connexion permet de choisir un nouveau mot de passe en cas d'oubli. Sinon, ignorez cet e-mail."
+    },
+    "inactiveAccount": {
+      "subject": "Votre compte World Up sera supprimé dans 30 jours",
+      "intro": "Votre compte World Up n'a pas servi depuis près de 3 ans. Sans connexion d'ici 30 jours, il sera supprimé avec votre collection, comme l'annonce notre politique de confidentialité.",
+      "action": "Me connecter",
+      "note": "Vous ne jouez plus ? Vous n'avez rien à faire : le compte sera supprimé automatiquement."
     }
   },
   "Rarity": {
@@ -172,11 +182,11 @@
     "shiny": "Brillante",
     "toDiscover": "À découvrir…",
     "photoCredit": "Crédit photo",
-    "photoOverlay": "Photo : {author} · {license} · <link>Commons</link>",
-    "photoCaption": "<hidden>Photo : </hidden>{author} · {license} · <link>Commons</link>",
+    "photoOverlay": "Photo : {author} · <licenseLink>{license}</licenseLink> · <link>Commons</link>",
+    "photoCaption": "<hidden>Photo : </hidden>{author} · <licenseLink>{license}</licenseLink> · <link>Commons</link>",
     "unknownAuthor": "auteur non renseigné",
     "readArticle": "Lire l'article sur Wikipédia",
-    "textLicense": "Texte : Wikipédia, licence CC BY-SA 4.0",
+    "textLicense": "Texte : Wikipédia, licence <link>CC BY-SA 4.0</link>",
     "photoHeading": "Photo",
     "commonsFile": "Fichier sur Wikimedia Commons",
     "copiesLarge": "Exemplaires possédés : {count}",
@@ -206,7 +216,7 @@
     "seriesHeading": "Séries",
     "seriesNumber": "n° {number} sur {total, number}",
     "photoHeading": "La photo",
-    "photoCredit": "{author} · {license} · <link>fichier sur Wikimedia Commons</link>",
+    "photoCredit": "{author} · <licenseLink>{license}</licenseLink> · <link>fichier sur Wikimedia Commons</link>",
     "collectHeading": "Collectionnez cette carte",
     "collectText": "Créez votre compte : 10 paquets de 5 cartes vous attendent pour commencer votre collection.",
     "signup": "Créer un compte",
@@ -302,11 +312,12 @@
       "visible": "Cartes visibles",
       "hidden": "Cartes masquées",
       "toReview": "À revoir",
-      "toReviewHint": "XXᵉ siècle et photos à remplacer",
+      "toReviewHint": "Domaines nationaux, XXᵉ siècle et photos à remplacer",
       "reasonsTitle": "Cartes masquées, par motif",
       "reasons": {
         "memorial": "Lieux de mémoire",
         "commercial": "Établissements commerciaux",
+        "national_domain": "Domaines nationaux : autorisation à obtenir",
         "twentieth_century": "XXᵉ siècle : droits à vérifier",
         "photo": "Sans photo utilisable",
         "admin": "Masquées à la main"
@@ -364,6 +375,7 @@
       "flag": {
         "memorial": "Lieu de mémoire",
         "commercial": "Établissement commercial",
+        "national_domain": "Domaine national : l'usage commercial de son image demande l'autorisation de son gestionnaire (Code du patrimoine, art. L621-42)",
         "twentieth_century": "XXᵉ siècle : vérifier les droits de l'architecte"
       },
       "photoProblem": "Photo écartée par l'import : {problem}",
@@ -381,6 +393,7 @@
       "hiddenReasons": {
         "memorial": "lieu de mémoire",
         "commercial": "établissement commercial",
+        "national_domain": "domaine national, autorisation à obtenir",
         "twentieth_century": "XXᵉ siècle, droits de l'architecte à vérifier",
         "photo": "pas de photo utilisable",
         "admin": "masquée à la main"
@@ -390,6 +403,7 @@
       "hide": "Masquer la carte",
       "show": "Rendre visible",
       "showReviewed": "Droits vérifiés : rendre visible",
+      "showAuthorised": "Autorisation obtenue : rendre visible",
       "rarityTitle": "Rareté",
       "rarityIntro": "Fixée à l'import, elle change les tirages : chaque changement est inscrit au journal.",
       "newRarity": "Nouvelle rareté",
@@ -512,15 +526,140 @@
     "monumentsTitle": "Les monuments",
     "monuments": "La liste des monuments, leur protection (classé ou inscrit au titre des monuments historiques, patrimoine mondial de l'UNESCO) et leur localisation viennent de <link>Wikidata</link>, publié dans le domaine public (CC0). Chaque monument retenu a un identifiant de la base Mérimée du ministère de la Culture.",
     "textsTitle": "Les textes",
-    "texts": "Les extraits sont tirés des articles de <link>Wikipédia en français</link>, sous licence Creative Commons Attribution – Partage dans les mêmes conditions 4.0 (CC BY-SA 4.0). Le verso de chaque carte et sa fiche renvoient à l'article.",
+    "texts": "Les extraits sont tirés des articles de <link>Wikipédia en français</link>, sous licence Creative Commons Attribution – Partage dans les mêmes conditions 4.0 (CC BY-SA 4.0). Le verso de chaque carte et sa fiche renvoient à l'article. Un extrait reprend le début de l'introduction, sans les transcriptions de prononciation, et peut être coupé à la fin d'une phrase : il est diffusé sous la même <license>licence CC BY-SA 4.0</license>.",
     "photosTitle": "Les photos",
-    "photos": "Les photos viennent de <link>Wikimedia Commons</link>. Chaque carte indique l'auteur et la licence de sa photo, avec un lien vers le fichier d'origine. Les photos sont copiées sur nos serveurs : votre navigateur ne contacte jamais Wikimedia en jouant.",
+    "photos": "Les photos viennent de <link>Wikimedia Commons</link>. Chaque carte indique l'auteur et la licence de sa photo, avec un lien vers le fichier d'origine et vers le texte de la licence. Les photos sont réduites, et recadrées au format de la carte quand il le faut ; le fichier d'origine reste celui de Commons. Les photos sont copiées sur nos serveurs : votre navigateur ne contacte jamais Wikimedia en jouant.",
     "rarityTitle": "La rareté",
     "rarity": "La rareté d'une carte reflète la notoriété du monument : elle vient du nombre de visites de son article sur Wikipédia pendant douze mois, d'après les données « clickstream » publiées par la Wikimedia Foundation.",
     "reportTitle": "Une erreur ?",
     "report": "Un crédit manque, une photo ne convient pas, un texte est faux : connectez-vous et utilisez « Signaler un problème » sur la fiche de la carte.",
     "notAffiliated": "World Up n'est ni affilié à la Wikimedia Foundation ni soutenu par elle. Wikipédia, Wikidata et Wikimedia Commons sont des marques de la Wikimedia Foundation.",
     "home": "World Up"
+  },
+  "AcceptTerms": {
+    "title": "Conditions d'utilisation",
+    "intro": "Nos conditions générales d'utilisation ont changé. Lisez la nouvelle version et acceptez-la pour continuer à jouer.",
+    "accept": "J'accepte les <link>conditions générales d'utilisation</link>.",
+    "submit": "Continuer",
+    "required": "Cochez la case pour continuer.",
+    "refuse": "Vous ne les acceptez pas ? Depuis <link>Mon compte</link>, vous pouvez télécharger vos données et supprimer votre compte."
+  },
+  "LegalNotice": {
+    "title": "Mentions légales",
+    "intro": "Les informations que la loi pour la confiance dans l'économie numérique (article 6) demande à tout site.",
+    "publisherTitle": "Éditeur",
+    "publisher": "Éditeur",
+    "address": "Adresse",
+    "registration": "Immatriculation",
+    "vat": "TVA intracommunautaire",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "director": "Directeur de la publication",
+    "hostTitle": "Hébergeur",
+    "host": "Hébergeur",
+    "missing": "à compléter",
+    "contentTitle": "Contenus",
+    "content": "<p>Les cartes reprennent des données de Wikidata, des extraits de Wikipédia et des photos de Wikimedia Commons, sous les licences indiquées sur chaque carte et dans les <credits>sources et crédits</credits>. Les noms des monuments servent à les désigner : World Up n'est lié à aucun de leurs propriétaires ou gestionnaires.</p><p>Le nom World Up, l'interface, les illustrations et le code du site appartiennent à l'éditeur.</p>",
+    "reportTitle": "Signaler un contenu",
+    "report": "<p>Pour signaler un contenu illicite (une photo, un texte, un pseudo), utilisez « Signaler un problème » sur la fiche de la carte, ou écrivez à <mail>{email}</mail> en indiquant l'adresse de la page et la raison du signalement. Chaque signalement reçoit une réponse.</p>"
+  },
+  "Terms": {
+    "title": "Conditions générales d'utilisation",
+    "version": "Version du {date}",
+    "missing": "à compléter",
+    "object": {
+      "title": "Objet",
+      "body": "<p>Ces conditions régissent l'utilisation de World Up, un jeu de cartes à collectionner en ligne édité par {publisher} (voir les <legal>mentions légales</legal>). Vous les acceptez en créant votre compte.</p>"
+    },
+    "access": {
+      "title": "Accès au jeu",
+      "body": "<ul><li>Le jeu est réservé aux personnes majeures. Vous déclarez à l'inscription une date de naissance exacte.</li><li>Un seul compte par personne.</li><li>Votre pseudo est public : il apparaît au classement. Il ne doit pas être injurieux, porter atteinte aux droits de quelqu'un ni reprendre le nom d'une autre personne.</li><li>Votre mot de passe est personnel : gardez-le secret.</li></ul>"
+    },
+    "game": {
+      "title": "Le jeu",
+      "body": "<p>Le jeu est gratuit. Ses règles (paquets, recharge, pièces, succès) sont décrites sur la page <rules>Règles du jeu</rules>, et les chances d'obtenir chaque rareté sur la page <odds>Probabilités</odds>, avec l'historique de leurs modifications. Le contenu de chaque paquet est tiré au hasard par le serveur.</p><p>Nous pouvons faire évoluer le jeu : ses règles, ses probabilités (chaque modification est datée et publiée) et ses cartes. Une carte peut être retirée du jeu, par exemple si sa photo pose problème : elle n'apparaît alors plus dans les collections.</p>"
+    },
+    "items": {
+      "title": "Cartes et pièces",
+      "body": "<p>Les cartes et les pièces sont des éléments du jeu, sans valeur en argent. Elles vous donnent un droit d'usage personnel dans le jeu, et non un droit de propriété. Elles ne s'achètent pas, ne se convertissent pas en euros et ne se transfèrent pas à un autre compte.</p>"
+    },
+    "forbidden": {
+      "title": "Ce qui est interdit",
+      "body": "<ul><li>Vendre, acheter ou échanger contre de l'argent ou contre tout autre bien un compte, des cartes ou des pièces, y compris en dehors du site.</li><li>Créer plusieurs comptes, ou jouer avec le compte de quelqu'un d'autre.</li><li>Jouer au moyen d'un programme automatique, exploiter une faille ou contourner les limites du jeu.</li><li>Nuire au fonctionnement du site ou à la sécurité des autres joueurs.</li></ul>"
+    },
+    "sanctions": {
+      "title": "Suspension et suppression d'un compte",
+      "body": "<p>Si vous ne respectez pas ces conditions, nous pouvons suspendre ou supprimer votre compte. Nous vous en indiquons le motif par e-mail, avant la sanction sauf urgence (fraude, atteinte à la sécurité). Vous pouvez contester la décision en écrivant à <mail>{email}</mail>.</p>"
+    },
+    "end": {
+      "title": "Fin du compte",
+      "body": "<p>Vous pouvez supprimer votre compte à tout moment depuis <account>Mon compte</account> : la suppression est immédiate et définitive. Un compte qui n'a pas servi depuis 3 ans est supprimé, après un e-mail qui vous prévient 30 jours avant. Si nous arrêtons le jeu, nous vous prévenons au moins 30 jours à l'avance.</p>"
+    },
+    "content": {
+      "title": "Contenus",
+      "body": "<p>Les textes et les photos des cartes viennent de Wikipédia et de Wikimedia Commons, sous des licences libres rappelées sur chaque carte et dans les <credits>sources et crédits</credits>. Le nom World Up, l'interface, les illustrations et le code du site appartiennent à l'éditeur.</p><p>Une erreur, une photo qui ne convient pas, un contenu illicite ? Utilisez « Signaler un problème » sur la fiche de la carte, ou écrivez à <mail>{email}</mail>.</p>"
+    },
+    "availability": {
+      "title": "Disponibilité",
+      "body": "<p>Nous faisons notre possible pour que le jeu reste accessible et fonctionne correctement. Une maintenance ou une panne peut toutefois l'interrompre. Les informations des cartes (textes, dates, lieux) viennent de projets collaboratifs et peuvent contenir des erreurs.</p>"
+    },
+    "data": {
+      "title": "Données personnelles",
+      "body": "<p>Ce que nous faisons de vos données est décrit dans la <privacy>politique de confidentialité</privacy>.</p>"
+    },
+    "changes": {
+      "title": "Modification des conditions",
+      "body": "<p>Nous pouvons modifier ces conditions. La nouvelle version vous est présentée lors de votre visite suivante : vous l'acceptez pour continuer à jouer. Si vous la refusez, vous pouvez télécharger vos données et supprimer votre compte.</p>"
+    },
+    "law": {
+      "title": "Droit applicable et litiges",
+      "body": "<p>Ces conditions sont soumises au droit français. En cas de désaccord, écrivez-nous d'abord à <mail>{email}</mail> pour chercher une solution amiable. À défaut, le litige est porté devant le tribunal compétent ; en tant que consommateur, vous pouvez aussi saisir celui du lieu où vous habitiez lors de votre inscription.</p>"
+    }
+  },
+  "Privacy": {
+    "title": "Politique de confidentialité",
+    "updated": "Mise à jour le {date}",
+    "missing": "à compléter",
+    "controller": {
+      "title": "Responsable du traitement",
+      "body": "<p>{publisher}, {address}. Pour toute question sur vos données, ou pour exercer vos droits : <mail>{email}</mail>.</p>"
+    },
+    "collected": {
+      "title": "Les données collectées",
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+    },
+    "purposes": {
+      "title": "Pourquoi, et sur quelle base",
+      "body": "<ul><li>Créer et gérer votre compte, faire fonctionner le jeu et le classement, vérifier votre âge : c'est l'exécution des conditions d'utilisation, notre contrat.</li><li>Vous envoyer les e-mails du compte (confirmation de l'adresse, mot de passe oublié, avertissement avant la suppression d'un compte inactif) : exécution du contrat.</li><li>Garder la preuve de votre acceptation des conditions, traiter vos signalements : notre intérêt légitime.</li><li>Protéger le site et les joueurs (limites de tentatives, détection des comptes multiples) : notre intérêt légitime.</li></ul><p>Nous n'envoyons ni lettre d'information ni publicité, et nous ne vendons ni ne louons vos données.</p>"
+    },
+    "public": {
+      "title": "Ce qui est public",
+      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
+    },
+    "recipients": {
+      "title": "Qui reçoit vos données",
+      "body": "<p>L'éditeur, et les prestataires qui agissent pour lui, liés par un contrat de sous-traitance :</p><ul><li>l'hébergeur du site, {host}, dans l'Union européenne ;</li><li>Brevo, société française, qui envoie les e-mails du compte.</li></ul>"
+    },
+    "retention": {
+      "title": "Combien de temps",
+      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
+    },
+    "rights": {
+      "title": "Vos droits",
+      "body": "<p>Vous pouvez accéder à vos données, les rectifier, les effacer, en limiter le traitement, vous opposer à un traitement fondé sur notre intérêt légitime, et les recevoir dans un format réutilisable. Depuis <account>Mon compte</account>, vous téléchargez vos données et supprimez votre compte vous-même. Pour le reste, écrivez à <mail>{email}</mail> : nous répondons dans un délai d'un mois.</p><p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la <cnil>CNIL</cnil>.</p>"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "body": "<p>Le site dépose deux cookies, tous deux exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « theme », qui retient le thème d'affichage que vous avez choisi (Auto, Clair ou Sombre).</li></ul><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères sont servies par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
+    },
+    "security": {
+      "title": "Sécurité",
+      "body": "<p>Connexions chiffrées (HTTPS), mots de passe hachés avec argon2id, nombre de tentatives de connexion limité, administration protégée par une double authentification.</p>"
+    },
+    "changes": {
+      "title": "Modifications",
+      "body": "<p>Nous mettons cette page à jour quand nos traitements changent, et vous prévenons en cas de changement important.</p>"
+    }
   },
   "Nav": {
     "label": "Navigation principale",
@@ -537,7 +676,10 @@
     "login": "Se connecter",
     "signup": "Créer un compte",
     "coins": "{count, number} <word>{count, plural, one {pièce} other {pièces}}</word>",
-    "noMoneyValue": "Les cartes et les pièces n'ont aucune valeur en argent : elles ne s'échangent pas contre des euros et ne quittent jamais le jeu."
+    "noMoneyValue": "Les cartes et les pièces n'ont aucune valeur en argent : elles ne s'échangent pas contre des euros et ne quittent jamais le jeu.",
+    "legalNotice": "Mentions légales",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Confidentialité"
   },
   "Theme": {
     "label": "Thème",

@@ -51,10 +51,19 @@ test('a card page credits the photo and the text, and loads nothing from Wikimed
     'href',
     'https://commons.wikimedia.org/wiki/File:Monument_1.jpg',
   );
+  // The CC 2.0 and 3.0 licences want their text linked from each copy
+  await expect(photo.getByRole('link', { name: 'CC BY-SA 4.0' })).toHaveAttribute(
+    'href',
+    'https://creativecommons.org/licenses/by-sa/4.0',
+  );
   const about = page.getByRole('region', { name: 'Le monument' });
   await expect(about.getByRole('link', { name: "Lire l'article sur Wikipédia" })).toHaveAttribute(
     'href',
     'https://fr.wikipedia.org/wiki/Ch%C3%A2teau_de_Test',
+  );
+  await expect(about.getByRole('link', { name: 'CC BY-SA 4.0' })).toHaveAttribute(
+    'href',
+    'https://creativecommons.org/licenses/by-sa/4.0/deed.fr',
   );
 
   // The back of the card: excerpt, article link and text licence. The flip

@@ -13,6 +13,7 @@ import { Tag } from '@/components/ui/Tag';
 import { db } from '@/db';
 import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { articleUrl, cardImageUrl, cardPath, commonsFileUrl, getVisibleCard, type VisibleCard } from '@/lib/catalog/cards';
+import { licenseLinkUrl, WIKIPEDIA_TEXT_LICENSE_URL } from '@/lib/catalog/licenses';
 import { ownedCopies } from '@/lib/game/collection';
 import { getResaleValues } from '@/lib/game/rules';
 import { getSession } from '@/lib/session';
@@ -149,7 +150,7 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
               {tCard('readArticle')}
               <ArrowUpRight aria-hidden />
             </a>
-            <p className={styles.license}>{tCard('textLicense')}</p>
+            <p className={styles.license}>{tCard.rich('textLicense', { link: external(WIKIPEDIA_TEXT_LICENSE_URL) })}</p>
           </section>
         )}
 
@@ -173,6 +174,10 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
             {t.rich('photoCredit', {
               author: card.photoAuthor ?? tCard('unknownAuthor'),
               license,
+              licenseLink: (chunks) => {
+                const href = licenseLinkUrl(card.photoLicenseUrl);
+                return href ? external(href)(chunks) : chunks;
+              },
               link: external(commonsFileUrl(card.photoCommonsFile!)),
             })}
           </p>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { WIKIPEDIA_TEXT_LICENSE_URL } from '@/lib/catalog/licenses';
 import styles from './page.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,7 +24,11 @@ export default async function CreditsPage() {
   const t = await getTranslations('Credits');
   const sections = [
     { id: 'monuments', title: t('monumentsTitle'), text: t.rich('monuments', { link: link('https://www.wikidata.org/') }) },
-    { id: 'texts', title: t('textsTitle'), text: t.rich('texts', { link: link('https://fr.wikipedia.org/') }) },
+    {
+      id: 'texts',
+      title: t('textsTitle'),
+      text: t.rich('texts', { link: link('https://fr.wikipedia.org/'), license: link(WIKIPEDIA_TEXT_LICENSE_URL) }),
+    },
     { id: 'photos', title: t('photosTitle'), text: t.rich('photos', { link: link('https://commons.wikimedia.org/') }) },
     { id: 'rarity', title: t('rarityTitle'), text: t('rarity') },
     { id: 'report', title: t('reportTitle'), text: t('report') },

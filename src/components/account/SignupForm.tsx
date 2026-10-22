@@ -126,6 +126,8 @@ export function SignupForm() {
       <SubmitButton variant="primary" block pending={pending}>
         {t('submit')}
       </SubmitButton>
+      {/* GDPR, art. 13: what the data is for, where it is collected */}
+      <p className={styles.notice}>{t.rich('privacy', { link: (chunks) => <Link href="/privacy">{chunks}</Link> })}</p>
       <p className={styles.footer}>
         {t('haveAccount')} <Link href="/login">{t('login')}</Link>
       </p>
