@@ -2,10 +2,14 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { collections } from '@/db/schema';
 import { type CollectionTheme, collectionThemeCss, parseCollectionTheme } from './collection-theme';
+import { gamePath } from './game/paths';
 
 // The launch collection. Its theme also dresses the pages outside /c/<slug>
 // (home, shop, account).
 export const DEFAULT_COLLECTION_SLUG = 'heritage';
+
+/** Where a player lands once signed in: the launch collection's home. */
+export const PLAYER_HOME = gamePath(DEFAULT_COLLECTION_SLUG).home;
 
 // Themes only change from the back-office: cache them for a minute per process.
 const THEME_TTL_MS = 60_000;

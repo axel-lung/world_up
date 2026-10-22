@@ -55,12 +55,20 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
   // A double click opens one pack: the reserve goes from 10 to 9
   await page.getByRole('button', { name: 'Ouvrir le paquet' }).dblclick();
 
-  // The cards turn over one by one, from the keyboard too, the rarest last:
-  // the first card of a first pack is new
-  await page.getByRole('button', { name: 'Retourner la carte' }).press('Enter');
+  // The cards turn over one by one, the rarest last: the first card of a
+  // first pack is new. The button over the card lets the pointer through,
+  // so a forced click at its place is a click on the card itself.
+  const turn = page.getByRole('button', { name: 'Retourner la carte' });
+  await turn.click({ force: true });
   await expect(page.getByText(/^(Commune|Rare) : .+, nouvelle carte$/)).toBeAttached();
-  await page.getByRole('button', { name: 'Carte suivante' }).press('Enter');
-  await expect(page.getByRole('button', { name: 'Retourner la carte' })).toBeFocused();
+  await page.getByRole('button', { name: 'Carte suivante' }).click({ force: true });
+  await expect(page.getByText(/^(Commune|Rare) : /)).not.toBeAttached();
+  // ...and from the keyboard, the focus staying on the card
+  await turn.press('Enter');
+  await expect(page.getByText(/^(Commune|Rare) : /)).toBeAttached();
+  await expect(page.getByRole('button', { name: 'Carte suivante' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(turn).toBeFocused();
   await page.getByRole('button', { name: 'Tout révéler' }).click();
 
   await expect(page.getByRole('heading', { name: /^Paquet ouvert/ })).toBeFocused();
@@ -68,10 +76,9 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
   await expect(page.getByText(/^(Aucune nouvelle carte|\d nouvelles? cartes?) · (aucun doublon|\d doublons?)$/)).toBeVisible();
   await expect(page.getByText('Succès obtenu : Ouvrir votre premier paquet · +5 pièces')).toBeVisible();
 
-  // Ten cards out of five possible: there are duplicates to resell
+  // The next pack opens straight from the end of this one. Ten cards out of
+  // five possible: there are duplicates to resell
   await page.getByRole('button', { name: 'Ouvrir le suivant · 9' }).click();
-  await expect(page.getByText('9 paquets disponibles')).toBeVisible();
-  await page.getByRole('button', { name: 'Ouvrir le paquet' }).click();
   await page.getByRole('button', { name: 'Tout révéler' }).click();
   await expect(page.getByRole('button', { name: 'Ouvrir le suivant · 8' })).toBeVisible();
 

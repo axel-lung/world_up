@@ -4,7 +4,10 @@ test('a player signs up, confirms the address, edits the profile, exports and de
   const player = newPlayer();
   await signUpAndVerify(page, player);
 
-  await page.getByRole('link', { name: 'Accéder à mon compte' }).click();
+  // A new player starts on the game's home
+  await page.getByRole('link', { name: 'Commencer à jouer' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${player.pseudo}`);
+  await page.getByRole('link', { name: 'Mon compte' }).click();
   await expect(page.getByRole('heading', { name: 'Mon compte', exact: true })).toBeVisible();
   await expect(page.getByText(player.email)).toBeVisible();
   await expect(page.getByText('31 mai 1990')).toBeVisible();
@@ -25,7 +28,10 @@ test('a player signs up, confirms the address, edits the profile, exports and de
   await page.goto('/account');
   await expect(page).toHaveURL(/\/login\?next=%2Faccount$/);
 
-  await logIn(page, player.email, player.password);
+  // Signing in from there leads back to the account page
+  await page.getByLabel('Adresse e-mail').fill(player.email);
+  await page.getByLabel('Mot de passe', { exact: true }).fill(player.password);
+  await page.getByRole('button', { name: 'Se connecter' }).click();
   await expect(page.getByRole('heading', { name: 'Mon compte', exact: true })).toBeVisible();
 
   const deletion = page.getByRole('region', { name: 'Supprimer mon compte' });
@@ -81,9 +87,10 @@ test('signing in before confirming sends a new link', async ({ page }) => {
     .poll(() => countEmails(page.request, player.email, 'Confirmez votre adresse e-mail'), { timeout: 15_000 })
     .toBe(2);
 
-  // The new link signs the player in and leads to the page they were going to.
+  // The new link signs the player in and leads to the page they were going to:
+  // the game's home, from a plain /login
   await page.goto(await linkFromEmail(page.request, player.email, 'Confirmez votre adresse e-mail'));
-  await expect(page.getByRole('heading', { name: 'Mon compte', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${player.pseudo}`);
 });
 
 test('a forgotten password is reset through the e-mailed link', async ({ page }) => {
@@ -111,7 +118,7 @@ test('a forgotten password is reset through the e-mailed link', async ({ page })
   await expect(page.getByText("Ce lien n'est plus valable")).toBeVisible();
 
   await logIn(page, player.email, newPassword);
-  await expect(page.getByRole('heading', { name: 'Mon compte', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${player.pseudo}`);
 });
 
 test('login attempts are rate limited', async ({ page }) => {

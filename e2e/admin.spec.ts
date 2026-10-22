@@ -80,7 +80,7 @@ test.describe('back-office', () => {
     await expect(page.getByText('Code incorrect.')).toBeVisible();
     await page.getByLabel('Code à 6 chiffres').fill(totp(key));
     await page.getByRole('button', { name: 'Vérifier' }).click();
-    await expect(page.getByRole('heading', { name: 'Mon compte', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${admin.pseudo}`);
 
     // Hiding a card takes its public page away and goes to the log
     const [card] = await db.select().from(cards).where(and(eq(cards.collectionId, collectionId), eq(cards.wikidataId, 'Q1')));

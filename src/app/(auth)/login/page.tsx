@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { LoginForm } from '@/components/account/LoginForm';
+import { PLAYER_HOME } from '@/lib/collections';
 import { safeReturnPath } from '@/lib/return-path';
 import { getSession } from '@/lib/session';
 
@@ -10,11 +11,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t('title') };
 }
 
-// Until the game pages exist (lot 3), players land on their account page.
-const DEFAULT_RETURN_PATH = '/account';
-
 export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
-  const returnTo = safeReturnPath((await searchParams).next, DEFAULT_RETURN_PATH);
+  const returnTo = safeReturnPath((await searchParams).next, PLAYER_HOME);
   if (await getSession()) redirect(returnTo);
   return <LoginForm returnTo={returnTo} />;
 }
