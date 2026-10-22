@@ -33,7 +33,7 @@ jobs:
       AUTH_SECRET: ci-only-secret-for-throwaway-test-databases
       SMTP_HOST: localhost
       SMTP_PORT: 1025
-      MAIL_FROM: Patrimoine de France <no-reply@localhost>
+      MAIL_FROM: World Up <no-reply@localhost>
       ADMIN_EMAIL: admin@example.test
     steps:
       - uses: actions/checkout@v7
@@ -82,7 +82,7 @@ jobs:
           DATABASE_URL=postgres://worldup:ci@worldup-db:5432/worldup
           AUTH_SECRET=ci-only-secret-for-throwaway-test-databases
           SMTP_HOST=localhost
-          MAIL_FROM=Patrimoine de France <no-reply@ci.localhost>
+          MAIL_FROM=World Up <no-reply@ci.localhost>
           EOF
           docker compose up -d --build --wait --wait-timeout 180 worldup-web worldup-worker
       - name: Stack logs
