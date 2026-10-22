@@ -1,4 +1,4 @@
-import { CheckIcon, CoinsIcon, PackageIcon, TrophyIcon } from '@phosphor-icons/react/ssr';
+import { Check, Coins, PackageOpen, Trophy } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -68,7 +68,7 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
             shopHref={null}
           />
           <div className={styles.actions}>
-            <ButtonLink href={paths.open} variant="primary" icon={<PackageIcon size={18} aria-hidden />}>
+            <ButtonLink href={paths.open} variant="primary" size="large" icon={<PackageOpen aria-hidden />}>
               {t('openPack')}
             </ButtonLink>
           </div>
@@ -82,7 +82,7 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
             valueText={`${number(counts.owned)} / ${number(counts.all)} · ${percent(counts.owned, counts.all)}`}
           />
           <p className={styles.balance}>
-            <CoinsIcon size={22} aria-hidden />
+            <Coins aria-hidden />
             <span>{t.rich('balance', { count: balance, strong: (chunks) => <strong>{chunks}</strong> })}</span>
           </p>
           {duplicates.copies > 0 && (
@@ -115,6 +115,7 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
                     <Gauge
                       label={<Link href={paths.series(s.slug)}>{s.name}</Link>}
                       value={s.total ? s.owned / s.total : 0}
+                      tone={type === 'unesco' ? 'sage' : 'accent'}
                       valueText={`${number(s.owned)} / ${number(s.total)}`}
                     />
                   </li>
@@ -134,7 +135,7 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
           {achievements.map((achievement) => (
             <li key={achievement.id} className={styles.achievement} data-done={achievement.obtainedAt ? true : undefined}>
               <span className={styles.achievementIcon} aria-hidden="true">
-                {achievement.obtainedAt ? <CheckIcon size={18} /> : <TrophyIcon size={18} />}
+                {achievement.obtainedAt ? <Check /> : <Trophy />}
               </span>
               <span className={styles.achievementText}>
                 <span>{achievementTitle(tAchievement, tRarity, achievement)}</span>

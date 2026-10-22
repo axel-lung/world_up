@@ -1,39 +1,48 @@
 .tag {
-  gap: 4px;
+  gap: 5px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-.line {
-  border: 1px solid var(--color-line);
-  color: var(--color-text-muted);
+.tag svg {
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
 }
 
+.line {
+  border: 1.5px solid var(--color-line);
+}
+
+/* The game's stickers: inked, the same in both themes */
 .new {
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  background: var(--sticker-new);
+  border: 2px solid var(--sticker-line);
+  color: var(--sticker-line);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  transform: rotate(4deg);
 }
 
 .count {
-  background: var(--color-text);
-  color: var(--color-bg);
-  font-weight: 600;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  background: var(--sticker-line);
+  border: 2px solid var(--sticker-paper);
+  color: #f5ead8;
+  font-size: 12px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  border-radius: 999px;
 }
 
-.subtle {
-  background: var(--color-surface-2);
-  color: var(--color-text-muted);
-}
-
-.success,
-.warning,
-.danger {
-  gap: 5px;
+.shiny {
+  background: var(--sticker-paper);
+  border: 2px solid var(--sticker-line);
+  color: var(--sticker-line);
+  font-weight: 700;
 }
 
 .success {
@@ -52,6 +61,6 @@
 }
 
 .draft {
-  border: 1px dashed var(--color-warning);
+  border: 1.5px dashed var(--color-warning);
   color: var(--color-warning);
 }

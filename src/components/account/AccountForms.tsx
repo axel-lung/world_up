@@ -1,6 +1,6 @@
 'use client';
 
-import { SignOutIcon } from '@phosphor-icons/react';
+import { LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { type FormEvent, useRef, useState } from 'react';
@@ -199,7 +199,7 @@ export function SignOutButton() {
     <Button
       variant="ghost"
       disabled={pending}
-      icon={<SignOutIcon size={18} aria-hidden />}
+      icon={<LogOut aria-hidden />}
       onClick={async () => {
         setPending(true);
         await authClient.signOut();

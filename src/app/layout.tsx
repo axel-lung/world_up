@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Overpass } from 'next/font/google';
+import { Caprasimo, Figtree } from 'next/font/google';
 import { connection } from 'next/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -8,14 +8,15 @@ import { indexingAllowed } from '@/lib/indexing';
 import '@/styles/global.css';
 
 // Self-hosted by Next.js: no request to Google from the visitor's browser. Not
-// preloaded either: on a card page it would share the bandwidth with the photo.
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap', preload: false });
-// Display face of the heritage skin (pack, series headers, card names). Not
-// preloaded: it would compete with the card photo, the pages' largest paint.
-const overpass = Overpass({
+// preloaded either: on a card page they would share the bandwidth with the
+// photo, the pages' largest paint.
+// Figtree carries the text (variable font: one file for every weight)...
+const figtree = Figtree({ subsets: ['latin'], variable: '--font-figtree', display: 'swap', preload: false });
+// ...and Caprasimo is the only display voice: headings, monument names, buttons.
+const caprasimo = Caprasimo({
   subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-overpass',
+  weight: '400',
+  variable: '--font-caprasimo',
   display: 'swap',
   preload: false,
 });
@@ -36,7 +37,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
   await connection();
   const [locale, themeCss] = await Promise.all([getLocale(), getDefaultThemeCss()]);
   return (
-    <html lang={locale} className={`${inter.variable} ${overpass.variable}`}>
+    <html lang={locale} className={`${figtree.variable} ${caprasimo.variable}`}>
       <head>
         {/* Validated by parseCollectionTheme: only custom properties, no markup. */}
         {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}

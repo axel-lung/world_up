@@ -1,5 +1,5 @@
-/* Nocturne sits in a cascade layer, so World Up's themes, the collection theme
+/* Organic sits in a cascade layer, so World Up's themes, the collection theme
    and the component CSS modules override it whatever order Next.js emits the
    stylesheets in. */
-@import "./nocturne.css" layer(nocturne);
+@import "./organic.css" layer(organic);
 @import "./theme.css";

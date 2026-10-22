@@ -1,11 +1,11 @@
 .notice {
   display: flex;
   gap: 10px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   border-radius: var(--radius-md);
   font-size: 14px;
   line-height: 1.5;
-  background: var(--color-surface-2);
+  background: var(--color-surface);
 }
 
 .notice[data-tone="success"] {
@@ -18,7 +18,10 @@
 
 .icon {
   flex: none;
+  width: 20px;
+  height: 20px;
   margin-top: 1px;
+  color: var(--color-accent-strong);
 }
 
 .notice[data-tone="success"] .icon {
@@ -37,4 +40,10 @@
 
 .body p {
   margin: 0;
+}
+
+.body li svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
 }

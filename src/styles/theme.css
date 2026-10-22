@@ -1,130 +1,160 @@
-/* World Up base layer over Nocturne: the light and dark themes and the rarity
-   colors shared by every collection. Values come from the DARK and LIGHT maps of
-   design/Design system World Up.dc.html. The accent family (--color-accent*) and
-   the --skin-* variables belong to each collection: see src/lib/collection-theme.ts.
+/* World Up base layer over Organic: the light and dark themes, the rarity
+   colors and the game objects (cards, packs, rarity stickers) shared by every
+   collection. Values come from the LIGHT and DARK maps of
+   design/Design system World Up v2.dc.html and design/CarteV2.dc.html. The
+   accent family (--color-accent*, --color-on-accent) and the --skin-* variables
+   belong to each collection: see src/lib/collection-theme.ts.
 
-   The theme follows the system setting; data-theme="dark" or "light" forces one,
-   on <html> or on any element. */
+   Light by default: the dark theme follows the system setting, and
+   data-theme="dark" or "light" forces one, on <html> or on any element. */
 
 :root {
-  --font-heading: var(--font-inter), system-ui, sans-serif;
-  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-caprasimo), system-ui, sans-serif;
+  --font-body: var(--font-figtree), system-ui, sans-serif;
 
   /* Rarity fills and the ink printed on them (over 4.5:1 on all six). */
-  --rar-legendary: #ef5a55;
-  --rar-ultra: #e8b84b;
-  --rar-super: #b87df2;
-  --rar-rare: #4f9cf0;
-  --rar-uncommon: #4cc27a;
-  --rar-common: #a9a398;
-  --rar-ink: #161826;
+  --rar-legendary: #e0654a;
+  --rar-ultra: #e9b949;
+  --rar-super: #b48ac8;
+  --rar-rare: #6fa3cc;
+  --rar-uncommon: #9db07f;
+  --rar-common: #cfc5b4;
+  --rar-ink: #201e1d;
+
+  /* Game objects are inked stickers, the same in both themes: a cream card,
+     a 2 px ink outline and a sharp drop shadow (--sticker-shadow, per theme). */
+  --sticker-line: #201e1d;
+  --sticker-paper: #f9f4ed;
+  --sticker-new: #c67139;
+  --sticker-selected: #7a8a5e;
+  --card-ink: #201e1d;
+  --card-muted: #645c50;
+  --card-link: #8c491a;
+  --card-photo-bg: #ccdbb2;
+  --card-photo-soft: #eee7db;
 }
 
 :root,
+[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f5ead8;
+  --color-surface: #ebddc5;
+  --color-text: #201e1d;
+  --color-text-muted: #645c50;
+  --color-line: rgba(32, 30, 29, 0.16);
+  --color-divider: rgba(32, 30, 29, 0.16);
+  --color-track: #dcd3c4;
+  --color-sage: #7a8a5e;
+  --color-sage-tint: #e1eecc;
+  --color-success: #56633f;
+  --color-warning: #8f5300;
+  --color-danger: #a83a2c;
+  --color-success-tint: #e1eecc;
+  --color-warning-tint: #f8e2c0;
+  --color-danger-tint: #fbdcd5;
+  --color-accent-2-100: #f0fae1;
+  --color-accent-2-800: #3d472b;
+  --color-neutral-100: #f9f4ed;
+  --color-neutral-800: #474238;
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
+  --sticker-shadow: #201e1d;
+
+  /* Missing cards: a dashed outline, a greyed photo, the rarity as a stroke. */
+  --miss-bg: #efe4d0;
+  --miss-line: #a19786;
+  --miss-ink: #474238;
+  --miss-muted: #645c50;
+  --miss-photo: #dcd3c4;
+  --miss-filter: grayscale(1) contrast(0.7) brightness(1.15);
+  --rar-line-legendary: #a8362a;
+  --rar-line-ultra: #8a6100;
+  --rar-line-super: #7a4a92;
+  --rar-line-rare: #2f6a96;
+  --rar-line-uncommon: #56633f;
+  --rar-line-common: #645c50;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #201e1d;
+    --color-surface: #2e2b25;
+    --color-text: #f5ead8;
+    --color-text-muted: #c0b6a5;
+    --color-line: rgba(245, 234, 216, 0.16);
+    --color-divider: rgba(245, 234, 216, 0.2);
+    --color-track: #474238;
+    --color-sage: #aebf92;
+    --color-sage-tint: #3d472b;
+    --color-success: #aebf92;
+    --color-warning: #f0b860;
+    --color-danger: #f28b7d;
+    --color-success-tint: #3d472b;
+    --color-warning-tint: #4a3518;
+    --color-danger-tint: #4d2620;
+    --color-accent-2-100: #3d472b;
+    --color-accent-2-800: #e1eecc;
+    --color-neutral-100: #474238;
+    --color-neutral-800: #eee7db;
+    --shadow-sm: 0 0 0 1px #474238;
+    --shadow-md: 0 0 0 1px #474238, 0 6px 18px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 0 0 1px #645c50, 0 16px 40px rgba(0, 0, 0, 0.55);
+    --sticker-shadow: #0c0b0a;
+    --miss-bg: #2e2b25;
+    --miss-line: #82796a;
+    --miss-ink: #eee7db;
+    --miss-muted: #c0b6a5;
+    --miss-photo: #474238;
+    --miss-filter: grayscale(1) brightness(0.7) contrast(0.9);
+    --rar-line-legendary: var(--rar-legendary);
+    --rar-line-ultra: var(--rar-ultra);
+    --rar-line-super: var(--rar-super);
+    --rar-line-rare: var(--rar-rare);
+    --rar-line-uncommon: var(--rar-uncommon);
+    --rar-line-common: var(--rar-common);
+  }
+}
+
+/* Same values as the media query above, for a forced dark theme. */
 [data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: #161826;
-  --color-surface: #232532;
-  --color-surface-2: #2b2d3b;
-  --color-text: #e9e9ed;
-  --color-text-muted: #b2b6ca;
-  --color-line: rgba(233, 233, 237, 0.16);
-  --color-divider: rgba(233, 233, 237, 0.16);
-  --color-track: #3f424d;
-  --color-success: #4cc7a0;
-  --color-warning: #f0a54a;
-  --color-danger: #f2726f;
-  --color-success-tint: #1f3a33;
-  --color-warning-tint: #3d2f1c;
-  --color-danger-tint: #432427;
-  --shadow-sm: 0 0 0 1px #3f424d;
-  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 0 0 1px #595d6c, 0 16px 40px rgba(0, 0, 0, 0.6);
-
-  /* Missing cards: a dashed outline and a greyed photo. */
-  --card-miss-bg: #1b1d2a;
-  --card-miss-line: #595d6c;
-  --card-miss-ink: #b2b6ca;
-  --card-miss-muted: #9397ab;
-  --card-miss-photo: #10121c;
-  --card-miss-filter: grayscale(1) brightness(0.45) contrast(1.1);
-
-  /* Rarity strokes (missing cards, filters): the fill itself on a dark ground. */
+  --color-bg: #201e1d;
+  --color-surface: #2e2b25;
+  --color-text: #f5ead8;
+  --color-text-muted: #c0b6a5;
+  --color-line: rgba(245, 234, 216, 0.16);
+  --color-divider: rgba(245, 234, 216, 0.2);
+  --color-track: #474238;
+  --color-sage: #aebf92;
+  --color-sage-tint: #3d472b;
+  --color-success: #aebf92;
+  --color-warning: #f0b860;
+  --color-danger: #f28b7d;
+  --color-success-tint: #3d472b;
+  --color-warning-tint: #4a3518;
+  --color-danger-tint: #4d2620;
+  --color-accent-2-100: #3d472b;
+  --color-accent-2-800: #e1eecc;
+  --color-neutral-100: #474238;
+  --color-neutral-800: #eee7db;
+  --shadow-sm: 0 0 0 1px #474238;
+  --shadow-md: 0 0 0 1px #474238, 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 0 0 1px #645c50, 0 16px 40px rgba(0, 0, 0, 0.55);
+  --sticker-shadow: #0c0b0a;
+  --miss-bg: #2e2b25;
+  --miss-line: #82796a;
+  --miss-ink: #eee7db;
+  --miss-muted: #c0b6a5;
+  --miss-photo: #474238;
+  --miss-filter: grayscale(1) brightness(0.7) contrast(0.9);
   --rar-line-legendary: var(--rar-legendary);
   --rar-line-ultra: var(--rar-ultra);
   --rar-line-super: var(--rar-super);
   --rar-line-rare: var(--rar-rare);
   --rar-line-uncommon: var(--rar-uncommon);
   --rar-line-common: var(--rar-common);
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    color-scheme: light;
-    --color-bg: #e4e7f5;
-    --color-surface: #f3f5fe;
-    --color-surface-2: #eceffa;
-    --color-text: #292b31;
-    --color-text-muted: #595d6c;
-    --color-line: rgba(41, 43, 49, 0.16);
-    --color-divider: rgba(41, 43, 49, 0.18);
-    --color-track: #cfd3e5;
-    --color-success: #16795b;
-    --color-warning: #995500;
-    --color-danger: #b52f2a;
-    --color-success-tint: #e1f3ec;
-    --color-warning-tint: #f8ead6;
-    --color-danger-tint: #fbe6e4;
-    --shadow-sm: 0 0 0 1px #cfd3e5;
-    --shadow-md: 0 0 0 1px #cfd3e5, 0 6px 18px rgba(41, 43, 49, 0.12);
-    --shadow-lg: 0 0 0 1px #b2b6ca, 0 16px 40px rgba(41, 43, 49, 0.18);
-    --card-miss-bg: #eceffa;
-    --card-miss-line: #9397ab;
-    --card-miss-ink: #3f424d;
-    --card-miss-muted: #595d6c;
-    --card-miss-photo: #dfe2ef;
-    --card-miss-filter: grayscale(1) brightness(1.1) contrast(0.6);
-    --rar-line-legendary: #c4302b;
-    --rar-line-ultra: #8a6100;
-    --rar-line-super: #8040c0;
-    --rar-line-rare: #1f66c2;
-    --rar-line-uncommon: #1d7f45;
-    --rar-line-common: #6e695e;
-  }
-}
-
-/* Same values as the media query above, for a forced light theme. */
-[data-theme="light"] {
-  color-scheme: light;
-  --color-bg: #e4e7f5;
-  --color-surface: #f3f5fe;
-  --color-surface-2: #eceffa;
-  --color-text: #292b31;
-  --color-text-muted: #595d6c;
-  --color-line: rgba(41, 43, 49, 0.16);
-  --color-divider: rgba(41, 43, 49, 0.18);
-  --color-track: #cfd3e5;
-  --color-success: #16795b;
-  --color-warning: #995500;
-  --color-danger: #b52f2a;
-  --color-success-tint: #e1f3ec;
-  --color-warning-tint: #f8ead6;
-  --color-danger-tint: #fbe6e4;
-  --shadow-sm: 0 0 0 1px #cfd3e5;
-  --shadow-md: 0 0 0 1px #cfd3e5, 0 6px 18px rgba(41, 43, 49, 0.12);
-  --shadow-lg: 0 0 0 1px #b2b6ca, 0 16px 40px rgba(41, 43, 49, 0.18);
-  --card-miss-bg: #eceffa;
-  --card-miss-line: #9397ab;
-  --card-miss-ink: #3f424d;
-  --card-miss-muted: #595d6c;
-  --card-miss-photo: #dfe2ef;
-  --card-miss-filter: grayscale(1) brightness(1.1) contrast(0.6);
-  --rar-line-legendary: #c4302b;
-  --rar-line-ultra: #8a6100;
-  --rar-line-super: #8040c0;
-  --rar-line-rare: #1f66c2;
-  --rar-line-uncommon: #1d7f45;
-  --rar-line-common: #6e695e;
 }
 
 /* data-rarity="<key>" exposes that rarity's fill and stroke to its subtree. */
@@ -141,7 +171,18 @@
   color: var(--color-text);
 }
 
-a:hover { color: var(--color-accent-300); }
+/* Terracotta is for fills, icons and large text; running text takes the strong
+   shade. In Organic's layer, so any component class still sets its own color. */
+@layer organic {
+  a { color: var(--color-accent-strong); }
+  a:hover { color: var(--color-accent); }
+
+  /* A pill suits one line, not a text area */
+  textarea.input { border-radius: var(--radius-md); }
+}
+
+/* Lucide icons with a thickened stroke, as in the design system. */
+.lucide { stroke-width: 3px; }
 
 /* Read by screen readers, invisible on screen. */
 .sr-only {

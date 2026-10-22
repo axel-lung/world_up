@@ -1,9 +1,11 @@
 'use client';
 
-import { ArrowUpRightIcon, CameraIcon, CheckIcon, ImageIcon, InfoIcon, MapPinIcon, SparkleIcon } from '@phosphor-icons/react';
+import { ArrowUpRight, Camera, Check, Image as ImageIcon, Info, MapPin, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { type MouseEvent, type ReactNode, useState } from 'react';
+import { EmblemIcon } from '@/components/collection/Emblem';
+import type { Emblem } from '@/lib/collection-theme';
 import { RARITY_PIPS, type Rarity } from '@/lib/rarity';
 import { displayName, needsLetterbox, photoSizes, seriesNumber } from './card-format';
 import styles from './Card.module.css';
@@ -35,8 +37,15 @@ export interface CardData {
   articleUrl?: string;
 }
 
+/** The collection a card belongs to: its emblem is printed in the footer. */
+export interface CardCollection {
+  name: string;
+  emblem: Emblem;
+}
+
 export interface CardProps {
   card: CardData;
+  collection: CardCollection;
   /** grid: from 160 px wide; large: from 300 px wide (card page, pack opening). */
   size?: 'grid' | 'large';
   /**
@@ -62,20 +71,17 @@ export interface CardProps {
   href?: string;
 }
 
-function Banner({ rarity, label, icon, suffix }: { rarity: Rarity; label: string; icon?: ReactNode; suffix?: ReactNode }) {
+/** The rarity sticker: its name and 1 to 6 dots, so rarity never relies on color alone. */
+function RaritySticker({ rarity, label, className }: { rarity: Rarity; label: string; className: string }) {
   return (
-    <div className={styles.banner}>
-      <span className={styles.bannerLabel}>
-        {icon}
-        <span>{label}</span>
-        {suffix && <span className={styles.bannerSuffix}>{suffix}</span>}
-      </span>
-      <span className={styles.pips} aria-hidden="true">
+    <span className={`${styles.sticker} ${className}`}>
+      <span>{label}</span>
+      <span className={styles.dots} aria-hidden="true">
         {Array.from({ length: RARITY_PIPS[rarity] }, (_, index) => (
-          <span key={index} className={styles.pip} />
+          <span key={index} className={styles.dot} />
         ))}
       </span>
-    </div>
+    </span>
   );
 }
 
@@ -84,6 +90,7 @@ const stop = (event: MouseEvent) => event.stopPropagation();
 
 export function Card({
   card,
+  collection,
   size = 'grid',
   state = 'owned',
   face = 'front',
@@ -129,11 +136,19 @@ export function Card({
   const number = card.series ? seriesNumber(card.series.number, card.series.total) : null;
   const author = card.photo.author ?? t('unknownAuthor');
   const place = (large ? [card.department, card.region] : [card.department ?? card.region]).filter(Boolean).join(' · ');
-  const badges = [card.protection && t(`protection.${card.protection}`), card.unesco ? t('unesco') : null].filter(Boolean);
+  const badges = [
+    card.protection && { key: 'protection', label: t(`protection.${card.protection}`) },
+    card.unesco && { key: 'unesco', label: t('unesco') },
+  ].filter((badge) => !!badge);
   const commonsLink = (chunks: ReactNode) => (
     <a href={card.photo.fileUrl} target="_blank" rel="noopener" onClick={stop}>
       {chunks}
     </a>
+  );
+  const emblem = (
+    <span className={styles.emblem} role="img" aria-label={t('collectionEmblem', { collection: collection.name })}>
+      <EmblemIcon emblem={collection.emblem} aria-hidden />
+    </span>
   );
 
   const ariaLabel = masked
@@ -155,35 +170,35 @@ export function Card({
       <div className={styles.inner} data-flipped={showBack || undefined}>
         {/* inert: the links and buttons of the face turned away can't take the focus */}
         <div className={`${styles.face} ${styles.front}`} aria-hidden={showBack || undefined} inert={showBack || undefined}>
-          <Banner
-            rarity={card.rarity}
-            label={rarityLabel}
-            icon={shiny && <SparkleIcon weight="fill" aria-label={t('shiny')} />}
-            suffix={shiny && large && t('shinySuffix')}
-          />
-
-          <div className={styles.photo}>
-            {letterbox && !missing && !noPhoto && (
-              // eslint-disable-next-line @next/next/no-img-element -- see below
-              <img className={styles.photoBackdrop} src={card.photo.src} {...imageLoading} alt="" aria-hidden="true" />
-            )}
-            {noPhoto ? (
-              <div className={styles.photoFallback}>
-                <ImageIcon aria-hidden />
-                <span>{masked ? '?' : name}</span>
-              </div>
-            ) : (
-              // Plain <img>: the catalogue import already produces 400 and 800 px
-              // WebP files, so next/image would only re-encode them.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                className={styles.photoImage}
-                src={card.photo.src}
-                {...imageLoading}
-                alt={name}
-                onError={() => setPhotoFailed(true)}
-              />
-            )}
+          <div className={styles.photoArea}>
+            {/* .washed: the design system's softened photo treatment */}
+            <div className={`washed ${styles.photo}`}>
+              {letterbox && !missing && !noPhoto && (
+                // eslint-disable-next-line @next/next/no-img-element -- see below
+                <img className={styles.photoBackdrop} src={card.photo.src} {...imageLoading} alt="" aria-hidden="true" />
+              )}
+              {masked ? (
+                <div className={styles.mystery} aria-hidden="true">
+                  <span>?</span>
+                </div>
+              ) : noPhoto ? (
+                <div className={styles.photoFallback}>
+                  <ImageIcon aria-hidden />
+                  <span>{name}</span>
+                </div>
+              ) : (
+                // Plain <img>: the catalogue import already produces 400 and 800 px
+                // WebP files, so next/image would only re-encode them.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className={styles.photoImage}
+                  src={card.photo.src}
+                  {...imageLoading}
+                  alt={name}
+                  onError={() => setPhotoFailed(true)}
+                />
+              )}
+            </div>
             {!large && !missing && !noPhoto && (
               <button
                 type="button"
@@ -196,7 +211,7 @@ export function Card({
                 }}
               >
                 <span>
-                  <InfoIcon aria-hidden />
+                  <Info aria-hidden />
                 </span>
               </button>
             )}
@@ -205,55 +220,77 @@ export function Card({
                 {t.rich('photoOverlay', { author, license: card.photo.license, link: commonsLink })}
               </div>
             )}
+            {shiny && (
+              <span className={styles.shinySticker}>
+                <Sparkles aria-hidden />
+                {large ? <span>{t('shiny')}</span> : <span className="sr-only">{t('shiny')}</span>}
+              </span>
+            )}
+            <RaritySticker rarity={card.rarity} label={rarityLabel} className={styles.frontSticker} />
           </div>
 
           {large && !missing && (
             <div className={styles.credit}>
-              <CameraIcon aria-hidden />
-              <span>{t.rich('photoCaption', { author, license: card.photo.license, link: commonsLink })}</span>
+              <Camera aria-hidden />
+              <span>
+                {t.rich('photoCaption', {
+                  author,
+                  license: card.photo.license,
+                  link: commonsLink,
+                  hidden: (chunks) => <span className="sr-only">{chunks}</span>,
+                })}
+              </span>
             </div>
           )}
 
-          {masked ? (
-            <div className={styles.toDiscover}>{name}</div>
-          ) : (
-            <h3 className={styles.name}>
-              {href ? (
-                <Link href={href} className={styles.nameLink} onClick={stop}>
-                  {name}
-                </Link>
-              ) : (
-                name
-              )}
-            </h3>
-          )}
-          <div className={styles.place}>
-            <MapPinIcon aria-hidden />
-            <span>{place}</span>
-          </div>
-          <div className={styles.badges}>
-            {badges.map((badge) => (
-              <span key={badge} className={styles.badge}>
-                {badge}
-              </span>
-            ))}
+          <div className={styles.text}>
+            {masked ? (
+              <div className={styles.toDiscover}>{name}</div>
+            ) : (
+              <h3 className={styles.name}>
+                {href ? (
+                  <Link href={href} className={styles.nameLink} onClick={stop}>
+                    {name}
+                  </Link>
+                ) : (
+                  name
+                )}
+              </h3>
+            )}
+            <div className={styles.place}>
+              <MapPin aria-hidden />
+              <span>{place}</span>
+            </div>
+            {badges.length > 0 && (
+              <div className={styles.badges}>
+                {badges.map((badge) => (
+                  <span key={badge.key} className={styles.badge} data-badge={badge.key}>
+                    {badge.label}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className={styles.footer}>
-            <span>{card.series?.name}</span>
-            <span>{number}</span>
+            {emblem}
+            <span className={styles.seriesName}>{card.series?.name}</span>
+            <span className={styles.number}>{number}</span>
           </div>
           {shiny && <div className={styles.shine} aria-hidden="true" />}
         </div>
 
         {hasBack && (
           <div className={`${styles.face} ${styles.back}`} aria-hidden={!showBack || undefined} inert={!showBack || undefined}>
-            <Banner rarity={card.rarity} label={rarityLabel} />
+            <div className={styles.backTop}>
+              <RaritySticker rarity={card.rarity} label={rarityLabel} className={styles.backSticker} />
+              {emblem}
+            </div>
             <h3 className={styles.backName}>{name}</h3>
             {card.excerpt && <p className={styles.excerpt}>{card.excerpt}</p>}
             {large && card.articleUrl && (
               <a className={styles.articleLink} href={card.articleUrl} target="_blank" rel="noopener" onClick={stop}>
                 {t('readArticle')}
-                <ArrowUpRightIcon aria-hidden />
+                <ArrowUpRight aria-hidden />
               </a>
             )}
             <span className={styles.textLicense}>{t('textLicense')}</span>
@@ -265,7 +302,7 @@ export function Card({
               {large && (
                 <a className={styles.commonsLink} href={card.photo.fileUrl} target="_blank" rel="noopener" onClick={stop}>
                   {t('commonsFile')}
-                  <ArrowUpRightIcon aria-hidden />
+                  <ArrowUpRight aria-hidden />
                 </a>
               )}
             </div>
@@ -299,7 +336,7 @@ export function Card({
       )}
       {selected && (
         <span className={styles.selectedBadge}>
-          <CheckIcon aria-hidden />
+          <Check aria-hidden />
           <span className="sr-only">{t('selected')}</span>
         </span>
       )}

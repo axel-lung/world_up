@@ -47,7 +47,7 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
 
   await page.goto(home);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${player.pseudo}`);
-  await expect(page.getByRole('region', { name: 'Vos paquets' })).toContainText('10/10');
+  await expect(page.getByRole('region', { name: 'Vos paquets' })).toContainText('10 paquets en réserve sur 10');
 
   await page.goto(`${home}/open`);
   const open = page.getByRole('button', { name: 'Ouvrir un paquet' });
@@ -56,12 +56,12 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
   const result = page.getByRole('region', { name: 'Votre paquet Test' });
   await expect(result.getByText(/^5 cartes, dont (aucune nouvelle|\d nouvelles?)\.$/)).toBeVisible();
   await expect(result.getByRole('article')).toHaveCount(5);
-  await expect(page.getByText('9/10')).toBeVisible();
+  await expect(page.getByText('9 paquets en réserve sur 10')).toBeVisible();
   await expect(result).toContainText('Succès obtenu : Ouvrir votre premier paquet · +5 pièces');
 
   // Ten cards out of five possible: there are duplicates to resell
   await page.getByRole('button', { name: 'Ouvrir un autre paquet' }).click();
-  await expect(page.getByText('8/10')).toBeVisible();
+  await expect(page.getByText('8 paquets en réserve sur 10')).toBeVisible();
 
   await page.goto(`${home}/collection?tab=duplicates`);
   const resell = page.getByRole('button', { name: /^Revendre (un doublon|les \d+ doublons) pour \d+ pièces$/ });

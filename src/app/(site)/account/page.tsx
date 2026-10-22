@@ -1,4 +1,4 @@
-import { DownloadSimpleIcon } from '@phosphor-icons/react/ssr';
+import { Download } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { ChangePasswordForm, DeleteAccountForm, PseudoForm, SignOutButton } from '@/components/account/AccountForms';
@@ -55,7 +55,7 @@ export default async function AccountPage() {
         <p className={styles.muted}>{t('data.intro')}</p>
         {/* A plain link: the browser downloads the file the route sends. */}
         <a className={`btn btn-secondary ${styles.download}`} href="/account/export" download>
-          <DownloadSimpleIcon size={18} aria-hidden />
+          <Download aria-hidden />
           {t('data.export')}
         </a>
       </section>

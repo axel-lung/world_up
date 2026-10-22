@@ -1,12 +1,64 @@
-/* Over Nocturne's compact .btn: every touch target is 44 px at least. */
+/* Over Organic's compact .btn: every touch target is 44 px at least. */
 .button {
   min-height: 44px;
-  padding: 0 16px;
+  padding: 0 18px;
   gap: 8px;
 }
 
+.button svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+.large {
+  min-height: 48px;
+  padding: 0 22px;
+  font-size: 16px;
+}
+
+.large svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* Ink on the terracotta fill (4.5:1 at least, as --color-on-accent promises),
+   and a lighter fill under the pointer, in both themes. */
+.primary {
+  color: var(--color-on-accent);
+}
+
+.primary:hover {
+  color: var(--color-on-accent);
+  background: color-mix(in srgb, var(--color-accent) 75%, white);
+}
+
+.primary:active {
+  background: color-mix(in srgb, var(--color-accent) 55%, white);
+}
+
+/* Terracotta text takes the strong shade at button size */
 .ghost {
-  padding: 0 10px;
+  padding: 0 12px;
+  color: var(--color-accent-strong);
+}
+
+.ghost:hover {
+  color: var(--color-accent-strong);
+}
+
+.sage {
+  background: var(--color-sage);
+  color: var(--color-on-accent);
+}
+
+.sage:hover {
+  color: var(--color-on-accent);
+  background: color-mix(in srgb, var(--color-sage) 80%, white);
+}
+
+.secondary:hover {
+  color: var(--color-text);
 }
 
 .danger {
@@ -14,10 +66,21 @@
   border-color: var(--color-danger);
 }
 
+.danger:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
 .iconOnly {
   width: 44px;
   height: 44px;
   padding: 0;
+  border-radius: 50%;
+}
+
+.iconOnly svg {
+  width: 19px;
+  height: 19px;
 }
 
 .block {

@@ -1,14 +1,14 @@
 /* --rar-fill and --rar-line come from the data-rarity attribute (theme.css). */
 .pips {
   display: flex;
-  gap: calc(var(--pip) * 0.6);
+  gap: calc(var(--pip) * 0.5);
   flex: none;
 }
 
 .pip {
   width: var(--pip);
   height: var(--pip);
-  transform: rotate(45deg);
+  border-radius: 50%;
   background: var(--rar-ink);
 }
 
@@ -16,18 +16,34 @@
   background: var(--rar-line);
 }
 
+/* A sticker: inked outline and a sharp shadow, like the cards */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 4px;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
   background: var(--rar-fill);
+  border: 2px solid var(--sticker-line);
+  box-shadow: 0 2px 0 var(--sticker-shadow);
   color: var(--rar-ink);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.badge[data-tilted] {
+  transform: rotate(-2deg);
+}
+
+.swatch {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--rar-fill);
+  border: 1.5px solid var(--sticker-line);
 }

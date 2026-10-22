@@ -21,8 +21,8 @@ describe('renderEmail', () => {
 
 describe('parseSender', () => {
   it.each([
-    ['Patrimoine de France <no-reply@jeu.example>', { name: 'Patrimoine de France', email: 'no-reply@jeu.example' }],
-    ['"Patrimoine de France" <no-reply@jeu.example>', { name: 'Patrimoine de France', email: 'no-reply@jeu.example' }],
+    ['World Up <no-reply@jeu.example>', { name: 'World Up', email: 'no-reply@jeu.example' }],
+    ['"World Up" <no-reply@jeu.example>', { name: 'World Up', email: 'no-reply@jeu.example' }],
     ['<no-reply@jeu.example>', { email: 'no-reply@jeu.example' }],
     [' no-reply@jeu.example ', { email: 'no-reply@jeu.example' }],
   ])('reads %s', (value, sender) => {
@@ -35,7 +35,7 @@ describe('createEmailJob with Brevo', () => {
 
   function brevoJob(response: Response) {
     vi.stubEnv('BREVO_API_KEY', 'xkeysib-test');
-    vi.stubEnv('MAIL_FROM', 'Patrimoine de France <no-reply@jeu.example>');
+    vi.stubEnv('MAIL_FROM', 'World Up <no-reply@jeu.example>');
     const fetch = vi.fn(async () => response);
     vi.stubGlobal('fetch', fetch);
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -57,7 +57,7 @@ describe('createEmailJob with Brevo', () => {
     expect(init.headers).toMatchObject({ 'api-key': 'xkeysib-test' });
     const { subject, text, html } = renderEmail(job);
     expect(JSON.parse(init.body as string)).toEqual({
-      sender: { name: 'Patrimoine de France', email: 'no-reply@jeu.example' },
+      sender: { name: 'World Up', email: 'no-reply@jeu.example' },
       to: [{ email: 'joueur@example.test' }],
       subject,
       textContent: text,

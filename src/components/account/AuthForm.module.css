@@ -7,8 +7,8 @@
 
 .title {
   margin: 0;
-  font-size: 24px;
-  line-height: 1.2;
+  font-size: 28px;
+  line-height: 1.12;
 }
 
 .intro {
@@ -29,6 +29,7 @@
   padding: 0;
   border: 0;
   background: none;
+  font-weight: 600;
   color: var(--color-accent-strong);
   font: inherit;
   font-size: 13px;

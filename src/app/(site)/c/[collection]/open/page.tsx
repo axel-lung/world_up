@@ -34,6 +34,7 @@ export default async function OpenPage({ params }: PageProps<'/c/[collection]/op
       <PackOpener
         collection={collection.slug}
         collectionName={collection.name}
+        emblem={collection.emblem}
         collectionHref={paths.collection}
         initialReserve={{
           available: reserve.packs,

@@ -1,8 +1,14 @@
+/* Pills on a surface strip; the current tab is inked. */
 .tablist {
   display: flex;
-  gap: 2px;
+  align-self: flex-start;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px;
   overflow-x: auto;
-  box-shadow: inset 0 -1px 0 var(--color-line);
+  border-radius: 999px;
+  background: var(--color-surface);
+  scrollbar-width: none;
 }
 
 .tab {
@@ -10,15 +16,16 @@
   align-items: center;
   gap: 6px;
   min-height: 44px;
-  padding: 0 12px;
+  padding: 0 16px;
   background: transparent;
   border: 0;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-radius: 999px;
   cursor: pointer;
   font: inherit;
   font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
-  color: var(--color-text-muted);
+  color: var(--color-text);
 }
 
 .tab:hover {
@@ -26,12 +33,13 @@
 }
 
 .tab[aria-selected="true"] {
-  color: var(--color-text);
-  box-shadow: inset 0 -2px 0 var(--color-accent);
+  background: var(--color-text);
+  color: var(--color-bg);
 }
 
 .count {
   font-size: 12px;
-  color: var(--color-text-muted);
+  font-weight: 400;
+  opacity: 0.8;
   font-variant-numeric: tabular-nums;
 }

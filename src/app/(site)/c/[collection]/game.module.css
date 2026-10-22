@@ -5,26 +5,36 @@
   padding: 32px 16px 64px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 
 .header h1 {
   margin: 0;
-  font-family: var(--skin-display-font, var(--font-heading));
-  font-size: 30px;
-  line-height: 1.15;
+  font-size: 36px;
+  line-height: 1.05;
 }
 
+@media (min-width: 720px) {
+  .header h1 {
+    font-size: 44px;
+  }
+}
+
+/* The collection's name, as a terracotta tag above the title */
 .eyebrow {
+  align-self: flex-start;
   margin: 0;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-accent-tint);
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-accent-strong);
@@ -36,6 +46,7 @@
 }
 
 .eyebrow a:hover {
+  color: inherit;
   text-decoration: underline;
 }
 
@@ -48,15 +59,22 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 20px;
+  padding: 24px;
   border-radius: var(--radius-lg);
   background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
+  /* The reserve inside sits on the page ground */
+  --reserve-bg: var(--color-bg);
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 20px 16px;
+  }
 }
 
 .section h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 24px;
 }
 
 .sectionHeader {
@@ -105,6 +123,10 @@
   color: inherit;
 }
 
+.gauges a:hover {
+  color: var(--color-accent-strong);
+}
+
 .stack {
   display: flex;
   flex-direction: column;
@@ -113,26 +135,28 @@
 
 .groupTitle {
   margin: 8px 0 0;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
-/* The card grid: two columns of 160 px fit a 360 px screen */
+/* The card grid: two columns of 160 px fit a 360 px screen. Room above each
+   row for the stickers that stick out of the cards. */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 20px 8px;
+  gap: 28px 8px;
   margin: 0;
-  padding: 10px 0 0;
+  padding: 12px 0 0;
   list-style: none;
 }
 
 @media (min-width: 600px) {
   .grid {
-    gap: 24px 16px;
+    gap: 32px 24px;
   }
 }
 
@@ -143,21 +167,32 @@
   gap: 12px;
 }
 
-.filters .field {
-  min-width: 160px;
+.filters :global(.field) {
+  min-width: 180px;
 }
 
+.filters select {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+/* The collection's tabs: pills on a surface strip, the current one inked */
 .tabs {
+  align-self: flex-start;
+  max-width: 100%;
   overflow-x: auto;
   scrollbar-width: none;
+  border-radius: 999px;
 }
 
 .tabs ul {
   display: flex;
+  gap: 6px;
   margin: 0;
-  padding: 0;
+  padding: 4px;
   list-style: none;
-  box-shadow: inset 0 -1px 0 var(--color-divider);
+  border-radius: 999px;
+  background: var(--color-surface);
 }
 
 .tab {
@@ -165,25 +200,30 @@
   align-items: center;
   gap: 6px;
   min-height: 44px;
-  padding: 0 12px;
-  color: var(--color-text-muted);
+  padding: 0 16px;
+  border-radius: 999px;
+  color: var(--color-text);
   font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
   text-decoration: none;
 }
 
 .tab:hover {
   color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
-.tab[aria-current="page"] {
-  color: var(--color-text);
-  box-shadow: inset 0 -2px 0 var(--color-accent);
+.tab[aria-current="page"],
+.tab[aria-current="page"]:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
 }
 
 .tabCount {
   font-size: 12px;
-  color: var(--color-text-muted);
+  font-weight: 400;
+  opacity: 0.8;
   font-variant-numeric: tabular-nums;
 }
 
@@ -199,7 +239,17 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  color: var(--color-accent-strong);
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--color-divider);
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.pagination a:hover {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
 .empty {
@@ -221,7 +271,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--color-divider);
 }
 
@@ -233,17 +283,22 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1px var(--color-line);
+  background: var(--color-bg);
   color: var(--color-text-muted);
 }
 
+.achievementIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* An achievement obtained: a success, in sage */
 .achievement[data-done] .achievementIcon {
-  background: var(--color-accent);
-  box-shadow: none;
-  color: var(--color-on-accent, #161826);
+  background: var(--color-sage);
+  color: var(--color-on-accent);
 }
 
 .achievementText {
@@ -252,10 +307,12 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  font-weight: 600;
 }
 
 .achievementMeta {
   font-size: 13px;
+  font-weight: 400;
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -268,6 +325,7 @@
 }
 
 .achievement[data-done] .reward {
+  font-weight: 600;
   color: var(--color-text);
 }
 
@@ -280,11 +338,14 @@
 }
 
 .balance svg {
+  width: 22px;
+  height: 22px;
   color: var(--color-accent);
 }
 
 .balance strong {
-  font-size: 22px;
-  font-weight: 500;
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
 }

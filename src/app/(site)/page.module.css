@@ -1,19 +1,99 @@
 .page {
-  max-width: 640px;
+  position: relative;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 48px 16px;
+  padding: 56px 16px 72px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  overflow: hidden;
 }
 
-.page h1,
+/* Text keeps a readable measure, the decoration takes the right-hand side */
+.page > :not([aria-hidden]) {
+  position: relative;
+  max-width: 640px;
+}
+
+.page h1 {
+  margin: 0;
+  font-size: 48px;
+  line-height: 1.02;
+}
+
+@media (min-width: 720px) {
+  .page h1 {
+    font-size: 64px;
+  }
+}
+
 .page p {
   margin: 0;
+}
+
+.collection {
+  align-self: flex-start;
+}
+
+.lead {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  text-wrap: pretty;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
+  margin-top: 6px;
+}
+
+.discAccent,
+.discSage,
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+}
+
+.discAccent {
+  top: 32px;
+  right: 16px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: var(--color-accent-tint);
+}
+
+.discSage {
+  top: 250px;
+  right: 230px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--color-sage-tint);
+}
+
+.sparkle {
+  top: 56px;
+  right: 340px;
+  width: 44px;
+  height: 44px;
+  color: var(--color-accent);
+}
+
+/* Narrow screens: one disc in the corner, behind the text */
+@media (max-width: 719px) {
+  .discAccent {
+    top: -60px;
+    right: -140px;
+    width: 220px;
+    height: 220px;
+  }
+
+  .discSage,
+  .sparkle {
+    display: none;
+  }
 }

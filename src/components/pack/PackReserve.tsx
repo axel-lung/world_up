@@ -1,9 +1,9 @@
 'use client';
 
-import { PackageIcon, PauseIcon, TimerIcon } from '@phosphor-icons/react';
+import { Package, Pause, Timer } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Tag } from '@/components/ui/Tag';
+import type { CSSProperties } from 'react';
 import styles from './PackReserve.module.css';
 import { formatCountdown, useCountdown } from './useCountdown';
 
@@ -19,41 +19,27 @@ export interface PackReserveProps {
   shopHref?: string | null;
 }
 
-/** Packs in reserve, as a count and one mark per slot, with the next-pack timer. */
+/** Packs in reserve, as a ring filling up to the maximum, with the next-pack timer. */
 export function PackReserve({ available, max, nextPackAt, serverNow, refillMinutes, shopHref = '/shop' }: PackReserveProps) {
   const t = useTranslations('Pack');
   const remaining = useCountdown(nextPackAt, serverNow);
   const full = available >= max;
+  const filled = max > 0 ? Math.min(1, available / max) : 0;
 
   return (
     <div className={styles.reserve}>
       <div className={styles.row}>
-        <div className={styles.count}>
-          <div className={styles.figure}>
-            <span className={styles.number}>
-              {available}/{max}
-            </span>
-            <span className={styles.unit}>{t('packs', { count: available })}</span>
-          </div>
-          <div className={styles.slots} aria-hidden="true">
-            {Array.from({ length: max }, (_, index) => (
-              <span key={index} className={styles.slot} data-filled={index < available} />
-            ))}
-          </div>
+        <span className={styles.ring} style={{ '--filled': `${filled * 360}deg` } as CSSProperties} aria-hidden="true">
+          <span>{available}</span>
+        </span>
+        <span className="sr-only">{t('reserve', { count: available, max })}</span>
+        <div className={styles.status}>
+          <span className={styles.label}>{full ? t('full') : t('nextPack')}</span>
+          <span className={styles.value}>
+            {full ? <Pause aria-hidden /> : <Timer aria-hidden />}
+            {full ? t('paused') : formatCountdown(remaining)}
+          </span>
         </div>
-        {full ? (
-          <Tag variant="accent" icon={<PauseIcon aria-hidden />}>
-            {t('full')}
-          </Tag>
-        ) : (
-          <div className={styles.next}>
-            <span className={styles.nextLabel}>{t('next')}</span>
-            <span className={styles.timer}>
-              <TimerIcon aria-hidden className={styles.icon} />
-              {formatCountdown(remaining)}
-            </span>
-          </div>
-        )}
       </div>
       <span className={styles.hint}>
         {full
@@ -62,13 +48,13 @@ export function PackReserve({ available, max, nextPackAt, serverNow, refillMinut
             ? shopHref
               ? t.rich('emptyHint', { shop: (chunks) => <Link href={shopHref}>{chunks}</Link> })
               : t('emptyHintNoShop')
-            : t('running', { minutes: refillMinutes })}
+            : t('running', { minutes: refillMinutes, max })}
       </span>
     </div>
   );
 }
 
-/** The header version: packs in reserve and the timer, side by side. */
+/** The header version: packs in reserve and the timer, side by side in a pill. */
 export function PackReserveCompact({ available, max, nextPackAt, serverNow }: Omit<PackReserveProps, 'refillMinutes' | 'shopHref'>) {
   const t = useTranslations('Pack');
   const remaining = useCountdown(nextPackAt, serverNow);
@@ -82,14 +68,14 @@ export function PackReserveCompact({ available, max, nextPackAt, serverNow }: Om
     <div className={styles.compact}>
       <span className="sr-only">{label}</span>
       <span className={styles.compactItem} aria-hidden="true">
-        <PackageIcon className={styles.icon} />
+        <Package />
         {available}
       </span>
       {!full && (
         <>
           <span className={styles.separator} aria-hidden="true" />
           <span className={styles.compactItem} aria-hidden="true">
-            <TimerIcon className={styles.icon} />
+            <Timer />
             {time}
           </span>
         </>

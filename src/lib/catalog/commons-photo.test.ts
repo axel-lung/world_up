@@ -90,7 +90,7 @@ describe('importCommonsPhoto', () => {
     expect((await sharp(await readFile(path.join(dir, `${'cd'.repeat(10)}-400.webp`))).metadata()).width).toBe(400);
     // The download is the 960 px thumbnail, with a User-Agent that has a contact
     expect(fetch).toHaveBeenLastCalledWith('https://upload.wikimedia.org/960px.jpg', expect.anything());
-    expect(fetch.mock.calls[0][1]).toMatchObject({ headers: { 'User-Agent': 'PatrimoineDeFrance/1.0 (https://jeu.example)' } });
+    expect(fetch.mock.calls[0][1]).toMatchObject({ headers: { 'User-Agent': 'WorldUp/1.0 (https://jeu.example)' } });
   });
 
   it('refuses a photo that breaks the rules, before downloading it', async () => {

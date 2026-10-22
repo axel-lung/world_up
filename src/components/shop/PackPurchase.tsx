@@ -1,12 +1,14 @@
 'use client';
 
-import { CheckCircleIcon, GaugeIcon, InfoIcon, PackageIcon, XIcon } from '@phosphor-icons/react';
+import { CircleCheck, Gauge, Info, PackageOpen, X } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useId, useState } from 'react';
-import { RarityPips } from '@/components/rarity/Rarity';
+import { EmblemIcon } from '@/components/collection/Emblem';
+import { RarityDot } from '@/components/rarity/Rarity';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Tag } from '@/components/ui/Tag';
+import type { Emblem } from '@/lib/collection-theme';
 import type { Rarity } from '@/lib/rarity';
 import styles from './PackPurchase.module.css';
 
@@ -23,6 +25,7 @@ export interface PackOdds {
  */
 export function PackPurchasePanel({
   collectionName,
+  emblem,
   cardsPerPack,
   price,
   odds,
@@ -32,6 +35,7 @@ export function PackPurchasePanel({
   onPay,
 }: {
   collectionName: string;
+  emblem: Emblem;
   cardsPerPack: number;
   /** Euros, tax included. */
   price: number;
@@ -55,11 +59,13 @@ export function PackPurchasePanel({
         <h2 id={titleId} className="dialog-title">
           {t('packTitle')}
         </h2>
-        <Button variant="ghost" iconOnly aria-label={t('close')} className={styles.close} onClick={onClose} icon={<XIcon size={20} aria-hidden />} />
+        <Button variant="ghost" iconOnly aria-label={t('close')} className={styles.close} onClick={onClose} icon={<X aria-hidden />} />
       </div>
 
       <div className={styles.product}>
-        <span className={styles.packThumb} aria-hidden="true" />
+        <span className={styles.packThumb} aria-hidden="true">
+          <EmblemIcon emblem={emblem} />
+        </span>
         <div className={styles.productText}>
           <span>{t('packName', { collection: collectionName })}</span>
           <span className={styles.muted}>{t('packDescription', { count: cardsPerPack })}</span>
@@ -80,9 +86,7 @@ export function PackPurchasePanel({
         <ul className={styles.oddsList}>
           {odds.map(({ rarity, probability }) => (
             <li key={rarity} className={styles.oddsItem}>
-              <span className={styles.oddsPips}>
-                <RarityPips rarity={rarity} size={4} tone="line" />
-              </span>
+              <RarityDot rarity={rarity} />
               <span className={styles.oddsLabel}>{tRarity(rarity)}</span>
               <span className={`${styles.muted} ${styles.oddsValue}`}>
                 {format.number(probability, { style: 'percent', maximumFractionDigits: 2 })}
@@ -99,12 +103,12 @@ export function PackPurchasePanel({
       <div className={styles.notes}>
         {monthlyCap && (
           <span className={styles.note}>
-            <GaugeIcon aria-hidden />
+            <Gauge aria-hidden />
             {t('monthlyCap', { available: euros(monthlyCap.available), cap: euros(monthlyCap.cap) })}
           </span>
         )}
         <span className={styles.note}>
-          <InfoIcon aria-hidden />
+          <Info aria-hidden />
           {t('noMoneyValue')}
         </span>
       </div>
@@ -141,7 +145,7 @@ export function PurchaseConfirmation({
   return (
     <section className={`dialog ${styles.panel}`} aria-labelledby={titleId}>
       <span className={styles.success} aria-hidden="true">
-        <CheckCircleIcon size={24} />
+        <CircleCheck />
       </span>
       <h2 id={titleId} className="dialog-title">
         {t('confirmedTitle')}
@@ -152,7 +156,7 @@ export function PurchaseConfirmation({
       </div>
       <div className={`dialog-actions ${styles.wrapActions}`}>
         <Button onClick={onClose}>{t('close')}</Button>
-        <Button variant="primary" onClick={onOpenPack} icon={<PackageIcon size={18} aria-hidden />}>
+        <Button variant="primary" onClick={onOpenPack} icon={<PackageOpen aria-hidden />}>
           {t('openMyPack')}
         </Button>
       </div>

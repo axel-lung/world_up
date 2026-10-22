@@ -16,9 +16,14 @@
 
 .header h1 {
   margin: 0;
-  font-family: var(--skin-display-font, var(--font-heading));
-  font-size: 30px;
-  line-height: 1.15;
+  font-size: 36px;
+  line-height: 1.05;
+}
+
+@media (min-width: 720px) {
+  .header h1 {
+    font-size: 44px;
+  }
 }
 
 .header p,
@@ -38,7 +43,7 @@
 
 .section h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .section ul {
@@ -68,8 +73,10 @@
 }
 
 .table th {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
@@ -88,6 +95,10 @@
   color: var(--color-accent-strong);
 }
 
+.table tr[data-me] td {
+  background: var(--color-accent-tint);
+}
+
 .history {
   display: flex;
   flex-direction: column;
@@ -96,5 +107,5 @@
 
 .history h3 {
   margin: 0 0 4px;
-  font-size: 16px;
+  font-size: 18px;
 }

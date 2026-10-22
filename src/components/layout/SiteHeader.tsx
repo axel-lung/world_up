@@ -1,4 +1,4 @@
-import { CoinsIcon, UserCircleIcon } from '@phosphor-icons/react/ssr';
+import { CircleUser, Coins } from 'lucide-react';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { PackReserveCompact } from '@/components/pack/PackReserve';
@@ -46,7 +46,7 @@ export async function SiteHeader() {
       </a>
       <div className={styles.bar}>
         <Link href={session && game ? game.home : '/'} className={styles.brand}>
-          {collection?.name ?? t('brand')}
+          {t('brand')}
         </Link>
         <div className={styles.player}>
           {player && game ? (
@@ -61,11 +61,11 @@ export async function SiteHeader() {
                 />
               </Link>
               <span className={styles.coins}>
-                <CoinsIcon aria-hidden size={18} />
+                <Coins aria-hidden />
                 <span>{t.rich('coins', { count: player[1], word: (chunks) => <span className={styles.coinsWord}>{chunks}</span> })}</span>
               </span>
               <Link href="/account" className={styles.account}>
-                <UserCircleIcon aria-hidden size={22} />
+                <CircleUser aria-hidden />
                 <span className={styles.accountLabel}>{t('account')}</span>
               </Link>
             </>

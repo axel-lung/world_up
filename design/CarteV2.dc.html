@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/styles.css">
+  <script src="_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/_ds_bundle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide-static@0.469.0/font/lucide.css">
+  <style>[class^="icon-"]::before, [class*=" icon-"]::before { -webkit-text-stroke: 0.045em currentColor; }</style>
+</helmet>
+<article aria-label="{{ aria }}" role="{{ role }}" tabIndex="{{ tabIdx }}" onClick="{{ onCard }}" onKeyDown="{{ onKey }}" style="{{ root }}">
+  <div style="{{ inner }}">
+    <div style="{{ recto }}" aria-hidden="{{ versoShown }}">
+      <div style="position:relative; flex:none">
+        <div class="washed" style="position:relative; aspect-ratio:4 / 3; border-radius:var(--ph-r); overflow:hidden; background:var(--photo-bg)">
+          <sc-if value="{{ showBlur }}" hint-placeholder-val="{{ false }}"><img src="{{ c.photo }}" alt="" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:blur(12px) brightness(0.75); transform:scale(1.2)"></sc-if>
+          <sc-if value="{{ showImg }}" hint-placeholder-val="{{ true }}"><img src="{{ c.photo }}" alt="{{ alt }}" onError="{{ onErr }}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:var(--fit); filter:var(--img-filter); opacity:var(--img-opacity)"></sc-if>
+          <sc-if value="{{ imgErr }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:10px; text-align:center; font-family:var(--font-heading); font-size:1em; line-height:1.15; color:#3d472b; background:var(--photo-bg)"><i class="icon-image" aria-hidden="true" style="font-size:1.4em"></i><span>{{ flat }}</span></div></sc-if>
+          <sc-if value="{{ masked }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="position:absolute; inset:0; display:grid; place-items:center"><span style="width:2.6em; height:2.6em; display:grid; place-items:center; border-radius:50%; background:var(--card-bg); border:2px dashed var(--card-muted); font-family:var(--font-heading); font-size:1.5em; color:var(--card-muted)">?</span></div></sc-if>
+        </div>
+        <sc-if value="{{ infoBtn }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ toggleInfo }}" aria-label="Crédit photo" aria-expanded="{{ info }}" style="position:absolute; top:0; right:0; width:44px; height:44px; padding:5px; display:flex; align-items:flex-start; justify-content:flex-end; background:transparent; border:0; cursor:pointer">
+            <span style="width:22px; height:22px; border-radius:50%; display:grid; place-items:center; background:#f9f4ed; border:1.5px solid #201e1d; color:#201e1d; font-size:12px"><i class="icon-info"></i></span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ info }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; left:4px; right:4px; top:40px; padding:6px 8px; border-radius:10px; background:#f9f4ed; border:1.5px solid #201e1d; font-size:10px; line-height:1.35; color:#201e1d">Photo&nbsp;: {{ auteur }} · {{ c.licence }} · <a href="{{ c.fichier }}" target="_blank" rel="noopener" onClick="{{ stop }}" style="color:#8c491a">Commons</a></div>
+        </sc-if>
+        <sc-if value="{{ shiny }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:var(--stk-off); left:var(--stk-off); display:flex; align-items:center; gap:3px; padding:var(--stk-pad); border-radius:999px; background:#f9f4ed; border:2px solid #201e1d; color:#201e1d; font-size:var(--fs-stk); font-weight:700; line-height:1; transform:rotate(-4deg)"><i class="icon-sparkles" aria-hidden="true"></i><span>{{ shinyTxt }}</span></span></sc-if>
+        <span style="position:absolute; left:var(--stk-off); bottom:var(--stk-drop); display:flex; align-items:center; gap:var(--dot-gap); padding:var(--stk-pad); border-radius:999px; background:var(--stk-bg); border:var(--stk-border); color:var(--stk-ink); font-size:var(--fs-stk); font-weight:700; line-height:1; letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap; transform:rotate(-2.5deg); box-shadow:var(--stk-shadow)">
+          <span>{{ r.label }}</span>
+          <span aria-hidden="true" style="display:flex; gap:var(--dot-gap)"><sc-for list="{{ pips }}" as="p" hint-placeholder-count="3"><span style="width:var(--dot); height:var(--dot); border-radius:50%; background:var(--dot-c)"></span></sc-for></span>
+        </span>
+      </div>
+      <sc-if value="{{ credit }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:flex-start; justify-content:flex-end; gap:5px; margin-top:-4px; font-size:11.5px; line-height:1.35; color:var(--card-muted); text-align:right"><i class="icon-camera" aria-hidden="true" style="margin-top:2px"></i><span style="min-width:0; max-width:70%">{{ auteur }} · {{ c.licence }} · <a href="{{ c.fichier }}" target="_blank" rel="noopener" onClick="{{ stop }}" style="color:var(--card-link)">Commons</a></span></div>
+      </sc-if>
+      <div style="display:flex; flex-direction:column; gap:var(--gap-s); padding-top:var(--name-pt)">
+        <sc-if value="{{ showName }}" hint-placeholder-val="{{ true }}">
+          <h3 style="margin:0; font-family:var(--font-heading); font-weight:400; font-size:1.06em; line-height:1.12; letter-spacing:-0.005em; color:var(--card-ink); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; text-wrap:pretty">{{ nom }}</h3>
+        </sc-if>
+        <sc-if value="{{ masked }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-heading); font-size:1.06em; line-height:1.12; color:var(--card-muted)">À découvrir…</div>
+        </sc-if>
+        <div style="display:flex; align-items:center; gap:4px; min-width:0; font-size:var(--fs-meta); line-height:1.25; color:var(--card-muted)"><i class="icon-map-pin" aria-hidden="true" style="flex:none"></i><span style="overflow:hidden; text-overflow:ellipsis; white-space:var(--lieu-ws)">{{ lieu }}</span></div>
+        <div style="display:flex; flex-wrap:wrap; gap:4px">
+          <sc-for list="{{ badges }}" as="b" hint-placeholder-count="1"><span style="font-size:var(--fs-tag); font-weight:600; line-height:1; padding:var(--tag-pad); border-radius:999px; background:{{ b.bg }}; border:1.5px solid {{ b.line }}; color:var(--card-ink); white-space:nowrap">{{ b.t }}</span></sc-for>
+        </div>
+      </div>
+      <div style="margin-top:auto; display:flex; align-items:center; gap:6px; font-size:var(--fs-num); line-height:1.25; color:var(--card-muted); font-variant-numeric:tabular-nums">
+        <span aria-label="Collection Patrimoine de France" style="flex:none; width:var(--emb); height:var(--emb); display:grid; place-items:center; border-radius:50%; background:var(--emb-bg); color:var(--emb-ink); font-size:var(--fs-emb)"><i class="icon-landmark"></i></span>
+        <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ c.serie }}</span>
+        <span style="margin-left:auto; flex:none; font-weight:600; color:var(--card-ink)">{{ num }}</span>
+      </div>
+      <sc-if value="{{ shiny }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(115deg, transparent 14%, rgba(255,150,190,0.45) 30%, rgba(150,220,255,0.45) 44%, rgba(255,232,140,0.5) 58%, transparent 76%); mix-blend-mode:color-burn; opacity:0.7"></div></sc-if>
+    </div>
+    <sc-if value="{{ hasVerso }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ verso }}" aria-hidden="{{ rectoShown }}">
+        <div style="display:flex; align-items:center; gap:6px; flex:none">
+          <span style="display:flex; align-items:center; gap:var(--dot-gap); padding:var(--stk-pad); border-radius:999px; background:var(--stk-bg); border:var(--stk-border); color:var(--stk-ink); font-size:var(--fs-stk); font-weight:700; line-height:1; letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap"><span>{{ r.label }}</span><span aria-hidden="true" style="display:flex; gap:var(--dot-gap)"><sc-for list="{{ pips }}" as="p" hint-placeholder-count="3"><span style="width:var(--dot); height:var(--dot); border-radius:50%; background:var(--dot-c)"></span></sc-for></span></span>
+          <span style="margin-left:auto; width:var(--emb); height:var(--emb); display:grid; place-items:center; border-radius:50%; background:var(--emb-bg); color:var(--emb-ink); font-size:var(--fs-emb)" aria-hidden="true"><i class="icon-landmark"></i></span>
+        </div>
+        <h3 style="margin:0; font-family:var(--font-heading); font-weight:400; font-size:0.95em; line-height:1.12; color:var(--card-ink); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; flex:none">{{ nom }}</h3>
+        <p style="margin:0; font-size:var(--fs-text); line-height:1.45; color:var(--card-ink); display:-webkit-box; -webkit-line-clamp:var(--ex-lines); -webkit-box-orient:vertical; overflow:hidden; text-wrap:pretty">{{ c.extrait }}</p>
+        <sc-if value="{{ big }}" hint-placeholder-val="{{ false }}"><a href="{{ c.wiki }}" target="_blank" rel="noopener" onClick="{{ stop }}" style="display:inline-flex; align-items:center; gap:6px; min-height:44px; margin:-10px 0 -12px; font-size:14px; font-weight:600; color:var(--card-link); text-underline-offset:3px">Lire l'article sur Wikipédia<i class="icon-arrow-up-right" aria-hidden="true"></i></a></sc-if>
+        <span style="font-size:var(--fs-tag); line-height:1.3; color:var(--card-muted)">Texte&nbsp;: Wikipédia, CC&nbsp;BY-SA&nbsp;4.0</span>
+        <div style="display:flex; flex-direction:column; gap:2px; padding:var(--sep); border-radius:var(--ph-r); background:var(--photo-bg-soft)">
+          <span style="font-size:var(--fs-tag); font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--card-muted)">Photo</span>
+          <span style="font-size:var(--fs-meta); line-height:1.3; color:var(--card-ink)">{{ auteur }} · {{ c.licence }}</span>
+          <sc-if value="{{ big }}" hint-placeholder-val="{{ false }}"><a href="{{ c.fichier }}" target="_blank" rel="noopener" onClick="{{ stop }}" style="display:inline-flex; align-items:center; gap:6px; min-height:44px; margin:-8px 0 -12px; font-size:13px; font-weight:600; color:var(--card-link); text-underline-offset:3px">Fichier sur Wikimedia Commons<i class="icon-arrow-up-right" aria-hidden="true"></i></a></sc-if>
+        </div>
+        <div style="margin-top:auto; display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; column-gap:6px; font-size:var(--fs-num); line-height:1.3; color:var(--card-muted); font-variant-numeric:tabular-nums"><span style="font-weight:600; color:var(--card-ink)">{{ exTxt }}</span><span style="margin-left:auto">{{ num }}</span></div>
+      </div>
+    </sc-if>
+  </div>
+  <sc-if value="{{ nouveau }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-10px; right:14px; padding:4px 9px; border-radius:999px; background:#c67139; border:2px solid #201e1d; color:#201e1d; font-size:10.5px; font-weight:700; line-height:1.1; letter-spacing:0.04em; text-transform:uppercase; transform:rotate(5deg)">Nouveau&nbsp;!</span></sc-if>
+  <sc-if value="{{ hasDoublon }}" hint-placeholder-val="{{ false }}"><span aria-label="{{ doublonAria }}" style="position:absolute; top:-10px; right:-10px; width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:#201e1d; border:2px solid #f9f4ed; color:#f5ead8; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums">{{ doublon }}</span></sc-if>
+  <sc-if value="{{ sel }}" hint-placeholder-val="{{ false }}"><span aria-label="Sélectionnée" style="position:absolute; top:-10px; left:-10px; width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:#7a8a5e; border:2px solid #201e1d; color:#f9f4ed; font-size:15px"><i class="icon-check"></i></span></sc-if>
+</article>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:200,&quot;height&quot;:300},&quot;card&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;taille&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;grille&quot;,&quot;grand&quot;],&quot;default&quot;:&quot;grille&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;etat&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;possedee&quot;,&quot;manquante&quot;,&quot;masquee&quot;],&quot;default&quot;:&quot;possedee&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;face&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;recto&quot;,&quot;verso&quot;],&quot;default&quot;:&quot;recto&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;retournable&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;doublon&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;min&quot;:1,&quot;max&quot;:9,&quot;tsType&quot;:&quot;number&quot;},&quot;exemplaires&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;min&quot;:1,&quot;max&quot;:99,&quot;tsType&quot;:&quot;number&quot;},&quot;nouveau&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;brillante&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;selectionnee&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;cadrage&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;centre&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { info: false, imgErr: false, flipped: false };
+  renderVals() {
+    const RAR = {
+      legendaire: { label: 'Légendaire', n: 6, c: '#e0654a', line: '#a8362a' },
+      ultra: { label: 'Ultra rare', n: 5, c: '#e9b949', line: '#8a6100' },
+      super: { label: 'Super rare', n: 4, c: '#b48ac8', line: '#7a4a92' },
+      rare: { label: 'Rare', n: 3, c: '#6fa3cc', line: '#2f6a96' },
+      peu: { label: 'Peu commune', n: 2, c: '#9db07f', line: '#56633f' },
+      commune: { label: 'Commune', n: 1, c: '#cfc5b4', line: '#645c50' },
+    };
+    const p = this.props;
+    const c = p.card || {
+      nom: 'abbaye du Thoronet', rarete: 'ultra', dept: 'Var', region: 'Provence-Alpes-Côte d’Azur',
+      classement: 'Classé MH', serie: 'Provence-Alpes-Côte d’Azur', num: 4, total: 1452,
+      photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Thoronet_Cloister_Garden.JPG?width=640',
+      fichier: 'https://commons.wikimedia.org/wiki/File:Thoronet_Cloister_Garden.JPG',
+      auteur: 'SiefkinDR', licence: 'domaine public',
+    };
+    const rk = RAR[c.rarete] ? c.rarete : 'commune';
+    const r = RAR[rk];
+    const big = p.taille === 'grand';
+    const etat = p.etat || 'possedee';
+    const missing = etat !== 'possedee';
+    const masked = etat === 'masquee';
+    const sel = !!p.selectionnee;
+    const shiny = !!p.brillante && !missing;
+    const flipable = !!p.retournable && !missing;
+    const hasVerso = !missing && (flipable || p.face === 'verso');
+    const verso = hasVerso && ((p.face === 'verso') !== this.state.flipped);
+    const ratio = (c.w || 4) / (c.h || 3);
+    const odd = (ratio < 1.1 || ratio > 1.9) && p.cadrage !== 'centre';
+    const err = this.state.imgErr;
+    const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const nom = c.nom ? c.nom.charAt(0).toUpperCase() + c.nom.slice(1) : '';
+    const num = c.num != null ? String(c.num).padStart(3, '0') + '/' + c.total : '';
+    const ex = p.exemplaires || p.doublon || 1;
+    const line = `var(--rar-line-${rk}, ${r.line})`;
+    const R = big ? 24 : 16;
+    const root = {
+      position: 'relative', boxSizing: 'border-box', width: '100%', height: '100%',
+      perspective: '1400px', fontFamily: 'var(--font-body)', fontSize: big ? '24px' : '13px',
+      borderRadius: R + 'px',
+      outline: sel ? '3px solid #7a8a5e' : '3px solid transparent', outlineOffset: '4px',
+      cursor: flipable ? 'pointer' : 'default',
+      '--card-ink': missing ? 'var(--miss-ink, #474238)' : '#201e1d',
+      '--card-muted': missing ? 'var(--miss-muted, #645c50)' : '#645c50',
+      '--card-link': '#8c491a',
+      '--photo-bg': missing ? 'var(--miss-photo, #dcd3c4)' : '#ccdbb2',
+      '--photo-bg-soft': '#eee7db',
+      '--ph-r': big ? '16px' : '10px',
+      '--stk-bg': missing ? 'var(--miss-bg, #efe4d0)' : r.c,
+      '--stk-border': missing ? '2px dashed ' + line : '2px solid #201e1d',
+      '--stk-ink': missing ? line : '#201e1d',
+      '--stk-shadow': missing ? 'none' : '0 2px 0 #201e1d',
+      '--dot-c': missing ? line : '#201e1d',
+      '--stk-off': big ? '10px' : '6px', '--stk-drop': big ? '-14px' : '-10px',
+      '--stk-pad': big ? '6px 11px' : '4px 7px', '--fs-stk': big ? '13px' : '9.5px',
+      '--dot': big ? '7px' : '4.5px', '--dot-gap': big ? '4px' : '2.5px',
+      '--name-pt': big ? '12px' : '8px', '--gap-s': big ? '8px' : '4px',
+      '--fs-meta': big ? '15px' : '11px', '--fs-tag': big ? '12px' : '9.5px', '--tag-pad': big ? '4px 9px' : '2px 6px',
+      '--fs-num': big ? '13px' : '10px', '--fs-text': big ? '13.5px' : '10.5px', '--ex-lines': big ? '7' : '5', '--sep': big ? '10px 12px' : '5px 7px',
+      '--emb': big ? '26px' : '18px', '--fs-emb': big ? '14px' : '10px',
+      '--emb-bg': missing ? 'transparent' : '#c67139', '--emb-ink': missing ? 'var(--miss-muted, #645c50)' : '#201e1d',
+      '--fit': odd ? 'contain' : 'cover',
+      '--lieu-ws': big ? 'normal' : 'nowrap',
+      '--img-filter': masked ? 'grayscale(1) blur(6px) opacity(0.35)' : missing ? 'var(--miss-filter, grayscale(1) contrast(0.7) brightness(1.15))' : 'none',
+      '--img-opacity': missing ? '0.7' : '1',
+    };
+    const frame = {
+      boxSizing: 'border-box', display: 'flex', flexDirection: 'column',
+      gap: big ? '10px' : '6px', padding: big ? '12px' : '7px', borderRadius: R + 'px',
+      background: missing ? 'var(--miss-bg, #efe4d0)' : '#f9f4ed',
+      border: missing ? '2px dashed var(--miss-line, #a19786)' : '2px solid #201e1d',
+      boxShadow: missing ? 'none' : 'var(--card-shadow, 0 4px 0 #201e1d)',
+      backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+    };
+    const stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+    const flip = () => flipable && this.setState(s => ({ flipped: !s.flipped }));
+    const badges = [];
+    if (c.classement) badges.push({ t: c.classement, bg: 'transparent', line: missing ? 'var(--miss-line, #a19786)' : 'rgba(32,30,29,0.35)' });
+    if (c.unesco) badges.push({ t: 'UNESCO', bg: missing ? 'transparent' : '#e1eecc', line: missing ? 'var(--miss-line, #a19786)' : '#7a8a5e' });
+    return {
+      root, r, c, nom, num, badges,
+      inner: {
+        position: 'relative', height: '100%', transformStyle: 'preserve-3d',
+        transition: reduce ? 'none' : 'transform 0.55s cubic-bezier(0.34, 1.4, 0.5, 1)',
+        transform: verso ? 'rotateY(180deg)' : 'none',
+      },
+      recto: Object.assign({}, frame, { position: 'relative', height: '100%', isolation: 'isolate' }),
+      verso: Object.assign({}, frame, { position: 'absolute', inset: 0, overflow: 'hidden', transform: 'rotateY(180deg)', gap: big ? '9px' : '4px' }),
+      versoShown: verso, rectoShown: !verso, hasVerso,
+      role: flipable ? 'button' : undefined, tabIdx: flipable ? 0 : undefined,
+      onCard: flip,
+      onKey: (e) => { if (flipable && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); flip(); } },
+      stop,
+      alt: masked ? '' : nom,
+      flat: nom,
+      aria: (masked ? `Carte manquante, ${r.label}` : `${nom}, ${r.label}${missing ? ', manquante' : ''}${shiny ? ', brillante' : ''}`) + (flipable ? (verso ? ', verso. Retourner' : ', recto. Retourner') : ''),
+      pips: Array.from({ length: r.n }, (_, i) => i),
+      lieu: big ? [c.dept, c.region].filter(Boolean).join(' · ') : c.dept,
+      auteur: c.auteur || 'auteur non renseigné',
+      exTxt: big ? `Exemplaires possédés : ${ex}` : (ex > 1 ? `${ex} exemplaires` : '1 exemplaire'),
+      big, showName: !masked, masked, shiny, shinyTxt: big ? 'Brillante' : '', sel,
+      showBlur: odd && !missing && !err, showImg: !err && !masked, imgErr: err && !masked,
+      infoBtn: !big && !missing && !err, info: this.state.info && !big,
+      credit: big && !missing,
+      hasDoublon: p.doublon > 1, doublon: '×' + p.doublon, doublonAria: p.doublon + ' exemplaires',
+      nouveau: !!p.nouveau && !missing,
+      toggleInfo: (e) => { stop(e); this.setState(s => ({ info: !s.info })); },
+      onErr: () => this.setState({ imgErr: true }),
+    };
+  }
+}
+</script>
+</body>
+</html>
