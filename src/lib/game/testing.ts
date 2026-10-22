@@ -3,12 +3,17 @@ import { inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import {
   achievements,
+  auctions,
   cards,
   collections,
   gameRules,
+  marketPrices,
+  marketRules,
+  notifications,
   rarityOdds,
   resaleValues,
   series,
+  trades,
   users,
 } from '@/db/schema';
 import type { CatalogCard } from '@/lib/catalog/export-format';
@@ -16,7 +21,7 @@ import { importCatalog } from '@/lib/catalog/import';
 import { testCatalog } from '@/lib/catalog/testing';
 import { RARITIES } from '@/lib/rarity';
 import type { OddsSet } from './draw';
-import type { GameRules } from './rules';
+import type { GameRules, MarketRules } from './rules';
 
 // Throwaway collections and players for the game's database tests.
 
@@ -31,7 +36,7 @@ export interface TestCollection {
 
 export async function createTestCollection(
   list: CatalogCard[],
-  { rules = {}, odds }: { rules?: Partial<GameRules>; odds: OddsSet },
+  { rules = {}, market = {}, odds }: { rules?: Partial<GameRules>; market?: Partial<MarketRules>; odds: OddsSet },
 ): Promise<TestCollection> {
   const slug = `test-${randomUUID().slice(0, 8)}`;
   const [{ id }] = await db
@@ -41,6 +46,11 @@ export async function createTestCollection(
   await importCatalog(db, testCatalog(list, slug));
   await db.insert(gameRules).values({ collectionId: id, ...rules });
   await db.insert(resaleValues).values(RARITIES.map((rarity) => ({ collectionId: id, rarity, coins: TEST_RESALE[rarity] })));
+  await db.insert(marketRules).values({ collectionId: id, ...market });
+  // Auction prices from the resale value to 100 times it, like the seed
+  await db.insert(marketPrices).values(
+    RARITIES.map((rarity) => ({ collectionId: id, rarity, minPrice: TEST_RESALE[rarity], maxPrice: TEST_RESALE[rarity] * 100 })),
+  );
   await db
     .insert(rarityOdds)
     .values(RARITIES.map((rarity) => ({ collectionId: id, rarity, perMillion: odds[rarity], validFrom: ODDS_IN_THE_PAST })));
@@ -64,6 +74,12 @@ export async function createTestPlayer(): Promise<string> {
 export async function deleteTestData(collectionIds: number[], userIds: string[]) {
   if (userIds.length > 0) await db.delete(users).where(inArray(users.id, userIds));
   if (collectionIds.length === 0) return;
+  // Kept, with their players set null, for the other player's history
+  await db.delete(trades).where(inArray(trades.collectionId, collectionIds));
+  await db.delete(auctions).where(inArray(auctions.collectionId, collectionIds));
+  await db.delete(notifications).where(inArray(notifications.collectionId, collectionIds));
+  await db.delete(marketPrices).where(inArray(marketPrices.collectionId, collectionIds));
+  await db.delete(marketRules).where(inArray(marketRules.collectionId, collectionIds));
   await db.delete(achievements).where(inArray(achievements.collectionId, collectionIds));
   await db.delete(rarityOdds).where(inArray(rarityOdds.collectionId, collectionIds));
   await db.delete(resaleValues).where(inArray(resaleValues.collectionId, collectionIds));

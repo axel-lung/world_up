@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   date,
   index,
   integer,
@@ -443,7 +444,9 @@ export const userCards = pgTable(
   ],
 );
 
-export const coinReason = pgEnum('coin_reason', ['resale', 'achievement']);
+// auction_purchase and auction_sale reference the auction's ID: an auction is
+// settled once.
+export const coinReason = pgEnum('coin_reason', ['resale', 'achievement', 'auction_purchase', 'auction_sale']);
 
 // Append-only: the balance is the sum of the player's entries and never goes
 // below zero (src/lib/game/coins.ts).
@@ -508,4 +511,235 @@ export const userAchievements = pgTable(
     obtainedAt: timestamp('obtained_at', { withTimezone: true }).notNull(),
   },
   (table) => [primaryKey({ columns: [table.userId, table.achievementId] })],
+);
+
+// Social (decided on 2026-10-22, ahead of payments): friends, trades between
+// friends and the auction house. A card offered in a trade or put up for
+// auction, and the coins of a leading bid, stay with their owner but are
+// reserved: src/lib/game/holds.ts computes the reservations on read.
+
+export const friendshipStatus = pgEnum('friendship_status', ['pending', 'accepted']);
+
+// One row per pair of players, whoever asked first. A declined request or a
+// removed friend is deleted.
+export const friendships = pgTable(
+  'friendships',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    requesterId: uuid('requester_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    addresseeId: uuid('addressee_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    status: friendshipStatus('status').notNull().default('pending'),
+    createdAt: createdAt(),
+    acceptedAt: timestamp('accepted_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('friendships_pair_key').on(
+      sql`least(${table.requesterId}, ${table.addresseeId})`,
+      sql`greatest(${table.requesterId}, ${table.addresseeId})`,
+    ),
+    index('friendships_addressee_status_idx').on(table.addresseeId, table.status),
+    index('friendships_requester_status_idx').on(table.requesterId, table.status),
+    check('friendships_not_self', sql`${table.requesterId} <> ${table.addresseeId}`),
+  ],
+);
+
+export const tradeStatus = pgEnum('trade_status', ['pending', 'accepted', 'declined', 'cancelled', 'expired']);
+export const tradeSide = pgEnum('trade_side', ['proposer', 'recipient']);
+
+// A trade offer between two friends. "pending" past expires_at counts as
+// expired, whether or not the worker has marked it yet. The players are set
+// null when an account is deleted, so the other one keeps the history.
+export const trades = pgTable(
+  'trades',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    proposerId: uuid('proposer_id').references(() => users.id, { onDelete: 'set null' }),
+    recipientId: uuid('recipient_id').references(() => users.id, { onDelete: 'set null' }),
+    status: tradeStatus('status').notNull().default('pending'),
+    // Sent by the page: the same form sent twice creates one offer
+    idempotencyKey: uuid('idempotency_key').notNull(),
+    createdAt: createdAt(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    respondedAt: timestamp('responded_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('trades_proposer_key').on(table.proposerId, table.idempotencyKey),
+    index('trades_proposer_status_idx').on(table.proposerId, table.status),
+    index('trades_recipient_status_idx').on(table.recipientId, table.status),
+    index('trades_status_expires_at_idx').on(table.status, table.expiresAt),
+  ],
+);
+
+// The cards of an offer: what the proposer gives, and what the recipient would give.
+export const tradeItems = pgTable(
+  'trade_items',
+  {
+    tradeId: integer('trade_id')
+      .notNull()
+      .references(() => trades.id, { onDelete: 'cascade' }),
+    side: tradeSide('side').notNull(),
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id),
+    quantity: integer('quantity').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.tradeId, table.side, table.cardId] }),
+    check('trade_items_quantity_positive', sql`${table.quantity} > 0`),
+  ],
+);
+
+export const auctionStatus = pgEnum('auction_status', ['active', 'sold', 'unsold', 'cancelled']);
+
+// An auction with automatic bidding: each bidder gives a maximum, and the
+// leader pays the second highest maximum plus one step (src/lib/game/bidding.ts).
+// "active" past ends_at is over: no more bids, settled by the next read or by
+// the worker's market-settle job.
+export const auctions = pgTable(
+  'auctions',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    sellerId: uuid('seller_id').references(() => users.id, { onDelete: 'set null' }),
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id),
+    startPrice: integer('start_price').notNull(),
+    // Optional: a maximum bid at this price or above buys the card at once
+    buyoutPrice: integer('buyout_price'),
+    // What the leader pays if the auction ended now
+    currentPrice: integer('current_price').notNull(),
+    leaderId: uuid('leader_id').references(() => users.id, { onDelete: 'set null' }),
+    // The leader's maximum: the coins held while leading, never shown to others
+    leaderMax: integer('leader_max'),
+    bidCount: integer('bid_count').notNull().default(0),
+    status: auctionStatus('status').notNull().default('active'),
+    idempotencyKey: uuid('idempotency_key').notNull(),
+    createdAt: createdAt(),
+    endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
+    settledAt: timestamp('settled_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('auctions_seller_key').on(table.sellerId, table.idempotencyKey),
+    index('auctions_collection_status_ends_at_idx').on(table.collectionId, table.status, table.endsAt),
+    index('auctions_seller_status_idx').on(table.sellerId, table.status),
+    index('auctions_leader_status_idx').on(table.leaderId, table.status),
+  ],
+);
+
+export const bids = pgTable(
+  'bids',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    auctionId: integer('auction_id')
+      .notNull()
+      .references(() => auctions.id, { onDelete: 'cascade' }),
+    bidderId: uuid('bidder_id').references(() => users.id, { onDelete: 'set null' }),
+    maxAmount: integer('max_amount').notNull(),
+    idempotencyKey: uuid('idempotency_key').notNull(),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex('bids_bidder_key').on(table.bidderId, table.idempotencyKey),
+    index('bids_auction_idx').on(table.auctionId),
+  ],
+);
+
+// Trade and auction rules of a collection, edited at /admin/rules. The two
+// switches turn trades or auctions off without a redeploy (fraud, a bug).
+export const marketRules = pgTable('market_rules', {
+  collectionId: integer('collection_id')
+    .primaryKey()
+    .references(() => collections.id),
+  tradesEnabled: boolean('trades_enabled').notNull().default(true),
+  auctionsEnabled: boolean('auctions_enabled').notNull().default(true),
+  tradeExpiryHours: integer('trade_expiry_hours').notNull().default(48),
+  // Cards on each side of an offer
+  tradeMaxCards: integer('trade_max_cards').notNull().default(5),
+  auctionDurationsHours: integer('auction_durations_hours').array().notNull().default(sql`'{24,48,72}'::integer[]`),
+  // Kept out of the sale price and destroyed: otherwise coins only ever grow
+  auctionFeePercent: integer('auction_fee_percent').notNull().default(5),
+  bidIncrementPercent: integer('bid_increment_percent').notNull().default(5),
+  // A bid this close to the end pushes the end back by as much
+  auctionExtensionMinutes: integer('auction_extension_minutes').notNull().default(5),
+  maxActiveAuctions: integer('max_active_auctions').notNull().default(10),
+  updatedAt: updatedAt(),
+});
+
+// An auction's price range by rarity: the floor is the quick resale value, the
+// ceiling stops an alt account from passing coins on through an overpriced sale.
+export const marketPrices = pgTable(
+  'market_prices',
+  {
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    rarity: rarity('rarity').notNull(),
+    minPrice: integer('min_price').notNull(),
+    maxPrice: integer('max_price').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.collectionId, table.rarity] })],
+);
+
+export const notificationKind = pgEnum('notification_kind', [
+  'friend_request',
+  'friend_accepted',
+  'trade_received',
+  'trade_accepted',
+  'trade_declined',
+  'trade_expired',
+  'auction_outbid',
+  'auction_won',
+  'auction_sold',
+  'auction_unsold',
+  'auction_cancelled',
+]);
+
+// What happened to the player (/activity, the header's bell, Web Push). `data`
+// holds IDs only: the text is rendered from messages/fr.json when shown.
+// Deleted after 90 days by the daily retention job.
+export const notifications = pgTable(
+  'notifications',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    collectionId: integer('collection_id').references(() => collections.id),
+    kind: notificationKind('kind').notNull(),
+    data: jsonb('data').notNull().default({}),
+    readAt: timestamp('read_at', { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index('notifications_user_created_at_idx').on(table.userId, table.createdAt),
+    index('notifications_unread_idx').on(table.userId).where(sql`${table.readAt} IS NULL`),
+    index('notifications_created_at_idx').on(table.createdAt),
+  ],
+);
+
+// One Web Push subscription per device that turned notifications on. No user
+// agent, no IP address.
+export const pushSubscriptions = pgTable(
+  'push_subscriptions',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    endpoint: text('endpoint').notNull().unique(),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+    createdAt: createdAt(),
+  },
+  (table) => [index('push_subscriptions_user_id_idx').on(table.userId)],
 );

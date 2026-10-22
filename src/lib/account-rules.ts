@@ -6,8 +6,12 @@ export const MAX_PASSWORD_LENGTH = 128;
 
 // Version of the terms of use (/terms), the date of their text, stored in
 // `consents`. Bump it when the published text changes: every player then
-// accepts the new version on their next visit (/accept-terms).
-export const TERMS_VERSION = '2026-10-22';
+// accepts the new version on their next visit (/accept-terms). A second text
+// on the same day takes a revision number: "2026-10-22.2".
+export const TERMS_VERSION = '2026-10-22.2';
+
+/** The date a version of the terms carries, without its revision number. */
+export const termsDate = (version: string) => version.slice(0, 10);
 // Last change of the privacy policy (/privacy).
 export const PRIVACY_VERSION = '2026-10-22';
 

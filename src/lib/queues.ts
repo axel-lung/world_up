@@ -16,11 +16,20 @@ export const queues = {
     name: 'account-retention',
     options: { retryLimit: 3, retryDelay: 600, expireInSeconds: 300, deleteAfterSeconds: 7 * 86_400 },
   },
+  // Marks the expired trade offers and tells their proposers (src/lib/game/trades.ts).
+  // Every minute; a run missed is caught up by the next, so no retries.
+  marketSettle: {
+    name: 'market-settle',
+    options: { retryLimit: 0, expireInSeconds: 50, deleteAfterSeconds: 3_600 },
+  },
 } satisfies Record<string, { name: string; options: QueueOptions }>;
 
 // Recurring jobs, stored by migrate.js with the queues; the worker sends them.
 // A day missed while the worker was down is caught up once.
-const schedules = [{ queue: queues.accountRetention.name, cron: '30 4 * * *' }];
+const schedules = [
+  { queue: queues.accountRetention.name, cron: '30 4 * * *' },
+  { queue: queues.marketSettle.name, cron: '* * * * *' },
+];
 
 export async function createQueues(boss: PgBoss): Promise<void> {
   for (const queue of Object.values(queues)) {

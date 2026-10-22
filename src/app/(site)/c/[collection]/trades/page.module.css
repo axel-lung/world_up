@@ -1,0 +1,33 @@
+/* The offers of a section, one under the other */
+.offers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The offer's cards, face to face from 860 px */
+.sides {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 860px) {
+  .sides {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.answer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.answer form {
+  display: contents;
+}

@@ -8,20 +8,25 @@ import type { Rarity } from '@/lib/rarity';
 import { getOpeningCards } from './packs';
 
 // A player's collection: the visible cards of a collection, owned or not.
-// Hidden cards stay out, even the ones the player already has.
+// Hidden cards stay out, even the ones the player already has. A friend's
+// collection shows the cards they own, and those the viewer lacks.
 
 export const COLLECTION_TABS = ['all', 'owned', 'missing', 'duplicates'] as const;
-export type CollectionTab = (typeof COLLECTION_TABS)[number];
+export const FRIEND_TABS = ['owned', 'duplicates', 'youLack'] as const;
+export type CollectionTab = (typeof COLLECTION_TABS)[number] | (typeof FRIEND_TABS)[number];
 export const COLLECTION_PAGE_SIZE = 48;
 
 // Missing cards of these rarities keep their surprise: no name, no photo
 export const MASKED_RARITIES: readonly Rarity[] = ['legendary', 'ultra'];
 
 export interface CollectionFilters {
+  /** Whose collection: the player's own, or a friend's. */
   userId: string;
   collectionId: number;
   rarity?: Rarity | null;
   seriesId?: number | null;
+  /** The player looking at a friend's collection, for the "youLack" tab. */
+  viewerId?: string | null;
 }
 
 function owned(userId: string) {
@@ -39,12 +44,28 @@ function filterConditions({ collectionId, rarity, seriesId }: CollectionFilters)
   ];
 }
 
-const tabCondition: Record<CollectionTab, SQL | undefined> = {
-  all: undefined,
-  owned: isNotNull(userCards.cardId),
-  missing: isNull(userCards.cardId),
-  duplicates: gt(userCards.quantity, 1),
-};
+/** Owned by the friend, not by the viewer. */
+function viewerLacks(viewerId: string | null | undefined): SQL {
+  if (!viewerId) return sql`false`;
+  return sql`${userCards.cardId} IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM user_cards AS mine WHERE mine.card_id = "cards"."id" AND mine.user_id = ${viewerId}
+  )`;
+}
+
+function tabCondition(tab: CollectionTab, viewerId: string | null | undefined): SQL | undefined {
+  switch (tab) {
+    case 'all':
+      return undefined;
+    case 'owned':
+      return isNotNull(userCards.cardId);
+    case 'missing':
+      return isNull(userCards.cardId);
+    case 'duplicates':
+      return gt(userCards.quantity, 1);
+    case 'youLack':
+      return viewerLacks(viewerId);
+  }
+}
 
 /** Cards per tab, under the rarity and series filters. */
 export async function collectionCounts(filters: CollectionFilters): Promise<Record<CollectionTab, number>> {
@@ -53,16 +74,17 @@ export async function collectionCounts(filters: CollectionFilters): Promise<Reco
       all: count(),
       owned: count(userCards.cardId),
       duplicates: sql<number>`count(*) FILTER (WHERE ${userCards.quantity} > 1)::int`,
+      youLack: sql<number>`count(*) FILTER (WHERE ${viewerLacks(filters.viewerId)})::int`,
     })
     .from(cards)
     .leftJoin(userCards, owned(filters.userId))
     .where(and(...filterConditions(filters)));
-  return { all: row.all, owned: row.owned, missing: row.all - row.owned, duplicates: row.duplicates };
+  return { all: row.all, owned: row.owned, missing: row.all - row.owned, duplicates: row.duplicates, youLack: row.youLack };
 }
 
 /** One page of a tab: by rank, or by number within the series when filtering on one. */
 export async function listCollectionCards(filters: CollectionFilters & { tab: CollectionTab; page: number }) {
-  const where = and(...filterConditions(filters), tabCondition[filters.tab]);
+  const where = and(...filterConditions(filters), tabCondition(filters.tab, filters.viewerId));
   const query = db
     .select({ ...cardColumns, quantity: userCards.quantity })
     .from(cards)

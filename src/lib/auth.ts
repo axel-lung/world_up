@@ -18,6 +18,7 @@ import {
 import { markActive } from './account-retention';
 import { ACCOUNT_ERRORS, type AccountErrorCode } from './auth-errors';
 import { requireEnv } from './env';
+import { cancelOrphanTrades } from './game/trades';
 import { enqueueEmail } from './job-queue';
 import { hashPassword, verifyPassword } from './password';
 
@@ -108,7 +109,13 @@ function createAuth() {
       additionalFields: {
         birthDate: { type: 'string', required: true, input: true },
       },
-      deleteUser: { enabled: true },
+      deleteUser: {
+        enabled: true,
+        // The player's open offers are void once their row is gone: record it
+        afterDelete: async () => {
+          await cancelOrphanTrades(db, new Date());
+        },
+      },
     },
     session: {
       expiresIn: 30 * 24 * 60 * 60,

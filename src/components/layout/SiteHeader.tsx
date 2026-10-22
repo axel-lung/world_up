@@ -10,13 +10,15 @@ import { coinBalance } from '@/lib/game/coins';
 import { gamePath } from '@/lib/game/paths';
 import { getReserve } from '@/lib/game/packs';
 import { getActiveCollection } from '@/lib/game/rules';
+import { unreadCount } from '@/lib/notifications/notifications';
 import { getSession } from '@/lib/session';
 import { themePreference } from '@/lib/theme-preference';
 import { NavLinks } from './NavLinks';
+import { NotificationBell } from './NotificationBell';
 import styles from './SiteHeader.module.css';
 import { ThemeSwitch } from './ThemeSwitch';
 
-/** The site's header: the game's pages, and the player's packs and coins once signed in. */
+/** The site's header: the game's pages, and the player's packs, coins and notifications once signed in. */
 export async function SiteHeader() {
   const [t, session, collection] = await Promise.all([
     getTranslations('Nav'),
@@ -26,7 +28,11 @@ export async function SiteHeader() {
   const now = new Date();
   const player =
     session && collection
-      ? await Promise.all([getReserve(session.user.id, collection.id, now), coinBalance(db, session.user.id)])
+      ? await Promise.all([
+          getReserve(session.user.id, collection.id, now),
+          coinBalance(db, session.user.id),
+          unreadCount(session.user.id),
+        ])
       : null;
   const game = collection ? gamePath(collection.slug) : null;
 
@@ -36,6 +42,7 @@ export async function SiteHeader() {
           { href: game.home, label: t('home') },
           { href: game.open, label: t('open') },
           { href: game.collection, label: t('collection'), prefix: true },
+          { href: '/friends', label: t('friends') },
         ]
       : []),
     { href: '/leaderboard', label: t('leaderboard') },
@@ -67,6 +74,7 @@ export async function SiteHeader() {
                 <Coins aria-hidden />
                 <span>{t.rich('coins', { count: player[1], word: (chunks) => <span className={styles.coinsWord}>{chunks}</span> })}</span>
               </span>
+              <NotificationBell unread={player[2]} label={t('activity', { count: player[2] })} />
               <Link href="/account" className={styles.account}>
                 <CircleUser aria-hidden />
                 <span className={styles.accountLabel}>{t('account')}</span>

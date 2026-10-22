@@ -2,12 +2,24 @@ import { randomUUID } from 'node:crypto';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { db } from '@/db';
-import { auditLog, cards, coinLedger, packCards, packOpenings, rarityOdds, userCards } from '@/db/schema';
+import {
+  auctions,
+  auditLog,
+  cards,
+  coinLedger,
+  packCards,
+  packOpenings,
+  rarityOdds,
+  tradeItems,
+  trades,
+  userCards,
+} from '@/db/schema';
 import { testCard } from '@/lib/catalog/testing';
 import { RARITIES } from '@/lib/rarity';
 import { publishOdds, RulesError, updateGameRules } from './admin';
-import { addCoins, coinBalance, resellDuplicates } from './coins';
+import { addCoins, coinBalance, duplicatesValue, resellDuplicates } from './coins';
 import { GameError } from './game-error';
+import { reservedCopies } from './holds';
 import { getReserve, OPENINGS_PER_MINUTE, openPack } from './packs';
 import { currentOdds } from './rules';
 import { createTestCollection, createTestPlayer, deleteTestData, type TestCollection, TEST_RESALE } from './testing';
@@ -193,6 +205,44 @@ describe('resellDuplicates', () => {
       await rejection(
         resellDuplicates(db, { userId: player, collectionId: standard.id, idempotencyKey: randomUUID(), now: at(3) }),
       ),
+    ).toBe('noDuplicate');
+  });
+});
+
+describe('reservations', () => {
+  it('never resells a copy offered in an open trade or put up for auction', async () => {
+    const player = await newPlayer();
+    const friend = await newPlayer();
+    const { openingId } = await open(player, t0, { random: first });
+    const [q7] = await db.select({ cardId: packCards.cardId }).from(packCards).where(eq(packCards.openingId, openingId));
+    const offer = async (expiresAt: Date, quantity: number) => {
+      const [trade] = await db
+        .insert(trades)
+        .values({ collectionId: standard.id, proposerId: player, recipientId: friend, idempotencyKey: randomUUID(), expiresAt })
+        .returning({ id: trades.id });
+      await db.insert(tradeItems).values({ tradeId: trade.id, side: 'proposer', cardId: q7.cardId, quantity });
+    };
+    // Five copies; three offered: two can be resold
+    await offer(at(60), 3);
+    // An expired offer reserves nothing
+    await offer(at(1), 5);
+    await db.insert(auctions).values({
+      collectionId: standard.id,
+      sellerId: player,
+      cardId: q7.cardId,
+      startPrice: 10,
+      currentPrice: 10,
+      idempotencyKey: randomUUID(),
+      endsAt: at(60),
+    });
+    // ...and one up for auction: one left to resell
+    expect(await reservedCopies(db, player, at(2), [q7.cardId])).toEqual(new Map([[q7.cardId, 4]]));
+    expect(await duplicatesValue(player, standard.id, at(2))).toEqual({ copies: 1, coins: TEST_RESALE.rare });
+    const resale = await resellDuplicates(db, { userId: player, collectionId: standard.id, idempotencyKey: randomUUID(), now: at(2) });
+    expect(resale).toMatchObject({ copies: 1 });
+    expect(await copies(player)).toEqual({ Q7: 4 });
+    expect(
+      await rejection(resellDuplicates(db, { userId: player, collectionId: standard.id, idempotencyKey: randomUUID(), now: at(2) })),
     ).toBe('noDuplicate');
   });
 });

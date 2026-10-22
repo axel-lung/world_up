@@ -1,7 +1,7 @@
 import { and, asc, count, desc, eq, isNull, lte, max, sql } from 'drizzle-orm';
 import { cache } from 'react';
 import { type Database, db, type Transaction } from '@/db';
-import { cards, collections, gameRules, rarityOdds, resaleValues } from '@/db/schema';
+import { cards, collections, gameRules, marketPrices, marketRules, rarityOdds, resaleValues } from '@/db/schema';
 import { themeEmblem } from '@/lib/collection-theme';
 import { RARITIES, type Rarity } from '@/lib/rarity';
 import type { OddsSet } from './draw';
@@ -39,6 +39,38 @@ export async function getGameRules(executor: Executor, collectionId: number): Pr
     .where(eq(gameRules.collectionId, collectionId));
   if (!rules) throw new Error(`No game rules for collection ${collectionId}`);
   return rules;
+}
+
+export type MarketRules = Omit<typeof marketRules.$inferSelect, 'collectionId' | 'updatedAt'>;
+
+/** The trade and auction rules of a collection, with its two switches. */
+export async function getMarketRules(executor: Executor, collectionId: number): Promise<MarketRules> {
+  const [rules] = await executor
+    .select({
+      tradesEnabled: marketRules.tradesEnabled,
+      auctionsEnabled: marketRules.auctionsEnabled,
+      tradeExpiryHours: marketRules.tradeExpiryHours,
+      tradeMaxCards: marketRules.tradeMaxCards,
+      auctionDurationsHours: marketRules.auctionDurationsHours,
+      auctionFeePercent: marketRules.auctionFeePercent,
+      bidIncrementPercent: marketRules.bidIncrementPercent,
+      auctionExtensionMinutes: marketRules.auctionExtensionMinutes,
+      maxActiveAuctions: marketRules.maxActiveAuctions,
+    })
+    .from(marketRules)
+    .where(eq(marketRules.collectionId, collectionId));
+  if (!rules) throw new Error(`No market rules for collection ${collectionId}`);
+  return rules;
+}
+
+export type PriceRange = { min: number; max: number };
+
+/** An auction's price range, by rarity. */
+export async function getMarketPrices(executor: Executor, collectionId: number): Promise<Record<Rarity, PriceRange>> {
+  const rows = await executor.select().from(marketPrices).where(eq(marketPrices.collectionId, collectionId));
+  const prices = Object.fromEntries(RARITIES.map((rarity) => [rarity, { min: 0, max: 0 }])) as Record<Rarity, PriceRange>;
+  for (const row of rows) prices[row.rarity] = { min: row.minPrice, max: row.maxPrice };
+  return prices;
 }
 
 /** Coins for one resold duplicate, by rarity (0 when not set). */

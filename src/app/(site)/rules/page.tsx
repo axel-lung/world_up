@@ -7,7 +7,7 @@ import { db } from '@/db';
 import { achievements } from '@/db/schema';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
 import { achievementTitle } from '@/lib/game/achievement-title';
-import { getActiveCollection, getGameRules, getResaleValues } from '@/lib/game/rules';
+import { getActiveCollection, getGameRules, getMarketRules, getResaleValues } from '@/lib/game/rules';
 import { RARITIES } from '@/lib/rarity';
 import styles from '../info.module.css';
 
@@ -20,13 +20,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RulesPage() {
   const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
   if (!collection) notFound();
-  const [t, tRarity, tAchievement, rules, resale, list] = await Promise.all([
+  const [t, tRarity, tAchievement, rules, resale, list, market] = await Promise.all([
     getTranslations('Rules'),
     getTranslations('Rarity'),
     getTranslations('Achievements'),
     getGameRules(db, collection.id),
     getResaleValues(db, collection.id),
     db.select().from(achievements).where(eq(achievements.collectionId, collection.id)).orderBy(asc(achievements.position)),
+    getMarketRules(db, collection.id),
   ]);
 
   return (
@@ -108,6 +109,13 @@ export default async function RulesPage() {
           </div>
         </section>
       )}
+
+      <section className={styles.section} aria-labelledby="trades-heading">
+        <h2 id="trades-heading">{t('tradesHeading')}</h2>
+        <p>{t.rich('tradesFriends', { friends: (chunks) => <Link href="/friends">{chunks}</Link> })}</p>
+        <p>{t('tradesHow', { max: market.tradeMaxCards })}</p>
+        <p>{t('tradesReserved', { hours: market.tradeExpiryHours })}</p>
+      </section>
 
       <section className={styles.section} aria-labelledby="leaderboard-heading">
         <h2 id="leaderboard-heading">{t('leaderboardHeading')}</h2>

@@ -1,0 +1,182 @@
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sides {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 860px) {
+  .sides {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+@media (max-width: 480px) {
+  .side {
+    padding: 20px 16px;
+  }
+}
+
+.sideHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sideHeader h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.muted {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.chosen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A chosen card: an inked sticker chip, in sage */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 2px 4px 2px 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--sticker-line);
+  background: color-mix(in srgb, var(--color-sage) 25%, var(--color-bg));
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chipButton {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.chipButton:hover {
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+.chipButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 12px;
+}
+
+.filters :global(.field) {
+  flex: 1 1 160px;
+}
+
+.filters input[type="search"],
+.filters select {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-accent);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--color-divider);
+}
+
+.row:first-child {
+  border-top: 0;
+}
+
+.row[data-picked] .name > :first-child {
+  font-weight: 700;
+}
+
+.name {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.submit {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 16px;
+  margin: 0 -16px;
+  padding: 12px 16px;
+  background: var(--color-bg);
+  box-shadow: 0 -1px 0 var(--color-divider);
+}
+
+.summary {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
