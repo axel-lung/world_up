@@ -8,9 +8,16 @@ import { renumberSeries } from './series-numbers';
 // transaction that also writes its audit_log row.
 
 export type HiddenReason = NonNullable<typeof cards.$inferSelect.hiddenReason>;
-export const HIDDEN_REASONS: HiddenReason[] = ['admin', 'memorial', 'commercial', 'twentieth_century', 'photo'];
+export const HIDDEN_REASONS: HiddenReason[] = [
+  'admin',
+  'memorial',
+  'commercial',
+  'national_domain',
+  'twentieth_century',
+  'photo',
+];
 // Hidden until someone decides: shown under "À revoir"
-export const REVIEW_REASONS: HiddenReason[] = ['twentieth_century', 'photo'];
+export const REVIEW_REASONS: HiddenReason[] = ['national_domain', 'twentieth_century', 'photo'];
 
 export type CardStatusFilter = 'all' | 'visible' | 'hidden' | 'review';
 export const PAGE_SIZE = 50;

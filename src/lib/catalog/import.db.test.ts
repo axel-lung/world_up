@@ -116,6 +116,29 @@ describe('importCatalog', () => {
     expect(after.get('Q3')).toMatchObject({ hiddenReason: null, twentiethCentury: true });
   });
 
+  it('hides a visible card the export newly places in a national domain, once', async () => {
+    await load([testCard(1), testCard(2)]);
+    const domain = { national_domain: true, hidden_reason: 'national_domain' } as const;
+    await load([testCard(1, domain), testCard(2)]);
+    expect((await cardRows()).get('Q1')).toMatchObject({ hiddenReason: 'national_domain', nationalDomain: true });
+    expect(await seriesNumbers('centre-val-de-loire')).toEqual({ numbers: { Q1: null, Q2: 1 }, count: 1 });
+
+    // Shown again in the back-office (authorisation obtained): the next import keeps it visible
+    await db.update(cards).set({ hiddenReason: null }).where(eq(cards.id, (await cardRows()).get('Q1')!.id));
+    await load([testCard(1, domain), testCard(2)]);
+    expect((await cardRows()).get('Q1')?.hiddenReason).toBeNull();
+  });
+
+  it('hides a visible card whose photo the export now refuses for its licence, unless chosen in the back-office', async () => {
+    await load([testCard(1), testCard(2)]);
+    await db.update(cards).set({ photoLocked: true }).where(eq(cards.id, (await cardRows()).get('Q2')!.id));
+    const refused = { photo: null, photo_problem: 'license', hidden_reason: 'photo' } as const;
+    await load([testCard(1, refused), testCard(2, refused)]);
+    const rows = await cardRows();
+    expect(rows.get('Q1')).toMatchObject({ hiddenReason: 'photo', photoProblem: 'license' });
+    expect(rows.get('Q2')).toMatchObject({ hiddenReason: null, photoProblem: null });
+  });
+
   it('adds new cards at the end of their series', async () => {
     await load([testCard(5), testCard(6)]);
     await load([testCard(1), testCard(5), testCard(6)]);

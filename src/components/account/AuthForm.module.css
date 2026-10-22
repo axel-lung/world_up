@@ -43,6 +43,14 @@
   color: var(--color-text-muted);
 }
 
+/* What the signup's data is for (GDPR information) */
+.notice {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

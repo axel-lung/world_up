@@ -35,6 +35,8 @@ export interface CommonsInfo {
   license: string | null;
   licenseUrl: string | null;
   artist: string;
+  /** The credit line some authors require, when they give one. */
+  attribution: string;
 }
 
 export function licenseFamily(license: string | null): string {
@@ -44,6 +46,7 @@ export function licenseFamily(license: string | null): string {
   if (name.includes('cc0')) return 'cc0';
   if (name.includes('by-sa')) return 'cc_by_sa';
   if (name.startsWith('cc by') || name.includes('cc-by')) return 'cc_by';
+  if (name.includes('gpl')) return 'gpl';
   if (name.includes('gfdl') || name.includes('gnu')) return 'gfdl';
   if (name.includes('art libre') || name.includes('free art')) return 'free_art';
   return 'other';
@@ -53,7 +56,8 @@ export function licenseFamily(license: string | null): string {
 export function photoProblem(info: CommonsInfo | null): PhotoErrorCode | null {
   if (!info?.width || !info.sha1) return 'photoMissing';
   if (Math.max(info.width, info.height) < MIN_LONG_SIDE) return 'photoTooSmall';
-  if (['gfdl', 'none'].includes(licenseFamily(info.license))) return 'photoLicense';
+  // The GFDL and the GPL alone want their full text with every copy
+  if (['gfdl', 'gpl', 'none'].includes(licenseFamily(info.license))) return 'photoLicense';
   return null;
 }
 
@@ -101,7 +105,7 @@ export async function fetchCommonsInfo(file: string): Promise<CommonsInfo | null
     prop: 'imageinfo',
     iiprop: 'size|sha1|url|extmetadata',
     iiurlwidth: String(DOWNLOAD_WIDTH),
-    iiextmetadatafilter: 'LicenseShortName|Artist|LicenseUrl',
+    iiextmetadatafilter: 'LicenseShortName|Artist|LicenseUrl|Attribution',
   });
   const json = await (await get(`${API}?${params}`)).json();
   const page = json?.query?.pages?.[0];
@@ -117,7 +121,49 @@ export async function fetchCommonsInfo(file: string): Promise<CommonsInfo | null
     license: meta.LicenseShortName?.value ?? null,
     licenseUrl: meta.LicenseUrl?.value ?? null,
     artist: stripHtml(meta.Artist?.value),
+    attribution: stripHtml(meta.Attribution?.value),
   };
+}
+
+/** Who uploaded the file's first version, or null: the API lists the versions newest first. */
+async function fetchUploader(title: string): Promise<string | null> {
+  const params = new URLSearchParams({
+    action: 'query',
+    format: 'json',
+    formatversion: '2',
+    titles: `File:${title}`,
+    prop: 'imageinfo',
+    iiprop: 'user',
+    iilimit: 'max',
+  });
+  const json = await (await get(`${API}?${params}`)).json();
+  const versions: { user?: string }[] = json?.query?.pages?.[0]?.imageinfo ?? [];
+  return versions.at(-1)?.user || null;
+}
+
+const ATTRIBUTION_MAX = 120;
+// Commons accounts that transferred files for their authors ("File Upload Bot")
+const BOT = /Bot\b/;
+
+/**
+ * The credit line an author asks for, without the "I, " of the licence
+ * templates; null for a long text, instructions rather than a credit line.
+ */
+export function cleanAttribution(text: string): string | null {
+  const line = (cleanAuthor(text) ?? '').replace(/^I,\s+/, '');
+  return line && line.length <= ATTRIBUTION_MAX ? line : null;
+}
+
+/**
+ * The credit line the author asked for, else the author, else whoever uploaded
+ * the file's first version (unless a bot that transferred it): the licences
+ * want the author named. As in the pipeline (scripts/build_cards.py).
+ */
+async function photoAuthor(info: CommonsInfo): Promise<string | null> {
+  const author = cleanAttribution(info.attribution) ?? cleanAuthor(info.artist);
+  if (author) return author;
+  const uploader = await fetchUploader(info.title);
+  return uploader && !BOT.test(uploader) ? uploader : null;
 }
 
 /** The 400 and 800 px wide WebP versions; throws on a file sharp can't read (a PDF, a video…). */
@@ -149,6 +195,11 @@ export async function importCommonsPhoto(file: string, dir: string = CARD_IMAGES
   const image = info!.sha1.slice(0, 20);
   // The address comes from the API's answer: only ever download from Wikimedia
   if (!/^https:\/\/([a-z0-9-]+\.)*wikimedia\.org\//.test(info!.downloadUrl)) throw new PhotoRejected('photoDownload');
+  const author = await photoAuthor(info!);
+  // These licences want the author named: without one, the card can't credit the photo
+  if (!author && ['cc_by', 'cc_by_sa', 'free_art'].includes(licenseFamily(info!.license))) {
+    throw new PhotoRejected('photoLicense');
+  }
   const data = Buffer.from(await (await get(info!.downloadUrl)).arrayBuffer());
   const files = await toWebp(data).catch(() => {
     throw new PhotoRejected('photoDownload');
@@ -159,7 +210,7 @@ export async function importCommonsPhoto(file: string, dir: string = CARD_IMAGES
     commonsFile: info!.title,
     width: info!.width,
     height: info!.height,
-    author: cleanAuthor(info!.artist),
+    author,
     license: info!.license,
     licenseUrl: info!.licenseUrl,
   };

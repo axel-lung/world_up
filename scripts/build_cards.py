@@ -71,9 +71,42 @@ COMMERCIAL_TYPES = {"Q27686", "Q11707", "Q30022", "Q216107", "Q41253", "Q1475066
 # Monuments chosen by the Mission patrimoine en péril (2018 to 2026)
 ENDANGERED = {"Q54556283", "Q62018102", "Q96755602", "Q106392009", "Q111244206", "Q117191197",
               "Q125030295", "Q133861957", "Q139372508"}
+# Monuments inside a "domaine national" (Code du patrimoine, art. L621-42): using
+# their image commercially needs the authorisation of the domain's manager. The
+# domains come from the decrees of 2 May 2017, 10 September 2021, 22 June 2022
+# and 24 May 2024, and their perimeters were matched by hand: doubtful cards are
+# in too, since the flag only sends them to review. Check for new decrees before
+# each re-import.
+NATIONAL_DOMAINS = {
+    "Q188190", "Q3145892",  # Élysée, with the hôtel de Marigny
+    "Q205367", "Q50189833",  # Chambord
+    "Q1075988", "Q818517",  # Louvre and Tuileries
+    "Q1048155",  # Angers
+    "Q1480604",  # Pau
+    "Q643186",  # palais du Rhin, Strasbourg
+    "Q329948", "Q3527809",  # Palais-Royal, with its theatre
+    "Q193193", "Q138101", "Q143080", "Q3113466",  # palais de la Cité
+    "Q663673", "Q2324947", "Q3464208",  # Vincennes
+    "Q576534",  # Coucy
+    "Q376699",  # Pierrefonds
+    "Q1626747",  # Meudon
+    "Q2030715",  # Saint-Cloud
+    "Q2971336",  # Malmaison (the Petite Malmaison, at its edge)
+    "Q516697",  # Compiègne
+    "Q2971015",  # Villers-Cotterêts
+    "Q201428",  # Fontainebleau
+    "Q648534",  # Rambouillet
+    "Q1520841", "Q2967955",  # Saint-Germain-en-Laye
+    "Q2946", "Q2340684", "Q1542972", "Q3377428", "Q1542566", "Q805255", "Q3399930",  # Versailles
+    "Q3034629", "Q736185", "Q1466299",  # Marly
+}
 
-# Photos with a shorter long side, or under the GFDL alone, are rejected
+# Photos with a shorter long side, or under the GFDL or the GPL alone (both want
+# their full text with every copy), are rejected
 MIN_LONG_SIDE = 1000
+# Commons accounts that transferred files for their authors ("File Upload Bot")
+BOT = re.compile(r"Bot\b")
+ATTRIBUTION_MAX = 120
 EXCERPT_MIN = 300
 EXCERPT_MAX = 600
 
@@ -117,6 +150,8 @@ def license_family(name):
         return "cc_by_sa"
     if name.startswith("cc by") or "cc-by" in name:
         return "cc_by"
+    if "gpl" in name:
+        return "gpl"
     if "gfdl" in name or "gnu" in name:
         return "gfdl"
     if "art libre" in name or "free art" in name:
@@ -130,7 +165,11 @@ def photo_problem(info):
         return "missing"
     if max(info["width"], info["height"]) < MIN_LONG_SIDE:
         return "too_small"
-    if license_family(info.get("license")) in ("gfdl", "none"):
+    family = license_family(info.get("license"))
+    if family in ("gfdl", "gpl", "none"):
+        return "license"
+    # These licences want the author named: without one, the card can't credit the photo
+    if family in ("cc_by", "cc_by_sa", "free_art") and not photo_author(info):
         return "license"
     return None
 
@@ -147,6 +186,21 @@ def clean_author(text):
                   lambda m: m.group(1), text or "")
     text = re.sub(r"\s+", " ", re.sub(r"(Unknown author)+", "", text, flags=re.I)).strip(" .,")
     return text or None
+
+
+def clean_attribution(text):
+    """The credit line an author asks for, without the "I, " of the licence templates.
+    None for a long text: instructions to the reuser rather than a credit line."""
+    text = re.sub(r"^I,\s+", "", clean_author(text) or "")
+    return text if 0 < len(text) <= ATTRIBUTION_MAX else None
+
+
+def photo_author(info):
+    """The credit line the author asked for, else the author, else whoever uploaded the
+    file's first version (unless a bot that transferred it): the licences want the author named."""
+    uploader = info.get("uploader")
+    return clean_attribution(info.get("attribution")) or clean_author(info.get("artist")) \
+        or (uploader if uploader and not BOT.search(uploader) else None)
 
 
 def clean_paragraph(text):
@@ -204,6 +258,7 @@ def build(base, views, commons, extracts, labels, overrides, today):
         flags = {
             "memorial": bool(MEMORIAL.search(it["label"] or it["article"])),
             "commercial": bool(COMMERCIAL_TYPES & set(it["types"])),
+            "national_domain": it["qid"] in NATIONAL_DOMAINS,
             "twentieth_century": twentieth_century(it, today),
         }
         cards.append({
@@ -222,13 +277,13 @@ def build(base, views, commons, extracts, labels, overrides, today):
             "excerpt": excerpt(article.get("extract")),
             "photo": None if problem else {
                 "commons_file": file, "sha1": info["sha1"], "download_url": info["download_url"],
-                "width": info["width"], "height": info["height"], "author": clean_author(info.get("artist")),
+                "width": info["width"], "height": info["height"], "author": photo_author(info),
                 "license": info.get("license"), "license_url": info.get("license_url"),
             },
             "photo_problem": problem,
             **flags,
             # Most lasting reason first: an approved 20th-century card still needs a photo
-            "hidden_reason": next((r for r in ("memorial", "commercial", "twentieth_century") if flags[r]),
+            "hidden_reason": next((r for r in ("memorial", "commercial", "national_domain", "twentieth_century") if flags[r]),
                                   "photo" if problem else None),
         })
 

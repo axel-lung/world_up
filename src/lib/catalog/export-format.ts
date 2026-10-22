@@ -43,8 +43,9 @@ const cardSchema = z.object({
   photo_problem: z.enum(['missing', 'too_small', 'license', 'download']).nullable(),
   memorial: z.boolean(),
   commercial: z.boolean(),
+  national_domain: z.boolean(),
   twentieth_century: z.boolean(),
-  hidden_reason: z.enum(['memorial', 'commercial', 'twentieth_century', 'photo']).nullable(),
+  hidden_reason: z.enum(['memorial', 'commercial', 'national_domain', 'twentieth_century', 'photo']).nullable(),
   series: z.array(slug),
 });
 

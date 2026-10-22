@@ -1,4 +1,6 @@
-import type { WorkHandler } from 'pg-boss';
+import type { PgBoss, WorkHandler } from 'pg-boss';
+import { queues } from '@/lib/queues';
+import { createRetentionJob } from './account-retention';
 import { createEmailJob } from './send-email';
 
 export interface JobDefinition {
@@ -8,8 +10,12 @@ export interface JobDefinition {
 }
 
 // Handlers of the queues declared in src/lib/queues.ts. Built at startup, so a
-// missing setting stops the worker instead of failing every job. The catalogue
-// import registers here in lot 2.
-export function createJobs(): JobDefinition[] {
-  return [createEmailJob()];
+// missing setting stops the worker instead of failing every job.
+export function createJobs(boss: PgBoss): JobDefinition[] {
+  return [
+    createEmailJob(),
+    createRetentionJob(async (job) => {
+      await boss.send(queues.email.name, job);
+    }),
+  ];
 }

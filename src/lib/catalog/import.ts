@@ -93,6 +93,7 @@ function cardRow(collectionId: number, card: CatalogCard, slug: string): typeof 
     memorial: card.memorial,
     commercial: card.commercial,
     twentiethCentury: card.twentieth_century,
+    nationalDomain: card.national_domain,
     hiddenReason: card.hidden_reason,
   };
 }
@@ -102,7 +103,9 @@ function cardRow(collectionId: number, card: CatalogCard, slug: string): typeof 
  * series and the cards by Wikidata ID, then their series memberships. Running
  * it again with the same export changes nothing. An existing card keeps its
  * rarity, rank, slug and visibility (a card hidden for want of a photo comes
- * back once the export has one), and its photo when the back-office chose it.
+ * back once the export has one; a visible card the export newly places in a
+ * national domain, or whose photo it now refuses for its licence, is hidden for
+ * review), and its photo when the back-office chose it.
  */
 export async function importCatalog(database: Database, catalog: Catalog): Promise<ImportReport> {
   return database.transaction(async (tx) => {
@@ -175,8 +178,17 @@ export async function importCatalog(database: Database, catalog: Catalog): Promi
             memorial: excluded(cards.memorial),
             commercial: excluded(cards.commercial),
             twentiethCentury: excluded(cards.twentiethCentury),
-            hiddenReason: sql`CASE WHEN "cards"."hidden_reason" = 'photo' AND excluded."photo_image" IS NOT NULL
-              THEN excluded."hidden_reason" ELSE "cards"."hidden_reason" END`,
+            nationalDomain: excluded(cards.nationalDomain),
+            // A visible card leaves the packs until the back-office reviews it
+            // when it has just entered a national domain (a new decree), or
+            // when the export now refuses its photo for its licence
+            hiddenReason: sql`CASE
+              WHEN "cards"."hidden_reason" = 'photo' AND excluded."photo_image" IS NOT NULL THEN excluded."hidden_reason"
+              WHEN "cards"."hidden_reason" IS NULL AND excluded."national_domain" AND NOT "cards"."national_domain"
+                THEN 'national_domain'::hidden_reason
+              WHEN "cards"."hidden_reason" IS NULL AND NOT "cards"."photo_locked" AND excluded."photo_problem" = 'license'
+                AND "cards"."photo_problem" IS DISTINCT FROM 'license' THEN 'photo'::hidden_reason
+              ELSE "cards"."hidden_reason" END`,
             updatedAt: sql`now()`,
           },
         })

@@ -12,6 +12,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: `${base}/`, changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/credits`, changeFrequency: 'yearly', priority: 0.3 },
+    ...['/terms', '/privacy', '/legal-notice'].map((path) => ({
+      url: `${base}${path}`,
+      changeFrequency: 'yearly' as const,
+      priority: 0.1,
+    })),
     ...cards.map((card) => ({
       url: `${base}${cardPath(card.collection, card.slug)}`,
       lastModified: card.updatedAt,

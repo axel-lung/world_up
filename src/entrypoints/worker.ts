@@ -9,8 +9,8 @@ const STOP_TIMEOUT_MS = 25_000;
 
 // Run by the worldup-worker container (`node worker.js`) and by `npm run worker`.
 async function main() {
-  const jobs = createJobs();
   const boss = new PgBoss(requireEnv('DATABASE_URL'));
+  const jobs = createJobs(boss);
   boss.on('error', (error) => console.error('pg-boss error:', error));
   await boss.start();
 

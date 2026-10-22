@@ -104,6 +104,15 @@ export async function SiteFooter() {
         <li>
           <Link href="/credits">{t('credits')}</Link>
         </li>
+        <li>
+          <Link href="/terms">{t('terms')}</Link>
+        </li>
+        <li>
+          <Link href="/privacy">{t('privacy')}</Link>
+        </li>
+        <li>
+          <Link href="/legal-notice">{t('legalNotice')}</Link>
+        </li>
       </ul>
       <ThemeSwitch initial={themePreference(cookieStore)} />
       <p>{t('noMoneyValue')}</p>

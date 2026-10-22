@@ -32,6 +32,7 @@ export const cardColumns = {
   photoHeight: cards.photoHeight,
   photoAuthor: cards.photoAuthor,
   photoLicense: cards.photoLicense,
+  photoLicenseUrl: cards.photoLicenseUrl,
   updatedAt: cards.updatedAt,
 };
 

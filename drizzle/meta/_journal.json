@@ -71,6 +71,13 @@
       "when": 1792522202143,
       "tag": "0009_design_v2_theme",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792675119873,
+      "tag": "0010_legal_compliance",
+      "breakpoints": true
     }
   ]
 }

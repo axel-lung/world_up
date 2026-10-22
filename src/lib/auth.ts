@@ -15,6 +15,7 @@ import {
   normalizePseudo,
   TERMS_VERSION,
 } from './account-rules';
+import { markActive } from './account-retention';
 import { ACCOUNT_ERRORS, type AccountErrorCode } from './auth-errors';
 import { requireEnv } from './env';
 import { enqueueEmail } from './job-queue';
@@ -154,6 +155,12 @@ function createAuth() {
               twoFactorVerified: Boolean(ctx?.path.startsWith('/two-factor/verify')),
             },
           }),
+          // A sign-in, and below a session refresh (once a day at most):
+          // what keeps an account from being deleted as inactive.
+          after: (session) => markActive(session.userId),
+        },
+        update: {
+          after: (session) => markActive(session.userId),
         },
       },
     },

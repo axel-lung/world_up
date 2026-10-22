@@ -49,6 +49,7 @@ export default async function AdminCardPage({ params }: PageProps<'/admin/cards/
   const flags = [
     card.memorial && t('flag.memorial'),
     card.commercial && t('flag.commercial'),
+    card.nationalDomain && t('flag.national_domain'),
     card.twentiethCentury && t('flag.twentieth_century'),
     card.photoProblem && t('photoProblem', { problem: t(`photoProblems.${card.photoProblem}`) }),
   ].filter(Boolean);

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { type MouseEvent, type ReactNode, useState } from 'react';
 import { EmblemIcon } from '@/components/collection/Emblem';
+import { WIKIPEDIA_TEXT_LICENSE_URL } from '@/lib/catalog/licenses';
 import type { Emblem } from '@/lib/collection-theme';
 import { RARITY_PIPS, type Rarity } from '@/lib/rarity';
 import { displayName, needsLetterbox, photoSizes, seriesNumber } from './card-format';
@@ -18,6 +19,8 @@ export interface CardPhoto {
   height?: number;
   author: string | null;
   license: string;
+  /** The licence's text, which the CC 2.0 and 3.0 licences want linked from each copy. */
+  licenseUrl?: string | null;
   /** The file page on Wikimedia Commons. */
   fileUrl: string;
 }
@@ -145,6 +148,19 @@ export function Card({
       {chunks}
     </a>
   );
+  const licenseLink = (chunks: ReactNode) =>
+    card.photo.licenseUrl ? (
+      <a href={card.photo.licenseUrl} target="_blank" rel="noopener license" onClick={stop}>
+        {chunks}
+      </a>
+    ) : (
+      chunks
+    );
+  const textLicenseLink = (chunks: ReactNode) => (
+    <a href={WIKIPEDIA_TEXT_LICENSE_URL} target="_blank" rel="noopener license" onClick={stop}>
+      {chunks}
+    </a>
+  );
   const emblem = (
     <span className={styles.emblem} role="img" aria-label={t('collectionEmblem', { collection: collection.name })}>
       <EmblemIcon emblem={collection.emblem} aria-hidden />
@@ -217,7 +233,7 @@ export function Card({
             )}
             {showCredit && !large && (
               <div className={styles.creditOverlay}>
-                {t.rich('photoOverlay', { author, license: card.photo.license, link: commonsLink })}
+                {t.rich('photoOverlay', { author, license: card.photo.license, licenseLink, link: commonsLink })}
               </div>
             )}
             {shiny && (
@@ -236,6 +252,7 @@ export function Card({
                 {t.rich('photoCaption', {
                   author,
                   license: card.photo.license,
+                  licenseLink,
                   link: commonsLink,
                   hidden: (chunks) => <span className="sr-only">{chunks}</span>,
                 })}
@@ -293,11 +310,13 @@ export function Card({
                 <ArrowUpRight aria-hidden />
               </a>
             )}
-            <span className={styles.textLicense}>{t('textLicense')}</span>
+            <span className={styles.textLicense}>
+              {t.rich('textLicense', { link: (chunks) => (large ? textLicenseLink(chunks) : chunks) })}
+            </span>
             <div className={styles.photoSection}>
               <span className={styles.photoHeading}>{t('photoHeading')}</span>
               <span className={styles.photoAuthor}>
-                {author} · {card.photo.license}
+                {author} · {large ? licenseLink(card.photo.license) : card.photo.license}
               </span>
               {large && (
                 <a className={styles.commonsLink} href={card.photo.fileUrl} target="_blank" rel="noopener" onClick={stop}>

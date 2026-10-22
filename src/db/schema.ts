@@ -47,10 +47,18 @@ export const users = pgTable(
     birthDate: date('birth_date', { mode: 'string' }).notNull(),
     // Better Auth's two-factor plugin; only the back-office account turns it on.
     twoFactorEnabled: boolean('two_factor_enabled').notNull().default(false),
+    // Last sign-in or session refresh (once a day at most). An account inactive
+    // for 3 years is deleted, 30 days after the e-mail that warns its owner
+    // (src/lib/account-retention.ts).
+    lastActiveAt: timestamp('last_active_at', { withTimezone: true }).notNull().defaultNow(),
+    inactivityNoticeAt: timestamp('inactivity_notice_at', { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (table) => [uniqueIndex('users_name_lower_key').on(sql`lower(${table.name})`)],
+  (table) => [
+    uniqueIndex('users_name_lower_key').on(sql`lower(${table.name})`),
+    index('users_last_active_at_idx').on(table.lastActiveAt),
+  ],
 );
 
 export const sessions = pgTable(
@@ -152,7 +160,14 @@ export const protection = pgEnum('protection', ['classe', 'inscrit']);
 // Why a card is out of packs and pages; null means visible. The import sets it
 // on new cards only (except "photo" once a usable photo arrives): afterwards
 // only the back-office changes it.
-export const hiddenReason = pgEnum('hidden_reason', ['memorial', 'commercial', 'twentieth_century', 'photo', 'admin']);
+export const hiddenReason = pgEnum('hidden_reason', [
+  'memorial',
+  'commercial',
+  'twentieth_century',
+  'photo',
+  'admin',
+  'national_domain',
+]);
 export const photoProblem = pgEnum('photo_problem', ['missing', 'too_small', 'license', 'download']);
 export const seriesType = pgEnum('series_type', ['region', 'family', 'unesco', 'endangered']);
 
@@ -201,6 +216,9 @@ export const cards = pgTable(
     memorial: boolean('memorial').notNull().default(false),
     commercial: boolean('commercial').notNull().default(false),
     twentiethCentury: boolean('twentieth_century').notNull().default(false),
+    // Inside a "domaine national": a commercial use of its image needs the
+    // authorisation of the domain's manager (Code du patrimoine, art. L621-42).
+    nationalDomain: boolean('national_domain').notNull().default(false),
     hiddenReason: hiddenReason('hidden_reason'),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

@@ -25,7 +25,7 @@ function Result({ state }: { state: ActionState }) {
   );
 }
 
-const HIDE_REASONS: HiddenReason[] = ['admin', 'memorial', 'commercial', 'twentieth_century', 'photo'];
+const HIDE_REASONS: HiddenReason[] = ['admin', 'memorial', 'commercial', 'national_domain', 'twentieth_century', 'photo'];
 
 export function VisibilityForm({ cardId, hiddenReason }: { cardId: number; hiddenReason: HiddenReason | null }) {
   const t = useTranslations('Admin.card');
@@ -38,7 +38,11 @@ export function VisibilityForm({ cardId, hiddenReason }: { cardId: number; hidde
           <input type="hidden" name="reason" value="visible" />
           <TextField label={t('note')} name="note" maxLength={500} />
           <SubmitButton variant="primary" pending={pending}>
-            {hiddenReason === 'twentieth_century' ? t('showReviewed') : t('show')}
+            {hiddenReason === 'twentieth_century'
+              ? t('showReviewed')
+              : hiddenReason === 'national_domain'
+                ? t('showAuthorised')
+                : t('show')}
           </SubmitButton>
         </>
       ) : (
