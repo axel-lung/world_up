@@ -21,5 +21,13 @@ playwright-report/
 __pycache__/
 /backups/
 
+# Android app: Gradle's output, and signing keys, which never enter the repository
+/android/.gradle/
+/android/build/
+/android/app/build/
+/android/local.properties
+*.jks
+*.keystore
+
 .DS_Store
 Thumbs.db

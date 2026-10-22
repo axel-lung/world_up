@@ -25,7 +25,7 @@ La version 1 est un site web responsive. Le jeu s'appelle World Up. Un joueur ma
 
 Recommandation : garder les échanges pour la version 2. Le lancement est plus rapide, et un marché entre joueurs demande une surveillance anti-fraude.
 
-**Hors périmètre** : application mobile native, NFT ou blockchain, toute conversion de la monnaie virtuelle en euros.
+**Hors périmètre** : application mobile native (l'application Android du Play Store est le site lui-même, voir « Application Android »), NFT ou blockchain, toute conversion de la monnaie virtuelle en euros.
 
 ## Architecture
 
@@ -166,6 +166,17 @@ networks:
 - Mise en production : `git pull`, puis `docker compose up -d --build`. Les migrations passent avant le redémarrage de web et worker, et Traefik n'envoie le trafic qu'à un conteneur en bonne santé.
 - Sauvegardes : `./backups` garde 14 jours sur le serveur. Ajouter une copie quotidienne hors du serveur (par exemple rclone vers un stockage objet), sinon une panne du serveur emporte aussi les sauvegardes.
 - Préproduction : une copie du fichier avec un autre `name`, d'autres noms de conteneurs et de routeur Traefik, et un autre `APP_DOMAIN`. Sans cela, les deux piles entrent en conflit sur le serveur.
+
+### Application Android
+
+Décidée le 2026-10-22. L'application du Play Store est une Trusted Web Activity : une coquille Android qui ouvre le site de production en plein écran dans le navigateur du téléphone, sans barre d'adresse. Il n'y a ni API ni seconde interface : le serveur ne change pas, et un déploiement du site met l'application à jour.
+
+- Identifiant `fr.alng.worldup`, pour le site `worldup.alng.fr`. Le projet Android (`android/`) est généré par Bubblewrap, l'outil de Google.
+- Un workflow GitHub Actions, lancé à la main, produit l'APK (à installer sur un téléphone) et le bundle AAB, que l'on dépose soi-même sur la Play Console. La clé d'envoi vit dans les secrets GitHub ; Google garde la clé de signature (Play App Signing).
+- Le site publie un manifeste web et `/.well-known/assetlinks.json`, qui donne les empreintes des certificats de l'application (lues dans le .env du serveur) : sans lui, l'application affiche la barre d'adresse.
+- La délégation des notifications est active dès la première version : les notifications web du site, quand elles existeront, s'afficheront comme celles de l'application, sans la republier.
+- Avant de vendre dans l'application (lot 4) : Google Play impose sa facturation pour les biens numériques. Dans l'Espace économique européen, son programme de facturation alternative autorise un autre prestataire comme Stripe, contre une commission. À trancher avec l'avocat.
+- Règles du Play Store : probabilités publiées avant l'achat, suppression du compte depuis l'application et depuis le web, questionnaire de classification (public de 18 ans et plus), fiche « Sécurité des données ».
 
 ## Modèle de données
 

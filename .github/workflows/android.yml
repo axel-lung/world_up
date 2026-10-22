@@ -1,0 +1,72 @@
+name: Android app
+
+# Builds the Android app (android/), which opens the production site: an APK to
+# install on a phone, and the bundle (AAB) to upload to the Play Console. Run it
+# by hand from the Actions tab. A pull request that touches android/ only
+# checks that the app still builds, unsigned.
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: Version shown on the Play Store (1.0.0)
+        required: true
+        default: 1.0.0
+  pull_request:
+    paths:
+      - android/**
+      - .github/workflows/android.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    env:
+      VERSION_NAME: ${{ inputs.version_name || '1.0.0' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      # Caches Gradle's downloads, and checks the wrapper's checksum
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Upload key
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
+            echo "::error::Secrets ANDROID_KEYSTORE_BASE64 and ANDROID_KEYSTORE_PASSWORD are required (android/README.md)"
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+          # Not a secret: the site's ANDROID_CERT_FINGERPRINTS lists it, so the APK opens without an address bar
+          {
+            echo "Upload key fingerprint (SHA-256):"
+            echo
+            keytool -list -keystore "$RUNNER_TEMP/upload.jks" -storepass:env ANDROID_KEYSTORE_PASSWORD -alias upload \
+              | sed -n 's/.*(SHA-256): /    /p'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # The Play Store refuses a versionCode it has already received: the run number only goes up
+      - name: Build
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: ./gradlew bundleRelease assembleRelease -PversionCode=${{ github.run_number }} -PversionName="$VERSION_NAME"
+
+      - uses: actions/upload-artifact@v7
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          name: world-up-${{ env.VERSION_NAME }}-${{ github.run_number }}
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error

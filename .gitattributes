@@ -4,3 +4,6 @@
 *.jpg binary
 *.ico binary
 *.dump binary
+*.jar binary
+# The Gradle wrapper's Windows script (android/)
+*.bat text eol=crlf

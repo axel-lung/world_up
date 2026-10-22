@@ -21,6 +21,12 @@ updates:
     schedule:
       interval: weekly
 
+  # The Android app: Android Gradle plugin, android-browser-helper, Gradle wrapper
+  - package-ecosystem: gradle
+    directory: /android
+    schedule:
+      interval: weekly
+
   - package-ecosystem: docker
     directory: /
     schedule:

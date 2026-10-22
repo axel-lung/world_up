@@ -26,6 +26,7 @@ ENV NODE_ENV=production \
 
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
 COPY --from=build /app/dist/migrate.js /app/dist/worker.js /app/dist/import-catalog.js ./
 COPY --from=build /app/drizzle ./drizzle
 
