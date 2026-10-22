@@ -2,6 +2,8 @@ import { and, eq, isNotNull, isNull, lt, sql } from 'drizzle-orm';
 import { type Database, db } from '@/db';
 import { users } from '@/db/schema';
 import type { EmailJob } from './email';
+import { cancelOrphanTrades } from './game/trades';
+import { deleteOldNotifications } from './notifications/notifications';
 
 // How long accounts are kept (spec, "Données personnelles"; /privacy says the
 // same): run once a day by the worker (src/worker/account-retention.ts).
@@ -27,13 +29,15 @@ export interface RetentionReport {
   unverifiedDeleted: number;
   warned: number;
   inactiveDeleted: number;
+  notificationsDeleted: number;
 }
 
 /**
  * Deletes the signups never confirmed, warns the accounts about to reach 3
  * years without activity, and deletes those warned 30 days ago that have not
  * come back. Deleting a user deletes the player's data with it (foreign keys
- * cascade; reports are kept, detached).
+ * cascade; reports are kept, detached). Also deletes the notifications older
+ * than 90 days.
  */
 export async function applyRetention(
   now: Date,
@@ -70,5 +74,14 @@ export async function applyRetention(
     )
     .returning({ id: users.id });
 
-  return { unverifiedDeleted: unverified.length, warned: toWarn.length, inactiveDeleted: inactive.length };
+  // The deleted players' open offers are void: record it
+  await cancelOrphanTrades(database, now);
+  const notificationsDeleted = await deleteOldNotifications(database, now);
+
+  return {
+    unverifiedDeleted: unverified.length,
+    warned: toWarn.length,
+    inactiveDeleted: inactive.length,
+    notificationsDeleted,
+  };
 }

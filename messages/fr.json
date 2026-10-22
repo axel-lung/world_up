@@ -581,11 +581,15 @@
     },
     "items": {
       "title": "Cartes et pièces",
-      "body": "<p>Les cartes et les pièces sont des éléments du jeu, sans valeur en argent. Elles vous donnent un droit d'usage personnel dans le jeu, et non un droit de propriété. Elles ne s'achètent pas, ne se convertissent pas en euros et ne se transfèrent pas à un autre compte.</p>"
+      "body": "<p>Les cartes et les pièces sont des éléments du jeu, sans valeur en argent. Elles vous donnent un droit d'usage personnel dans le jeu, et non un droit de propriété. Elles ne s'achètent pas et ne se convertissent pas en euros. Les cartes ne passent d'un compte à un autre que par les échanges entre amis, toujours gratuits ; les pièces ne se transfèrent pas.</p>"
+    },
+    "trades": {
+      "title": "Échanges entre amis",
+      "body": "<ul><li>Vous pouvez échanger des cartes avec vos amis du jeu, gratuitement : des cartes contre des cartes, sans argent ni pièces.</li><li>Les cartes que vous proposez restent réservées jusqu'à la réponse de votre ami, ou jusqu'à l'expiration de l'offre (voir les <rules>règles du jeu</rules>).</li><li>Un échange accepté est définitif : les cartes ne sont pas rendues.</li><li>En cas de fraude ou d'anomalie, nous pouvons suspendre les échanges.</li></ul>"
     },
     "forbidden": {
       "title": "Ce qui est interdit",
-      "body": "<ul><li>Vendre, acheter ou échanger contre de l'argent ou contre tout autre bien un compte, des cartes ou des pièces, y compris en dehors du site.</li><li>Créer plusieurs comptes, ou jouer avec le compte de quelqu'un d'autre.</li><li>Jouer au moyen d'un programme automatique, exploiter une faille ou contourner les limites du jeu.</li><li>Nuire au fonctionnement du site ou à la sécurité des autres joueurs.</li></ul>"
+      "body": "<ul><li>Vendre, acheter ou échanger contre de l'argent ou contre tout autre bien un compte, des cartes ou des pièces, y compris en dehors du site.</li><li>Créer plusieurs comptes, ou jouer avec le compte de quelqu'un d'autre.</li><li>Faire passer des cartes d'un compte à un autre que vous contrôlez, par des échanges ou autrement.</li><li>Jouer au moyen d'un programme automatique, exploiter une faille ou contourner les limites du jeu.</li><li>Nuire au fonctionnement du site ou à la sécurité des autres joueurs.</li></ul>"
     },
     "sanctions": {
       "title": "Suspension et suppression d'un compte",
@@ -626,7 +630,7 @@
     },
     "collected": {
       "title": "Les données collectées",
-      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
     },
     "purposes": {
       "title": "Pourquoi, et sur quelle base",
@@ -634,7 +638,7 @@
     },
     "public": {
       "title": "Ce qui est public",
-      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
+      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Vos amis voient aussi votre collection. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
     },
     "recipients": {
       "title": "Qui reçoit vos données",
@@ -642,7 +646,7 @@
     },
     "retention": {
       "title": "Combien de temps",
-      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
+      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte, et l'autre joueur d'un échange garde son historique, sans votre pseudo.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les notifications du jeu sont effacées au bout de 90 jours.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
     },
     "rights": {
       "title": "Vos droits",
@@ -668,11 +672,13 @@
     "home": "Accueil",
     "open": "Ouvrir",
     "collection": "Collection",
+    "friends": "Amis",
     "leaderboard": "Classement",
     "rules": "Règles du jeu",
     "odds": "Probabilités",
     "credits": "Sources et crédits",
     "account": "Mon compte",
+    "activity": "Activité{count, plural, =0 {} one {, # non lue} other {, # non lues}}",
     "login": "Se connecter",
     "signup": "Créer un compte",
     "coins": "{count, number} <word>{count, plural, one {pièce} other {pièces}}</word>",
@@ -714,6 +720,13 @@
       "tooFast": "Vous ouvrez des paquets très vite : attendez une minute avant le suivant.",
       "noDuplicate": "Vous n'avez pas de doublon à revendre.",
       "notEnoughCoins": "Vous n'avez pas assez de pièces.",
+      "tradesClosed": "Les échanges sont fermés pour le moment.",
+      "notFriends": "Les échanges se font entre amis : vous n'êtes pas amis avec ce joueur.",
+      "tradeEmpty": "Choisissez au moins une carte de chaque côté.",
+      "tradeTooBig": "Trop de cartes d'un côté de l'échange.",
+      "tradeUnavailable": "Une carte de l'échange n'est plus disponible : elle a changé de main, ou elle est déjà promise ailleurs.",
+      "tooManyOffers": "Vous avez trop d'offres en attente : attendez des réponses avant d'en proposer d'autres.",
+      "tradeOver": "Cette offre n'est plus en attente.",
       "server": "L'ouverture n'a pas abouti. Réessayez dans un instant."
     }
   },
@@ -785,6 +798,154 @@
     "seriesProgress": "Cartes de la série",
     "seriesComplete": "Série complète !"
   },
+  "Friends": {
+    "title": "Amis",
+    "intro": "Vos amis voient votre collection, et vous la leur.",
+    "addHeading": "Ajouter un ami",
+    "pseudo": "Pseudo",
+    "pseudoHint": "Le pseudo exact du joueur, tel qu'il apparaît au classement.",
+    "send": "Envoyer la demande",
+    "receivedHeading": "Demandes reçues",
+    "sentHeading": "Demandes envoyées",
+    "friendsHeading": "Vos amis",
+    "friendsCount": "{count, plural, =0 {aucun ami} one {# ami} other {# amis}}",
+    "none": "Vous n'avez pas encore d'ami. Ajoutez un joueur par son pseudo, ou depuis le <leaderboard>classement</leaderboard>.",
+    "since": "Amis depuis le {date}",
+    "requestedOn": "Demande du {date}",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "cancel": "Annuler la demande",
+    "seeCollection": "Voir sa collection",
+    "remove": "Retirer de mes amis",
+    "removeConfirm": "Retirer {pseudo} de vos amis ? Vos offres d'échange en attente entre vous seront annulées.",
+    "removeSubmit": "Retirer",
+    "add": "Ajouter",
+    "addPseudo": "Ajouter {pseudo} en ami",
+    "states": {
+      "friends": "Ami",
+      "sent": "Demande envoyée",
+      "received": "Vous a demandé"
+    },
+    "done": {
+      "requested": "Demande envoyée à {pseudo}.",
+      "accepted": "{pseudo} et vous êtes maintenant amis.",
+      "declined": "Demande refusée.",
+      "cancelled": "Demande annulée.",
+      "removed": "{pseudo} ne fait plus partie de vos amis."
+    },
+    "errors": {
+      "unknownPlayer": "Aucun joueur ne porte ce pseudo.",
+      "self": "C'est votre propre pseudo.",
+      "alreadyFriends": "Vous êtes déjà amis.",
+      "alreadyRequested": "Vous avez déjà envoyé une demande à ce joueur.",
+      "tooManyFriends": "Vous avez atteint le nombre maximal d'amis ({max}).",
+      "theirFriendsFull": "Ce joueur a atteint le nombre maximal d'amis.",
+      "tooManyRequests": "Vous avez trop de demandes en attente : attendez des réponses avant d'en envoyer d'autres.",
+      "tooFast": "Vous avez envoyé beaucoup de demandes : réessayez dans une heure.",
+      "noRequest": "Cette demande n'existe plus."
+    },
+    "tradesLink": "Mes échanges",
+    "offersWaiting": "{count, plural, one {# offre d'échange attend} other {# offres d'échange attendent}} votre réponse."
+  },
+  "FriendCollection": {
+    "title": "Collection de {pseudo}",
+    "back": "Mes amis",
+    "proposeTrade": "Proposer un échange",
+    "progress": "Cartes différentes",
+    "tabs": {
+      "owned": "Ses cartes",
+      "duplicates": "Ses doublons",
+      "youLack": "Il vous manque"
+    },
+    "empty": {
+      "owned": "{pseudo} n'a encore aucune carte ici.",
+      "duplicates": "{pseudo} n'a pas de doublon ici.",
+      "youLack": "{pseudo} n'a aucune carte qui vous manque ici."
+    }
+  },
+  "Trades": {
+    "title": "Échanges",
+    "intro": "Échangez des cartes avec vos amis, gratuitement. Les cartes que vous proposez restent réservées jusqu'à la réponse.",
+    "receivedHeading": "Offres reçues",
+    "sentHeading": "Offres envoyées",
+    "historyHeading": "Échanges passés",
+    "noneReceived": "Aucune offre n'attend votre réponse.",
+    "noneSent": "Aucune offre envoyée en attente.",
+    "noHistory": "Pas encore d'échange terminé.",
+    "newTrade": "Pour proposer un échange, ouvrez la collection d'un ami depuis la page <friends>Amis</friends>.",
+    "from": "Offre de {pseudo}",
+    "to": "Offre à {pseudo}",
+    "formerPlayer": "un ancien joueur",
+    "youGive": "Vous donnez",
+    "youGet": "Vous recevez",
+    "copies": "×{count}",
+    "expiresOn": "Expire le {date}",
+    "sentOn": "Proposée le {date}",
+    "closedOn": "Le {date}",
+    "states": {
+      "pending": "En attente",
+      "accepted": "Acceptée",
+      "declined": "Refusée",
+      "cancelled": "Annulée",
+      "expired": "Expirée"
+    },
+    "accept": "Accepter l'échange",
+    "acceptHint": "En acceptant, vous donnez vos cartes et recevez les siennes. Un échange accepté est définitif.",
+    "decline": "Refuser",
+    "cancel": "Retirer l'offre",
+    "see": "Voir l'offre",
+    "back": "Mes échanges",
+    "done": {
+      "sent": "Offre envoyée à {pseudo}. Vos cartes restent réservées jusqu'à sa réponse.",
+      "accepted": "Échange conclu : les cartes sont dans votre collection.",
+      "declined": "Offre refusée.",
+      "cancelled": "Offre retirée : vos cartes sont de nouveau disponibles."
+    },
+    "compose": {
+      "title": "Échange avec {pseudo}",
+      "intro": "Choisissez jusqu'à {max} cartes de chaque côté. Les vôtres restent réservées jusqu'à la réponse de {pseudo}, {hours} heures au plus.",
+      "yourCards": "Vos cartes",
+      "theirCards": "Les cartes de {pseudo}",
+      "search": "Rechercher une carte",
+      "rarity": "Rareté",
+      "allRarities": "Toutes les raretés",
+      "onlyDuplicates": "Mes doublons seulement",
+      "onlyMissing": "Celles qui me manquent seulement",
+      "copies": "{count, plural, one {# exemplaire} other {# exemplaires}}",
+      "lastCopy": "votre dernier exemplaire",
+      "add": "Ajouter : {name}",
+      "remove": "Retirer : {name}",
+      "selected": "{count, plural, =0 {Aucune carte choisie} one {# carte choisie} other {# cartes choisies}} sur {max}",
+      "more": "{count, plural, one {Encore # carte} other {Encore # cartes}} : affinez la recherche.",
+      "noMatch": "Aucune carte ne correspond.",
+      "none": "Aucune carte à échanger ici.",
+      "summary": "{give, plural, =0 {Aucune carte} one {# carte} other {# cartes}} contre {want, plural, =0 {aucune carte} one {# carte} other {# cartes}}",
+      "send": "Envoyer l'offre"
+    }
+  },
+  "Activity": {
+    "title": "Activité",
+    "intro": "Vos demandes d'ami, vos échanges et vos enchères. Les notifications sont gardées 90 jours.",
+    "empty": "Rien de nouveau pour l'instant.",
+    "unread": "Nouveau",
+    "markRead": "Tout marquer comme lu",
+    "list": "Notifications"
+  },
+  "Notifications": {
+    "formerPlayer": "Un ancien joueur",
+    "aCard": "une carte",
+    "friend_request": "{pseudo} vous demande en ami.",
+    "friend_accepted": "{pseudo} a accepté votre demande d'ami.",
+    "trade_received": "{pseudo} vous propose un échange.",
+    "trade_accepted": "{pseudo} a accepté votre offre d'échange.",
+    "trade_declined": "{pseudo} a refusé votre offre d'échange.",
+    "trade_expired": "Votre offre d'échange à {pseudo} a expiré.",
+    "auction_outbid": "Votre enchère sur {card} a été dépassée.",
+    "auction_won": "Vous avez remporté {card} aux enchères !",
+    "auction_sold": "Votre vente de {card} est conclue.",
+    "auction_unsold": "Votre vente de {card} s'est terminée sans enchère.",
+    "auction_cancelled": "La vente de {card} a été annulée."
+  },
   "Leaderboard": {
     "title": "Classement",
     "description": "Les collectionneurs de World Up, classés par nombre de cartes différentes.",
@@ -797,7 +958,8 @@
     "empty": "Personne n'a encore ouvert de paquet.",
     "notRanked": "Ouvrez votre premier paquet pour entrer au classement.",
     "legendary": "Légendaires",
-    "ultra": "Ultra rares"
+    "ultra": "Ultra rares",
+    "friends": "Amis"
   },
   "Odds": {
     "title": "Probabilités",
@@ -838,10 +1000,14 @@
     "rarity": "Rareté",
     "resaleValue": "Un doublon revendu",
     "coins": "{count, plural, one {# pièce} other {# pièces}}",
-    "noMoneyValue": "Les pièces ne s'achètent pas et ne se convertissent pas en euros. Les cartes et les pièces ne se transfèrent pas d'un compte à un autre.",
+    "noMoneyValue": "Les pièces ne s'achètent pas et ne se convertissent pas en euros. Les cartes ne passent d'un compte à un autre que par les échanges entre amis, sans argent.",
     "achievementsHeading": "Les succès",
     "achievement": "Succès",
     "reward": "Récompense",
+    "tradesHeading": "Amis et échanges",
+    "tradesFriends": "Ajoutez des amis par leur pseudo, sur la page <friends>Amis</friends> : vos amis voient votre collection, et vous la leur.",
+    "tradesHow": "Entre amis, vous échangez des cartes gratuitement, jusqu'à {max} cartes de chaque côté. Toute carte s'échange, même votre dernier exemplaire.",
+    "tradesReserved": "Les cartes que vous proposez sont réservées jusqu'à la réponse de votre ami, {hours} heures au plus : vous ne pouvez ni les revendre, ni les proposer ailleurs. Un échange accepté est définitif.",
     "leaderboardHeading": "Le classement",
     "leaderboardRule": "Le <link>classement</link> compte vos cartes différentes. À égalité, le plus de Légendaires passe devant, puis le plus d'Ultra rares, et ainsi de suite.",
     "serverDecides": "Le serveur décide de tout : contenu des paquets, minuteurs et soldes. Votre navigateur ne fait que les afficher."

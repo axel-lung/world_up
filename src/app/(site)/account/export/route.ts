@@ -6,9 +6,12 @@ import { playerReports } from '@/lib/catalog/reports';
 import { coinBalance, playerLedger } from '@/lib/game/coins';
 import { playerCards } from '@/lib/game/collection';
 import { playerOpenings } from '@/lib/game/packs';
+import { playerTrades } from '@/lib/game/trades';
+import { playerNotifications } from '@/lib/notifications/notifications';
+import { playerFriendships } from '@/lib/social/friends';
 
 // Self-service export of the player's data (GDPR right of access and
-// portability). Each lot adds its own tables: collection, coins, purchases.
+// portability). Each lot adds its own tables: collection, coins, friends, purchases.
 export async function GET(request: Request) {
   const session = await getAuth().api.getSession({ headers: request.headers });
   if (!session) return new Response(null, { status: 401 });
@@ -30,7 +33,7 @@ export async function GET(request: Request) {
     .where(eq(consents.userId, userId))
     .orderBy(asc(consents.acceptedAt));
 
-  const [reports, packReserve, openings, collection, coins, ledger, obtained] = await Promise.all([
+  const [reports, packReserve, openings, collection, coins, ledger, obtained, friends, trades, notifications] = await Promise.all([
     playerReports(userId),
     db
       .select({ packs: packState.packs, lastRefill: packState.lastRefill })
@@ -46,6 +49,9 @@ export async function GET(request: Request) {
       .innerJoin(achievements, eq(achievements.id, userAchievements.achievementId))
       .where(eq(userAchievements.userId, userId))
       .orderBy(asc(userAchievements.obtainedAt)),
+    playerFriendships(userId),
+    playerTrades(userId),
+    playerNotifications(userId),
   ]);
 
   const body = JSON.stringify(
@@ -55,6 +61,8 @@ export async function GET(request: Request) {
       consents: acceptedDocuments,
       reports,
       game: { packReserve, openings, collection, coins: { balance: coins, ledger }, achievements: obtained },
+      social: { friends, trades },
+      notifications,
     },
     null,
     2,

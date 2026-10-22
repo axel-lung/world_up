@@ -1,6 +1,7 @@
 import type { PgBoss, WorkHandler } from 'pg-boss';
 import { queues } from '@/lib/queues';
 import { createRetentionJob } from './account-retention';
+import { createMarketJob } from './settle-market';
 import { createEmailJob } from './send-email';
 
 export interface JobDefinition {
@@ -17,5 +18,6 @@ export function createJobs(boss: PgBoss): JobDefinition[] {
     createRetentionJob(async (job) => {
       await boss.send(queues.email.name, job);
     }),
+    createMarketJob(),
   ];
 }

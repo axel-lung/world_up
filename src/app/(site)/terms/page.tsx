@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { connection } from 'next/server';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { LegalPage, legalTags } from '@/components/legal/LegalPage';
-import { TERMS_VERSION } from '@/lib/account-rules';
+import { TERMS_VERSION, termsDate } from '@/lib/account-rules';
 import { getPublisher } from '@/lib/publisher';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,6 +16,7 @@ const SECTIONS = [
   'access',
   'game',
   'items',
+  'trades',
   'forbidden',
   'sanctions',
   'end',
@@ -37,7 +38,7 @@ export default async function TermsPage() {
     publisher: publisher.name ?? t('missing'),
     email: publisher.email ?? t('missing'),
   };
-  const date = format.dateTime(new Date(`${TERMS_VERSION}T12:00:00Z`), { dateStyle: 'long', timeZone: 'Europe/Paris' });
+  const date = format.dateTime(new Date(`${termsDate(TERMS_VERSION)}T12:00:00Z`), { dateStyle: 'long', timeZone: 'Europe/Paris' });
   return (
     <LegalPage
       title={t('title')}

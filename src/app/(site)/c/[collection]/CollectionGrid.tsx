@@ -24,21 +24,36 @@ export interface GridFilters {
   page: number;
 }
 
+export interface GridLabels {
+  tabs: Partial<Record<CollectionTab, string>>;
+  empty: Partial<Record<CollectionTab, string>>;
+}
+
 /**
- * The collection's tabs, filters and card grid, for the collection page and a
- * series page. Links keep the filters in the address, so every view can be
- * bookmarked and works without JavaScript.
+ * The collection's tabs, filters and card grid, for the collection page, a
+ * series page and a friend's collection. Links keep the filters in the
+ * address, so every view can be bookmarked and works without JavaScript.
  */
 export async function CollectionGrid({
   collection,
   userId,
+  viewerId,
+  tabs = COLLECTION_TABS,
+  labels,
   filters,
   path,
   series,
   seriesOptions,
 }: {
   collection: { id: number; slug: string; name: string; emblem: Emblem };
+  /** Whose cards: the player's own, or a friend's. */
   userId: string;
+  /** On a friend's collection, the player looking at it: no resale, a "you lack" tab. */
+  viewerId?: string;
+  /** The tabs shown, the first one being the default. */
+  tabs?: readonly CollectionTab[];
+  /** Tab names and empty-tab texts, when they aren't the player's own collection's. */
+  labels?: GridLabels;
   filters: GridFilters;
   /** The page's address, without its query. */
   path: string;
@@ -47,7 +62,7 @@ export async function CollectionGrid({
   /** The collection page's series filter. */
   seriesOptions?: { slug: string; name: string }[];
 }) {
-  const query = { userId, collectionId: collection.id, rarity: filters.rarity, seriesId: series?.id ?? null };
+  const query = { userId, viewerId, collectionId: collection.id, rarity: filters.rarity, seriesId: series?.id ?? null };
   const [t, tRarity, tCard, format, counts, rows] = await Promise.all([
     getTranslations('Collection'),
     getTranslations('Rarity'),
@@ -60,14 +75,19 @@ export async function CollectionGrid({
     publicDomain: tCard('publicDomain'),
     unknownLicense: tCard('unknownLicense'),
   });
-  const duplicates = filters.tab === 'duplicates' && !filters.rarity && !series ? await duplicatesValue(userId, collection.id) : null;
+  const text: GridLabels = labels ?? {
+    tabs: Object.fromEntries(COLLECTION_TABS.map((tab) => [tab, t(`tabs.${tab}`)])),
+    empty: Object.fromEntries(COLLECTION_TABS.map((tab) => [tab, t(`empty.${tab}`)])),
+  };
+  const resale = !viewerId && filters.tab === 'duplicates' && !filters.rarity && !series;
+  const duplicates = resale ? await duplicatesValue(userId, collection.id, new Date()) : null;
   const total = counts[filters.tab];
   const pages = Math.max(1, Math.ceil(total / COLLECTION_PAGE_SIZE));
 
   const link = (changes: Partial<GridFilters>) => {
     const next = { ...filters, page: 1, ...changes };
     const params = new URLSearchParams();
-    if (next.tab !== 'all') params.set('tab', next.tab);
+    if (next.tab !== tabs[0]) params.set('tab', next.tab);
     if (next.rarity) params.set('rarity', next.rarity);
     if (seriesOptions && series) params.set('series', series.slug);
     if (next.page > 1) params.set('page', String(next.page));
@@ -78,7 +98,7 @@ export async function CollectionGrid({
   return (
     <>
       <form method="get" action={path} className={styles.filters}>
-        {filters.tab !== 'all' && <input type="hidden" name="tab" value={filters.tab} />}
+        {filters.tab !== tabs[0] && <input type="hidden" name="tab" value={filters.tab} />}
         <div className="field">
           <label htmlFor="rarity">{t('rarity')}</label>
           <select id="rarity" name="rarity" className="input" defaultValue={filters.rarity ?? ''}>
@@ -108,10 +128,10 @@ export async function CollectionGrid({
 
       <nav className={styles.tabs} aria-label={t('tabsLabel')}>
         <ul>
-          {COLLECTION_TABS.map((tab) => (
+          {tabs.map((tab) => (
             <li key={tab}>
               <Link href={link({ tab })} className={styles.tab} aria-current={tab === filters.tab ? 'page' : undefined}>
-                {t(`tabs.${tab}`)}
+                {text.tabs[tab]}
                 <span className={styles.tabCount}>{format.number(counts[tab])}</span>
               </Link>
             </li>
@@ -133,7 +153,7 @@ export async function CollectionGrid({
       )}
 
       {cards.length === 0 ? (
-        <p className={styles.empty}>{t(`empty.${filters.tab}`)}</p>
+        <p className={styles.empty}>{text.empty[filters.tab]}</p>
       ) : (
         <ul className={styles.grid}>
           {cards.map((card) => (

@@ -24,9 +24,12 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import type { CSSProperties, ReactNode } from 'react';
 import { Card, type CardCollection } from '@/components/card/Card';
+import { NotificationBell } from '@/components/layout/NotificationBell';
 import { PackReserve, PackReserveCompact } from '@/components/pack/PackReserve';
 import { RarityBadge } from '@/components/rarity/Rarity';
 import { PackPurchasePanel, PurchaseConfirmation } from '@/components/shop/PackPurchase';
+import { FriendList, FriendRow } from '@/components/social/FriendRow';
+import { TradeSummary } from '@/components/trade/TradeSummary';
 import { Button } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
 import { Tag } from '@/components/ui/Tag';
@@ -403,6 +406,46 @@ export default function DesignPage() {
                     <span className={styles.muted}>Version compacte, pour l&apos;en-tête.</span>
                   </div>
                 </div>
+              </div>
+
+              <div className={styles.group}>
+                <h3>Amis et activité</h3>
+                <FriendList label="Exemples d'amis">
+                  <FriendRow pseudo="Margaux" meta="Amis depuis le 3 octobre 2026">
+                    <Button>Voir sa collection</Button>
+                    <Button variant="ghost">Retirer</Button>
+                  </FriendRow>
+                  <FriendRow pseudo="élodie_b" meta="Demande du 21 octobre 2026">
+                    <Button variant="primary">Accepter</Button>
+                    <Button variant="ghost">Refuser</Button>
+                  </FriendRow>
+                </FriendList>
+                <div className={styles.row}>
+                  <NotificationBell unread={0} label="Activité" href="#" />
+                  <NotificationBell unread={3} label="Activité, 3 non lues" href="#" />
+                  <NotificationBell unread={120} label="Activité, 120 non lues" href="#" />
+                  <span className={styles.muted}>La cloche de l&apos;en-tête, sans puis avec des notifications.</span>
+                </div>
+                <TradeSummary
+                  title="Offre de Margaux"
+                  state={
+                    <Tag variant="warning" icon={<Hourglass aria-hidden />}>
+                      En attente
+                    </Tag>
+                  }
+                  meta="Expire le 24 oct. 2026, 19:30"
+                  gives={[
+                    { name: 'Château de Chambord', rarity: 'ultra', rarityLabel: 'Ultra rare', quantity: 1 },
+                    { name: 'Pont du Gard', rarity: 'rare', rarityLabel: 'Rare', quantity: 2 },
+                  ]}
+                  gets={[{ name: 'Mont-Saint-Michel', rarity: 'legendary', rarityLabel: 'Légendaire', quantity: 1 }]}
+                  labels={{ youGive: 'Vous donnez', youGet: 'Vous recevez' }}
+                >
+                  <Button variant="primary" icon={<ArrowLeftRight aria-hidden />}>
+                    Accepter l&apos;échange
+                  </Button>
+                  <Button variant="ghost">Refuser</Button>
+                </TradeSummary>
               </div>
 
               <div className={styles.group}>

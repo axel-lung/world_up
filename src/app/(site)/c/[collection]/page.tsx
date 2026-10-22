@@ -42,7 +42,7 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
     seriesProgress(user.id, collection.id),
     listAchievements(user.id, collection.id),
     coinBalance(db, user.id),
-    duplicatesValue(user.id, collection.id),
+    duplicatesValue(user.id, collection.id, now),
   ]);
   const number = (value: number) => format.number(value);
   const percent = (owned: number, total: number) =>

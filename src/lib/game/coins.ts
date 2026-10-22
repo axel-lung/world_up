@@ -2,11 +2,13 @@ import { and, desc, eq, gt, isNull, like, sql } from 'drizzle-orm';
 import { type Database, db, type Transaction } from '@/db';
 import { cards, coinLedger, userCards } from '@/db/schema';
 import { GameError } from './game-error';
+import { heldCoins, reservedCopies } from './holds';
 import { getResaleValues } from './rules';
 
 // Virtual currency. coin_ledger is append-only and the balance is the sum of a
 // player's entries. Coins are earned only by reselling duplicates and from
-// achievements: nothing buys them, and they never leave the game.
+// achievements, and change hands only at auctions: nothing buys them, and they
+// never leave the game.
 
 type Executor = Database | Transaction;
 
@@ -16,6 +18,11 @@ export async function coinBalance(executor: Executor, userId: string): Promise<n
     .from(coinLedger)
     .where(eq(coinLedger.userId, userId));
   return balance;
+}
+
+/** The balance, less the coins held by the player's leading bids: what they can still bid. */
+export async function availableCoins(executor: Executor, userId: string): Promise<number> {
+  return (await coinBalance(executor, userId)) - (await heldCoins(executor, userId));
 }
 
 export interface LedgerEntry {
@@ -61,10 +68,14 @@ export interface Resale {
   repeated: boolean;
 }
 
+/** Copies of a card the player may resell: one is always kept, and the reserved ones too. */
+const resellable = (quantity: number, reserved: number) => quantity - Math.max(1, reserved);
+
 /**
  * Resells duplicates for coins: one copy of `cardId`, or every copy beyond the
  * first of every card when `cardId` is omitted. The player always keeps one
- * copy. A request sent twice with the same key credits once.
+ * copy, and never sells a copy promised in a trade or an auction. A request
+ * sent twice with the same key credits once.
  */
 export async function resellDuplicates(
   database: Database,
@@ -107,13 +118,18 @@ export async function resellDuplicates(
         repeated: true,
       };
     }
-    if (duplicates.length === 0) throw new GameError('noDuplicate');
+    // Read under the locks above: an offer or an auction takes the same ones
+    const reserved = await reservedCopies(tx, userId, now, duplicates.map((duplicate) => duplicate.cardId));
+    const sellable = duplicates
+      .map((duplicate) => ({ ...duplicate, extra: resellable(duplicate.quantity, reserved.get(duplicate.cardId) ?? 0) }))
+      .filter((duplicate) => duplicate.extra > 0);
+    if (sellable.length === 0) throw new GameError('noDuplicate');
 
     const values = await getResaleValues(tx, collectionId);
     let copies = 0;
     let coins = 0;
-    for (const duplicate of duplicates) {
-      const sold = cardId === undefined ? duplicate.quantity - 1 : 1;
+    for (const duplicate of sellable) {
+      const sold = cardId === undefined ? duplicate.extra : 1;
       const amount = sold * values[duplicate.rarity];
       await tx
         .update(userCards)
@@ -136,25 +152,35 @@ export async function resellDuplicates(
 }
 
 /** What reselling every duplicate would bring: shown before the player confirms. */
-export async function duplicatesValue(userId: string, collectionId: number): Promise<{ copies: number; coins: number }> {
-  const values = await getResaleValues(db, collectionId);
-  const rows = await db
-    .select({ rarity: cards.rarity, copies: sql<number>`sum(${userCards.quantity} - 1)::int` })
-    .from(userCards)
-    .innerJoin(cards, eq(cards.id, userCards.cardId))
-    .where(
-      and(
-        eq(userCards.userId, userId),
-        eq(userCards.collectionId, collectionId),
-        gt(userCards.quantity, 1),
-        isNull(cards.hiddenReason),
+export async function duplicatesValue(
+  userId: string,
+  collectionId: number,
+  now: Date,
+): Promise<{ copies: number; coins: number }> {
+  const [values, rows, reserved] = await Promise.all([
+    getResaleValues(db, collectionId),
+    db
+      .select({ cardId: userCards.cardId, rarity: cards.rarity, quantity: userCards.quantity })
+      .from(userCards)
+      .innerJoin(cards, eq(cards.id, userCards.cardId))
+      .where(
+        and(
+          eq(userCards.userId, userId),
+          eq(userCards.collectionId, collectionId),
+          gt(userCards.quantity, 1),
+          isNull(cards.hiddenReason),
+        ),
       ),
-    )
-    .groupBy(cards.rarity);
-  return {
-    copies: rows.reduce((sum, row) => sum + row.copies, 0),
-    coins: rows.reduce((sum, row) => sum + row.copies * values[row.rarity], 0),
-  };
+    reservedCopies(db, userId, now),
+  ]);
+  let copies = 0;
+  let coins = 0;
+  for (const row of rows) {
+    const extra = Math.max(0, resellable(row.quantity, reserved.get(row.cardId) ?? 0));
+    copies += extra;
+    coins += extra * values[row.rarity];
+  }
+  return { copies, coins };
 }
 
 /** The player's ledger, newest first, for the account export. */

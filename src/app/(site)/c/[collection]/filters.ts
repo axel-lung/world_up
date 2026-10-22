@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { COLLECTION_TABS } from '@/lib/game/collection';
+import { COLLECTION_TABS, type CollectionTab } from '@/lib/game/collection';
 import { RARITIES } from '@/lib/rarity';
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -8,15 +8,18 @@ const one = (value: string | string[] | undefined) => (Array.isArray(value) ? va
 
 // Unknown or malformed parameters fall back to their default
 const gridSchema = z.object({
-  tab: z.enum(COLLECTION_TABS).catch('all'),
   rarity: z.enum(RARITIES).nullable().catch(null),
   series: z.string().max(100).nullable().catch(null),
   page: z.coerce.number().int().min(1).max(10_000).catch(1),
 });
 
-export function parseGridParams(params: SearchParams) {
-  return gridSchema.parse({
-    tab: one(params.tab) ?? 'all',
+/** The grid's filters; `tabs` are the page's tabs, the first one being the default. */
+export function parseGridParams(
+  params: SearchParams,
+  tabs: readonly [CollectionTab, ...CollectionTab[]] = COLLECTION_TABS,
+) {
+  return gridSchema.extend({ tab: z.enum(tabs).catch(tabs[0]) }).parse({
+    tab: one(params.tab) ?? tabs[0],
     rarity: one(params.rarity) || null,
     series: one(params.series) || null,
     page: one(params.page) ?? 1,
