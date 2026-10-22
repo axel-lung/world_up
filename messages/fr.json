@@ -1,11 +1,11 @@
 {
   "Metadata": {
-    "title": "Patrimoine de France",
+    "title": "World Up",
     "description": "Ouvrez des paquets et collectionnez les monuments du patrimoine français.",
-    "creditsDescription": "D'où viennent les monuments, les textes et les photos des cartes de Patrimoine de France, et sous quelles licences."
+    "creditsDescription": "D'où viennent les monuments, les textes et les photos des cartes de World Up, et sous quelles licences."
   },
   "HomePage": {
-    "title": "Patrimoine de France",
+    "title": "World Up",
     "intro": "Ouvrez des paquets de cartes et collectionnez les monuments protégés de France : châteaux, cathédrales, phares, grottes ornées…",
     "learnMore": "Tout est expliqué dans les <rules>règles du jeu</rules>, et les chances de chaque rareté sur la page des <odds>probabilités</odds>.",
     "signup": "Créer un compte",
@@ -14,7 +14,7 @@
     "deleted": "Votre compte et ses données ont été supprimés."
   },
   "Auth": {
-    "home": "Patrimoine de France",
+    "home": "World Up",
     "signup": {
       "title": "Créer un compte",
       "intro": "Ouvrez vos premiers paquets dès que votre adresse e-mail est confirmée.",
@@ -43,7 +43,7 @@
       "signup": "Créer un compte",
       "notVerified": "Votre adresse e-mail n'est pas encore confirmée. Nous venons de vous renvoyer un lien de confirmation, valable 24 heures.",
       "codeTitle": "Code de vérification",
-      "codeIntro": "Ouvrez votre application d'authentification et saisissez le code à 6 chiffres de Patrimoine de France.",
+      "codeIntro": "Ouvrez votre application d'authentification et saisissez le code à 6 chiffres de World Up.",
       "code": "Code à 6 chiffres",
       "backupIntro": "Saisissez l'un des codes de secours obtenus à l'activation. Chaque code ne sert qu'une fois.",
       "backupCode": "Code de secours",
@@ -134,23 +134,23 @@
     }
   },
   "Email": {
-    "signature": "L'équipe Patrimoine de France",
+    "signature": "L'équipe World Up",
     "linkFallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
     "verifyEmail": {
       "subject": "Confirmez votre adresse e-mail",
-      "intro": "Bienvenue dans Patrimoine de France ! Confirmez votre adresse e-mail pour activer votre compte.",
+      "intro": "Bienvenue dans World Up ! Confirmez votre adresse e-mail pour activer votre compte.",
       "action": "Confirmer mon adresse",
       "note": "Ce lien est valable 24 heures. Si vous n'avez pas créé de compte, ignorez cet e-mail."
     },
     "resetPassword": {
       "subject": "Choisissez un nouveau mot de passe",
-      "intro": "Vous avez demandé à changer le mot de passe de votre compte Patrimoine de France.",
+      "intro": "Vous avez demandé à changer le mot de passe de votre compte World Up.",
       "action": "Choisir un nouveau mot de passe",
       "note": "Ce lien est valable 1 heure. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail : votre mot de passe ne change pas."
     },
     "existingAccount": {
       "subject": "Votre adresse a servi à une inscription",
-      "intro": "Quelqu'un a tenté de créer un compte Patrimoine de France avec votre adresse e-mail, qui en a déjà un.",
+      "intro": "Quelqu'un a tenté de créer un compte World Up avec votre adresse e-mail, qui en a déjà un.",
       "action": "Me connecter",
       "note": "Si c'était vous, connectez-vous avec votre compte existant : la page de connexion permet de choisir un nouveau mot de passe en cas d'oubli. Sinon, ignorez cet e-mail."
     }
@@ -170,11 +170,10 @@
     },
     "unesco": "UNESCO",
     "shiny": "Brillante",
-    "shinySuffix": "· Brillante",
-    "toDiscover": "Monument à découvrir",
+    "toDiscover": "À découvrir…",
     "photoCredit": "Crédit photo",
     "photoOverlay": "Photo : {author} · {license} · <link>Commons</link>",
-    "photoCaption": "Photo : {author} · {license} · <link>Wikimedia Commons</link>",
+    "photoCaption": "<hidden>Photo : </hidden>{author} · {license} · <link>Commons</link>",
     "unknownAuthor": "auteur non renseigné",
     "readArticle": "Lire l'article sur Wikipédia",
     "textLicense": "Texte : Wikipédia, licence CC BY-SA 4.0",
@@ -185,6 +184,7 @@
     "copiesBadge": "{count} exemplaires",
     "new": "Nouveau",
     "selected": "Sélectionnée",
+    "collectionEmblem": "Collection {collection}",
     "ariaMasked": "Carte manquante, {rarity}",
     "ariaMissing": "manquante",
     "ariaShiny": "brillante",
@@ -238,19 +238,18 @@
     "resellOne": "Revendre un doublon pour {coins, plural, one {# pièce} other {# pièces}}"
   },
   "Pack": {
-    "packs": "{count, plural, one {paquet} other {paquets}}",
-    "packsInReserve": "paquets en réserve",
-    "next": "Prochain",
+    "reserve": "{count, plural, one {# paquet} other {# paquets}} en réserve sur {max}",
     "nextPack": "Prochain paquet",
-    "running": "En cours : un paquet toutes les {minutes} minutes.",
+    "running": "Un paquet toutes les {minutes} minutes, {max} en réserve au plus.",
     "full": "Réserve pleine",
+    "paused": "En pause",
     "fullHint": "Le minuteur reprend à la prochaine ouverture.",
-    "emptyHint": "Réserve vide : on attend, ou on passe par la <shop>boutique</shop>.",
+    "emptyHint": "Réserve vide : on attend, ou on passe par la <shop>boutique</shop>.",
+    "emptyHintNoShop": "Réserve vide : le prochain paquet arrive avec le minuteur.",
     "compact": "{count, plural, one {# paquet} other {# paquets}} en réserve",
     "compactNext": "prochain dans {time}",
     "open": "Ouvrir un paquet",
-    "none": "Aucun paquet",
-    "emptyHintNoShop": "Réserve vide : le prochain paquet arrive avec le minuteur."
+    "none": "Aucun paquet"
   },
   "Purchase": {
     "packTitle": "Acheter un paquet",
@@ -509,7 +508,7 @@
   },
   "Credits": {
     "title": "Sources et crédits",
-    "intro": "Les cartes de Patrimoine de France sont faites à partir de données ouvertes. Chaque carte crédite le texte et la photo qu'elle reprend.",
+    "intro": "Les cartes de World Up sont faites à partir de données ouvertes. Chaque carte crédite le texte et la photo qu'elle reprend.",
     "monumentsTitle": "Les monuments",
     "monuments": "La liste des monuments, leur protection (classé ou inscrit au titre des monuments historiques, patrimoine mondial de l'UNESCO) et leur localisation viennent de <link>Wikidata</link>, publié dans le domaine public (CC0). Chaque monument retenu a un identifiant de la base Mérimée du ministère de la Culture.",
     "textsTitle": "Les textes",
@@ -520,13 +519,13 @@
     "rarity": "La rareté d'une carte reflète la notoriété du monument : elle vient du nombre de visites de son article sur Wikipédia pendant douze mois, d'après les données « clickstream » publiées par la Wikimedia Foundation.",
     "reportTitle": "Une erreur ?",
     "report": "Un crédit manque, une photo ne convient pas, un texte est faux : connectez-vous et utilisez « Signaler un problème » sur la fiche de la carte.",
-    "notAffiliated": "Patrimoine de France n'est ni affilié à la Wikimedia Foundation ni soutenu par elle. Wikipédia, Wikidata et Wikimedia Commons sont des marques de la Wikimedia Foundation.",
-    "home": "Patrimoine de France"
+    "notAffiliated": "World Up n'est ni affilié à la Wikimedia Foundation ni soutenu par elle. Wikipédia, Wikidata et Wikimedia Commons sont des marques de la Wikimedia Foundation.",
+    "home": "World Up"
   },
   "Nav": {
     "label": "Navigation principale",
     "skip": "Aller au contenu",
-    "brand": "Patrimoine de France",
+    "brand": "World Up",
     "home": "Accueil",
     "open": "Ouvrir",
     "collection": "Collection",
@@ -585,6 +584,7 @@
     "seeCollection": "Voir ma collection",
     "resultHeading": "Votre paquet {collection}",
     "skip": "Passer l'animation",
+    "packKicker": "Collection",
     "summary": "{count, plural, one {# carte} other {# cartes}}, dont {new, plural, =0 {aucune nouvelle} one {# nouvelle} other {# nouvelles}}.",
     "unlocked": "Succès obtenu : {title} · +{coins, plural, one {# pièce} other {# pièces}}"
   },
@@ -627,7 +627,7 @@
   },
   "Leaderboard": {
     "title": "Classement",
-    "description": "Les collectionneurs de Patrimoine de France, classés par nombre de cartes différentes.",
+    "description": "Les collectionneurs de World Up, classés par nombre de cartes différentes.",
     "rule": "{collection} : classement par nombre de cartes différentes. À égalité, le plus de Légendaires passe devant, puis le plus d'Ultra rares, et ainsi de suite.",
     "caption": "Les {count} premiers joueurs",
     "rank": "Rang",
@@ -661,7 +661,7 @@
   },
   "Rules": {
     "title": "Règles du jeu",
-    "description": "Paquets, collection, pièces et succès : les règles de Patrimoine de France.",
+    "description": "Paquets, collection, pièces et succès : les règles de World Up.",
     "intro": "Collectionnez les monuments protégés de France en ouvrant des paquets de cartes {collection}. Les chiffres de cette page sont ceux qu'applique le jeu.",
     "packsHeading": "Les paquets",
     "packsStart": "À votre arrivée, {packs} paquets vous attendent. Chaque paquet contient {cards} cartes.",

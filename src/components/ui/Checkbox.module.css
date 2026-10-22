@@ -6,7 +6,7 @@
   min-height: 44px;
   padding: 4px 0;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 1.45;
 }
 
@@ -19,18 +19,18 @@
 
 .box {
   flex: none;
-  width: 20px;
-  height: 20px;
-  margin-top: 1px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
-  border-radius: 4px;
-  border: 1.5px solid var(--color-text-muted);
+  border-radius: 7px;
+  border: 2px solid var(--color-text-muted);
   color: var(--color-on-accent);
-  font-size: 14px;
 }
 
 .tick {
+  width: 14px;
+  height: 14px;
   visibility: hidden;
 }
 

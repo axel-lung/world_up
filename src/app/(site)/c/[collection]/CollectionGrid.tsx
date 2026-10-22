@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { CoinsIcon } from '@phosphor-icons/react/ssr';
+import { Coins } from 'lucide-react';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { Card } from '@/components/card/Card';
 import { Button } from '@/components/ui/Button';
+import type { Emblem } from '@/lib/collection-theme';
 import { duplicatesValue } from '@/lib/game/coins';
 import {
   COLLECTION_PAGE_SIZE,
@@ -36,7 +37,7 @@ export async function CollectionGrid({
   series,
   seriesOptions,
 }: {
-  collection: { id: number; slug: string };
+  collection: { id: number; slug: string; name: string; emblem: Emblem };
   userId: string;
   filters: GridFilters;
   /** The page's address, without its query. */
@@ -124,7 +125,7 @@ export async function CollectionGrid({
           {/* A new key each time the page renders: sending the form twice sells once */}
           <input type="hidden" name="key" value={randomUUID()} />
           <input type="hidden" name="back" value={link({})} />
-          <Button type="submit" variant="primary" icon={<CoinsIcon size={18} aria-hidden />}>
+          <Button type="submit" variant="primary" icon={<Coins aria-hidden />}>
             {t('resellAll', { copies: duplicates.copies, coins: duplicates.coins })}
           </Button>
           <span className={styles.muted}>{t('resellHint')}</span>
@@ -139,6 +140,7 @@ export async function CollectionGrid({
             <li key={card.id}>
               <Card
                 card={card.data}
+                collection={collection}
                 state={card.state}
                 copies={card.copies}
                 href={card.href ?? undefined}

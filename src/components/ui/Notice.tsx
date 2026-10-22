@@ -1,8 +1,8 @@
-import { CheckCircleIcon, InfoIcon, WarningCircleIcon } from '@phosphor-icons/react/ssr';
+import { CircleAlert, CircleCheck, Info } from 'lucide-react';
 import type { ReactNode } from 'react';
 import styles from './Notice.module.css';
 
-const ICONS = { info: InfoIcon, success: CheckCircleIcon, danger: WarningCircleIcon };
+const ICONS = { info: Info, success: CircleCheck, danger: CircleAlert };
 
 /**
  * A message above or below a form. Errors are announced as soon as they
@@ -12,7 +12,7 @@ export function Notice({ tone = 'info', children }: { tone?: keyof typeof ICONS;
   const Icon = ICONS[tone];
   return (
     <div className={styles.notice} data-tone={tone} role={tone === 'danger' ? 'alert' : 'status'}>
-      <Icon size={20} aria-hidden className={styles.icon} />
+      <Icon aria-hidden className={styles.icon} />
       <div className={styles.body}>{children}</div>
     </div>
   );

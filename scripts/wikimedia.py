@@ -16,7 +16,7 @@ def user_agent():
     if "@" not in value and "https://" not in value:
         raise SystemExit(
             'Set WIKIMEDIA_USER_AGENT with a contact, an e-mail address or a URL, for example '
-            '"PatrimoineDeFrance/1.0 (https://github.com/axel-lung/world_up)".'
+            '"WorldUp/1.0 (https://github.com/axel-lung/world_up)".'
         )
     return value
 

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/styles.css">
+  <script src="_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/_ds_bundle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide-static@0.469.0/font/lucide.css">
+  <style>
+    body { margin: 0; background: var(--color-bg); }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    a { color: var(--color-accent-strong, #8c491a); }
+    a:hover { color: var(--color-accent); }
+    [class^="icon-"]::before, [class*=" icon-"]::before { -webkit-text-stroke: 0.045em currentColor; }
+  </style>
+</helmet>
+<div style="{{ pageVars }}">
+<div style="min-height:100vh; background:var(--color-bg); color:var(--color-text); font-family:var(--font-body); overflow-x:hidden">
+<div style="max-width:1440px; margin:0 auto; padding:0 48px 120px; display:flex; flex-direction:column; gap:96px">
+
+  <nav class="nav" style="position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:6px; margin:0 -48px; padding:12px 48px; background:color-mix(in srgb, var(--color-bg) 92%, transparent); backdrop-filter:blur(10px)">
+    <span class="nav-brand" style="display:flex; align-items:center; gap:10px; font-size:22px">World Up <span class="tag tag-neutral" style="font-family:var(--font-body); font-size:11px">nom provisoire</span></span>
+    <a href="#couleurs" style="min-height:44px; display:flex; align-items:center; padding:0 14px; border-radius:999px; font-weight:600" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">Couleurs</a>
+    <a href="#raretes" style="min-height:44px; display:flex; align-items:center; padding:0 14px; border-radius:999px; font-weight:600" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">Raretés</a>
+    <a href="#typographie" style="min-height:44px; display:flex; align-items:center; padding:0 14px; border-radius:999px; font-weight:600" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">Typographie</a>
+    <a href="#formes" style="min-height:44px; display:flex; align-items:center; padding:0 14px; border-radius:999px; font-weight:600" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">Formes</a>
+    <a href="#composants" style="min-height:44px; display:flex; align-items:center; padding:0 14px; border-radius:999px; font-weight:600" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">Composants</a>
+    <a href="#carte" style="min-height:44px; display:flex; align-items:center; padding:0 14px; border-radius:999px; font-weight:600" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">La carte</a>
+  </nav>
+
+  <header data-screen-label="Introduction" style="position:relative; display:flex; flex-direction:column; gap:18px; max-width:820px; padding-top:40px">
+    <span aria-hidden="true" style="position:absolute; top:-10px; right:-420px; width:360px; height:360px; border-radius:50%; background:var(--color-accent-tint)"></span>
+    <span aria-hidden="true" style="position:absolute; top:190px; right:-250px; width:150px; height:150px; border-radius:50%; background:var(--color-sage-tint)"></span>
+    <span aria-hidden="true" style="position:absolute; top:40px; right:-190px; font-size:44px; color:var(--color-accent)"><i class="icon-sparkle"></i></span>
+    <span class="tag tag-accent" style="position:relative; align-self:flex-start; gap:6px; font-weight:600"><i class="icon-landmark"></i>Patrimoine de France · charte v2</span>
+    <h1 style="position:relative; margin:0; font-size:64px; line-height:1.02">Le design system,<br>version ludique</h1>
+    <p style="position:relative; margin:0; font-size:18px; line-height:1.55; color:var(--color-text-muted); text-wrap:pretty">Le socle Organic (crème, terracotta, sauge, Caprasimo et Figtree), avec un ton plus joueur&nbsp;: les cartes sont traitées comme des autocollants, avec un contour encré, une ombre portée nette et des étiquettes légèrement penchées. Thème clair par défaut, thème sombre conservé.</p>
+  </header>
+
+  <section id="couleurs" data-screen-label="01 Couleurs" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; align-items:flex-start; gap:18px; max-width:820px">
+      <span style="flex:none; width:52px; height:52px; display:grid; place-items:center; border-radius:50%; background:var(--color-accent); color:var(--color-on-accent); font-family:var(--font-heading); font-size:20px">1</span>
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <h2 style="margin:0; font-size:36px">Couleurs</h2>
+        <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Le texte courant atteint 4,5:1 sur le fond dans les deux thèmes. La terracotta sert aux aplats, aux icônes et au gros texte&#8239;; en texte courant, on prend <code style="font-family:ui-monospace, monospace">--color-accent-strong</code>. La sauge est une vraie deuxième voix&nbsp;: succès, sélection, UNESCO, échanges.</p>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table" style="min-width:760px">
+        <thead><tr><th>Token</th><th>Rôle</th><th>Clair</th><th>Sombre</th></tr></thead>
+        <tbody>
+          <sc-for list="{{ tokens }}" as="tk" hint-placeholder-count="14">
+            <tr>
+              <td><code style="font-family:ui-monospace, monospace; font-size:13px">{{ tk.k }}</code></td>
+              <td>{{ tk.r }}</td>
+              <td><span style="display:inline-flex; align-items:center; gap:10px"><span style="width:22px; height:22px; border-radius:50%; background:{{ tk.l }}; box-shadow:inset 0 0 0 1.5px rgba(32,30,29,0.2)"></span>{{ tk.l }}</span></td>
+              <td><span style="display:inline-flex; align-items:center; gap:10px"><span style="width:22px; height:22px; border-radius:50%; background:{{ tk.d }}; box-shadow:inset 0 0 0 1.5px rgba(32,30,29,0.2)"></span>{{ tk.d }}</span></td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:32px; align-items:center; padding:28px; border-radius:var(--radius-lg); background:var(--color-surface)">
+      <div style="flex:none; position:relative; width:200px; height:140px; border-radius:24px; background:#c67139; border:2px solid #201e1d; box-shadow:0 5px 0 #201e1d; display:flex; flex-direction:column; justify-content:flex-end; padding:16px 18px; color:#201e1d">
+        <span style="position:absolute; top:14px; right:14px; width:38px; height:38px; display:grid; place-items:center; border-radius:50%; background:#f9f4ed; border:2px solid #201e1d; font-size:20px"><i class="icon-landmark"></i></span>
+        <span style="font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase">Collection</span>
+        <span style="font-family:var(--font-heading); font-size:24px; line-height:1">Patrimoine<br>de France</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; flex:1; min-width:280px">
+        <h3 style="margin:0; font-size:24px">Habillage «&nbsp;Patrimoine de France&nbsp;»</h3>
+        <p style="margin:0; font-size:15px; color:var(--color-text-muted); max-width:620px; text-wrap:pretty">Chaque collection a sa couleur et son emblème. Pour celle-ci&nbsp;: la terracotta et une icône de monument, sur le paquet et en pied de carte. La carte reste un objet crème encré, identique dans les deux thèmes.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:20px">
+          <sc-for list="{{ skinSw }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex; align-items:center; gap:10px"><span style="width:32px; height:32px; border-radius:50%; background:{{ s.c }}; border:2px solid #201e1d"></span><span style="display:flex; flex-direction:column; font-size:12px; line-height:1.35"><code style="font-family:ui-monospace, monospace">{{ s.k }}</code><span style="color:var(--color-text-muted)">{{ s.n }}</span></span></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="raretes" data-screen-label="02 Raretés" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; align-items:flex-start; gap:18px; max-width:820px">
+      <span style="flex:none; width:52px; height:52px; display:grid; place-items:center; border-radius:50%; background:var(--color-sage); color:var(--color-on-accent); font-family:var(--font-heading); font-size:20px">2</span>
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <h2 style="margin:0; font-size:36px">Raretés</h2>
+        <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Nouvelle palette, chaude et douce, commune à toutes les collections. La rareté ne passe jamais par la seule couleur&nbsp;: l'étiquette porte son nom et de 1 à 6 pastilles. L'encre #201e1d dépasse 4,5:1 sur les six teintes.</p>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table" style="min-width:760px">
+        <thead><tr><th>Étiquette</th><th>Part du catalogue</th><th>Cartes</th><th>Aplat</th><th>Trait (manquantes, thème clair)</th></tr></thead>
+        <tbody>
+          <sc-for list="{{ rarities }}" as="r" hint-placeholder-count="6">
+            <tr>
+              <td style="padding-block:14px"><span style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; background:{{ r.c }}; border:2px solid #201e1d; box-shadow:0 2px 0 #201e1d; color:#201e1d; font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; transform:rotate(-2deg)">{{ r.label }}<span aria-hidden="true" style="display:flex; gap:3px"><sc-for list="{{ r.pips }}" as="p"><span style="width:6px; height:6px; border-radius:50%; background:#201e1d"></span></sc-for></span></span></td>
+              <td style="font-variant-numeric:tabular-nums">{{ r.part }}</td>
+              <td style="font-variant-numeric:tabular-nums">{{ r.n }}</td>
+              <td>{{ r.c }}</td>
+              <td><span style="display:inline-flex; padding:3px 10px; border-radius:999px; border:2px dashed {{ r.line }}; color:{{ r.line }}; background:#efe4d0; font-weight:600">{{ r.line }}</span></td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="typographie" data-screen-label="03 Typographie" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; align-items:flex-start; gap:18px; max-width:820px">
+      <span style="flex:none; width:52px; height:52px; display:grid; place-items:center; border-radius:50%; background:var(--color-accent); color:var(--color-on-accent); font-family:var(--font-heading); font-size:20px">3</span>
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <h2 style="margin:0; font-size:36px">Typographie</h2>
+        <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Caprasimo est la seule voix d'affichage&nbsp;: titres, noms de monuments, boutons. Figtree porte tout le reste, avec des chiffres tabulaires pour les compteurs et les prix.</p>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:180px minmax(0, 1fr); gap:22px 32px; align-items:baseline">
+      <span style="font-size:12px; color:var(--color-text-muted)">Affichage · Caprasimo 64</span><span style="font-family:var(--font-heading); font-size:64px; line-height:1.02">Ouvrez&nbsp;!</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Titre 1 · 42</span><span style="font-family:var(--font-heading); font-size:42px; line-height:1.1">Patrimoine de France</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Titre 2 · 32</span><span style="font-family:var(--font-heading); font-size:32px; line-height:1.12">Mes séries</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Titre 3 · 25</span><span style="font-family:var(--font-heading); font-size:25px; line-height:1.12">Dernières cartes</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Texte · Figtree 15/1,55</span><span style="font-size:15px; line-height:1.55; max-width:640px; text-wrap:pretty">Un paquet gratuit arrive toutes les 10&nbsp;minutes, même quand vous n'êtes pas connecté. La réserve en garde 10 au plus.</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Libellé · Figtree 700</span><span style="font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase">Ultra rare · Nouveau&nbsp;!</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Légende · 12</span><span style="font-size:12px; color:var(--color-text-muted)">Photo&nbsp;: Benh LIEU SONG · domaine public</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Chiffres · tabulaires</span><span style="font-size:26px; font-weight:600; font-variant-numeric:tabular-nums">26&#8239;755 · 04:32 · 1,99&nbsp;€ · 4,8&nbsp;%</span>
+      <span style="font-size:12px; color:var(--color-text-muted)">Nom de carte · Caprasimo</span><span style="font-family:var(--font-heading); font-size:22px; line-height:1.15">Cathédrale Saint-Gervais-et-Saint-Protais de Soissons</span>
+    </div>
+  </section>
+
+  <section id="formes" data-screen-label="04 Formes" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; align-items:flex-start; gap:18px; max-width:820px">
+      <span style="flex:none; width:52px; height:52px; display:grid; place-items:center; border-radius:50%; background:var(--color-sage); color:var(--color-on-accent); font-family:var(--font-heading); font-size:20px">4</span>
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <h2 style="margin:0; font-size:36px">Formes, espaces et relief</h2>
+        <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Tout s'arrondit&nbsp;: conteneurs à 28&nbsp;px, boutons et étiquettes en pilule, ronds partout ailleurs. Le relief «&nbsp;autocollant&nbsp;» (contour de 2&nbsp;px et ombre nette de 4&nbsp;px) est réservé aux objets du jeu&nbsp;: cartes, paquets, étiquettes de rareté. L'interface garde les ombres douces d'Organic.</p>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:48px; align-items:flex-end">
+      <div style="display:flex; align-items:flex-end; gap:20px">
+        <sc-for list="{{ spaces }}" as="sp" hint-placeholder-count="6"><div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:{{ sp.v }}; height:44px; border-radius:999px; background:var(--color-accent)"></span><span style="font-size:12px; color:var(--color-text-muted)">{{ sp.k }}</span></div></sc-for>
+      </div>
+      <div style="display:flex; align-items:flex-end; gap:20px">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:64px; height:64px; border-radius:var(--radius-md); background:var(--color-surface)"></span><span style="font-size:12px; color:var(--color-text-muted)">radius-md · 16</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:64px; height:64px; border-radius:var(--radius-lg); background:var(--color-surface)"></span><span style="font-size:12px; color:var(--color-text-muted)">radius-lg · 28</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:96px; height:44px; border-radius:999px; background:var(--color-surface)"></span><span style="font-size:12px; color:var(--color-text-muted)">pilule</span></div>
+      </div>
+      <div style="display:flex; align-items:flex-end; gap:24px">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:72px; height:72px; border-radius:20px; background:var(--color-surface); box-shadow:var(--shadow-md)"></span><span style="font-size:12px; color:var(--color-text-muted)">Interface · ombre douce</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:72px; height:72px; border-radius:20px; background:#f9f4ed; border:2px solid #201e1d; box-shadow:0 4px 0 var(--sticker-shadow)"></span><span style="font-size:12px; color:var(--color-text-muted)">Objet de jeu · autocollant</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:44px; height:44px; display:grid; place-items:center; border-radius:50%; background:var(--color-accent-tint); color:var(--color-accent-strong); font-size:20px"><i class="icon-pointer"></i></span><span style="font-size:12px; color:var(--color-text-muted)">Zone tactile · 44</span></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px; font-size:28px; color:var(--color-text)">
+      <i class="icon-house"></i><i class="icon-layers"></i><i class="icon-arrow-left-right"></i><i class="icon-store"></i><i class="icon-circle-user"></i><i class="icon-package-open"></i><i class="icon-timer"></i><i class="icon-sparkles"></i><i class="icon-landmark"></i><i class="icon-map-pin"></i>
+      <span style="font-size:13px; color:var(--color-text-muted)">Lucide, trait épaissi</span>
+    </div>
+  </section>
+
+  <section id="composants" data-screen-label="05 Composants" style="display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; align-items:flex-start; gap:18px; max-width:820px">
+      <span style="flex:none; width:52px; height:52px; display:grid; place-items:center; border-radius:50%; background:var(--color-accent); color:var(--color-on-accent); font-family:var(--font-heading); font-size:20px">5</span>
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <h2 style="margin:0; font-size:36px">Composants</h2>
+        <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Le bouton principal est un aplat terracotta en pilule. Les deux colonnes sont interactives&nbsp;: onglets, affichage, case de renonciation.</p>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 600px), 1fr)); gap:24px; align-items:start">
+      <sc-for list="{{ themes }}" as="t" hint-placeholder-count="2">
+        <div style="{{ t.vars }}">
+          <div style="display:flex; flex-direction:column; gap:40px; padding:32px; border-radius:var(--radius-lg); background:var(--color-bg); color:var(--color-text); box-shadow:0 0 0 1.5px var(--color-line)">
+            <span class="tag tag-neutral" style="align-self:flex-start; font-weight:600">{{ t.label }}</span>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:20px">Boutons</h3>
+              <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center">
+                <button type="button" class="btn btn-primary" style="min-height:48px; padding:0 22px; gap:8px; font-size:16px"><i class="icon-package-open" style="font-size:19px"></i>Ouvrir un paquet</button>
+                <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 18px">Voir la collection</button>
+                <button type="button" class="btn btn-ghost" style="min-height:44px; padding:0 12px">Lire les règles</button>
+                <button type="button" class="btn btn-secondary btn-icon" aria-label="Informations" style="width:44px; height:44px; border-radius:50%"><i class="icon-info" style="font-size:19px"></i></button>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center">
+                <button type="button" class="btn btn-primary" disabled="{{ true }}" style="min-height:44px; padding:0 18px; gap:8px"><i class="icon-package" style="font-size:18px"></i>Aucun paquet</button>
+                <button type="button" class="btn" style="min-height:44px; padding:0 18px; background:var(--color-sage); color:var(--color-on-accent)"><i class="icon-arrow-left-right" style="font-size:18px"></i>Proposer l'échange</button>
+                <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 18px; color:var(--color-danger); border-color:var(--color-danger)">Supprimer le compte</button>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:20px">Étiquettes</h3>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center">
+                <span class="tag" style="border:1.5px solid var(--color-line); font-weight:600">Classé MH</span>
+                <span class="tag" style="border:1.5px solid var(--color-line); font-weight:600">Inscrit MH</span>
+                <span class="tag tag-accent-2" style="font-weight:600">UNESCO</span>
+                <span class="tag" style="background:#c67139; border:2px solid #201e1d; color:#201e1d; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; transform:rotate(4deg)">Nouveau&nbsp;!</span>
+                <span style="width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:#201e1d; border:2px solid #f9f4ed; color:#f5ead8; font-size:12px; font-weight:700">×2</span>
+                <span class="tag" style="gap:4px; background:#f9f4ed; border:2px solid #201e1d; color:#201e1d; font-weight:700"><i class="icon-sparkles"></i>Brillante</span>
+                <span class="tag tag-accent" style="gap:5px; font-weight:600"><i class="icon-medal"></i>Abonné</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center">
+                <span class="tag" style="gap:5px; background:var(--color-success-tint); color:var(--color-success); font-weight:600"><i class="icon-check"></i>Échange accepté</span>
+                <span class="tag" style="gap:5px; background:var(--color-warning-tint); color:var(--color-warning); font-weight:600"><i class="icon-hourglass"></i>En attente</span>
+                <span class="tag" style="gap:5px; background:var(--color-danger-tint); color:var(--color-danger); font-weight:600"><i class="icon-x"></i>Refusé</span>
+                <span class="tag" style="gap:5px; border:1.5px dashed var(--color-warning); color:var(--color-warning); font-weight:600">Prix fictif</span>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:16px">
+              <h3 style="margin:0; font-size:20px">Jauges</h3>
+              <div style="display:flex; flex-direction:column; gap:8px">
+                <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px"><span style="font-weight:600">Ma collection</span><span style="color:var(--color-text-muted); font-variant-numeric:tabular-nums">1&#8239;284 / 26&#8239;755 · 4,8&nbsp;%</span></div>
+                <div style="height:12px; border-radius:999px; background:var(--color-track); overflow:hidden"><div style="width:4.8%; min-width:12px; height:100%; border-radius:999px; background:var(--color-accent)"></div></div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px">
+                <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px"><span style="font-weight:600">Sites UNESCO</span><span style="color:var(--color-text-muted); font-variant-numeric:tabular-nums">23 / 57 · 40&nbsp;%</span></div>
+                <div style="height:12px; border-radius:999px; background:var(--color-track); overflow:hidden"><div style="width:40%; height:100%; border-radius:999px; background:var(--color-sage)"></div></div>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; padding:18px; border-radius:var(--radius-md); background:var(--color-surface)">
+                <div style="display:flex; flex-direction:column; gap:8px"><span style="font-size:13px; font-weight:600">Dépensé ce mois-ci</span><div style="height:10px; border-radius:999px; background:var(--color-track); overflow:hidden"><div style="width:43%; height:100%; border-radius:999px; background:var(--color-sage)"></div></div><span style="font-size:12px; color:var(--color-text-muted); font-variant-numeric:tabular-nums">12,98&nbsp;€ sur 30&nbsp;€</span></div>
+                <div style="display:flex; flex-direction:column; gap:8px"><span style="font-size:13px; font-weight:600">Dépensé ce mois-ci</span><div style="height:10px; border-radius:999px; background:var(--color-track); overflow:hidden"><div style="width:90%; height:100%; border-radius:999px; background:var(--color-warning)"></div></div><span style="display:flex; gap:5px; font-size:12px; color:var(--color-warning)"><i class="icon-triangle-alert" style="margin-top:2px; flex:none"></i><span>Plus que 3,03&nbsp;€ ce mois-ci</span></span></div>
+                <div style="display:flex; flex-direction:column; gap:8px"><span style="font-size:13px; font-weight:600">Dépensé ce mois-ci</span><div style="height:10px; border-radius:999px; background:var(--color-track); overflow:hidden"><div style="width:100%; height:100%; border-radius:999px; background:var(--color-danger)"></div></div><span style="display:flex; gap:5px; font-size:12px; color:var(--color-danger)"><i class="icon-ban" style="margin-top:2px; flex:none"></i><span>Plafond atteint, achats bloqués jusqu'au 1<sup>er</sup>&nbsp;novembre</span></span></div>
+              </div>
+              <span style="font-size:12px; color:var(--color-text-muted)">Montants fictifs.</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:20px">Onglets et affichage</h3>
+              <div role="tablist" aria-label="Filtrer la collection" style="display:flex; gap:6px; overflow-x:auto; padding:4px; border-radius:999px; background:var(--color-surface); align-self:flex-start; max-width:100%">
+                <sc-for list="{{ t.tabs }}" as="tb" hint-placeholder-count="4">
+                  <button type="button" role="tab" aria-selected="{{ tb.on }}" onClick="{{ tb.onClick }}" style="display:flex; align-items:center; gap:6px; min-height:44px; padding:0 16px; border:0; border-radius:999px; cursor:pointer; font:inherit; font-size:14px; font-weight:600; white-space:nowrap; background:{{ tb.bg }}; color:{{ tb.col }}">{{ tb.label }}<span style="font-size:12px; font-weight:400; opacity:0.8; font-variant-numeric:tabular-nums">{{ tb.n }}</span></button>
+                </sc-for>
+              </div>
+              <div class="seg" role="radiogroup" aria-label="Affichage" style="align-self:flex-start">
+                <label class="seg-opt" style="min-height:44px; padding:0 16px; font-weight:600"><input type="radio" name="{{ t.segName }}" checked="{{ t.segGrid }}" onChange="{{ t.onGrid }}"><i class="icon-layout-grid" style="font-size:16px"></i>Grille</label>
+                <label class="seg-opt" style="min-height:44px; padding:0 16px; font-weight:600"><input type="radio" name="{{ t.segName }}" checked="{{ t.segList }}" onChange="{{ t.onList }}"><i class="icon-list" style="font-size:16px"></i>Liste</label>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:20px">Minuteur et réserve</h3>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px">
+                <sc-for list="{{ t.reserves }}" as="rv" hint-placeholder-count="3">
+                  <div style="display:flex; flex-direction:column; gap:12px; padding:18px; border-radius:var(--radius-md); background:var(--color-surface)">
+                    <div style="display:flex; align-items:center; gap:14px">
+                      <span style="flex:none; position:relative; width:56px; height:56px; display:grid; place-items:center; border-radius:50%; background:{{ rv.ring }}">
+                        <span style="width:44px; height:44px; display:grid; place-items:center; border-radius:50%; background:var(--color-surface); font-family:var(--font-heading); font-size:18px; font-variant-numeric:tabular-nums">{{ rv.n }}</span>
+                      </span>
+                      <div style="display:flex; flex-direction:column; gap:2px; min-width:0">
+                        <span style="font-size:13px; color:var(--color-text-muted)">{{ rv.k }}</span>
+                        <span style="display:flex; align-items:center; gap:6px; font-size:20px; font-weight:600; font-variant-numeric:tabular-nums"><i class="{{ rv.icon }}" style="color:var(--color-accent)"></i>{{ rv.v }}</span>
+                      </div>
+                    </div>
+                    <span style="font-size:12.5px; color:var(--color-text-muted)">{{ rv.note }}</span>
+                  </div>
+                </sc-for>
+                <div style="display:flex; flex-direction:column; justify-content:center; gap:10px; padding:18px; border-radius:var(--radius-md); background:var(--color-surface)">
+                  <div style="display:inline-flex; align-self:flex-start; align-items:center; gap:12px; min-height:44px; padding:0 16px; border-radius:999px; background:var(--color-bg); font-size:15px; font-weight:600; font-variant-numeric:tabular-nums">
+                    <span style="display:flex; align-items:center; gap:6px"><i class="icon-package" style="font-size:18px; color:var(--color-accent)"></i>7</span>
+                    <span style="width:5px; height:5px; border-radius:50%; background:var(--color-text-muted)"></span>
+                    <span style="display:flex; align-items:center; gap:6px"><i class="icon-timer" style="font-size:18px; color:var(--color-accent)"></i>{{ t.timer }}</span>
+                  </div>
+                  <span style="font-size:12.5px; color:var(--color-text-muted)">Version compacte, pour l'en-tête.</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <h3 style="margin:0; font-size:20px">Fenêtre d'achat</h3>
+              <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start; padding:20px; border-radius:var(--radius-lg); background:color-mix(in srgb, var(--color-text) 7%, transparent)">
+                <div class="dialog" role="dialog" aria-label="Acheter un paquet" style="flex:1 1 360px">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin:-6px -8px -4px 0">
+                    <span class="dialog-title">Acheter un paquet</span>
+                    <button type="button" class="btn btn-ghost btn-icon" aria-label="Fermer" style="width:44px; height:44px; border-radius:50%; color:var(--color-text-muted)"><i class="icon-x" style="font-size:20px"></i></button>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; padding:14px; border-radius:var(--radius-md); background:var(--color-bg)">
+                    <span aria-hidden="true" style="flex:none; width:44px; height:56px; display:grid; place-items:center; border-radius:12px; background:#c67139; border:2px solid #201e1d; box-shadow:0 3px 0 #201e1d; color:#201e1d; font-size:18px"><i class="icon-landmark"></i></span>
+                    <div style="flex:1; display:flex; flex-direction:column; gap:2px; min-width:0"><span style="font-size:15px; font-weight:600">Paquet Patrimoine de France</span><span style="font-size:12.5px; color:var(--color-text-muted)">5 cartes tirées au hasard</span></div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end"><span style="font-family:var(--font-heading); font-size:22px; font-variant-numeric:tabular-nums">1,99&nbsp;€</span><span style="font-size:11px; color:var(--color-text-muted)">TTC</span></div>
+                  </div>
+                  <span class="tag" style="align-self:flex-start; border:1.5px dashed var(--color-warning); color:var(--color-warning); font-weight:600">Prix fictif, à définir</span>
+                  <div style="display:flex; flex-direction:column; gap:8px">
+                    <span style="font-size:13px; font-weight:600">Probabilités par carte</span>
+                    <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:6px 16px">
+                      <sc-for list="{{ rarities }}" as="r" hint-placeholder-count="6">
+                        <div style="display:flex; align-items:center; gap:8px; font-size:12.5px"><span aria-hidden="true" style="width:12px; height:12px; flex:none; border-radius:50%; background:{{ r.c }}; border:1.5px solid #201e1d"></span><span style="flex:1">{{ r.label }}</span><span style="font-variant-numeric:tabular-nums; color:var(--color-text-muted)">{{ r.part }}</span></div>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <label style="position:relative; display:flex; gap:10px; align-items:flex-start; min-height:44px; padding:4px 0; cursor:pointer; font-size:13.5px; line-height:1.45">
+                    <input type="checkbox" checked="{{ t.agree }}" onChange="{{ t.onAgree }}" style="position:absolute; opacity:0; width:1px; height:1px">
+                    <span aria-hidden="true" style="flex:none; width:22px; height:22px; margin-top:0; display:grid; place-items:center; border-radius:7px; border-width:2px; border-style:solid; border-color:{{ t.boxLine }}; background:{{ t.boxBg }}; color:var(--color-on-accent); font-size:14px"><sc-if value="{{ t.agree }}" hint-placeholder-val="{{ false }}"><i class="icon-check"></i></sc-if></span>
+                    <span>Je demande l'ouverture immédiate de mon paquet et je renonce à mon droit de rétractation.</span>
+                  </label>
+                  <div style="display:flex; flex-direction:column; gap:6px; font-size:12.5px; line-height:1.45; color:var(--color-text-muted)">
+                    <span style="display:flex; gap:6px"><i class="icon-gauge" style="margin-top:2px; flex:none"></i><span>Plafond mensuel&nbsp;: 17,02&nbsp;€ disponibles sur 30&nbsp;€.</span></span>
+                    <span style="display:flex; gap:6px"><i class="icon-info" style="margin-top:2px; flex:none"></i><span>Les cartes et la monnaie virtuelle n'ont aucune valeur en argent et ne se revendent pas contre de l'argent.</span></span>
+                  </div>
+                  <div class="dialog-actions">
+                    <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 18px">Annuler</button>
+                    <button type="button" class="btn btn-primary" disabled="{{ t.payDisabled }}" style="min-height:44px; padding:0 18px">Payer 1,99&nbsp;€</button>
+                  </div>
+                </div>
+                <div class="dialog" role="dialog" aria-label="Paiement confirmé" style="flex:1 1 260px">
+                  <span style="width:52px; height:52px; display:grid; place-items:center; border-radius:50%; background:var(--color-success-tint); color:var(--color-success); font-size:26px"><i class="icon-circle-check"></i></span>
+                  <span class="dialog-title">Paiement confirmé&nbsp;!</span>
+                  <div class="dialog-body" style="display:flex; flex-direction:column; gap:6px"><span>Paquet Patrimoine de France · 1,99&nbsp;€ TTC (prix fictif).</span><span style="font-size:13px; color:var(--color-text-muted)">Le reçu est dans Compte › Historique des achats.</span></div>
+                  <div class="dialog-actions" style="flex-wrap:wrap">
+                    <button type="button" class="btn btn-secondary" style="min-height:44px; padding:0 18px">Fermer</button>
+                    <button type="button" class="btn btn-primary" style="min-height:44px; padding:0 18px; gap:8px"><i class="icon-package-open" style="font-size:18px"></i>Ouvrir mon paquet</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="carte" data-screen-label="06 La carte" style="display:flex; flex-direction:column; gap:56px">
+    <div style="display:flex; align-items:flex-start; gap:18px; max-width:820px">
+      <span style="flex:none; width:52px; height:52px; display:grid; place-items:center; border-radius:50%; background:var(--color-sage); color:var(--color-on-accent); font-family:var(--font-heading); font-size:20px">6</span>
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <h2 style="margin:0; font-size:36px">La carte</h2>
+        <p style="margin:0; color:var(--color-text-muted); text-wrap:pretty">Nouvelle structure&nbsp;: une carte autocollant, la photo dans une fenêtre arrondie, l'étiquette de rareté posée à cheval sur la photo, le nom en Caprasimo et l'emblème de la collection en pied. Lisible à 160&nbsp;px, grand format à partir de 300&nbsp;px.</p>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; gap:36px; align-items:flex-start">
+      <div style="display:flex; flex-direction:column; gap:12px; width:320px">
+        <dc-import name="CarteV2" card="{{ c.eiffel }}" taille="grand" retournable="{{ true }}" exemplaires="{{ 2 }}" cadrage="{{ cadrage }}" hint-size="320px,520px"></dc-import>
+        <span style="font-size:12.5px; color:var(--color-text-muted)">Recto · cliquer ou Entrée pour retourner</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; width:320px">
+        <dc-import name="CarteV2" card="{{ c.eiffel }}" taille="grand" face="verso" exemplaires="{{ 2 }}" cadrage="{{ cadrage }}" hint-size="320px,520px"></dc-import>
+        <span style="font-size:12.5px; color:var(--color-text-muted)">Verso</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:20px; flex:1; min-width:280px; max-width:440px">
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <h3 style="margin:0; font-size:24px">Recto</h3>
+          <ol style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px; font-size:14.5px; line-height:1.45; color:var(--color-text-muted)">
+            <li><span style="color:var(--color-text); font-weight:600">Photo 4:3</span> dans une fenêtre arrondie&#8239;; verticales et panoramas posés sur un fond flouté de la même photo.</li>
+            <li><span style="color:var(--color-text); font-weight:600">Étiquette de rareté</span> à cheval sur la photo&nbsp;: couleur, nom, 1 à 6 pastilles.</li>
+            <li><span style="color:var(--color-text); font-weight:600">Nom</span> en Caprasimo, 3 lignes au plus.</li>
+            <li><span style="color:var(--color-text); font-weight:600">Lieu</span>&nbsp;: le département, plus la région en grand format.</li>
+            <li><span style="color:var(--color-text); font-weight:600">Étiquettes</span>&nbsp;: Classé MH ou Inscrit MH, UNESCO en sauge.</li>
+            <li><span style="color:var(--color-text); font-weight:600">Pied</span>&nbsp;: emblème de la collection, série régionale, numéro.</li>
+          </ol>
+          <p style="margin:0; font-size:13px; color:var(--color-text-muted); text-wrap:pretty">Crédit photo sous l'image en grand format, derrière le «&nbsp;i&nbsp;» en grille.</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <h3 style="margin:0; font-size:24px">Verso</h3>
+          <p style="margin:0; font-size:14.5px; line-height:1.45; color:var(--color-text-muted); text-wrap:pretty">Extrait de l'article et lien, mention de licence Wikipédia, crédit photo complet avec lien vers Commons, exemplaires possédés.</p>
+          <p style="margin:0; font-size:12.5px; color:var(--color-text-muted); text-wrap:pretty">Extraits provisoires, rédigés pour la maquette.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:18px">
+      <h3 style="margin:0; font-size:24px">Les six raretés, grille 160&nbsp;px</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, 160px); gap:28px 24px; padding-top:8px">
+        <dc-import name="CarteV2" card="{{ c.notredame }}" cadrage="{{ cadrage }}" hint-size="160px,262px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.soissons }}" cadrage="{{ cadrage }}" hint-size="160px,262px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.isle }}" cadrage="{{ cadrage }}" hint-size="160px,262px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.napoleon }}" cadrage="{{ cadrage }}" hint-size="160px,262px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.compiegne }}" cadrage="{{ cadrage }}" hint-size="160px,262px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.horloge }}" cadrage="{{ cadrage }}" hint-size="160px,262px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.thoronet }}" face="verso" cadrage="{{ cadrage }}" hint-size="160px,262px"></dc-import>
+      </div>
+      <span style="font-size:12.5px; color:var(--color-text-muted)">La dernière carte montre le verso en grille&nbsp;: extrait abrégé, crédit et exemplaires, sans lien (l'appui ouvre la fiche).</span>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:18px">
+      <h3 style="margin:0; font-size:24px">Les six raretés, grand format</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, 300px); gap:32px">
+        <dc-import name="CarteV2" card="{{ c.chambord }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.thoronet }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.stuarts }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.napoleon }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.compiegne }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import>
+        <dc-import name="CarteV2" card="{{ c.attigny }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:18px">
+      <div style="display:flex; flex-direction:column; gap:6px; max-width:820px">
+        <h3 style="margin:0; font-size:24px">États</h3>
+        <p style="margin:0; font-size:14.5px; color:var(--color-text-muted); text-wrap:pretty">Manquante&nbsp;: contour en pointillés, photo désaturée, étiquette au trait. Nom masqué&nbsp;: un «&nbsp;?&nbsp;» à la place de la photo (proposé pour les Légendaires et Ultra rares). Brillante&nbsp;: reflet irisé et pastille, 1 tirage sur 25 (proposition).</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 600px), 1fr)); gap:24px; align-items:start">
+        <sc-for list="{{ themes }}" as="t" hint-placeholder-count="2">
+          <div style="{{ t.vars }}">
+            <div style="display:flex; flex-direction:column; gap:22px; padding:32px; border-radius:var(--radius-lg); background:var(--color-bg); color:var(--color-text); box-shadow:0 0 0 1.5px var(--color-line)">
+              <span class="tag tag-neutral" style="align-self:flex-start; font-weight:600">{{ t.label }}</span>
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, 160px); gap:32px 24px; padding-top:8px">
+                <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="CarteV2" card="{{ t.c.napoleon }}" cadrage="{{ t.cadrage }}" hint-size="160px,262px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Possédée</span></div>
+                <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="CarteV2" card="{{ t.c.thoronet }}" nouveau="{{ true }}" cadrage="{{ t.cadrage }}" hint-size="160px,262px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Nouvelle</span></div>
+                <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="CarteV2" card="{{ t.c.compiegne }}" doublon="{{ 3 }}" cadrage="{{ t.cadrage }}" hint-size="160px,262px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Doublon ×3</span></div>
+                <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="CarteV2" card="{{ t.c.stuarts }}" brillante="{{ true }}" cadrage="{{ t.cadrage }}" hint-size="160px,262px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Brillante</span></div>
+                <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="CarteV2" card="{{ t.c.attigny }}" selectionnee="{{ true }}" cadrage="{{ t.cadrage }}" hint-size="160px,262px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Sélectionnée pour un échange</span></div>
+                <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="CarteV2" card="{{ t.c.horloge }}" etat="manquante" cadrage="{{ t.cadrage }}" hint-size="160px,262px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Manquante, nom visible</span></div>
+                <div style="display:flex; flex-direction:column; gap:10px"><dc-import name="CarteV2" card="{{ t.c.chambord }}" etat="masquee" cadrage="{{ t.cadrage }}" hint-size="160px,262px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Manquante, nom masqué</span></div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:18px">
+      <div style="display:flex; flex-direction:column; gap:6px; max-width:820px">
+        <h3 style="margin:0; font-size:24px">Cas limites</h3>
+        <p style="margin:0; font-size:14.5px; color:var(--color-text-muted); text-wrap:pretty">Hors du rapport 1,1 à 1,9, la photo entière se pose sur un fond flouté d'elle-même. Le réglage «&nbsp;Cadrage&nbsp;» compare avec un recadrage centré strict.</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, 300px); gap:32px">
+        <div style="display:flex; flex-direction:column; gap:12px"><dc-import name="CarteV2" card="{{ c.gard }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Panorama 12&#8239;648 × 4&#8239;882</span></div>
+        <div style="display:flex; flex-direction:column; gap:12px"><dc-import name="CarteV2" card="{{ c.soissons }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Nom de 53 caractères, auteur non renseigné</span></div>
+        <div style="display:flex; flex-direction:column; gap:12px"><dc-import name="CarteV2" card="{{ c.horloge }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Photo de 396 × 528&nbsp;px</span></div>
+        <div style="display:flex; flex-direction:column; gap:12px"><dc-import name="CarteV2" card="{{ c.isle }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Photo de 768 × 1&#8239;024&nbsp;px</span></div>
+        <div style="display:flex; flex-direction:column; gap:12px"><dc-import name="CarteV2" card="{{ c.boyard }}" taille="grand" cadrage="{{ cadrage }}" hint-size="300px,490px"></dc-import><span style="font-size:12.5px; color:var(--color-text-muted)">Photo indisponible&nbsp;: aplat au nom du monument</span></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;cadrage&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Fond flouté&quot;,&quot;Recadrage centré&quot;],&quot;default&quot;:&quot;Fond flouté&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Carte&quot;},&quot;themes&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Les deux&quot;,&quot;Clair&quot;,&quot;Sombre&quot;],&quot;default&quot;:&quot;Les deux&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Thèmes&quot;}}">
+class Component extends DCLogic {
+  state = { sec: 272, agree: [false, false], tab: [0, 0], seg: ['grille', 'grille'] };
+  componentDidMount() {
+    this.t = setInterval(() => this.setState(s => ({ sec: s.sec > 0 ? s.sec - 1 : 599 })), 1000);
+  }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const P = (f, w) => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + f + (w ? '?width=' + w : '');
+    const mk = (f, o, w = 640) => Object.assign({ photo: P(f, w), fichier: 'https://commons.wikimedia.org/wiki/File:' + f }, o);
+    const c = {
+      eiffel: mk('Tour_Eiffel_Wikimedia_Commons.jpg', { nom: 'tour Eiffel', rarete: 'legendaire', dept: 'Paris', region: 'Île-de-France', classement: 'Inscrit MH', unesco: true, serie: 'Île-de-France', num: 1, total: 2386, w: 2900, h: 5367, auteur: 'Benh LIEU SONG', licence: 'domaine public', wiki: 'https://fr.wikipedia.org/wiki/Tour_Eiffel', extrait: 'Élevée par l’entreprise de Gustave Eiffel pour l’Exposition universelle de 1889, la tour de fer puddlé domine le Champ-de-Mars du haut de ses 330 mètres. D’abord décriée par une partie des artistes, elle est devenue l’emblème de Paris et l’un des monuments les plus visités au monde.' }, 720),
+      notredame: mk('Notre-Dame_de_Paris_2013-07-24.jpg', { nom: 'cathédrale Notre-Dame de Paris', rarete: 'legendaire', dept: 'Paris', region: 'Île-de-France', classement: 'Classé MH', unesco: true, serie: 'Île-de-France', num: 2, total: 2386, auteur: 'P e z i', licence: 'CC BY-SA 3.0' }),
+      chambord: mk('France_Loir-et-Cher_Chambord_Chateau_03.jpg', { nom: 'château de Chambord', rarete: 'legendaire', dept: 'Loir-et-Cher', region: 'Centre-Val de Loire', classement: 'Classé MH', unesco: true, serie: 'Centre-Val de Loire', num: 1, total: 1874, auteur: 'Calips', licence: 'CC BY-SA 3.0' }),
+      gard: mk('Pont_du_Gard_BLS.jpg', { nom: 'pont du Gard', rarete: 'legendaire', dept: 'Gard', region: 'Occitanie', classement: 'Classé MH', unesco: true, serie: 'Occitanie', num: 2, total: 3512, w: 12648, h: 4882, auteur: 'Benh LIEU SONG', licence: 'CC BY-SA 3.0' }),
+      boyard: { nom: 'fort Boyard', rarete: 'legendaire', dept: 'Charente-Maritime', region: 'Nouvelle-Aquitaine', classement: 'Inscrit MH', serie: 'Nouvelle-Aquitaine', num: 3, total: 4135, auteur: 'ERIC SALARD', licence: 'CC BY-SA 2.0', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Photo_indisponible_maquette.jpg', fichier: 'https://commons.wikimedia.org/wiki/File:Fort_Boyard_%2851269094270%29.jpg' },
+      thoronet: mk('Thoronet_Cloister_Garden.JPG', { nom: 'abbaye du Thoronet', rarete: 'ultra', dept: 'Var', region: 'Provence-Alpes-Côte d’Azur', classement: 'Classé MH', serie: 'Provence-Alpes-Côte d’Azur', num: 4, total: 1452, auteur: 'SiefkinDR', licence: 'domaine public', wiki: 'https://fr.wikipedia.org/wiki/Abbaye_du_Thoronet', extrait: 'Fondée par des moines cisterciens au XIIe siècle dans un vallon boisé du Var, l’abbaye forme avec Sénanque et Silvacane les « trois sœurs provençales ». Son architecture dépouillée, toute de pierre nue, a profondément marqué Le Corbusier.' }),
+      soissons: mk('Soissons-cathedrale-facade.jpg', { nom: 'cathédrale Saint-Gervais-et-Saint-Protais de Soissons', rarete: 'ultra', dept: 'Aisne', region: 'Hauts-de-France', classement: 'Classé MH', serie: 'Hauts-de-France', num: 7, total: 1911, auteur: null, licence: 'CC BY-SA 2.5' }),
+      stuarts: mk('AUBIGNY-SUR-N%C3%88RE_-_CH%C3%82TEAU_DES_STUARTS_-_COUR.JPG', { nom: 'château des Stuarts', rarete: 'super', dept: 'Cher', region: 'Centre-Val de Loire', classement: 'Classé MH', serie: 'Centre-Val de Loire', num: 31, total: 1874, auteur: 'MOSSOT', licence: 'CC BY-SA 3.0' }),
+      isle: mk('Palais_de_l%27Isle_Annecy_%28%C3%A9t%C3%A9_2005%29.jpg', { nom: 'palais de l’Isle', rarete: 'super', dept: 'Haute-Savoie', region: 'Auvergne-Rhône-Alpes', classement: 'Classé MH', serie: 'Auvergne-Rhône-Alpes', num: 18, total: 3197, w: 768, h: 1024, auteur: 'Droopy nico', licence: 'CC BY-SA 1.0' }),
+      napoleon: mk('Statue_r%C3%A9nov%C3%A9e_de_Napol%C3%A9on_Ier_%C3%A0_Cherbourg-en-Cotentin.jpg', { nom: 'monument à Napoléon', rarete: 'rare', dept: 'Manche', region: 'Normandie', classement: 'Classé MH', serie: 'Normandie', num: 112, total: 2241, auteur: 'JMEnault, Ville de Cherbourg-en-Cotentin', licence: 'CC BY-SA 4.0' }),
+      compiegne: mk('Remparts_de_Compi%C3%A8gne.jpg', { nom: 'remparts de Compiègne', rarete: 'peu', dept: 'Oise', region: 'Hauts-de-France', classement: 'Inscrit MH', serie: 'Hauts-de-France', num: 486, total: 1911, auteur: 'Raisonnier', licence: 'CC BY-SA 3.0' }),
+      attigny: mk('%C3%89glise_Notre-Dame_d%27Attigny.JPG', { nom: 'église Notre-Dame d’Attigny', rarete: 'commune', dept: 'Ardennes', region: 'Grand Est', classement: 'Classé MH', serie: 'Grand Est', num: 1204, total: 2752, auteur: 'Adri08', licence: 'CC BY-SA 3.0' }),
+      horloge: mk('Nevers_beffroi_01.JPG', { nom: 'tour de l’Horloge', rarete: 'commune', dept: 'Nièvre', region: 'Bourgogne-Franche-Comté', classement: 'Inscrit MH', serie: 'Bourgogne-Franche-Comté', num: 1873, total: 2398, w: 396, h: 528, auteur: 'Cypris', licence: 'CC BY-SA 3.0' }, null),
+    };
+    const LIGHT = {
+      '--color-bg': '#f5ead8', '--color-surface': '#ebddc5', '--color-text': '#201e1d', '--color-text-muted': '#645c50',
+      '--color-line': 'rgba(32,30,29,0.16)', '--color-divider': 'rgba(32,30,29,0.16)', '--color-track': '#dcd3c4',
+      '--color-accent': '#c67139', '--color-accent-strong': '#8c491a', '--color-accent-tint': '#ffe1d0', '--color-on-accent': '#201e1d',
+      '--color-sage': '#7a8a5e', '--color-sage-tint': '#e1eecc',
+      '--color-success': '#56633f', '--color-warning': '#8f5300', '--color-danger': '#a83a2c',
+      '--color-success-tint': '#e1eecc', '--color-warning-tint': '#f8e2c0', '--color-danger-tint': '#fbdcd5',
+      '--sticker-shadow': '#201e1d',
+    };
+    const DARK = {
+      '--color-bg': '#201e1d', '--color-surface': '#2e2b25', '--color-text': '#f5ead8', '--color-text-muted': '#c0b6a5',
+      '--color-line': 'rgba(245,234,216,0.16)', '--color-divider': 'rgba(245,234,216,0.2)', '--color-track': '#474238',
+      '--color-accent': '#f6a06b', '--color-accent-strong': '#ffc6a5', '--color-accent-tint': '#643312', '--color-on-accent': '#201e1d',
+      '--color-accent-600': '#ffc6a5', '--color-accent-700': '#ffe1d0',
+      '--color-accent-100': '#643312', '--color-accent-800': '#ffe1d0',
+      '--color-accent-2-100': '#3d472b', '--color-accent-2-800': '#e1eecc',
+      '--color-neutral-100': '#474238', '--color-neutral-800': '#eee7db',
+      '--color-sage': '#aebf92', '--color-sage-tint': '#3d472b',
+      '--color-success': '#aebf92', '--color-warning': '#f0b860', '--color-danger': '#f28b7d',
+      '--color-success-tint': '#3d472b', '--color-warning-tint': '#4a3518', '--color-danger-tint': '#4d2620',
+      '--shadow-sm': '0 0 0 1px #474238', '--shadow-md': '0 0 0 1px #474238, 0 6px 18px rgba(0,0,0,0.45)', '--shadow-lg': '0 0 0 1px #645c50, 0 16px 40px rgba(0,0,0,0.55)',
+      '--sticker-shadow': '#0c0b0a', '--card-shadow': '0 4px 0 #0c0b0a',
+      '--miss-bg': '#2e2b25', '--miss-line': '#82796a', '--miss-ink': '#eee7db', '--miss-muted': '#c0b6a5', '--miss-photo': '#474238',
+      '--miss-filter': 'grayscale(1) brightness(0.7) contrast(0.9)',
+      '--rar-line-legendaire': '#e0654a', '--rar-line-ultra': '#e9b949', '--rar-line-super': '#b48ac8', '--rar-line-rare': '#6fa3cc', '--rar-line-peu': '#9db07f', '--rar-line-commune': '#cfc5b4',
+    };
+    const tokens = [
+      ['--color-bg', 'Fond', '#f5ead8', '#201e1d'], ['--color-surface', 'Surface : panneaux, fenêtres', '#ebddc5', '#2e2b25'],
+      ['--color-text', 'Texte', '#201e1d', '#f5ead8'], ['--color-text-muted', 'Texte secondaire', '#645c50', '#c0b6a5'],
+      ['--color-track', 'Fond de jauge', '#dcd3c4', '#474238'],
+      ['--color-accent', 'Terracotta : aplats, icônes, gros texte', '#c67139', '#f6a06b'], ['--color-accent-strong', 'Terracotta pour le texte courant', '#8c491a', '#ffc6a5'],
+      ['--color-accent-tint', 'Fond teinté terracotta', '#ffe1d0', '#643312'], ['--color-on-accent', 'Texte sur aplat', '#201e1d', '#201e1d'],
+      ['--color-sage', 'Sauge : sélection, échanges, UNESCO', '#7a8a5e', '#aebf92'], ['--color-sage-tint', 'Fond teinté sauge', '#e1eecc', '#3d472b'],
+      ['--color-success', 'Succès', '#56633f', '#aebf92'], ['--color-warning', 'Alerte', '#8f5300', '#f0b860'], ['--color-danger', 'Erreur', '#a83a2c', '#f28b7d'],
+    ].map(([k, r, l, d]) => ({ k, r, l, d }));
+    const skinSw = [
+      { k: '--skin-color', n: 'Terracotta #c67139', c: '#c67139' }, { k: '--card-bg', n: 'Crème carte #f9f4ed', c: '#f9f4ed' },
+      { k: '--card-ink', n: 'Encre #201e1d · 16:1', c: '#201e1d' }, { k: '--photo-bg', n: 'Sauge pâle #ccdbb2', c: '#ccdbb2' },
+    ];
+    const pipsOf = n => Array.from({ length: n }, (_, i) => i);
+    const rarities = [
+      ['Légendaire', '#e0654a', '#a8362a', 6, '0,25\u00a0%', '67'], ['Ultra rare', '#e9b949', '#8a6100', 5, '2,5\u00a0%', '669'],
+      ['Super rare', '#b48ac8', '#7a4a92', 4, '7\u00a0%', '1\u202f873'], ['Rare', '#6fa3cc', '#2f6a96', 3, '20\u00a0%', '5\u202f351'],
+      ['Peu commune', '#9db07f', '#56633f', 2, '20\u00a0%', '5\u202f351'], ['Commune', '#cfc5b4', '#645c50', 1, '50,25\u00a0%', '13\u202f444'],
+    ].map(([label, col, line, n, part, cnt]) => ({ label, c: col, line, pips: pipsOf(n), part, n: cnt }));
+    const spaces = [['space-1', '4.4px'], ['space-2', '8.8px'], ['space-3', '13.2px'], ['space-4', '17.6px'], ['space-6', '26.4px'], ['space-8', '35.2px']].map(([k, v]) => ({ k, v }));
+    const TABS = [['Toutes', '26\u202f755'], ['Possédées', '1\u202f284'], ['Manquantes', '25\u202f471'], ['Doublons', '212']];
+    const s = this.state.sec;
+    const timer = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    const cadrage = this.props.cadrage === 'Recadrage centré' ? 'centre' : 'auto';
+    const ring = n => `conic-gradient(var(--color-accent) ${n * 36}deg, var(--color-track) 0)`;
+    const upd = (key, i, v) => this.setState(st => { const a = st[key].slice(); a[i] = typeof v === 'function' ? v(a[i]) : v; return { [key]: a }; });
+    const all = [['Thème clair', LIGHT], ['Thème sombre', DARK]].map(([label, vars], i) => {
+      const agree = this.state.agree[i];
+      return {
+        label, c, cadrage, timer, vars,
+        reserves: [
+          { n: '7', ring: ring(7), k: 'Prochain paquet', icon: 'icon-timer', v: timer, note: 'Un paquet toutes les 10\u00a0minutes, 10 en réserve au plus.' },
+          { n: '10', ring: ring(10), k: 'Réserve pleine', icon: 'icon-pause', v: 'En pause', note: 'Le minuteur reprend à la prochaine ouverture.' },
+          { n: '0', ring: ring(0), k: 'Prochain paquet', icon: 'icon-timer', v: '09:12', note: 'Réserve vide\u00a0: on attend, ou on passe par la boutique.' },
+        ],
+        agree, onAgree: () => upd('agree', i, a => !a), payDisabled: !agree,
+        boxBg: agree ? 'var(--color-accent)' : 'transparent', boxLine: agree ? 'var(--color-accent)' : 'var(--color-text-muted)',
+        tabs: TABS.map(([tl, n], j) => {
+          const on = this.state.tab[i] === j;
+          return { label: tl, n, on, bg: on ? 'var(--color-text)' : 'transparent', col: on ? 'var(--color-bg)' : 'var(--color-text)', onClick: () => upd('tab', i, j) };
+        }),
+        segName: 'affichage-' + i, segGrid: this.state.seg[i] === 'grille', segList: this.state.seg[i] === 'liste',
+        onGrid: () => upd('seg', i, 'grille'), onList: () => upd('seg', i, 'liste'),
+      };
+    });
+    const show = this.props.themes || 'Les deux';
+    const themes = show === 'Clair' ? [all[0]] : show === 'Sombre' ? [all[1]] : all;
+    return { c, cadrage, themes, tokens, skinSw, rarities, spaces, pageVars: show === 'Sombre' ? DARK : LIGHT };
+  }
+}
+</script>
+</body>
+</html>

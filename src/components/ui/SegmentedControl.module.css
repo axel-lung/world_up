@@ -4,5 +4,16 @@
 
 .option {
   min-height: 44px;
-  padding: 0 14px;
+  padding: 0 16px;
+  font-weight: 600;
+}
+
+.option svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Ink on the terracotta fill, as for the primary button */
+.option:has(input:checked) {
+  color: var(--color-on-accent);
 }

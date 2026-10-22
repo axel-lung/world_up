@@ -2,6 +2,7 @@ import { and, asc, count, desc, eq, isNull, lte, max, sql } from 'drizzle-orm';
 import { cache } from 'react';
 import { type Database, db, type Transaction } from '@/db';
 import { cards, collections, gameRules, rarityOdds, resaleValues } from '@/db/schema';
+import { themeEmblem } from '@/lib/collection-theme';
 import { RARITIES, type Rarity } from '@/lib/rarity';
 import type { OddsSet } from './draw';
 
@@ -13,14 +14,17 @@ export type GameRules = Omit<typeof gameRules.$inferSelect, 'collectionId' | 'up
 
 /**
  * An active collection by its slug (the [collection] segment of the game's
- * URLs), or null. Cached for the request: the header and the page both ask.
+ * URLs) with the emblem of its theme, or null. Cached for the request: the
+ * header and the page both ask.
  */
 export const getActiveCollection = cache(async (slug: string) => {
   const [collection] = await db
-    .select({ id: collections.id, slug: collections.slug, name: collections.name })
+    .select({ id: collections.id, slug: collections.slug, name: collections.name, theme: collections.theme })
     .from(collections)
     .where(and(eq(collections.slug, slug), eq(collections.active, true)));
-  return collection ?? null;
+  if (!collection) return null;
+  const { theme, ...rest } = collection;
+  return { ...rest, emblem: themeEmblem(theme) };
 });
 
 export async function getGameRules(executor: Executor, collectionId: number): Promise<GameRules> {

@@ -8,20 +8,23 @@
 }
 
 .brand {
-  font-family: var(--skin-display-font, var(--font-heading));
-  font-size: 20px;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 28px;
+  line-height: 1.1;
   color: var(--color-text);
   text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--color-accent-strong);
 }
 
 .panel {
   width: 100%;
   max-width: 440px;
   padding: 28px 24px;
-  border-radius: var(--radius-lg);
+  border-radius: calc(var(--radius-lg) * 1.15);
   background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 480px) {

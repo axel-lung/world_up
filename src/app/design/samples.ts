@@ -1,4 +1,5 @@
 import type { CardData } from '@/components/card/Card';
+import type { Rarity } from '@/lib/rarity';
 
 // The mock-up cards of the design system (real monuments, October 2026 data).
 // Development only: photos load straight from Wikimedia Commons, which
@@ -156,6 +157,36 @@ export const samples = {
     photo: { ...commons('Nevers_beffroi_01.JPG', null), width: 396, height: 528, author: 'Cypris', license: 'CC BY-SA 3.0' },
   },
 } satisfies Record<string, CardData>;
+
+// The token table of the mock-up, light and dark values (src/styles/theme.css
+// and the heritage collection's theme).
+export const tokens = [
+  ['--color-bg', 'Fond', '#f5ead8', '#201e1d'],
+  ['--color-surface', 'Surface : panneaux, fenêtres', '#ebddc5', '#2e2b25'],
+  ['--color-text', 'Texte', '#201e1d', '#f5ead8'],
+  ['--color-text-muted', 'Texte secondaire', '#645c50', '#c0b6a5'],
+  ['--color-track', 'Fond de jauge', '#dcd3c4', '#474238'],
+  ['--color-accent', 'Terracotta : aplats, icônes, gros texte', '#c67139', '#f6a06b'],
+  ['--color-accent-strong', 'Terracotta pour le texte courant', '#8c491a', '#ffc6a5'],
+  ['--color-accent-tint', 'Fond teinté terracotta', '#ffe1d0', '#643312'],
+  ['--color-on-accent', 'Texte sur aplat', '#201e1d', '#201e1d'],
+  ['--color-sage', 'Sauge : sélection, échanges, UNESCO', '#7a8a5e', '#aebf92'],
+  ['--color-sage-tint', 'Fond teinté sauge', '#e1eecc', '#3d472b'],
+  ['--color-success', 'Succès', '#56633f', '#aebf92'],
+  ['--color-warning', 'Alerte', '#8f5300', '#f0b860'],
+  ['--color-danger', 'Erreur', '#a83a2c', '#f28b7d'],
+].map(([name, role, light, dark]) => ({ name, role, light, dark }));
+
+// The rarity table of the mock-up: share of the catalogue and card counts are
+// its sample values; the colors are theme.css's.
+export const rarityTable: Record<Rarity, { share: string; cards: string; fill: string; line: string }> = {
+  legendary: { share: '0,25 %', cards: '67', fill: '#e0654a', line: '#a8362a' },
+  ultra: { share: '2,5 %', cards: '669', fill: '#e9b949', line: '#8a6100' },
+  super: { share: '7 %', cards: '1 873', fill: '#b48ac8', line: '#7a4a92' },
+  rare: { share: '20 %', cards: '5 351', fill: '#6fa3cc', line: '#2f6a96' },
+  uncommon: { share: '20 %', cards: '5 351', fill: '#9db07f', line: '#56633f' },
+  common: { share: '50,25 %', cards: '13 444', fill: '#cfc5b4', line: '#645c50' },
+};
 
 // The default odds: each rarity's share of the catalogue.
 export const defaultOdds = [

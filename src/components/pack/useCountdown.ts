@@ -11,6 +11,13 @@ import { useEffect, useState } from 'react';
 export function useCountdown(target: string | null, serverNow: string): number {
   const remainingAt = (now: number) => (target ? Math.max(0, Date.parse(target) - now) : 0);
   const [remaining, setRemaining] = useState(() => remainingAt(Date.parse(serverNow)));
+  // A new target (a pack opened from a full reserve starts the timer) shows its
+  // value right away, instead of the previous one until the next tick
+  const [shown, setShown] = useState({ target, serverNow });
+  if (shown.target !== target || shown.serverNow !== serverNow) {
+    setShown({ target, serverNow });
+    setRemaining(remainingAt(Date.parse(serverNow)));
+  }
 
   useEffect(() => {
     if (!target) return;

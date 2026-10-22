@@ -10,27 +10,36 @@
 
 .page h1 {
   margin: 0;
-  font-family: var(--skin-display-font, var(--font-heading));
-  font-size: 32px;
-  line-height: 1.15;
+  font-size: 36px;
+  line-height: 1.05;
 }
 
 .page h2 {
   margin: 16px 0 4px;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .page p {
   margin: 0;
 }
 
+/* The game's name, as a terracotta tag above the title */
 .home {
-  font-size: 13px;
-  font-weight: 600;
+  align-self: flex-start;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-accent-tint);
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-accent-strong);
   text-decoration: none;
+}
+
+.home:hover {
+  color: var(--color-accent-strong);
+  text-decoration: underline;
 }
 
 .note {

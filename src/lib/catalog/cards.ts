@@ -2,6 +2,7 @@ import { and, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
 import { cache } from 'react';
 import { db } from '@/db';
 import { cards, cardSeries, collections, series } from '@/db/schema';
+import { themeEmblem } from '@/lib/collection-theme';
 
 export const cardPath = (collection: string, slug: string) => `/c/${collection}/cards/${slug}`;
 export const cardImageUrl = (image: string, width: 400 | 800) => `/uploads/cards/${image}-${width}.webp`;
@@ -35,13 +36,14 @@ export const cardColumns = {
 };
 
 /**
- * A card of an active collection that players can see, with its series, or
+ * A card of an active collection that players can see, with its series and its
+ * collection's emblem, or
  * null: hidden cards have no public page. Cached for the request, since the
  * page and its metadata both ask for it.
  */
 export const getVisibleCard = cache(async (collectionSlug: string, slug: string) => {
   const [card] = await db
-    .select({ ...cardColumns, collectionName: collections.name })
+    .select({ ...cardColumns, collectionName: collections.name, collectionTheme: collections.theme })
     .from(cards)
     .innerJoin(collections, eq(collections.id, cards.collectionId))
     .where(
@@ -55,6 +57,7 @@ export const getVisibleCard = cache(async (collectionSlug: string, slug: string)
     )
     .limit(1);
   if (!card) return null;
+  const { collectionTheme, ...visible } = card;
 
   const memberships = await db
     .select({ slug: series.slug, type: series.type, name: series.name, number: cardSeries.number, total: series.cardCount })
@@ -63,7 +66,8 @@ export const getVisibleCard = cache(async (collectionSlug: string, slug: string)
     .where(and(eq(cardSeries.cardId, card.id), isNotNull(cardSeries.number)));
   memberships.sort((a, b) => SERIES_ORDER.indexOf(a.type) - SERIES_ORDER.indexOf(b.type));
   return {
-    ...card,
+    ...visible,
+    collectionEmblem: themeEmblem(collectionTheme),
     photoImage: card.photoImage!,
     series: memberships.map((m) => ({ ...m, number: m.number! })),
   };

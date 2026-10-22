@@ -1,4 +1,4 @@
-import { CheckIcon } from '@phosphor-icons/react/ssr';
+import { Check } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 import styles from './Checkbox.module.css';
 
@@ -15,7 +15,7 @@ export function Checkbox({
     <label className={[styles.row, className].filter(Boolean).join(' ')}>
       <input type="checkbox" className={styles.input} {...props} />
       <span className={styles.box} aria-hidden="true">
-        <CheckIcon className={styles.tick} />
+        <Check className={styles.tick} />
       </span>
       <span>{children}</span>
     </label>

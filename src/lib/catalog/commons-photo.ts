@@ -82,7 +82,7 @@ export function cleanAuthor(text: string): string | null {
 
 function userAgent(): string {
   // Wikimedia asks for a contact: the site's address will do
-  return process.env.WIKIMEDIA_USER_AGENT || `PatrimoineDeFrance/1.0 (${requireEnv('APP_URL')})`;
+  return process.env.WIKIMEDIA_USER_AGENT || `WorldUp/1.0 (${requireEnv('APP_URL')})`;
 }
 
 async function get(url: string): Promise<Response> {

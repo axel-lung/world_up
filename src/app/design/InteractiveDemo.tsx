@@ -1,6 +1,6 @@
 'use client';
 
-import { ListIcon, SquaresFourIcon } from '@phosphor-icons/react';
+import { LayoutGrid, List } from 'lucide-react';
 import { useState } from 'react';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Tabs } from '@/components/ui/Tabs';
@@ -16,9 +16,9 @@ export function InteractiveDemo({ id }: { id: string }) {
         value={tab}
         onValueChange={setTab}
         items={[
-          { value: 'all', label: 'Toutes', count: '26 755' },
-          { value: 'owned', label: 'Possédées', count: '1 284' },
-          { value: 'missing', label: 'Manquantes', count: '25 471' },
+          { value: 'all', label: 'Toutes', count: '26 755' },
+          { value: 'owned', label: 'Possédées', count: '1 284' },
+          { value: 'missing', label: 'Manquantes', count: '25 471' },
           { value: 'duplicates', label: 'Doublons', count: '212' },
         ]}
       />
@@ -28,8 +28,8 @@ export function InteractiveDemo({ id }: { id: string }) {
         value={view}
         onValueChange={setView}
         options={[
-          { value: 'grid', label: 'Grille', icon: <SquaresFourIcon size={16} aria-hidden /> },
-          { value: 'list', label: 'Liste', icon: <ListIcon size={16} aria-hidden /> },
+          { value: 'grid', label: 'Grille', icon: <LayoutGrid aria-hidden /> },
+          { value: 'list', label: 'Liste', icon: <List aria-hidden /> },
         ]}
       />
     </>

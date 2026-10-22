@@ -70,7 +70,7 @@ const checkAccountInput = createAuthMiddleware(async (ctx) => {
 function createAuth() {
   const appUrl = requireEnv('APP_URL');
   return betterAuth({
-    appName: 'Patrimoine de France',
+    appName: 'World Up',
     baseURL: appUrl,
     secret: requireEnv('AUTH_SECRET'),
     database: drizzleAdapter(db, {

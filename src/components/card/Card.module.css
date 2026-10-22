@@ -1,94 +1,124 @@
-/* Ported from Carte.dc.html (Claude Design project). The frame, colors and
-   fonts come from the collection skin (--skin-*), with the base theme as
-   fallback; the banner, structure and states belong to the base. --rar-fill
-   and --rar-line come from data-rarity (theme.css). */
+/* Ported from CarteV2.dc.html (Claude Design project): a sticker card, the
+   photo in a rounded window, the rarity sticker astride the photo, the name in
+   Caprasimo and the collection's emblem in the footer. The card is cream and
+   inked in both themes (theme.css); only its drop shadow, the missing state and
+   the emblem's color (--skin-color) change. --rar-fill and --rar-line come
+   from data-rarity (theme.css). */
 
 .card {
   /* grid size: readable from 160 px wide */
-  --banner-h: 20px;
-  --banner-px: 6px;
-  --fs-banner: 10px;
-  --pip: 4px;
-  --pip-gap: 2.5px;
+  --card-radius: 16px;
+  --face-pad: 7px;
+  --face-gap: 6px;
+  --back-gap: 4px;
+  --photo-radius: 10px;
+  --stk-off: 6px;
+  --stk-drop: -10px;
+  --stk-pad: 4px 7px;
+  --fs-stk: 9.5px;
+  --dot: 4.5px;
+  --dot-gap: 2.5px;
+  --name-pt: 8px;
+  --text-gap: 4px;
   --fs-meta: 11px;
-  --fs-tag: 10px;
-  --tag-pad: 2px 5px;
+  --fs-tag: 9.5px;
+  --tag-pad: 2px 6px;
   --fs-num: 10px;
   --fs-text: 10.5px;
   --excerpt-lines: 5;
-  --sep: 5px;
-  --face-gap: 5px;
-  --back-gap: 4px;
-  --face-pad: 8px;
-  --card-radius: 8px;
+  --sep: 5px 7px;
+  --emb: 18px;
+  --fs-emb: 10px;
   --place-wrap: nowrap;
   --fit: cover;
 
   /* owned */
-  --banner-bg: var(--rar-fill);
-  --banner-ink: var(--rar-ink);
-  --banner-ring: none;
-  --pip-color: var(--rar-ink);
+  --face-bg: var(--sticker-paper);
+  --face-border: 2px solid var(--sticker-line);
+  --face-shadow: 0 4px 0 var(--sticker-shadow);
+  --photo-bg: var(--card-photo-bg);
+  --stk-bg: var(--rar-fill);
+  --stk-border: 2px solid var(--sticker-line);
+  --stk-ink: var(--rar-ink);
+  --stk-shadow: 0 2px 0 var(--sticker-line);
+  --dot-color: var(--rar-ink);
+  --badge-line: rgba(32, 30, 29, 0.35);
+  --unesco-bg: #e1eecc;
+  --unesco-line: #7a8a5e;
+  --emb-bg: var(--skin-color, var(--sticker-new));
+  --emb-ink: var(--skin-ink, var(--sticker-line));
   --img-filter: none;
   --img-opacity: 1;
-  --photo-bg: var(--skin-photo-bg, #10121c);
 
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 25;
+  aspect-ratio: 80 / 131;
   perspective: 1400px;
   font-family: var(--font-body);
   font-size: 13px;
   border-radius: var(--card-radius);
-  outline: 2px solid transparent;
-  outline-offset: 3px;
-  color: var(--skin-card-ink, var(--color-text));
+  outline: 3px solid transparent;
+  outline-offset: 4px;
+  color: var(--card-ink);
 }
 
 .card[data-size="large"] {
-  --banner-h: 32px;
-  --banner-px: 10px;
-  --fs-banner: 13px;
-  --pip: 7px;
-  --pip-gap: 5px;
+  --card-radius: 24px;
+  --face-pad: 12px;
+  --face-gap: 10px;
+  --back-gap: 9px;
+  --photo-radius: 16px;
+  --stk-off: 10px;
+  --stk-drop: -14px;
+  --stk-pad: 6px 11px;
+  --fs-stk: 13px;
+  --dot: 7px;
+  --dot-gap: 4px;
+  --name-pt: 12px;
+  --text-gap: 8px;
   --fs-meta: 15px;
   --fs-tag: 12px;
-  --tag-pad: 4px 8px;
+  --tag-pad: 4px 9px;
   --fs-num: 13px;
   --fs-text: 13.5px;
   --excerpt-lines: 7;
-  --sep: 10px;
-  --face-gap: 10px;
-  --back-gap: 9px;
-  --face-pad: 14px;
-  --card-radius: 14px;
+  --sep: 10px 12px;
+  --emb: 26px;
+  --fs-emb: 14px;
   --place-wrap: normal;
   font-size: 24px;
 }
 
 .card[data-state="missing"],
 .card[data-state="masked"] {
-  --banner-bg: transparent;
-  --banner-ink: var(--card-miss-ink, #cfd3e5);
-  --banner-ring: inset 0 0 0 1px var(--rar-line);
-  --pip-color: var(--rar-line);
-  --img-filter: var(--card-miss-filter, grayscale(1) brightness(0.45) contrast(1.1));
-  --img-opacity: 0.65;
-  --photo-bg: var(--card-miss-photo, #10121c);
-  --skin-card-ink: var(--card-miss-ink, #b2b6ca);
-  --skin-card-muted: var(--card-miss-muted, #9397ab);
-  --skin-card-line: var(--card-miss-line, #3f424d);
-}
-
-.card[data-state="masked"] {
-  --img-filter: grayscale(1) brightness(0.4) blur(3px);
+  --card-ink: var(--miss-ink);
+  --card-muted: var(--miss-muted);
+  --face-bg: var(--miss-bg);
+  --face-border: 2px dashed var(--miss-line);
+  --face-shadow: none;
+  --photo-bg: var(--miss-photo);
+  --stk-bg: var(--miss-bg);
+  --stk-border: 2px dashed var(--rar-line);
+  --stk-ink: var(--rar-line);
+  --stk-shadow: none;
+  --dot-color: var(--rar-line);
+  --badge-line: var(--miss-line);
+  --unesco-bg: transparent;
+  --unesco-line: var(--miss-line);
+  --emb-bg: transparent;
+  --emb-ink: var(--miss-muted);
+  --img-filter: var(--miss-filter);
+  --img-opacity: 0.7;
 }
 
 .card[data-letterbox] {
   --fit: contain;
 }
 
-.card[data-selected],
+.card[data-selected] {
+  outline-color: var(--sticker-selected);
+}
+
 .card:has(.flipButton:focus-visible),
 .card:has(.nameLink:focus-visible) {
   outline-color: var(--color-accent);
@@ -102,7 +132,7 @@
   position: relative;
   height: 100%;
   transform-style: preserve-3d;
-  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: transform 0.55s cubic-bezier(0.34, 1.4, 0.5, 1);
 }
 
 .inner[data-flipped] {
@@ -121,17 +151,10 @@
   gap: var(--face-gap);
   padding: var(--face-pad);
   border-radius: var(--card-radius);
-  background: var(--skin-card-bg, var(--color-surface));
-  border: var(--skin-card-border, 1px solid #3f424d);
-  box-shadow: var(--skin-card-shadow, none);
+  background: var(--face-bg);
+  border: var(--face-border);
+  box-shadow: var(--face-shadow);
   backface-visibility: hidden;
-}
-
-.card[data-state="missing"] .face,
-.card[data-state="masked"] .face {
-  background: var(--card-miss-bg, #1b1d2a);
-  border: 1px dashed var(--card-miss-line, #595d6c);
-  box-shadow: none;
 }
 
 .front {
@@ -148,64 +171,60 @@
   gap: var(--back-gap);
 }
 
-/* — rarity banner — */
+/* — rarity sticker — */
 
-.banner {
+.sticker {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  min-height: var(--banner-h);
-  padding: 0 var(--banner-px);
-  border-radius: 4px;
-  background: var(--banner-bg);
-  box-shadow: var(--banner-ring);
-  color: var(--banner-ink);
-  flex: none;
-}
-
-.bannerLabel {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-  font-size: var(--fs-banner);
-  font-weight: 600;
+  gap: var(--dot-gap);
+  padding: var(--stk-pad);
+  border-radius: 999px;
+  background: var(--stk-bg);
+  border: var(--stk-border);
+  color: var(--stk-ink);
+  font-size: var(--fs-stk);
+  font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
-.bannerSuffix {
-  font-weight: 500;
+/* Astride the bottom edge of the photo, slightly tilted */
+.frontSticker {
+  position: absolute;
+  left: var(--stk-off);
+  bottom: var(--stk-drop);
+  transform: rotate(-2.5deg);
+  box-shadow: var(--stk-shadow);
+  z-index: 2;
 }
 
-.pips {
+.dots {
   display: flex;
-  align-items: center;
-  gap: var(--pip-gap);
-  padding-right: 1px;
-  flex: none;
+  gap: var(--dot-gap);
 }
 
-.pip {
-  width: var(--pip);
-  height: var(--pip);
-  border-radius: 1px;
-  transform: rotate(45deg);
-  background: var(--pip-color);
+.dot {
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: 50%;
+  background: var(--dot-color);
 }
 
 /* — photo — */
 
+.photoArea {
+  position: relative;
+  flex: none;
+}
+
 .photo {
   position: relative;
   aspect-ratio: 4 / 3;
-  border-radius: 4px;
+  border-radius: var(--photo-radius);
   overflow: hidden;
   background: var(--photo-bg);
-  flex: none;
 }
 
 .photoBackdrop,
@@ -218,7 +237,7 @@
 
 .photoBackdrop {
   object-fit: cover;
-  filter: blur(12px) brightness(0.5);
+  filter: blur(12px) brightness(0.75);
   transform: scale(1.2);
 }
 
@@ -229,6 +248,7 @@
   opacity: var(--img-opacity);
 }
 
+/* No photo: a flat with the monument's name */
 .photoFallback {
   position: absolute;
   inset: 0;
@@ -236,23 +256,43 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   padding: 10px;
   text-align: center;
-  font-family: var(--skin-name-font, var(--font-body));
-  font-size: var(--fs-meta);
-  line-height: 1.25;
-  color: var(--skin-card-muted);
+  font-family: var(--font-heading);
+  font-size: 1em;
+  line-height: 1.15;
+  color: #3d472b;
   background: var(--photo-bg);
 }
 
 .photoFallback svg {
-  width: 1.6em;
-  height: 1.6em;
-  opacity: 0.7;
+  width: 1.4em;
+  height: 1.4em;
 }
 
-/* Over the photo, whatever the theme: fixed light-on-dark colors. */
+/* A masked card: a question mark instead of the photo */
+.mystery {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.mystery > span {
+  width: 2.6em;
+  height: 2.6em;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--miss-bg);
+  border: 2px dashed var(--card-muted);
+  font-family: var(--font-heading);
+  font-size: 1.5em;
+  color: var(--card-muted);
+}
+
+/* Over the photo, whatever the theme: the card's own cream and ink. */
 .infoButton {
   position: absolute;
   top: 0;
@@ -266,9 +306,9 @@
   background: transparent;
   border: 0;
   cursor: pointer;
-  color: #e9e9ed;
+  color: var(--card-ink);
   /* Above the card's link */
-  z-index: 2;
+  z-index: 3;
 }
 
 .infoButton > span {
@@ -277,65 +317,108 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: rgba(22, 24, 38, 0.72);
-  font-size: 14px;
+  background: var(--sticker-paper);
+  border: 1.5px solid var(--sticker-line);
+}
+
+.infoButton svg {
+  width: 12px;
+  height: 12px;
 }
 
 .creditOverlay {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 6px 7px;
-  background: rgba(22, 24, 38, 0.9);
+  left: 4px;
+  right: 4px;
+  top: 40px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--sticker-paper);
+  border: 1.5px solid var(--sticker-line);
   font-size: 10px;
   line-height: 1.35;
-  color: #e4e7f5;
-  z-index: 2;
+  color: var(--card-ink);
+  z-index: 3;
 }
 
 .creditOverlay a,
 .credit a {
-  color: inherit;
+  color: var(--card-link);
 }
 
+.shinySticker {
+  position: absolute;
+  top: var(--stk-off);
+  left: var(--stk-off);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: var(--stk-pad);
+  border-radius: 999px;
+  background: var(--sticker-paper);
+  border: 2px solid var(--sticker-line);
+  color: var(--card-ink);
+  font-size: var(--fs-stk);
+  font-weight: 700;
+  line-height: 1;
+  transform: rotate(-4deg);
+}
+
+.shinySticker svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* Large size: the photo credit under the photo, right-aligned and clear of the
+   rarity sticker that hangs below the photo */
 .credit {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  margin-top: -3px;
-  font-size: 12px;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 11.5px;
   line-height: 1.35;
-  color: var(--skin-card-muted);
+  color: var(--card-muted);
+  text-align: right;
 }
 
 .credit svg {
   flex: none;
+  width: 12px;
+  height: 12px;
   margin-top: 2px;
 }
 
 .credit > span {
   min-width: 0;
+  max-width: 70%;
 }
 
 /* — front text — */
 
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--text-gap);
+  padding-top: var(--name-pt);
+}
+
 .name,
 .backName {
   margin: 0;
-  font-family: var(--skin-name-font, var(--font-heading));
-  font-weight: var(--skin-name-weight, 500);
-  line-height: 1.15;
-  color: var(--skin-card-ink);
+  font-family: var(--font-heading);
+  font-weight: 400;
+  line-height: 1.12;
+  color: var(--card-ink);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .name {
-  text-transform: var(--skin-name-case, none);
-  letter-spacing: var(--skin-name-tracking, -0.01em);
-  font-size: calc(1em * var(--skin-name-scale, 1));
+  font-size: 1.06em;
+  letter-spacing: -0.005em;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   text-wrap: pretty;
@@ -357,14 +440,15 @@
 }
 
 .nameLink:hover {
+  color: inherit;
   text-decoration: underline;
 }
 
 .toDiscover {
-  font-size: 1em;
-  line-height: 1.15;
-  font-style: italic;
-  color: var(--skin-card-muted);
+  font-family: var(--font-heading);
+  font-size: 1.06em;
+  line-height: 1.12;
+  color: var(--card-muted);
 }
 
 .place {
@@ -373,12 +457,14 @@
   gap: 4px;
   min-width: 0;
   font-size: var(--fs-meta);
-  line-height: 1.2;
-  color: var(--skin-card-muted);
+  line-height: 1.25;
+  color: var(--card-muted);
 }
 
 .place svg {
   flex: none;
+  width: 1em;
+  height: 1em;
 }
 
 .place > span {
@@ -395,37 +481,62 @@
 
 .badge {
   font-size: var(--fs-tag);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
   padding: var(--tag-pad);
-  border-radius: 3px;
-  border: 1px solid var(--skin-card-line, #3f424d);
-  color: var(--skin-card-muted);
+  border-radius: 999px;
+  border: 1.5px solid var(--badge-line);
+  color: var(--card-ink);
   white-space: nowrap;
 }
 
-.footer,
-.backFooter {
-  margin-top: auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  column-gap: 6px;
-  font-size: var(--fs-num);
-  line-height: 1.3;
-  color: var(--skin-card-muted);
-  font-variant-numeric: tabular-nums;
+.badge[data-badge="unesco"] {
+  background: var(--unesco-bg);
+  border-color: var(--unesco-line);
 }
 
 .footer {
-  letter-spacing: 0.02em;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-num);
+  line-height: 1.25;
+  color: var(--card-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.footer > span:last-child,
-.backFooter > span:last-child {
+.emblem {
+  flex: none;
+  width: var(--emb);
+  height: var(--emb);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--emb-bg);
+  color: var(--emb-ink);
+}
+
+.emblem svg {
+  width: var(--fs-emb);
+  height: var(--fs-emb);
+}
+
+.seriesName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.number {
   margin-left: auto;
+  flex: none;
+  font-weight: 600;
+  color: var(--card-ink);
 }
 
+/* Shiny: an iridescent sheen over the front */
 .shine {
   position: absolute;
   inset: 0;
@@ -433,19 +544,31 @@
   pointer-events: none;
   background: linear-gradient(
     115deg,
-    transparent 16%,
-    rgba(255, 138, 201, 0.4) 32%,
-    rgba(132, 214, 255, 0.4) 45%,
-    rgba(255, 236, 150, 0.4) 58%,
-    transparent 74%
+    transparent 14%,
+    rgba(255, 150, 190, 0.45) 30%,
+    rgba(150, 220, 255, 0.45) 44%,
+    rgba(255, 232, 140, 0.5) 58%,
+    transparent 76%
   );
-  mix-blend-mode: color-dodge;
+  mix-blend-mode: color-burn;
+  opacity: 0.7;
 }
 
 /* — back — */
 
+.backTop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.backTop .emblem {
+  margin-left: auto;
+}
+
 .backName {
-  font-size: calc(0.82em * var(--skin-name-scale, 1));
+  font-size: 0.95em;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   flex: none;
@@ -455,7 +578,7 @@
   margin: 0;
   font-size: var(--fs-text);
   line-height: 1.45;
-  color: var(--skin-card-ink);
+  color: var(--card-ink);
   display: -webkit-box;
   -webkit-line-clamp: var(--excerpt-lines);
   line-clamp: var(--excerpt-lines);
@@ -470,8 +593,20 @@
   align-items: center;
   gap: 6px;
   min-height: 44px;
-  color: var(--skin-card-ink);
+  font-weight: 600;
+  color: var(--card-link);
   text-underline-offset: 3px;
+}
+
+.articleLink:hover,
+.commonsLink:hover {
+  color: var(--card-ink);
+}
+
+.articleLink svg,
+.commonsLink svg {
+  width: 1em;
+  height: 1em;
 }
 
 .articleLink {
@@ -487,36 +622,52 @@
 .textLicense {
   font-size: var(--fs-tag);
   line-height: 1.3;
-  color: var(--skin-card-muted);
+  color: var(--card-muted);
 }
 
 .photoSection {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding-top: var(--sep);
-  box-shadow: inset 0 1px 0 var(--skin-card-line, #3f424d);
+  padding: var(--sep);
+  border-radius: var(--photo-radius);
+  background: var(--card-photo-soft);
 }
 
 .photoHeading {
   font-size: var(--fs-tag);
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--skin-card-muted);
+  color: var(--card-muted);
 }
 
 .photoAuthor {
   font-size: var(--fs-meta);
   line-height: 1.3;
-  color: var(--skin-card-ink);
+  color: var(--card-ink);
 }
 
 .backFooter {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
+  justify-content: space-between;
+  column-gap: 6px;
+  font-size: var(--fs-num);
+  line-height: 1.3;
+  color: var(--card-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .backFooter > span:first-child {
-  color: var(--skin-card-ink);
+  font-weight: 600;
+  color: var(--card-ink);
+}
+
+.backFooter > span:last-child {
+  margin-left: auto;
 }
 
 /* — corner badges — */
@@ -532,52 +683,55 @@
   white-space: nowrap;
 }
 
-.newBadge,
-.copiesBadge,
-.selectedBadge {
-  position: absolute;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-}
-
 .newBadge {
-  top: -8px;
-  left: 10px;
-  padding: 3px 7px;
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  padding: 4px 9px;
   border-radius: 999px;
-  background: var(--color-accent);
-  color: var(--color-on-accent, #161826);
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: 0.06em;
+  background: var(--sticker-new);
+  border: 2px solid var(--sticker-line);
+  color: var(--sticker-line);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  transform: rotate(5deg);
 }
 
 .copiesBadge {
-  top: -8px;
-  right: -8px;
-  min-width: 26px;
-  height: 22px;
-  padding: 0 6px;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
-  border-radius: 999px;
-  background: var(--color-text, #e9e9ed);
-  color: var(--color-bg, #161826);
+  border-radius: 50%;
+  background: var(--sticker-line);
+  border: 2px solid var(--sticker-paper);
+  color: #f5ead8;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .selectedBadge {
-  top: -9px;
-  left: -9px;
-  width: 24px;
-  height: 24px;
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--color-accent);
-  color: var(--color-on-accent, #161826);
-  font-size: 14px;
+  background: var(--sticker-selected);
+  border: 2px solid var(--sticker-line);
+  color: var(--sticker-paper);
+}
+
+.selectedBadge svg {
+  width: 15px;
+  height: 15px;
 }

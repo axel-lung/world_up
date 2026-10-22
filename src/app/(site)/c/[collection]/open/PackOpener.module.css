@@ -59,22 +59,59 @@
   }
 }
 
-/* The closed pack, in the collection's skin, over the cards it is about to release */
+/* The closed pack, a sticker in the collection's color with its emblem, over
+   the cards it is about to release */
 .pack {
   position: absolute;
   z-index: 3;
   left: 50%;
   top: 40px;
-  width: 150px;
+  width: 160px;
   aspect-ratio: 5 / 7;
-  margin-left: -75px;
-  border-radius: 12px;
-  background:
-    linear-gradient(135deg, transparent 0 46%, var(--skin-fill-ink, #efe3d4) 46% 54%, transparent 54%),
-    var(--skin-fill, var(--color-accent));
-  box-shadow: var(--shadow-lg);
+  margin-left: -80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px 18px;
+  border-radius: 24px;
+  background: var(--skin-color, var(--color-accent));
+  border: 2px solid var(--sticker-line);
+  box-shadow: 0 5px 0 var(--sticker-shadow);
+  color: var(--skin-ink, var(--sticker-line));
   pointer-events: none;
   animation: pack-open 0.6s ease-in both;
+}
+
+.packEmblem {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sticker-paper);
+  border: 2px solid var(--sticker-line);
+  color: var(--sticker-line);
+}
+
+.packEmblem svg {
+  width: 20px;
+  height: 20px;
+}
+
+.packKicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.packName {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  line-height: 1;
 }
 
 .result[data-revealing] .reveal {
@@ -141,4 +178,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.unlocked svg {
+  color: var(--color-success);
 }

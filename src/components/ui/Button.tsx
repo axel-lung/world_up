@@ -2,24 +2,36 @@ import Link from 'next/link';
 import type { ComponentProps, ReactNode } from 'react';
 import styles from './Button.module.css';
 
-// Outlined, never filled (Nocturne .btn). "danger" is the secondary button in
-// the danger color, e.g. "Supprimer le compte".
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+// Organic's pill .btn, in Caprasimo. primary: the terracotta fill. sage: the
+// second voice (exchanges). danger: the secondary button in the danger color,
+// e.g. "Supprimer le compte".
+type Variant = 'primary' | 'secondary' | 'ghost' | 'sage' | 'danger';
 
 interface ButtonStyleProps {
   variant?: Variant;
+  /** large: the page's main action, e.g. "Ouvrir un paquet". */
+  size?: 'medium' | 'large';
   icon?: ReactNode;
-  /** Square 44 px button: give it an aria-label. */
+  /** Round 44 px button: give it an aria-label. */
   iconOnly?: boolean;
   block?: boolean;
 }
 
-function buttonClassName({ variant = 'secondary', iconOnly, block }: ButtonStyleProps, className?: string) {
+const ORGANIC_CLASS: Record<Variant, string | null> = {
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  ghost: 'btn-ghost',
+  sage: null,
+  danger: 'btn-secondary',
+};
+
+function buttonClassName({ variant = 'secondary', size = 'medium', iconOnly, block }: ButtonStyleProps, className?: string) {
   return [
     'btn',
-    variant === 'danger' ? 'btn-secondary' : `btn-${variant}`,
+    ORGANIC_CLASS[variant],
     styles.button,
     styles[variant],
+    size === 'large' && styles.large,
     iconOnly && `btn-icon ${styles.iconOnly}`,
     block && styles.block,
     className,
@@ -30,6 +42,7 @@ function buttonClassName({ variant = 'secondary', iconOnly, block }: ButtonStyle
 
 export function Button({
   variant,
+  size,
   icon,
   iconOnly,
   block,
@@ -39,7 +52,7 @@ export function Button({
   ...props
 }: ButtonStyleProps & ComponentProps<'button'>) {
   return (
-    <button type={type} className={buttonClassName({ variant, iconOnly, block }, className)} {...props}>
+    <button type={type} className={buttonClassName({ variant, size, iconOnly, block }, className)} {...props}>
       {icon}
       {children}
     </button>
@@ -48,6 +61,7 @@ export function Button({
 
 export function ButtonLink({
   variant,
+  size,
   icon,
   iconOnly,
   block,
@@ -56,7 +70,7 @@ export function ButtonLink({
   ...props
 }: ButtonStyleProps & ComponentProps<typeof Link>) {
   return (
-    <Link className={buttonClassName({ variant, iconOnly, block }, className)} {...props}>
+    <Link className={buttonClassName({ variant, size, iconOnly, block }, className)} {...props}>
       {icon}
       {children}
     </Link>

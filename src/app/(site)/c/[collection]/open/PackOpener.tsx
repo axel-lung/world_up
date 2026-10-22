@@ -1,12 +1,14 @@
 'use client';
 
-import { PackageIcon, TrophyIcon } from '@phosphor-icons/react';
+import { PackageOpen, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { type CSSProperties, useEffect, useRef, useState, useTransition } from 'react';
 import { Card } from '@/components/card/Card';
+import { EmblemIcon } from '@/components/collection/Emblem';
 import { PackReserve } from '@/components/pack/PackReserve';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Notice';
+import type { Emblem } from '@/lib/collection-theme';
 import { achievementTitle } from '@/lib/game/achievement-title';
 import { openPackAction, type OpenPackResult, type ReserveView } from './actions';
 import styles from './PackOpener.module.css';
@@ -21,11 +23,13 @@ const REDUCED_REVEAL_MS = 400;
 export function PackOpener({
   collection,
   collectionName,
+  emblem,
   collectionHref,
   initialReserve,
 }: {
   collection: string;
   collectionName: string;
+  emblem: Emblem;
   collectionHref: string;
   initialReserve: ReserveView;
 }) {
@@ -85,9 +89,10 @@ export function PackOpener({
       <div className={styles.actions}>
         <Button
           variant="primary"
+          size="large"
           onClick={open}
           disabled={pending || reserve.available < 1}
-          icon={<PackageIcon size={18} aria-hidden />}
+          icon={<PackageOpen aria-hidden />}
         >
           {pending ? t('opening') : opened ? t('openAnother') : t('open')}
         </Button>
@@ -117,7 +122,15 @@ export function PackOpener({
           </p>
 
           <div className={styles.stage}>
-            {revealing && <span className={styles.pack} aria-hidden="true" />}
+            {revealing && (
+              <span className={styles.pack} aria-hidden="true">
+                <span className={styles.packEmblem}>
+                  <EmblemIcon emblem={emblem} />
+                </span>
+                <span className={styles.packKicker}>{t('packKicker')}</span>
+                <span className={styles.packName}>{collectionName}</span>
+              </span>
+            )}
             <ul className={styles.cards}>
               {opened.cards.map(({ position, isNew, card }, index) => (
                 <li
@@ -127,6 +140,7 @@ export function PackOpener({
                 >
                   <Card
                     card={card.data}
+                    collection={{ name: collectionName, emblem }}
                     isNew={isNew}
                     copies={card.copies}
                     href={card.href ?? undefined}
@@ -142,7 +156,7 @@ export function PackOpener({
               <ul className={styles.unlocked}>
                 {opened.achievements.map((achievement) => (
                   <li key={achievement.code}>
-                    <TrophyIcon size={18} aria-hidden />
+                    <Trophy aria-hidden />
                     <span>
                       {t('unlocked', {
                         title: achievementTitle(tAchievement, tRarity, achievement),

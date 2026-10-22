@@ -1,17 +1,29 @@
+import {
+  ArrowLeftRight,
+  Ban,
+  Check,
+  CircleUser,
+  Hourglass,
+  House,
+  Info,
+  Landmark,
+  Layers,
+  MapPin,
+  Medal,
+  PackageOpen,
+  Package,
+  Pointer,
+  Sparkle,
+  Sparkles,
+  Store,
+  Timer,
+  TriangleAlert,
+  X,
+} from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import {
-  CheckIcon,
-  HourglassIcon,
-  InfoIcon,
-  MedalIcon,
-  PackageIcon,
-  ProhibitIcon,
-  SparkleIcon,
-  WarningIcon,
-  XIcon,
-} from '@phosphor-icons/react/ssr';
-import { Card } from '@/components/card/Card';
+import type { CSSProperties, ReactNode } from 'react';
+import { Card, type CardCollection } from '@/components/card/Card';
 import { PackReserve, PackReserveCompact } from '@/components/pack/PackReserve';
 import { RarityBadge } from '@/components/rarity/Rarity';
 import { PackPurchasePanel, PurchaseConfirmation } from '@/components/shop/PackPurchase';
@@ -21,11 +33,32 @@ import { Tag } from '@/components/ui/Tag';
 import { RARITIES } from '@/lib/rarity';
 import { InteractiveDemo } from './InteractiveDemo';
 import styles from './page.module.css';
-import { defaultOdds, samples } from './samples';
+import { defaultOdds, rarityTable, samples, tokens } from './samples';
 
 export const metadata: Metadata = { title: 'Design system', robots: { index: false } };
 
-// Development showcase of design/Design system World Up.dc.html, to check the
+const heritage: CardCollection = { name: 'Patrimoine de France', emblem: 'landmark' };
+
+const THEMES = [
+  { theme: 'light', label: 'Thème clair' },
+  { theme: 'dark', label: 'Thème sombre' },
+] as const;
+
+function SectionTitle({ id, number, tone, title, children }: { id: string; number: number; tone: 'accent' | 'sage'; title: string; children: ReactNode }) {
+  return (
+    <div className={styles.sectionTitle}>
+      <span className={styles.sectionNumber} data-tone={tone} aria-hidden="true">
+        {number}
+      </span>
+      <div>
+        <h2 id={id}>{title}</h2>
+        <p className={styles.lead}>{children}</p>
+      </div>
+    </div>
+  );
+}
+
+// Development showcase of design/Design system World Up v2.dc.html, to check the
 // integration against the mock-up. Its section titles and sample values are
 // not game text, so they stay out of messages/fr.json. Production never serves
 // it: the photos come straight from Wikimedia Commons.
@@ -39,73 +72,289 @@ export default function DesignPage() {
   return (
     <main className={styles.page}>
       <header className={styles.intro}>
-        <span className={styles.kicker}>Patrimoine de France · habillage 1a « Panneau touristique »</span>
-        <h1>Design system</h1>
+        <span aria-hidden="true" className={styles.discAccent} />
+        <span aria-hidden="true" className={styles.discSage} />
+        <Sparkle className={styles.sparkle} aria-hidden />
+        <Tag variant="accent" icon={<Landmark aria-hidden />} className={styles.introTag}>
+          Patrimoine de France · charte v2
+        </Tag>
+        <h1>Le design system, version ludique</h1>
         <p className={styles.lead}>
-          Intégration du design system World Up (nom provisoire)&nbsp;: socle Nocturne, thèmes clair et sombre,
-          habillage lu dans <code>collections.theme</code>. Page de développement, absente en production.
+          Intégration du design system World Up v2&nbsp;: le socle Organic (crème, terracotta, sauge, Caprasimo et
+          Figtree), des cartes traitées comme des autocollants, l&apos;habillage lu dans <code>collections.theme</code>.
+          Thème clair par défaut, thème sombre conservé. Page de développement, absente en production.
         </p>
       </header>
 
-      <section className={styles.section}>
-        <h2>Raretés</h2>
-        <div className={styles.row}>
-          {RARITIES.map((rarity) => (
-            <RarityBadge key={rarity} rarity={rarity} />
-          ))}
+      <section className={styles.section} aria-labelledby="couleurs">
+        <SectionTitle id="couleurs" number={1} tone="accent" title="Couleurs">
+          Le texte courant atteint 4,5:1 sur le fond dans les deux thèmes. La terracotta sert aux aplats, aux icônes
+          et au gros texte ; en texte courant, on prend --color-accent-strong. La sauge est une vraie deuxième voix :
+          succès, sélection, UNESCO, échanges.
+        </SectionTitle>
+        <div className={styles.tableWrap}>
+          <table className={`table ${styles.table}`}>
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Rôle</th>
+                <th>Clair</th>
+                <th>Sombre</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tokens.map((token) => (
+                <tr key={token.name}>
+                  <td>
+                    <code>{token.name}</code>
+                  </td>
+                  <td>{token.role}</td>
+                  {[token.light, token.dark].map((value, index) => (
+                    <td key={index}>
+                      <span className={styles.swatchCell}>
+                        <span className={styles.swatch} style={{ background: value }} />
+                        {value}
+                      </span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className={styles.skin}>
+          <div className={styles.skinPack} aria-hidden="true">
+            <span className={styles.skinEmblem}>
+              <Landmark />
+            </span>
+            <span className={styles.skinKicker}>Collection</span>
+            <span className={styles.skinName}>
+              Patrimoine
+              <br />
+              de France
+            </span>
+          </div>
+          <div className={styles.skinText}>
+            <h3>Habillage « Patrimoine de France »</h3>
+            <p className={styles.lead}>
+              Chaque collection a sa couleur et son emblème. Pour celle-ci : la terracotta et une icône de monument,
+              sur le paquet et en pied de carte. La carte reste un objet crème encré, identique dans les deux thèmes.
+            </p>
+            <div className={styles.row}>
+              {[
+                ['--skin-color', 'Terracotta #c67139', '#c67139'],
+                ['--sticker-paper', 'Crème carte #f9f4ed', '#f9f4ed'],
+                ['--card-ink', 'Encre #201e1d · 16:1', '#201e1d'],
+                ['--card-photo-bg', 'Sauge pâle #ccdbb2', '#ccdbb2'],
+              ].map(([name, label, value]) => (
+                <span key={name} className={styles.skinSwatch}>
+                  <span className={styles.skinDot} style={{ background: value }} />
+                  <span>
+                    <code>{name}</code>
+                    <span className={styles.muted}>{label}</span>
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className={styles.section}>
-        <h2>Composants</h2>
+      <section className={styles.section} aria-labelledby="raretes">
+        <SectionTitle id="raretes" number={2} tone="sage" title="Raretés">
+          Nouvelle palette, chaude et douce, commune à toutes les collections. La rareté ne passe jamais par la seule
+          couleur : l&apos;étiquette porte son nom et de 1 à 6 pastilles. L&apos;encre #201e1d dépasse 4,5:1 sur les
+          six teintes.
+        </SectionTitle>
+        <div className={styles.tableWrap}>
+          <table className={`table ${styles.table}`}>
+            <thead>
+              <tr>
+                <th>Étiquette</th>
+                <th>Part du catalogue</th>
+                <th>Cartes</th>
+                <th>Aplat</th>
+                <th>Trait (manquantes, thème clair)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {RARITIES.map((rarity) => (
+                <tr key={rarity}>
+                  <td className={styles.stickerCell}>
+                    <RarityBadge rarity={rarity} />
+                  </td>
+                  <td className={styles.number}>{rarityTable[rarity].share}</td>
+                  <td className={styles.number}>{rarityTable[rarity].cards}</td>
+                  <td>{rarityTable[rarity].fill}</td>
+                  <td>
+                    <span className={styles.missLine} style={{ '--line': rarityTable[rarity].line } as CSSProperties}>
+                      {rarityTable[rarity].line}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className={styles.section} aria-labelledby="typographie">
+        <SectionTitle id="typographie" number={3} tone="accent" title="Typographie">
+          Caprasimo est la seule voix d&apos;affichage : titres, noms de monuments, boutons. Figtree porte tout le
+          reste, avec des chiffres tabulaires pour les compteurs et les prix.
+        </SectionTitle>
+        <div className={styles.specimens}>
+          <span className={styles.muted}>Affichage · Caprasimo 64</span>
+          <span className={styles.display} style={{ fontSize: 64, lineHeight: 1.02 }}>
+            Ouvrez&nbsp;!
+          </span>
+          <span className={styles.muted}>Titre 1 · 42</span>
+          <span className={styles.display} style={{ fontSize: 42, lineHeight: 1.1 }}>
+            Patrimoine de France
+          </span>
+          <span className={styles.muted}>Titre 2 · 32</span>
+          <span className={styles.display} style={{ fontSize: 32 }}>
+            Mes séries
+          </span>
+          <span className={styles.muted}>Titre 3 · 25</span>
+          <span className={styles.display} style={{ fontSize: 25 }}>
+            Dernières cartes
+          </span>
+          <span className={styles.muted}>Texte · Figtree 15/1,55</span>
+          <span className={styles.body}>
+            Un paquet gratuit arrive toutes les 10&nbsp;minutes, même quand vous n&apos;êtes pas connecté. La réserve en
+            garde 10 au plus.
+          </span>
+          <span className={styles.muted}>Libellé · Figtree 700</span>
+          <span className={styles.label}>Ultra rare · Nouveau&nbsp;!</span>
+          <span className={styles.muted}>Légende · 12</span>
+          <span className={styles.muted}>Photo&nbsp;: Benh LIEU SONG · domaine public</span>
+          <span className={styles.muted}>Chiffres · tabulaires</span>
+          <span className={styles.figures}>26&#8239;755 · 04:32 · 1,99&nbsp;€ · 4,8&nbsp;%</span>
+          <span className={styles.muted}>Nom de carte · Caprasimo</span>
+          <span className={styles.display} style={{ fontSize: 22, lineHeight: 1.15 }}>
+            Cathédrale Saint-Gervais-et-Saint-Protais de Soissons
+          </span>
+        </div>
+      </section>
+
+      <section className={styles.section} aria-labelledby="formes">
+        <SectionTitle id="formes" number={4} tone="sage" title="Formes, espaces et relief">
+          Tout s&apos;arrondit : conteneurs à 28 px, boutons et étiquettes en pilule, ronds partout ailleurs. Le relief
+          « autocollant » (contour de 2 px et ombre nette de 4 px) est réservé aux objets du jeu : cartes, paquets,
+          étiquettes de rareté. L&apos;interface garde les ombres douces d&apos;Organic.
+        </SectionTitle>
+        <div className={styles.shapes}>
+          <div className={styles.shapeRow}>
+            {['space-1', 'space-2', 'space-3', 'space-4', 'space-6', 'space-8'].map((space) => (
+              <figure key={space}>
+                <span className={styles.space} style={{ width: `var(--${space})` }} />
+                <figcaption>{space}</figcaption>
+              </figure>
+            ))}
+          </div>
+          <div className={styles.shapeRow}>
+            <figure>
+              <span className={styles.radius} style={{ borderRadius: 'var(--radius-md)' }} />
+              <figcaption>radius-md · 16</figcaption>
+            </figure>
+            <figure>
+              <span className={styles.radius} style={{ borderRadius: 'var(--radius-lg)' }} />
+              <figcaption>radius-lg · 28</figcaption>
+            </figure>
+            <figure>
+              <span className={styles.pill} />
+              <figcaption>pilule</figcaption>
+            </figure>
+          </div>
+          <div className={styles.shapeRow}>
+            <figure>
+              <span className={styles.soft} />
+              <figcaption>Interface · ombre douce</figcaption>
+            </figure>
+            <figure>
+              <span className={styles.stickerShape} />
+              <figcaption>Objet de jeu · autocollant</figcaption>
+            </figure>
+            <figure>
+              <span className={styles.touch}>
+                <Pointer />
+              </span>
+              <figcaption>Zone tactile · 44</figcaption>
+            </figure>
+          </div>
+        </div>
+        <div className={styles.icons}>
+          <House />
+          <Layers />
+          <ArrowLeftRight />
+          <Store />
+          <CircleUser />
+          <PackageOpen />
+          <Timer />
+          <Sparkles />
+          <Landmark />
+          <MapPin />
+          <span className={styles.muted}>Lucide, trait épaissi</span>
+        </div>
+      </section>
+
+      <section className={styles.section} aria-labelledby="composants">
+        <SectionTitle id="composants" number={5} tone="accent" title="Composants">
+          Le bouton principal est un aplat terracotta en pilule. Les deux colonnes sont interactives : onglets,
+          affichage, case de renonciation.
+        </SectionTitle>
         <div className={styles.themes}>
-          {(['dark', 'light'] as const).map((theme) => (
+          {THEMES.map(({ theme, label }) => (
             <div key={theme} data-theme={theme} className={styles.themePanel}>
-              <span className={styles.muted}>{theme === 'dark' ? 'Thème sombre' : 'Thème clair'}</span>
+              <Tag variant="subtle" className={styles.themeLabel}>
+                {label}
+              </Tag>
 
               <div className={styles.group}>
-                <h3 className={styles.groupTitle}>Boutons</h3>
+                <h3>Boutons</h3>
                 <div className={styles.row}>
-                  <Button variant="primary" icon={<PackageIcon size={18} aria-hidden />}>
+                  <Button variant="primary" size="large" icon={<PackageOpen aria-hidden />}>
                     Ouvrir un paquet
                   </Button>
                   <Button>Voir la collection</Button>
                   <Button variant="ghost">Lire les règles</Button>
-                  <Button iconOnly aria-label="Informations" icon={<InfoIcon size={20} aria-hidden />} />
+                  <Button iconOnly aria-label="Informations" icon={<Info aria-hidden />} />
                 </div>
                 <div className={styles.row}>
-                  <Button variant="primary" disabled icon={<PackageIcon size={18} aria-hidden />}>
+                  <Button variant="primary" disabled icon={<Package aria-hidden />}>
                     Aucun paquet
                   </Button>
-                  <Button>Résilier mon abonnement</Button>
+                  <Button variant="sage" icon={<ArrowLeftRight aria-hidden />}>
+                    Proposer l&apos;échange
+                  </Button>
                   <Button variant="danger">Supprimer le compte</Button>
                 </div>
               </div>
 
               <div className={styles.group}>
-                <h3 className={styles.groupTitle}>Badges</h3>
+                <h3>Étiquettes</h3>
                 <div className={styles.row}>
                   <Tag>Classé MH</Tag>
                   <Tag>Inscrit MH</Tag>
-                  <Tag>UNESCO</Tag>
-                  <Tag variant="new">Nouveau</Tag>
+                  <Tag variant="sage">UNESCO</Tag>
+                  <Tag variant="new">Nouveau&nbsp;!</Tag>
                   <Tag variant="count">×2</Tag>
-                  <Tag variant="shiny" icon={<SparkleIcon weight="fill" aria-hidden />}>
+                  <Tag variant="shiny" icon={<Sparkles aria-hidden />}>
                     Brillante
                   </Tag>
-                  <Tag variant="accent" icon={<MedalIcon aria-hidden />}>
+                  <Tag variant="accent" icon={<Medal aria-hidden />}>
                     Abonné
                   </Tag>
-                  <Tag variant="subtle">nom provisoire</Tag>
                 </div>
                 <div className={styles.row}>
-                  <Tag variant="success" icon={<CheckIcon aria-hidden />}>
+                  <Tag variant="success" icon={<Check aria-hidden />}>
                     Échange accepté
                   </Tag>
-                  <Tag variant="warning" icon={<HourglassIcon aria-hidden />}>
+                  <Tag variant="warning" icon={<Hourglass aria-hidden />}>
                     En attente
                   </Tag>
-                  <Tag variant="danger" icon={<XIcon aria-hidden />}>
+                  <Tag variant="danger" icon={<X aria-hidden />}>
                     Refusé
                   </Tag>
                   <Tag variant="draft">Prix fictif</Tag>
@@ -113,35 +362,38 @@ export default function DesignPage() {
               </div>
 
               <div className={styles.group}>
-                <h3 className={styles.groupTitle}>Jauges</h3>
+                <h3>Jauges</h3>
                 <Gauge label="Ma collection" value={1284 / 26755} valueText="1&#8239;284 / 26&#8239;755 · 4,8&nbsp;%" />
-                <Gauge label="Sites UNESCO" value={23 / 57} valueText="23 / 57 · 40 %" />
+                <Gauge label="Sites UNESCO" value={23 / 57} tone="sage" valueText="23 / 57 · 40 %" />
                 <div className={styles.spending}>
-                  <Gauge label="Dépensé ce mois-ci" value={0.43} caption="12,98 € sur 30 €" />
+                  <Gauge label="Dépensé ce mois-ci" value={0.43} tone="sage" size="small" caption="12,98 € sur 30 €" />
                   <Gauge
                     label="Dépensé ce mois-ci"
                     value={0.9}
                     tone="warning"
-                    captionIcon={<WarningIcon aria-hidden />}
+                    size="small"
+                    captionIcon={<TriangleAlert aria-hidden />}
                     caption="Plus que 3,03 € ce mois-ci"
                   />
                   <Gauge
                     label="Dépensé ce mois-ci"
                     value={1}
                     tone="danger"
-                    captionIcon={<ProhibitIcon aria-hidden />}
+                    size="small"
+                    captionIcon={<Ban aria-hidden />}
                     caption="Plafond atteint, achats bloqués jusqu'au 1er novembre"
                   />
                 </div>
+                <span className={styles.muted}>Montants fictifs.</span>
               </div>
 
               <div className={styles.group}>
-                <h3 className={styles.groupTitle}>Onglets et affichage</h3>
+                <h3>Onglets et affichage</h3>
                 <InteractiveDemo id={theme} />
               </div>
 
               <div className={styles.group}>
-                <h3 className={styles.groupTitle}>Minuteur et réserve</h3>
+                <h3>Minuteur et réserve</h3>
                 <div className={styles.reserves}>
                   <PackReserve available={7} max={10} nextPackAt={inSeconds(272)} serverNow={serverNow} refillMinutes={10} />
                   <PackReserve available={10} max={10} nextPackAt={null} serverNow={serverNow} refillMinutes={10} />
@@ -154,10 +406,11 @@ export default function DesignPage() {
               </div>
 
               <div className={styles.group}>
-                <h3 className={styles.groupTitle}>Fenêtre d&apos;achat</h3>
+                <h3>Fenêtre d&apos;achat</h3>
                 <div className={styles.dialogs}>
                   <PackPurchasePanel
                     collectionName="Patrimoine de France"
+                    emblem="landmark"
                     cardsPerPack={5}
                     price={1.99}
                     fictitiousPrice
@@ -172,65 +425,111 @@ export default function DesignPage() {
         </div>
       </section>
 
-      <section className={styles.section}>
-        <h2>La carte</h2>
-        <div className={styles.row}>
+      <section className={styles.section} aria-labelledby="carte">
+        <SectionTitle id="carte" number={6} tone="sage" title="La carte">
+          Nouvelle structure : une carte autocollant, la photo dans une fenêtre arrondie, l&apos;étiquette de rareté
+          posée à cheval sur la photo, le nom en Caprasimo et l&apos;emblème de la collection en pied. Lisible à 160 px,
+          grand format à partir de 300 px.
+        </SectionTitle>
+        <div className={styles.cardIntro}>
           <figure className={styles.large320}>
-            <Card card={samples.eiffel} size="large" flippable copies={2} />
-            <figcaption>Recto · cliquer pour retourner</figcaption>
+            <Card card={samples.eiffel} collection={heritage} size="large" flippable copies={2} />
+            <figcaption>Recto · cliquer ou Entrée pour retourner</figcaption>
           </figure>
           <figure className={styles.large320}>
-            <Card card={samples.eiffel} size="large" face="back" copies={2} />
+            <Card card={samples.eiffel} collection={heritage} size="large" face="back" copies={2} />
             <figcaption>Verso</figcaption>
           </figure>
+          <div className={styles.anatomy}>
+            <h3>Recto</h3>
+            <ol>
+              <li>
+                <strong>Photo 4:3</strong> dans une fenêtre arrondie ; verticales et panoramas posés sur un fond flouté
+                de la même photo.
+              </li>
+              <li>
+                <strong>Étiquette de rareté</strong> à cheval sur la photo : couleur, nom, 1 à 6 pastilles.
+              </li>
+              <li>
+                <strong>Nom</strong> en Caprasimo, 3 lignes au plus.
+              </li>
+              <li>
+                <strong>Lieu</strong> : le département, plus la région en grand format.
+              </li>
+              <li>
+                <strong>Étiquettes</strong> : Classé MH ou Inscrit MH, UNESCO en sauge.
+              </li>
+              <li>
+                <strong>Pied</strong> : emblème de la collection, série régionale, numéro.
+              </li>
+            </ol>
+            <p className={styles.muted}>Crédit photo sous l&apos;image en grand format, derrière le « i » en grille.</p>
+            <h3>Verso</h3>
+            <p className={styles.lead}>
+              Extrait de l&apos;article et lien, mention de licence Wikipédia, crédit photo complet avec lien vers
+              Commons, exemplaires possédés.
+            </p>
+          </div>
         </div>
 
         <h3>Les six raretés, grille 160&nbsp;px</h3>
         <div className={styles.grid160}>
-          {[samples.chambord, samples.thoronet, samples.stuarts, samples.napoleon, samples.compiegne, samples.attigny].map((card) => (
-            <Card key={card.name} card={card} />
+          {[samples.notreDame, samples.soissons, samples.isle, samples.napoleon, samples.compiegne, samples.horloge].map((card) => (
+            <Card key={card.name} card={card} collection={heritage} />
           ))}
+          <Card card={samples.thoronet} collection={heritage} face="back" />
         </div>
+        <span className={styles.muted}>
+          La dernière carte montre le verso en grille : extrait abrégé, crédit et exemplaires, sans lien (l&apos;appui
+          ouvre la fiche).
+        </span>
 
         <h3>Les six raretés, grand format</h3>
         <div className={styles.grid300}>
           {[samples.chambord, samples.thoronet, samples.stuarts, samples.napoleon, samples.compiegne, samples.attigny].map((card) => (
-            <Card key={card.name} card={card} size="large" />
+            <Card key={card.name} card={card} collection={heritage} size="large" />
           ))}
         </div>
 
         <h3>États</h3>
+        <p className={styles.lead}>
+          Manquante : contour en pointillés, photo désaturée, étiquette au trait. Nom masqué : un « ? » à la place de
+          la photo (Légendaires et Ultra rares). Brillante : reflet irisé et pastille.
+        </p>
         <div className={styles.themes}>
-          {(['dark', 'light'] as const).map((theme) => (
+          {THEMES.map(({ theme, label }) => (
             <div key={theme} data-theme={theme} className={styles.themePanel}>
+              <Tag variant="subtle" className={styles.themeLabel}>
+                {label}
+              </Tag>
               <div className={styles.grid160}>
                 <figure>
-                  <Card card={samples.thoronet} isNew />
+                  <Card card={samples.napoleon} collection={heritage} />
+                  <figcaption>Possédée</figcaption>
+                </figure>
+                <figure>
+                  <Card card={samples.thoronet} collection={heritage} isNew />
                   <figcaption>Nouvelle</figcaption>
                 </figure>
                 <figure>
-                  <Card card={samples.compiegne} copies={3} />
+                  <Card card={samples.compiegne} collection={heritage} copies={3} />
                   <figcaption>Doublon ×3</figcaption>
                 </figure>
                 <figure>
-                  <Card card={samples.stuarts} shiny />
+                  <Card card={samples.stuarts} collection={heritage} shiny />
                   <figcaption>Brillante</figcaption>
                 </figure>
                 <figure>
-                  <Card card={samples.attigny} selected />
-                  <figcaption>Sélectionnée</figcaption>
+                  <Card card={samples.attigny} collection={heritage} selected />
+                  <figcaption>Sélectionnée pour un échange</figcaption>
                 </figure>
                 <figure>
-                  <Card card={samples.horloge} state="missing" />
+                  <Card card={samples.horloge} collection={heritage} state="missing" />
                   <figcaption>Manquante, nom visible</figcaption>
                 </figure>
                 <figure>
-                  <Card card={samples.chambord} state="masked" />
+                  <Card card={{ ...samples.chambord, photo: { ...samples.chambord.photo, src: '' } }} collection={heritage} state="masked" />
                   <figcaption>Manquante, nom masqué</figcaption>
-                </figure>
-                <figure>
-                  <Card card={samples.thoronet} face="back" />
-                  <figcaption>Verso en grille</figcaption>
                 </figure>
               </div>
             </div>
@@ -238,35 +537,38 @@ export default function DesignPage() {
         </div>
 
         <h3>Cas limites</h3>
+        <p className={styles.lead}>
+          Hors du rapport 1,1 à 1,9, la photo entière se pose sur un fond flouté d&apos;elle-même.
+        </p>
         <div className={styles.grid300}>
           <figure>
-            <Card card={samples.gard} size="large" />
+            <Card card={samples.gard} collection={heritage} size="large" />
             <figcaption>Panorama 12&#8239;648 × 4&#8239;882</figcaption>
           </figure>
           <figure>
-            <Card card={samples.soissons} size="large" />
+            <Card card={samples.soissons} collection={heritage} size="large" />
             <figcaption>Nom de 53 caractères, auteur non renseigné</figcaption>
           </figure>
           <figure>
-            <Card card={samples.isle} size="large" />
-            <figcaption>Photo de 768 × 1&#8239;024&nbsp;px</figcaption>
-          </figure>
-          <figure>
-            <Card card={samples.horloge} size="large" />
+            <Card card={samples.horloge} collection={heritage} size="large" />
             <figcaption>Photo de 396 × 528&nbsp;px</figcaption>
           </figure>
           <figure>
-            <Card card={samples.boyard} size="large" />
+            <Card card={samples.isle} collection={heritage} size="large" />
+            <figcaption>Photo de 768 × 1&#8239;024&nbsp;px</figcaption>
+          </figure>
+          <figure>
+            <Card card={samples.boyard} collection={heritage} size="large" />
             <figcaption>Photo indisponible&nbsp;: aplat au nom du monument</figcaption>
           </figure>
         </div>
         <div className={styles.grid160}>
-          <Card card={samples.gard} />
-          <Card card={samples.soissons} />
-          <Card card={samples.isle} />
-          <Card card={samples.horloge} />
-          <Card card={samples.boyard} />
-          <Card card={samples.notreDame} />
+          <Card card={samples.gard} collection={heritage} />
+          <Card card={samples.soissons} collection={heritage} />
+          <Card card={samples.isle} collection={heritage} />
+          <Card card={samples.horloge} collection={heritage} />
+          <Card card={samples.boyard} collection={heritage} />
+          <Card card={samples.notreDame} collection={heritage} />
         </div>
       </section>
     </main>

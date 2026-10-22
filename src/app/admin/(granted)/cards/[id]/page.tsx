@@ -6,6 +6,7 @@ import { Card } from '@/components/card/Card';
 import { displayName } from '@/components/card/card-format';
 import { requireAdmin } from '@/lib/admin';
 import { getAdminCard, listAudit } from '@/lib/catalog/admin';
+import { themeEmblem } from '@/lib/collection-theme';
 import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { articleUrl, cardPath, commonsFileUrl } from '@/lib/catalog/cards';
 import { AuditTable } from '../../AuditTable';
@@ -27,7 +28,7 @@ export default async function AdminCardPage({ params }: PageProps<'/admin/cards/
   await requireAdmin();
   const found = await load((await params).id);
   if (!found) notFound();
-  const { card, collectionSlug, collectionName } = found;
+  const { card, collectionSlug, collectionName, collectionTheme } = found;
   const [t, tCard, tRarity, history] = await Promise.all([
     getTranslations('Admin.card'),
     getTranslations('Card'),
@@ -67,6 +68,7 @@ export default async function AdminCardPage({ params }: PageProps<'/admin/cards/
           {card.photoImage ? (
             <Card
               card={toCardData({ ...card, photoImage: card.photoImage }, null, license)}
+              collection={{ name: collectionName, emblem: themeEmblem(collectionTheme) }}
               size="large"
               flippable
               sizes="320px"

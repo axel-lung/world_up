@@ -9,7 +9,7 @@ export interface SegmentOption<T extends string> {
   icon?: ReactNode;
 }
 
-/** Nocturne's segmented control (.seg) on native radio buttons, e.g. grid or list view. */
+/** Organic's segmented control (.seg) on native radio buttons, e.g. grid or list view. */
 export function SegmentedControl<T extends string>({
   name,
   options,

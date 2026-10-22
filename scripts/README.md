@@ -8,7 +8,7 @@ Builds the catalogue of the `heritage` collection offline, from Wikidata, Wikipe
 - A User-Agent with a contact, an e-mail address or a URL, which the scripts require (without one, Wikimedia allows 10 requests a minute):
 
 ```sh
-export WIKIMEDIA_USER_AGENT="PatrimoineDeFrance/1.0 (https://github.com/axel-lung/world_up)"   # PowerShell: $env:WIKIMEDIA_USER_AGENT = "…"
+export WIKIMEDIA_USER_AGENT="WorldUp/1.0 (https://github.com/axel-lung/world_up)"   # PowerShell: $env:WIKIMEDIA_USER_AGENT = "…"
 ```
 
 `WIKIMEDIA_PAUSE` sets the pause after each request (0.4 s by default, so at most 200 requests a minute). Photo downloads run 3 at a time, and every script waits as long as a `Retry-After` header asks.

@@ -80,7 +80,7 @@ export async function searchCards({
 
 export async function getAdminCard(id: number) {
   const [card] = await db
-    .select({ card: cards, collectionSlug: collections.slug, collectionName: collections.name })
+    .select({ card: cards, collectionSlug: collections.slug, collectionName: collections.name, collectionTheme: collections.theme })
     .from(cards)
     .innerJoin(collections, eq(collections.id, cards.collectionId))
     .where(eq(cards.id, id));

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ArrowUpRightIcon, CoinsIcon } from '@phosphor-icons/react/ssr';
+import { ArrowUpRight, Coins } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -7,6 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { Card } from '@/components/card/Card';
 import { displayName } from '@/components/card/card-format';
+import { RarityBadge } from '@/components/rarity/Rarity';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Tag } from '@/components/ui/Tag';
 import { db } from '@/db';
@@ -63,10 +64,9 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
   const card = await getVisibleCard(collection, slug);
   if (!card) notFound();
 
-  const [t, tCard, tRarity, session, query] = await Promise.all([
+  const [t, tCard, session, query] = await Promise.all([
     getTranslations('CardPage'),
     getTranslations('Card'),
-    getTranslations('Rarity'),
     getSession(),
     searchParams,
   ]);
@@ -98,11 +98,9 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
         <h1>{name}</h1>
         <p className={styles.place}>{place(card)}</p>
         <div className={styles.tags}>
-          <span className={styles.rarity} data-rarity={card.rarity}>
-            {tRarity(card.rarity)}
-          </span>
+          <RarityBadge rarity={card.rarity} />
           {card.protection && <Tag>{t(`protection.${card.protection}`)}</Tag>}
-          {card.unesco && <Tag>{t('unesco')}</Tag>}
+          {card.unesco && <Tag variant="sage">{t('unesco')}</Tag>}
           {card.endangered && <Tag>{t('endangered')}</Tag>}
         </div>
       </header>
@@ -113,8 +111,13 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
         </h2>
         <Card
           card={toCardData(card, printed ? { name: printed.name, number: printed.number, total: printed.total } : null, license)}
-          size="large" flippable priority sizes="(max-width: 392px) calc(100vw - 32px), 360px"
-          copies={Math.max(copies, 1)} />
+          collection={{ name: card.collectionName, emblem: card.collectionEmblem }}
+          size="large"
+          flippable
+          priority
+          sizes="(max-width: 392px) calc(100vw - 32px), 360px"
+          copies={Math.max(copies, 1)}
+        />
       </section>
 
       <div className={styles.details}>
@@ -130,7 +133,7 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
                 {/* A new key each time the page renders: sending the form twice sells once */}
                 <input type="hidden" name="key" value={randomUUID()} />
                 <input type="hidden" name="back" value={cardPath(collection, card.slug)} />
-                <Button type="submit" icon={<CoinsIcon size={18} aria-hidden />}>
+                <Button type="submit" icon={<Coins aria-hidden />}>
                   {t('resellOne', { coins: resale[card.rarity] })}
                 </Button>
               </form>
@@ -144,7 +147,7 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
             <p>{card.excerpt}</p>
             <a className={styles.external} href={articleUrl(card.articleTitle)} target="_blank" rel="noopener">
               {tCard('readArticle')}
-              <ArrowUpRightIcon aria-hidden />
+              <ArrowUpRight aria-hidden />
             </a>
             <p className={styles.license}>{tCard('textLicense')}</p>
           </section>

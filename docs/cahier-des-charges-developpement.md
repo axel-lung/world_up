@@ -1,10 +1,10 @@
-# Cahier des charges développement – Patrimoine de France
+# Cahier des charges développement – World Up
 
 Oct 19, 2026 · @Axel
 
 ## Périmètre
 
-La version 1 est un site web responsive. Un joueur majeur y ouvre des paquets, collectionne les cartes « Patrimoine de France » et peut payer un abonnement ou un paquet à l'unité. Ce cahier s'adresse à un développeur, à une agence ou à Claude Code. Il complète le cahier des charges design et le projet Claude Design.
+La version 1 est un site web responsive. Le jeu s'appelle World Up. Un joueur majeur y ouvre des paquets, collectionne les cartes de la collection « Patrimoine de France » et peut payer un abonnement ou un paquet à l'unité. Ce cahier s'adresse à un développeur, à une agence ou à Claude Code. Il complète le cahier des charges design et le projet Claude Design.
 
 **Version 1 (lancement)**
 
@@ -54,7 +54,7 @@ Une seule application TypeScript, une base PostgreSQL et Stripe suffisent pour l
 
 ## Déploiement
 
-Le site se déploie avec Docker Compose sur le serveur existant, derrière le Traefik déjà en place. Le fichier reprend la structure fournie ; « worldup » est un nom de projet provisoire, à remplacer partout quand le nom du jeu sera fixé. Seul ajout : le worker monte aussi le volume des images et le dossier d'import du catalogue.
+Le site se déploie avec Docker Compose sur le serveur existant, derrière le Traefik déjà en place. Le fichier reprend la structure fournie ; « worldup » est le nom technique du projet, tiré du nom du jeu. Seul ajout : le worker monte aussi le volume des images et le dossier d'import du catalogue.
 
 ```yaml
 # Fixed project name: volumes and the internal network are prefixed with
@@ -278,18 +278,21 @@ Stripe gère tous les paiements, et ses webhooks font foi : un paquet acheté n'
 
 ## Interface
 
-Le design de référence est le design system « World Up » du [projet Claude Design](https://claude.ai/design/p/8508c819-0ec8-4bd5-86aa-690e24d1c0ad?file=Design+system+World+Up.dc.html). Le développeur l'importe avec le serveur MCP de Claude Design (connexion par `/design-login` dans Claude Code), en partant de ces fichiers :
+Le design de référence est le design system « World Up v2 » du [projet Claude Design](https://claude.ai/design/p/8508c819-0ec8-4bd5-86aa-690e24d1c0ad?file=Design+system+World+Up+v2.dc.html) : le socle Organic (crème, terracotta, sauge, Caprasimo et Figtree), avec des cartes traitées comme des autocollants. Thème clair par défaut, thème sombre conservé. Le développeur l'importe avec le serveur MCP de Claude Design (connexion par `/design-login` dans Claude Code), en partant de ces fichiers :
 
-- `Design system World Up.dc.html`
-- `_ds/nocturne-b271f891-2d45-439d-a64e-f628131cb069/_ds_bundle.js`
-- `_ds/nocturne-b271f891-2d45-439d-a64e-f628131cb069/styles.css`
+- `Design system World Up v2.dc.html`
+- `CarteV2.dc.html` (la carte, importée par le fichier précédent)
+- `_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/_ds_bundle.js`
+- `_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/styles.css`
 - `support.js`
+
+La première version (`Design system World Up.dc.html`, socle Nocturne) est remplacée.
 
 **Intégration**
 
 - Les tokens du design system deviennent des variables CSS, en thème clair et sombre.
 - Chaque composant (carte, bouton, badge, jauge, minuteur, fenêtre d'achat) devient un composant React, avec les mêmes variantes et états que dans Claude Design.
-- L'habillage d'une collection est lu dans `collections.theme` : ajouter une collection ne demande pas de nouveau code d'interface.
+- L'habillage d'une collection (sa couleur et son emblème, sur le paquet et en pied de carte) est lu dans `collections.theme` : ajouter une collection ne demande pas de nouveau code d'interface.
 
 **Pages et adresses**
 
@@ -399,7 +402,6 @@ La version 2 (échanges, marché, deuxième collection) fera l'objet d'un cahier
 
 **Questions ouvertes**
 
-- Le jeu s'appelle-t-il « World Up », comme le design system ?
 - Prix de l'abonnement et du paquet à l'unité, et avantages exacts de l'abonnement.
 - Statut juridique (micro-entreprise ou société) : il conditionne Stripe, la TVA et les mentions légales.
 - Statistiques de jeu sur les cartes et variante brillante : oui ou non ?
