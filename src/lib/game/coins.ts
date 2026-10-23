@@ -36,12 +36,23 @@ export interface LedgerEntry {
 }
 
 /**
+ * Takes the players' wallet locks, sorted (the lock order of
+ * src/lib/game/holds.ts), until the end of the transaction. Taking one again
+ * in the same transaction doesn't wait.
+ */
+export async function lockWallets(tx: Transaction, userIds: string[]): Promise<void> {
+  for (const userId of [...new Set(userIds)].sort()) {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${`coins:${userId}`}, 0))`);
+  }
+}
+
+/**
  * Writes one ledger entry, under the player's wallet lock so that two
  * concurrent entries can't both pass the balance check. Returns false when the
  * entry (same reason and reference) is already there.
  */
 export async function addCoins(tx: Transaction, entry: LedgerEntry): Promise<boolean> {
-  await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${`coins:${entry.userId}`}, 0))`);
+  await lockWallets(tx, [entry.userId]);
   if (entry.amount < 0 && (await coinBalance(tx, entry.userId)) + entry.amount < 0) {
     throw new GameError('notEnoughCoins');
   }

@@ -48,10 +48,14 @@ export async function reservedCopies(
   return new Map(result.rows.map((row) => [row.card_id, row.copies]));
 }
 
-/** Coins held by the player's leading bids: the maximum of each auction they lead. */
+/**
+ * Coins held by the player's leading bids: the maximum of each auction they
+ * lead (an auction over but not settled yet still holds them). An auction
+ * whose seller is gone holds nothing: it is void.
+ */
 export async function heldCoins(executor: Executor, userId: string): Promise<number> {
   const result = await executor.execute<{ held: number }>(sql`
     SELECT coalesce(sum(leader_max), 0)::int AS held FROM auctions
-    WHERE leader_id = ${userId} AND status = 'active'`);
+    WHERE leader_id = ${userId} AND status = 'active' AND seller_id IS NOT NULL`);
   return result.rows[0].held;
 }

@@ -1,0 +1,132 @@
+/* The checkbox sits at the foot of the filter row, level with the selects */
+.missing {
+  align-self: flex-end;
+}
+
+/* An auction or a sale form: the card, then its panel; side by side from 860 px */
+.auction {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 860px) {
+  .auction {
+    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.cardColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  /* Room for the stickers that stick out of the card */
+  padding-top: 12px;
+}
+
+.cardColumn > :first-child {
+  width: 100%;
+  max-width: 360px;
+}
+
+.panel {
+  min-width: 0;
+}
+
+/* Over the section's heading style (game.module.css) */
+.panel .priceLabel {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* The price as a large inked sticker */
+.bigPrice {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: -8px 0 0;
+  padding: 6px 18px 6px 12px;
+  border-radius: 999px;
+  border: 2px solid var(--sticker-line);
+  background: var(--sticker-paper);
+  color: var(--sticker-line);
+  box-shadow: 3px 3px 0 var(--sticker-shadow);
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bigPrice svg {
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.facts li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.facts svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  color: var(--color-text-muted);
+}
+
+.bidForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.bidForm > :first-of-type {
+  flex: 1 1 220px;
+}
+
+.durations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.durations legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 600;
+}
+
+.duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.duration input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-accent);
+}

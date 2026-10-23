@@ -11,7 +11,18 @@ export type GameErrorCode =
   | 'tradeTooBig'
   | 'tradeUnavailable'
   | 'tooManyOffers'
-  | 'tradeOver';
+  | 'tradeOver'
+  | 'auctionsClosed'
+  | 'auctionUnavailable'
+  | 'auctionPrice'
+  | 'auctionDuration'
+  | 'tooManyAuctions'
+  | 'auctionOver'
+  | 'auctionHasBids'
+  | 'ownAuction'
+  | 'bidTooLow'
+  | 'bidTooHigh'
+  | 'bidOverCoins';
 
 export class GameError extends Error {
   constructor(readonly code: GameErrorCode) {

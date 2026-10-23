@@ -18,6 +18,7 @@ import {
 import { markActive } from './account-retention';
 import { ACCOUNT_ERRORS, type AccountErrorCode } from './auth-errors';
 import { requireEnv } from './env';
+import { cancelOrphanAuctions } from './game/auctions';
 import { cancelOrphanTrades } from './game/trades';
 import { enqueueEmail } from './job-queue';
 import { hashPassword, verifyPassword } from './password';
@@ -111,9 +112,12 @@ function createAuth() {
       },
       deleteUser: {
         enabled: true,
-        // The player's open offers are void once their row is gone: record it
+        // The player's open offers and auctions are void once their row is
+        // gone: record it, and tell the other players of their auctions
         afterDelete: async () => {
-          await cancelOrphanTrades(db, new Date());
+          const now = new Date();
+          await cancelOrphanTrades(db, now);
+          await cancelOrphanAuctions(db, now);
         },
       },
     },

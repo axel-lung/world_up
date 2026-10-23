@@ -42,6 +42,7 @@ export async function SiteHeader() {
           { href: game.home, label: t('home') },
           { href: game.open, label: t('open') },
           { href: game.collection, label: t('collection'), prefix: true },
+          { href: game.market, label: t('market'), prefix: true },
           { href: '/friends', label: t('friends') },
         ]
       : []),

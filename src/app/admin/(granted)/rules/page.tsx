@@ -7,11 +7,19 @@ import { requireAdmin } from '@/lib/admin';
 import { listAudit } from '@/lib/catalog/admin';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
 import { PER_MILLION } from '@/lib/game/draw';
-import { currentOdds, getActiveCollection, getGameRules, getResaleValues, visibleCardsByRarity } from '@/lib/game/rules';
+import {
+  currentOdds,
+  getActiveCollection,
+  getGameRules,
+  getMarketPrices,
+  getMarketRules,
+  getResaleValues,
+  visibleCardsByRarity,
+} from '@/lib/game/rules';
 import { toParisDateTime } from '@/lib/paris-time';
 import { RARITIES } from '@/lib/rarity';
 import { AuditTable } from '../AuditTable';
-import { GameRulesForm, OddsForm, ResaleForm } from './RulesForms';
+import { GameRulesForm, MarketPricesForm, MarketRulesForm, OddsForm, ResaleForm } from './RulesForms';
 import styles from '../../admin.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,12 +32,14 @@ export default async function AdminRulesPage() {
   const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
   if (!collection) notFound();
   const now = new Date();
-  const [t, tRarity, format, rules, resale, odds, visible, history] = await Promise.all([
+  const [t, tRarity, format, rules, resale, market, prices, odds, visible, history] = await Promise.all([
     getTranslations('Admin.rules'),
     getTranslations('Rarity'),
     getFormatter(),
     getGameRules(db, collection.id),
     getResaleValues(db, collection.id),
+    getMarketRules(db, collection.id),
+    getMarketPrices(db, collection.id),
     currentOdds(db, collection.id, now),
     visibleCardsByRarity(collection.id),
     listAudit({ targetType: 'collection', targetId: String(collection.id), limit: 20 }),
@@ -52,6 +62,18 @@ export default async function AdminRulesPage() {
         <h2 id="resale-heading">{t('resaleHeading')}</h2>
         <p className={styles.muted}>{t('resaleIntro')}</p>
         <ResaleForm values={resale} />
+      </section>
+
+      <section className={styles.section} aria-labelledby="market-heading">
+        <h2 id="market-heading">{t('marketHeading')}</h2>
+        <p className={styles.muted}>{t('marketIntro')}</p>
+        <MarketRulesForm rules={market} />
+      </section>
+
+      <section className={styles.section} aria-labelledby="prices-heading">
+        <h2 id="prices-heading">{t('pricesHeading')}</h2>
+        <p className={styles.muted}>{t('pricesIntro')}</p>
+        <MarketPricesForm prices={prices} />
       </section>
 
       <section className={styles.section} aria-labelledby="odds-heading">

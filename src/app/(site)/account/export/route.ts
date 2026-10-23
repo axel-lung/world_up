@@ -5,6 +5,7 @@ import { getAuth } from '@/lib/auth';
 import { playerReports } from '@/lib/catalog/reports';
 import { coinBalance, playerLedger } from '@/lib/game/coins';
 import { playerCards } from '@/lib/game/collection';
+import { playerAuctions } from '@/lib/game/market';
 import { playerOpenings } from '@/lib/game/packs';
 import { playerTrades } from '@/lib/game/trades';
 import { playerNotifications } from '@/lib/notifications/notifications';
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
     .where(eq(consents.userId, userId))
     .orderBy(asc(consents.acceptedAt));
 
-  const [reports, packReserve, openings, collection, coins, ledger, obtained, friends, trades, notifications] = await Promise.all([
+  const [reports, packReserve, openings, collection, coins, ledger, obtained, friends, trades, auctions, notifications] = await Promise.all([
     playerReports(userId),
     db
       .select({ packs: packState.packs, lastRefill: packState.lastRefill })
@@ -51,6 +52,7 @@ export async function GET(request: Request) {
       .orderBy(asc(userAchievements.obtainedAt)),
     playerFriendships(userId),
     playerTrades(userId),
+    playerAuctions(userId),
     playerNotifications(userId),
   ]);
 
@@ -61,7 +63,7 @@ export async function GET(request: Request) {
       consents: acceptedDocuments,
       reports,
       game: { packReserve, openings, collection, coins: { balance: coins, ledger }, achievements: obtained },
-      social: { friends, trades },
+      social: { friends, trades, auctions },
       notifications,
     },
     null,

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ArrowUpRight, Coins } from 'lucide-react';
+import { ArrowUpRight, Coins, Gavel } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -15,6 +15,8 @@ import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { articleUrl, cardImageUrl, cardPath, commonsFileUrl, getVisibleCard, type VisibleCard } from '@/lib/catalog/cards';
 import { licenseLinkUrl, WIKIPEDIA_TEXT_LICENSE_URL } from '@/lib/catalog/licenses';
 import { ownedCopies } from '@/lib/game/collection';
+import { liveAuctionsOfCard, sellableCopies } from '@/lib/game/market';
+import { gamePath } from '@/lib/game/paths';
 import { getResaleValues } from '@/lib/game/rules';
 import { getSession } from '@/lib/session';
 import { resellAction } from '../../collection/actions';
@@ -71,10 +73,18 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
     getSession(),
     searchParams,
   ]);
-  // The signed-in player's copies, and what one duplicate resells for
-  const [copies, resale] = session
-    ? await Promise.all([ownedCopies(session.user.id, card.id), getResaleValues(db, card.collectionId)])
-    : [0, null];
+  // The signed-in player's copies, what one duplicate resells for, the copies
+  // they can put up for auction and the auctions running for the card
+  const now = new Date();
+  const [copies, resale, sellable, auctions] = session
+    ? await Promise.all([
+        ownedCopies(session.user.id, card.id),
+        getResaleValues(db, card.collectionId),
+        sellableCopies(session.user.id, card.id, now),
+        liveAuctionsOfCard(card.id, now),
+      ])
+    : [0, null, 0, 0];
+  const paths = gamePath(collection);
   const name = displayName(card.name);
   const license = photoLicenseLabel(card.photoLicense, {
     publicDomain: tCard('publicDomain'),
@@ -138,6 +148,20 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
                   {t('resellOne', { coins: resale[card.rarity] })}
                 </Button>
               </form>
+            )}
+            {(sellable > 0 || auctions > 0) && (
+              <div className={styles.actions}>
+                {sellable > 0 && (
+                  <ButtonLink href={paths.sell(card.slug)} icon={<Gavel aria-hidden />}>
+                    {t('sell')}
+                  </ButtonLink>
+                )}
+                {auctions > 0 && (
+                  <ButtonLink href={paths.marketOfCard(card.slug)} variant="ghost">
+                    {t('liveAuctions', { count: auctions })}
+                  </ButtonLink>
+                )}
+              </div>
             )}
           </section>
         )}

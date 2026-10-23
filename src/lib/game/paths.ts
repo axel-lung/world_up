@@ -11,6 +11,9 @@ export function gamePath(collection: string) {
     trade: (id: number) => `${home}/trades/${id}`,
     newTrade: (pseudo: string) => `${home}/trades/new?with=${encodeURIComponent(pseudo)}`,
     market: `${home}/market`,
+    marketOfCard: (slug: string) => `${home}/market?card=${encodeURIComponent(slug)}`,
     auction: (id: number) => `${home}/market/${id}`,
+    sell: (slug: string) => `${home}/market/sell?card=${encodeURIComponent(slug)}`,
+    myAuctions: `${home}/market/mine`,
   };
 }
