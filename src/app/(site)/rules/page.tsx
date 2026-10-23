@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { asc, eq } from 'drizzle-orm';
-import { getTranslations } from 'next-intl/server';
+import { getFormatter, getTranslations } from 'next-intl/server';
 import { db } from '@/db';
 import { achievements } from '@/db/schema';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
 import { achievementTitle } from '@/lib/game/achievement-title';
-import { getActiveCollection, getGameRules, getMarketRules, getResaleValues } from '@/lib/game/rules';
+import { gamePath } from '@/lib/game/paths';
+import { getActiveCollection, getGameRules, getMarketPrices, getMarketRules, getResaleValues } from '@/lib/game/rules';
 import { RARITIES } from '@/lib/rarity';
 import styles from '../info.module.css';
 
@@ -20,15 +21,18 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RulesPage() {
   const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
   if (!collection) notFound();
-  const [t, tRarity, tAchievement, rules, resale, list, market] = await Promise.all([
+  const [t, tRarity, tAchievement, format, rules, resale, list, market, prices] = await Promise.all([
     getTranslations('Rules'),
     getTranslations('Rarity'),
     getTranslations('Achievements'),
+    getFormatter(),
     getGameRules(db, collection.id),
     getResaleValues(db, collection.id),
     db.select().from(achievements).where(eq(achievements.collectionId, collection.id)).orderBy(asc(achievements.position)),
     getMarketRules(db, collection.id),
+    getMarketPrices(db, collection.id),
   ]);
+  const durations = format.list(market.auctionDurationsHours.map(String), { type: 'disjunction' });
 
   return (
     <main className={styles.page}>
@@ -115,6 +119,46 @@ export default async function RulesPage() {
         <p>{t.rich('tradesFriends', { friends: (chunks) => <Link href="/friends">{chunks}</Link> })}</p>
         <p>{t('tradesHow', { max: market.tradeMaxCards })}</p>
         <p>{t('tradesReserved', { hours: market.tradeExpiryHours })}</p>
+      </section>
+
+      <section className={styles.section} aria-labelledby="auctions-heading">
+        <h2 id="auctions-heading">{t('auctionsHeading')}</h2>
+        <p>
+          {t.rich('auctionsHow', {
+            market: (chunks) => <Link href={gamePath(collection.slug).market}>{chunks}</Link>,
+            durations: t('durations', { list: durations }),
+          })}
+        </p>
+        <p>{t('auctionsBid', { step: market.bidIncrementPercent })}</p>
+        <p>{t('auctionsHeld')}</p>
+        <p>{t('auctionsEnd', { minutes: market.auctionExtensionMinutes })}</p>
+        <p>{t('auctionsFee', { percent: market.auctionFeePercent, max: market.maxActiveAuctions })}</p>
+        <p>{t('auctionsPrices')}</p>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <caption className="sr-only">{t('pricesCaption')}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t('rarity')}</th>
+                <th scope="col" className={styles.number}>
+                  {t('minPrice')}
+                </th>
+                <th scope="col" className={styles.number}>
+                  {t('maxPrice')}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {RARITIES.map((rarity) => (
+                <tr key={rarity}>
+                  <th scope="row">{tRarity(rarity)}</th>
+                  <td className={styles.number}>{t('coins', { count: prices[rarity].min })}</td>
+                  <td className={styles.number}>{t('coins', { count: prices[rarity].max })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className={styles.section} aria-labelledby="leaderboard-heading">

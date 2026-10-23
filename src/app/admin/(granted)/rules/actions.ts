@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { db } from '@/db';
 import { requireAdmin } from '@/lib/admin';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
-import { publishOdds, RulesError, updateGameRules, updateResaleValues } from '@/lib/game/admin';
+import { publishOdds, RulesError, updateGameRules, updateMarketPrices, updateMarketRules, updateResaleValues } from '@/lib/game/admin';
 import type { OddsSet } from '@/lib/game/draw';
 import { getActiveCollection } from '@/lib/game/rules';
 import { fromParisDateTime } from '@/lib/paris-time';
@@ -78,4 +78,57 @@ export async function saveOdds(_: RulesState, form: FormData): Promise<RulesStat
   if (!input.success) return { error: 'invalid' };
   const { validFrom, ...odds } = input.data;
   return run((collectionId, adminId) => publishOdds(db, adminId, collectionId, odds as OddsSet, validFrom, new Date()));
+}
+
+// A checkbox sends "on" when checked, nothing otherwise
+const toggle = z
+  .string()
+  .optional()
+  .transform((value) => value === 'on');
+
+// "24, 48, 72" -> [24, 48, 72]: one to six durations of up to two weeks
+const durations = z.string().transform((value, context) => {
+  const list = value.split(/[\s,;]+/).filter(Boolean).map(Number);
+  if (list.length < 1 || list.length > 6 || !list.every((hours) => Number.isInteger(hours) && hours >= 1 && hours <= 14 * 24)) {
+    context.addIssue({ code: 'custom', message: 'durations' });
+  }
+  return [...new Set(list)].sort((a, b) => a - b);
+});
+
+const marketSchema = z.object({
+  tradesEnabled: toggle,
+  auctionsEnabled: toggle,
+  tradeExpiryHours: count(1, 30 * 24),
+  tradeMaxCards: count(1, 50),
+  auctionDurationsHours: durations,
+  auctionFeePercent: count(0, 50),
+  bidIncrementPercent: count(1, 50),
+  auctionExtensionMinutes: count(0, 60),
+  maxActiveAuctions: count(1, 100),
+});
+
+export async function saveMarketRules(_: RulesState, form: FormData): Promise<RulesState> {
+  await requireAdmin();
+  const input = marketSchema.safeParse(Object.fromEntries(form));
+  if (!input.success) return { error: 'invalid' };
+  return run((collectionId, adminId) => updateMarketRules(db, adminId, collectionId, input.data));
+}
+
+const pricesSchema = z.object(
+  Object.fromEntries(
+    RARITIES.flatMap((rarity) => [
+      [`${rarity}Min`, count(1, 10_000_000)],
+      [`${rarity}Max`, count(1, 10_000_000)],
+    ]),
+  ) as Record<`${Rarity}${'Min' | 'Max'}`, ReturnType<typeof count>>,
+);
+
+export async function saveMarketPrices(_: RulesState, form: FormData): Promise<RulesState> {
+  await requireAdmin();
+  const input = pricesSchema.safeParse(Object.fromEntries(form));
+  if (!input.success) return { error: 'invalid' };
+  const prices = Object.fromEntries(
+    RARITIES.map((rarity) => [rarity, { min: input.data[`${rarity}Min`], max: input.data[`${rarity}Max`] }]),
+  ) as Record<Rarity, { min: number; max: number }>;
+  return run((collectionId, adminId) => updateMarketPrices(db, adminId, collectionId, prices));
 }

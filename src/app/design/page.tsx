@@ -25,6 +25,7 @@ import { notFound } from 'next/navigation';
 import type { CSSProperties, ReactNode } from 'react';
 import { Card, type CardCollection } from '@/components/card/Card';
 import { NotificationBell } from '@/components/layout/NotificationBell';
+import { AuctionTile } from '@/components/market/AuctionTile';
 import { PackReserve, PackReserveCompact } from '@/components/pack/PackReserve';
 import { RarityBadge } from '@/components/rarity/Rarity';
 import { PackPurchasePanel, PurchaseConfirmation } from '@/components/shop/PackPurchase';
@@ -446,6 +447,71 @@ export default function DesignPage() {
                   </Button>
                   <Button variant="ghost">Refuser</Button>
                 </TradeSummary>
+              </div>
+
+              <div className={styles.group}>
+                <h3>Enchères</h3>
+                <ul className={styles.auctions}>
+                  <li>
+                    <AuctionTile
+                      card={samples.gard}
+                      collection={heritage}
+                      href="#"
+                      price={120}
+                      bidCount={4}
+                      buyoutPrice={400}
+                      endsAt={inSeconds(2 * 86_400 + 4 * 3600)}
+                      serverNow={serverNow}
+                      seller="Margaux"
+                      viewer="leading"
+                    />
+                  </li>
+                  <li>
+                    <AuctionTile
+                      card={samples.soissons}
+                      collection={heritage}
+                      href="#"
+                      price={15}
+                      bidCount={0}
+                      buyoutPrice={null}
+                      endsAt={inSeconds(3 * 3600 + 12 * 60)}
+                      serverNow={serverNow}
+                      seller="élodie_b"
+                    />
+                  </li>
+                  <li>
+                    <AuctionTile
+                      card={samples.isle}
+                      collection={heritage}
+                      href="#"
+                      price={52}
+                      bidCount={7}
+                      buyoutPrice={null}
+                      endsAt={inSeconds(272)}
+                      serverNow={serverNow}
+                      seller="Margaux"
+                      viewer="outbid"
+                    />
+                  </li>
+                  <li>
+                    <AuctionTile
+                      card={samples.horloge}
+                      collection={heritage}
+                      href="#"
+                      price={30}
+                      bidCount={2}
+                      buyoutPrice={null}
+                      endsAt={serverNow}
+                      serverNow={serverNow}
+                      seller="Vous"
+                      viewer="seller"
+                      state="sold"
+                    />
+                  </li>
+                </ul>
+                <span className={styles.muted}>
+                  En tête, sans mise, dépassé dans les dernières minutes, et une vente terminée.
+                </span>
               </div>
 
               <div className={styles.group}>

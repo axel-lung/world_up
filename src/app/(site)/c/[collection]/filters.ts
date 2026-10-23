@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { COLLECTION_TABS, type CollectionTab } from '@/lib/game/collection';
+import { MARKET_SORTS } from '@/lib/game/market';
 import { RARITIES } from '@/lib/rarity';
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -40,3 +41,23 @@ export function parseResaleParams(params: SearchParams) {
     error: one(params.error) ?? null,
   });
 }
+
+const marketSchema = gridSchema.extend({
+  card: z.string().max(200).nullable().catch(null),
+  missing: z.boolean().catch(false),
+  sort: z.enum(MARKET_SORTS).catch(MARKET_SORTS[0]),
+});
+
+/** The market's filters and sort, from its address. */
+export function parseMarketParams(params: SearchParams) {
+  return marketSchema.parse({
+    rarity: one(params.rarity) || null,
+    series: one(params.series) || null,
+    card: one(params.card) || null,
+    missing: one(params.missing) === '1',
+    sort: one(params.sort) ?? MARKET_SORTS[0],
+    page: one(params.page) ?? 1,
+  });
+}
+
+export type MarketParams = ReturnType<typeof parseMarketParams>;

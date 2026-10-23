@@ -245,7 +245,9 @@
     "ownedHeading": "Dans votre collection",
     "owned": "{count, plural, one {Vous avez # exemplaire de cette carte.} other {Vous avez # exemplaires de cette carte.}}",
     "notOwned": "Vous n'avez pas encore cette carte : elle peut sortir de votre prochain paquet.",
-    "resellOne": "Revendre un doublon pour {coins, plural, one {# pièce} other {# pièces}}"
+    "resellOne": "Revendre un doublon pour {coins, plural, one {# pièce} other {# pièces}}",
+    "sell": "Mettre aux enchères",
+    "liveAuctions": "{count, plural, one {Voir la vente en cours} other {Voir les # ventes en cours}}"
   },
   "Pack": {
     "reserve": "{count, plural, one {# paquet} other {# paquets}} en réserve sur {max}",
@@ -289,7 +291,8 @@
       "audit": "Journal",
       "site": "Retour au site",
       "reports": "Signalements",
-      "rules": "Règles du jeu"
+      "rules": "Règles du jeu",
+      "market": "Marché"
     },
     "twoFactor": {
       "title": "Double authentification",
@@ -449,13 +452,20 @@
         "reportDismiss": "Signalement écarté",
         "rulesUpdate": "Règles des paquets changées",
         "resaleUpdate": "Valeurs de revente changées",
-        "oddsPublish": "Probabilités publiées"
+        "oddsPublish": "Probabilités publiées",
+        "marketUpdate": "Règles du marché changées",
+        "pricesUpdate": "Prix des enchères changés",
+        "auctionCancel": "Vente annulée"
       },
       "empty": "Aucune action pour l'instant.",
       "deletedAdmin": "compte supprimé",
       "previous": "Plus récentes",
       "next": "Plus anciennes",
-      "collectionTarget": "Règles du jeu"
+      "collectionTarget": "Règles du jeu",
+      "auctionTarget": "Vente n° {id}",
+      "on": "oui",
+      "off": "non",
+      "auctionDetails": "{price, number} {price, plural, one {pièce} other {pièces}}, {bids, plural, =0 {aucune mise} one {# mise} other {# mises}}"
     },
     "reports": {
       "title": "Signalements",
@@ -493,12 +503,30 @@
         "cardsPerPack": "Cartes par paquet",
         "signupPacks": "Paquets à l'arrivée",
         "refillMinutes": "Minutes entre deux paquets",
-        "maxReserve": "Réserve maximale"
+        "maxReserve": "Réserve maximale",
+        "tradesEnabled": "Échanges ouverts",
+        "auctionsEnabled": "Enchères ouvertes",
+        "tradeExpiryHours": "Heures avant l'expiration d'une offre",
+        "tradeMaxCards": "Cartes par côté d'un échange",
+        "auctionDurationsHours": "Durées des ventes (heures)",
+        "auctionFeePercent": "Commission (%)",
+        "bidIncrementPercent": "Pas d'enchère (%)",
+        "auctionExtensionMinutes": "Prolongation (minutes)",
+        "maxActiveAuctions": "Ventes en cours par joueur"
       },
       "saveRules": "Enregistrer les règles",
       "resaleHeading": "Revente des doublons",
       "resaleIntro": "Pièces gagnées pour un doublon revendu, selon sa rareté.",
       "saveResale": "Enregistrer les valeurs",
+      "marketHeading": "Marché",
+      "marketIntro": "Les règles des échanges et des enchères. Couper un interrupteur arrête les nouvelles offres, ventes et mises sans redéployer ; les ventes en cours se terminent normalement.",
+      "durationsHint": "Séparées par des virgules : 24, 48, 72.",
+      "saveMarket": "Enregistrer les règles du marché",
+      "pricesHeading": "Prix des enchères",
+      "pricesIntro": "La fourchette de prix d'une vente, par rareté. Le plafond freine le passage de pièces d'un compte à un autre par une vente à prix gonflé.",
+      "minPrice": "{rarity} : minimum",
+      "maxPrice": "{rarity} : maximum",
+      "savePrices": "Enregistrer les prix",
       "oddsHeading": "Probabilités",
       "oddsIntro": "Une modification ajoute un nouvel ensemble daté, publié sur la <link>page des probabilités</link> ; les ensembles précédents restent tels quels. La somme doit faire exactement 100 %.",
       "rarity": "Rareté",
@@ -516,8 +544,36 @@
         "unchanged": "Aucune valeur n'a changé.",
         "oddsSum": "Les probabilités doivent faire 100 % en tout.",
         "oddsNoCards": "Une rareté sans carte en jeu ne peut pas avoir de probabilité.",
-        "oddsInPast": "La date de début ne peut pas être dans le passé."
+        "oddsInPast": "La date de début ne peut pas être dans le passé.",
+        "pricesOrder": "Pour chaque rareté, le minimum ne peut pas dépasser le maximum."
       }
+    },
+    "market": {
+      "title": "Marché",
+      "intro": "Les dernières ventes et les derniers échanges. Filtrez par pseudo pour repérer les comptes qui se passent des cartes ou des pièces.",
+      "pseudo": "Pseudo",
+      "filter": "Filtrer",
+      "all": "Tout voir",
+      "unknown": "Aucun joueur ne porte ce pseudo.",
+      "auctionsHeading": "Ventes",
+      "tradesHeading": "Échanges",
+      "when": "Date",
+      "card": "Carte",
+      "seller": "Vendeur",
+      "leader": "En tête ou acheteur",
+      "price": "Prix",
+      "bids": "Mises",
+      "state": "État",
+      "actions": "Actions",
+      "note": "Motif (facultatif)",
+      "cancel": "Annuler la vente",
+      "proposer": "Proposé par",
+      "recipient": "Pour",
+      "gives": "Donne",
+      "gets": "Reçoit",
+      "deletedPlayer": "compte supprimé",
+      "nobody": "—",
+      "empty": "Rien pour l'instant."
     }
   },
   "Credits": {
@@ -581,15 +637,15 @@
     },
     "items": {
       "title": "Cartes et pièces",
-      "body": "<p>Les cartes et les pièces sont des éléments du jeu, sans valeur en argent. Elles vous donnent un droit d'usage personnel dans le jeu, et non un droit de propriété. Elles ne s'achètent pas et ne se convertissent pas en euros. Les cartes ne passent d'un compte à un autre que par les échanges entre amis, toujours gratuits ; les pièces ne se transfèrent pas.</p>"
+      "body": "<p>Les cartes et les pièces sont des éléments du jeu, sans valeur en argent. Elles vous donnent un droit d'usage personnel dans le jeu, et non un droit de propriété. Elles ne s'achètent pas et ne se convertissent pas en euros. Elles ne passent d'un compte à un autre que par les échanges entre amis, toujours gratuits, et par les enchères du jeu, payées en pièces.</p>"
     },
     "trades": {
-      "title": "Échanges entre amis",
-      "body": "<ul><li>Vous pouvez échanger des cartes avec vos amis du jeu, gratuitement : des cartes contre des cartes, sans argent ni pièces.</li><li>Les cartes que vous proposez restent réservées jusqu'à la réponse de votre ami, ou jusqu'à l'expiration de l'offre (voir les <rules>règles du jeu</rules>).</li><li>Un échange accepté est définitif : les cartes ne sont pas rendues.</li><li>En cas de fraude ou d'anomalie, nous pouvons suspendre les échanges.</li></ul>"
+      "title": "Échanges et enchères",
+      "body": "<ul><li>Vous pouvez échanger des cartes avec vos amis du jeu, gratuitement : des cartes contre des cartes, sans argent ni pièces.</li><li>Les cartes que vous proposez restent réservées jusqu'à la réponse de votre ami, ou jusqu'à l'expiration de l'offre (voir les <rules>règles du jeu</rules>).</li><li>Un échange accepté est définitif : les cartes ne sont pas rendues.</li><li>Vous pouvez mettre une carte aux enchères, contre des pièces. Elle reste réservée pendant la vente ; si quelqu'un a enchéri, elle revient au meilleur enchérisseur à la fin.</li><li>Une mise vous engage : tant que vous menez, votre mise maximale est retenue, et si vous l'emportez, le prix est retiré de vos pièces à la fin de la vente. Une vente conclue est définitive.</li><li>Le jeu retient sur chaque vente une commission, indiquée dans les règles du jeu.</li><li>En cas de fraude ou d'anomalie, nous pouvons suspendre les échanges ou les enchères, et annuler une vente en cours.</li></ul>"
     },
     "forbidden": {
       "title": "Ce qui est interdit",
-      "body": "<ul><li>Vendre, acheter ou échanger contre de l'argent ou contre tout autre bien un compte, des cartes ou des pièces, y compris en dehors du site.</li><li>Créer plusieurs comptes, ou jouer avec le compte de quelqu'un d'autre.</li><li>Faire passer des cartes d'un compte à un autre que vous contrôlez, par des échanges ou autrement.</li><li>Jouer au moyen d'un programme automatique, exploiter une faille ou contourner les limites du jeu.</li><li>Nuire au fonctionnement du site ou à la sécurité des autres joueurs.</li></ul>"
+      "body": "<ul><li>Vendre, acheter ou échanger contre de l'argent ou contre tout autre bien un compte, des cartes ou des pièces, y compris en dehors du site.</li><li>Créer plusieurs comptes, ou jouer avec le compte de quelqu'un d'autre.</li><li>Faire passer des cartes ou des pièces d'un compte à un autre que vous contrôlez, par des échanges, des enchères ou autrement.</li><li>Jouer au moyen d'un programme automatique, exploiter une faille ou contourner les limites du jeu.</li><li>Nuire au fonctionnement du site ou à la sécurité des autres joueurs.</li></ul>"
     },
     "sanctions": {
       "title": "Suspension et suppression d'un compte",
@@ -630,7 +686,7 @@
     },
     "collected": {
       "title": "Les données collectées",
-      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
     },
     "purposes": {
       "title": "Pourquoi, et sur quelle base",
@@ -638,7 +694,7 @@
     },
     "public": {
       "title": "Ce qui est public",
-      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Vos amis voient aussi votre collection. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
+      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Vos amis voient aussi votre collection. Au marché, votre pseudo s'affiche sur vos ventes ; vos mises restent anonymes. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
     },
     "recipients": {
       "title": "Qui reçoit vos données",
@@ -646,7 +702,7 @@
     },
     "retention": {
       "title": "Combien de temps",
-      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte, et l'autre joueur d'un échange garde son historique, sans votre pseudo.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les notifications du jeu sont effacées au bout de 90 jours.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
+      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte, et l'autre joueur d'un échange ou d'une vente garde son historique, sans votre pseudo.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les notifications du jeu sont effacées au bout de 90 jours.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
     },
     "rights": {
       "title": "Vos droits",
@@ -672,6 +728,7 @@
     "home": "Accueil",
     "open": "Ouvrir",
     "collection": "Collection",
+    "market": "Marché",
     "friends": "Amis",
     "leaderboard": "Classement",
     "rules": "Règles du jeu",
@@ -727,6 +784,17 @@
       "tradeUnavailable": "Une carte de l'échange n'est plus disponible : elle a changé de main, ou elle est déjà promise ailleurs.",
       "tooManyOffers": "Vous avez trop d'offres en attente : attendez des réponses avant d'en proposer d'autres.",
       "tradeOver": "Cette offre n'est plus en attente.",
+      "auctionsClosed": "Les enchères sont fermées pour le moment.",
+      "auctionUnavailable": "Cette carte n'est pas disponible à la vente : vous ne l'avez plus, ou elle est déjà en vente ou proposée dans un échange.",
+      "auctionPrice": "Vérifiez les prix : des nombres entiers dans la fourchette de la rareté, et un prix d'achat immédiat au moins égal à la mise de départ.",
+      "auctionDuration": "Choisissez l'une des durées proposées.",
+      "tooManyAuctions": "Vous avez déjà le maximum de ventes en cours : attendez qu'une se termine.",
+      "auctionOver": "Cette vente est terminée.",
+      "auctionHasBids": "Quelqu'un a déjà enchéri : la vente ne peut plus être annulée.",
+      "ownAuction": "Vous ne pouvez pas enchérir sur votre propre vente.",
+      "bidTooLow": "Votre mise est trop basse : proposez au moins le minimum indiqué.",
+      "bidTooHigh": "Votre mise dépasse le prix maximum de cette rareté.",
+      "bidOverCoins": "Vous n'avez pas assez de pièces disponibles : celles de vos enchères en tête sont retenues.",
       "server": "L'ouverture n'a pas abouti. Réessayez dans un instant."
     }
   },
@@ -983,7 +1051,7 @@
   },
   "Rules": {
     "title": "Règles du jeu",
-    "description": "Paquets, collection, pièces et succès : les règles de World Up.",
+    "description": "Paquets, collection, pièces, échanges et enchères : les règles de World Up.",
     "intro": "Collectionnez les monuments protégés de France en ouvrant des paquets de cartes {collection}. Les chiffres de cette page sont ceux qu'applique le jeu.",
     "packsHeading": "Les paquets",
     "packsStart": "À votre arrivée, {packs} paquets vous attendent. Chaque paquet contient {cards} cartes.",
@@ -1000,7 +1068,7 @@
     "rarity": "Rareté",
     "resaleValue": "Un doublon revendu",
     "coins": "{count, plural, one {# pièce} other {# pièces}}",
-    "noMoneyValue": "Les pièces ne s'achètent pas et ne se convertissent pas en euros. Les cartes ne passent d'un compte à un autre que par les échanges entre amis, sans argent.",
+    "noMoneyValue": "Les pièces ne s'achètent pas et ne se convertissent pas en euros. Les cartes et les pièces ne passent d'un compte à un autre que par les échanges entre amis et les enchères du jeu, sans argent.",
     "achievementsHeading": "Les succès",
     "achievement": "Succès",
     "reward": "Récompense",
@@ -1008,8 +1076,121 @@
     "tradesFriends": "Ajoutez des amis par leur pseudo, sur la page <friends>Amis</friends> : vos amis voient votre collection, et vous la leur.",
     "tradesHow": "Entre amis, vous échangez des cartes gratuitement, jusqu'à {max} cartes de chaque côté. Toute carte s'échange, même votre dernier exemplaire.",
     "tradesReserved": "Les cartes que vous proposez sont réservées jusqu'à la réponse de votre ami, {hours} heures au plus : vous ne pouvez ni les revendre, ni les proposer ailleurs. Un échange accepté est définitif.",
+    "auctionsHeading": "Les enchères",
+    "auctionsHow": "Au <market>marché</market>, vous mettez une carte aux enchères contre des pièces, pour {durations}. Toute carte se vend, même votre dernier exemplaire ; elle reste réservée pendant la vente.",
+    "auctionsBid": "Pour enchérir, vous indiquez le prix maximum que vous acceptez de payer : le jeu enchérit pour vous, d'un pas de {step} % du prix, juste ce qu'il faut pour rester devant. Le gagnant paie la deuxième meilleure offre plus un pas, jamais plus que son maximum. À égalité, la mise la plus ancienne l'emporte.",
+    "auctionsHeld": "Tant que vous menez, votre maximum reste retenu : vous ne pouvez pas le miser ailleurs. Dépassé, vous retrouvez aussitôt ces pièces.",
+    "auctionsEnd": "Une mise placée dans les {minutes} dernières minutes prolonge la vente de {minutes} minutes. Le vendeur peut fixer un prix d'achat immédiat : une mise à ce prix achète la carte tout de suite.",
+    "auctionsFee": "À la vente, le jeu retient une commission de {percent} % du prix : ces pièces sortent du jeu. Le vendeur peut annuler sa vente tant que personne n'a enchéri, et chacun a au plus {max} ventes en cours.",
+    "auctionsPrices": "Les prix restent dans une fourchette qui dépend de la rareté :",
+    "pricesCaption": "Prix possibles aux enchères",
+    "minPrice": "Prix minimum",
+    "maxPrice": "Prix maximum",
+    "durations": "{list} heures",
     "leaderboardHeading": "Le classement",
     "leaderboardRule": "Le <link>classement</link> compte vos cartes différentes. À égalité, le plus de Légendaires passe devant, puis le plus d'Ultra rares, et ainsi de suite.",
     "serverDecides": "Le serveur décide de tout : contenu des paquets, minuteurs et soldes. Votre navigateur ne fait que les afficher."
+  },
+  "Market": {
+    "title": "Marché",
+    "intro": "Achetez et vendez des cartes aux enchères, contre des pièces. Indiquez le prix maximum que vous acceptez de payer : le jeu enchérit pour vous, juste ce qu'il faut pour rester devant.",
+    "balance": "Vous avez <strong>{count, number}</strong> {count, plural, one {pièce} other {pièces}}",
+    "held": ", dont {count, plural, one {# engagée} other {# engagées}} dans vos enchères en tête",
+    "mine": {
+      "title": "Mes ventes et mes mises",
+      "intro": "Vos ventes, et celles sur lesquelles vous avez enchéri. Pour vendre une carte, ouvrez sa fiche depuis votre <collection>collection</collection>.",
+      "selling": "Mes ventes en cours",
+      "bidding": "Mes enchères en cours",
+      "history": "Terminées",
+      "noneSelling": "Aucune vente en cours.",
+      "noneBidding": "Aucune enchère en cours.",
+      "noHistory": "Pas encore de vente terminée."
+    },
+    "sellHint": "Pour vendre une carte, ouvrez sa fiche depuis votre <collection>collection</collection>.",
+    "closed": "Les enchères sont fermées pour le moment. Les ventes en cours se terminent normalement.",
+    "sort": "Trier par",
+    "sorts": {
+      "ending": "Fin la plus proche",
+      "newest": "Les plus récentes",
+      "price": "Prix le plus bas"
+    },
+    "missingOnly": "Seulement les cartes qui me manquent",
+    "cardFilter": "Les ventes de {name}",
+    "allCards": "Voir toutes les ventes",
+    "count": "{count, plural, =0 {Aucune vente en cours} one {# vente en cours} other {# ventes en cours}}",
+    "empty": "Aucune vente ne correspond pour l'instant.",
+    "formerPlayer": "un ancien joueur",
+    "coins": "{count, number} {count, plural, one {pièce} other {pièces}}",
+    "currentBid": "Enchère actuelle",
+    "startingBid": "Mise de départ",
+    "bids": "{count, plural, =0 {Aucune mise} one {# mise} other {# mises}}",
+    "timeLeftLabel": "Fin dans",
+    "timeLeft": {
+      "days": "{days} j {hours} h",
+      "hours": "{hours} h {minutes} min",
+      "ended": "Terminée"
+    },
+    "endsOn": "se termine le {date}",
+    "buyoutAt": "Achat immédiat : {count, number} {count, plural, one {pièce} other {pièces}}",
+    "soldBy": "Vendue par {pseudo}",
+    "states": {
+      "active": "En cours",
+      "ended": "Terminée",
+      "sold": "Vendue",
+      "unsold": "Invendue",
+      "cancelled": "Annulée"
+    },
+    "viewer": {
+      "seller": "Votre vente",
+      "leading": "Vous menez",
+      "outbid": "Enchère dépassée",
+      "won": "Remportée",
+      "lost": "Perdue"
+    },
+    "done": {
+      "created": "Votre carte est en vente. Elle reste réservée jusqu'à la fin de la vente.",
+      "cancelled": "Vente annulée : votre carte est de nouveau disponible.",
+      "leading": "Enchère placée : vous menez.",
+      "raised": "Votre maximum est relevé : vous menez toujours.",
+      "outbid": "Votre mise est enregistrée, mais un autre joueur avait prévu de payer davantage : il reste devant.",
+      "bought": "Achat conclu : la carte est dans votre collection."
+    },
+    "auction": {
+      "sold": "Vendue {count, number} {count, plural, one {pièce} other {pièces}}, le {date}.",
+      "unsold": "Terminée sans enchère, le {date}.",
+      "cancelled": "Annulée, le {date}.",
+      "cardPage": "Voir la fiche de la carte",
+      "won": "Vous avez remporté cette vente : la carte est dans votre collection.",
+      "leading": "Vous menez. Votre maximum : {count, number} {count, plural, one {pièce} other {pièces}}. Le jeu enchérit pour vous jusque-là, et ces pièces restent retenues tant que vous menez.",
+      "outbid": "Un autre joueur a pris la tête : misez plus haut pour la reprendre.",
+      "maxLabel": "Votre mise maximale",
+      "maxHint": "De {min, number} à {max, number} pièces. Vous ne payez que ce qu'il faut pour passer devant, jamais plus que votre maximum.",
+      "raise": "Relever mon maximum",
+      "bid": "Enchérir",
+      "buyNow": "Acheter maintenant pour {count, number} {count, plural, one {pièce} other {pièces}}",
+      "available": "Pièces disponibles pour enchérir : {count, number}.",
+      "howItWorks": "Une mise placée dans les {minutes} dernières minutes prolonge la vente de {minutes} minutes. Le gagnant paie à la fin de la vente.",
+      "cancelHint": "Personne n'a encore enchéri : vous pouvez retirer la carte de la vente.",
+      "cancel": "Annuler la vente",
+      "sellerHasBids": "Des joueurs ont enchéri : la carte ira au meilleur à la fin de la vente. Vous recevrez le prix, moins {percent} % de commission."
+    },
+    "sell": {
+      "title": "Mettre en vente",
+      "heading": "Vendre {name}",
+      "intro": "La carte reste réservée pendant la vente. Si quelqu'un enchérit, elle part au meilleur enchérisseur à la fin ; sinon, elle vous reste.",
+      "formHeading": "Votre vente",
+      "allPromised": "Vos exemplaires de cette carte sont déjà en vente ou proposés dans un échange.",
+      "notOwned": "Vous n'avez pas cette carte : vous ne pouvez vendre que les cartes de votre collection.",
+      "lastCopy": "C'est votre seul exemplaire : vendu, il quittera votre collection.",
+      "copies": "{count, plural, one {# exemplaire disponible} other {# exemplaires disponibles}} : vous en vendez un.",
+      "startPrice": "Mise de départ",
+      "startHint": "{rarity} : de {min, number} à {max, number} pièces.",
+      "buyoutPrice": "Prix d'achat immédiat (facultatif)",
+      "buyoutHint": "Au moins la mise de départ, au plus {max, number} pièces. Une mise à ce prix achète la carte tout de suite.",
+      "duration": "Durée",
+      "hours": "{count, plural, one {# heure} other {# heures}}",
+      "feeHint": "À la vente, le jeu retient {percent} % du prix, arrondi au-dessus. Vous recevez le reste à la fin de la vente.",
+      "submit": "Mettre en vente"
+    }
   }
 }

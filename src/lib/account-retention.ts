@@ -2,6 +2,7 @@ import { and, eq, isNotNull, isNull, lt, sql } from 'drizzle-orm';
 import { type Database, db } from '@/db';
 import { users } from '@/db/schema';
 import type { EmailJob } from './email';
+import { cancelOrphanAuctions } from './game/auctions';
 import { cancelOrphanTrades } from './game/trades';
 import { deleteOldNotifications } from './notifications/notifications';
 
@@ -74,8 +75,9 @@ export async function applyRetention(
     )
     .returning({ id: users.id });
 
-  // The deleted players' open offers are void: record it
+  // The deleted players' open offers and auctions are void: record it
   await cancelOrphanTrades(database, now);
+  await cancelOrphanAuctions(database, now);
   const notificationsDeleted = await deleteOldNotifications(database, now);
 
   return {

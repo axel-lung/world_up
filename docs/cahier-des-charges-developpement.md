@@ -16,14 +16,14 @@ La version 1 est un site web responsive. Le jeu s'appelle World Up. Un joueur ma
 - Classement simple.
 - Back-office : catalogue (masquer une carte, changer sa photo), signalements, joueurs, remboursements.
 - Pages légales, probabilités, sources et crédits.
+- Social, avancé de la version 2 le 22 octobre 2026 (voir « Social et marché ») : amis, collection d'un ami, échanges de cartes entre amis, enchères payées en pièces, notifications dans le site puis en push web.
 
 **Version 2 (après le lancement)**
 
-- Échanges entre joueurs, marché aux enchères, amis.
 - Deuxième collection.
 - Variante brillante et statistiques de jeu, si elles sont retenues.
 
-Recommandation : garder les échanges pour la version 2. Le lancement est plus rapide, et un marché entre joueurs demande une surveillance anti-fraude.
+Les échanges et les enchères passent avant les paiements (décision du 22 octobre 2026). Un marché entre joueurs demande une surveillance anti-fraude : le back-office montre les ventes et les échanges par joueur, et un interrupteur en base coupe les échanges ou les enchères sans redéployer.
 
 **Hors périmètre** : application mobile native (l'application Android du Play Store est le site lui-même, voir « Application Android »), NFT ou blockchain, toute conversion de la monnaie virtuelle en euros.
 
@@ -200,7 +200,17 @@ Les tables de jeu portent un `collection_id` dès la version 1, pour accueillir 
 | `reports` | joueur, carte, type, message, statut | Signalements de photo ou de texte |
 | `audit_log` | administrateur, action, cible, date | Toute action du back-office |
 
-En version 2 s'ajoutent `trades`, `trade_items`, `auctions`, `bids` et `friendships`.
+Le volet social ajoute ces tables :
+
+| Table | Champs clés | Remarques |
+| --- | --- | --- |
+| `friendships` | demandeur, destinataire, statut (en attente, acceptée), dates | Une ligne par paire, sans collection : l'amitié vaut pour tout le jeu |
+| `trades`, `trade_items` | collection, proposeur, destinataire, statut, clé d'idempotence, expiration ; côté, carte, quantité | Les joueurs passent à `null` à la suppression d'un compte : l'autre garde son historique |
+| `auctions` | collection, vendeur, carte, mise de départ, achat immédiat, prix actuel, meneur et sa mise maximale, nombre de mises, statut, clé d'idempotence, fin, règlement | La mise maximale du meneur n'est jamais montrée aux autres |
+| `bids` | vente, enchérisseur, mise maximale, clé d'idempotence, date | Historique des mises |
+| `market_rules`, `market_prices` | interrupteurs des échanges et des enchères, expiration des offres, durées, commission, pas, prolongation, ventes en cours par joueur ; fourchette de prix par rareté | Règles réglables dans `/admin/rules` |
+| `notifications` | joueur, collection, type, identifiants liés, lue le | Le texte est rendu à l'affichage ; effacées au bout de 90 jours |
+| `push_subscriptions` | joueur, adresse du service push, clés | Une ligne par appareil, sans adresse IP ni navigateur |
 
 ## Catalogue : pipeline d'import
 
@@ -238,9 +248,10 @@ Toute la logique de jeu s'exécute sur le serveur : le navigateur affiche, il ne
 
 **Monnaie virtuelle**
 
-- Gains : revente rapide d'un doublon (montant par rareté, paramétrable), succès.
+- Gains : revente rapide d'un doublon (montant par rareté, paramétrable), succès, ventes aux enchères.
+- Dépenses : les enchères seulement.
 - Chaque mouvement est une ligne du registre ; le solde ne peut pas devenir négatif.
-- Aucun achat, aucun retrait, aucun transfert hors du jeu.
+- Aucun achat, aucun retrait, aucun transfert hors du jeu : les pièces ne passent d'un joueur à un autre que par les enchères.
 
 **Progression et classement**
 
@@ -252,7 +263,45 @@ Toute la logique de jeu s'exécute sur le serveur : le navigateur affiche, il ne
 - Limite de débit sur l'inscription, la connexion et l'ouverture de paquets.
 - Détection des comptes multiples (même moyen de paiement, même adresse e-mail une fois normalisée ; pas d'empreinte d'appareil sans consentement) et bannissement depuis le back-office.
 
-**Échanges (version 2)** : les cartes et la monnaie d'une offre sont réservées jusqu'à la réponse ; l'offre expire après 48 heures ; l'échange se fait en une seule transaction.
+## Social et marché
+
+Avancé de la version 2 le 22 octobre 2026, avant les paiements. Les règles chiffrées sont des paramètres en base (`market_rules`, `market_prices`), modifiables dans `/admin/rules`.
+
+**Amis**
+
+- Une demande par pseudo exact (sans tenir compte de la casse), ou depuis le classement. Une demande déjà reçue de la même personne vaut acceptation.
+- Le destinataire accepte ou refuse ; un refus n'est pas annoncé au demandeur. Retirer un ami annule les offres d'échange en attente entre les deux joueurs.
+- Limites anti-abus : 200 amis, 30 demandes en attente, 20 demandes par heure.
+- Seuls les amis voient la collection d'un joueur, Légendaires comprises, avec un onglet « Il vous manque ».
+
+**Réservations**
+
+- Une carte proposée dans un échange ou mise en vente, et la mise maximale d'un meneur, restent à leur propriétaire mais ne peuvent servir ailleurs. Elles se calculent à la lecture : rien n'est rendu quand une offre expire ou qu'une mise est dépassée.
+- La revente d'un doublon ne vend jamais un exemplaire réservé.
+- Ordre des verrous, pour toute écriture qui prend des cartes ou des pièces : la ligne de l'offre ou de la vente, puis les lignes `user_cards` triées par joueur et par carte, puis les portefeuilles triés par joueur.
+
+**Échanges entre amis**
+
+- Des cartes contre des cartes, gratuitement, de 1 à 5 cartes de chaque côté. Toute carte s'échange, même le dernier exemplaire.
+- Les cartes du proposeur sont réservées dès l'envoi ; celles de l'ami sont vérifiées à l'envoi, puis à l'acceptation.
+- L'acceptation déplace les cartes dans les deux sens en une seule transaction, avec les succès des deux joueurs ; si une carte manque, elle est refusée et l'offre reste ouverte.
+- Une offre expire après 48 heures. Pas de contre-offre : on refuse, puis on propose autre chose.
+
+**Enchères**
+
+- Enchère ascendante avec mise automatique : le joueur indique la mise maximale qu'il accepte de payer, et le serveur enchérit pour lui du minimum nécessaire. Le gagnant paie la deuxième mise maximale plus un pas, jamais plus que la sienne ; à égalité, la mise la plus ancienne l'emporte.
+- Le pas vaut 5 % du prix, arrondi au-dessus, une pièce au moins. Une mise placée dans les 5 dernières minutes prolonge la vente de 5 minutes.
+- Mise en vente : n'importe quelle carte disponible, même la dernière ; mise de départ dans la fourchette de la rareté (par défaut, de la valeur de revente d'un doublon à 100 fois cette valeur) ; achat immédiat facultatif ; durée de 24, 48 ou 72 heures ; 10 ventes en cours par joueur au plus. Le vendeur peut annuler tant que personne n'a enchéri.
+- Une mise demande autant de pièces disponibles : le solde, moins les mises maximales des ventes que le joueur mène. Une mise au moins égale au prix d'achat immédiat achète la carte à ce prix, sur-le-champ.
+- Une vente est finie à son heure de fin, réglée ou non. Le règlement se fait à l'affichage de la vente, ou par la tâche `market-settle` du worker, chaque minute. L'acheteur paie le prix ; le vendeur reçoit le prix moins une commission de 5 % (arrondie au-dessus), détruite pour que la masse de pièces ne fasse pas que grandir. Sans mise, la vente est invendue ; une carte masquée entre-temps, ou un vendeur ou un meneur supprimé, l'annulent.
+- Le marché montre les ventes en cours, avec des filtres (rareté, série, « Il me manque ») et un tri (fin proche, nouveautés, prix). Le pseudo du vendeur est public ; les enchérisseurs restent anonymes.
+- Le back-office (`/admin/market`) liste les ventes et les échanges récents par pseudo, et annule une vente en cours, avec une trace dans le journal d'audit.
+
+**Notifications**
+
+- Demande d'ami, ami accepté, offre reçue, acceptée, refusée ou expirée, mise dépassée, vente gagnée, conclue, invendue ou annulée.
+- Écrites dans la transaction de l'événement ; une cloche dans l'en-tête compte les non-lues, `/activity` montre les 50 dernières. Effacées au bout de 90 jours.
+- En push web dans un second temps, sur l'appareil où le joueur l'active ; sur Android, l'application les affiche comme les siennes.
 
 ## Paiements et conformité
 
@@ -284,7 +333,7 @@ Stripe gère tous les paiements, et ses webhooks font foi : un paquet acheté n'
 - CGU qui interdisent la revente contre de l'argent, et bannissement en cas d'infraction.
 - Probabilités publiques, avec leur historique.
 - Pas de paquet payant pour les joueurs résidant en Belgique, où la commission des jeux de hasard assimile les « loot boxes » payantes à des jeux de hasard (à confirmer par l'avocat).
-- Les échanges et le marché de la version 2 rendraient les cartes cessibles à titre onéreux : des cartes tirées de paquets payants deviendraient des « objets numériques monétisables » (loi SREN, art. 40 ; décret n° 2026-60), un régime soumis à déclaration auprès de l'ANJ. À soumettre à l'avocat avant d'écrire le cahier de la version 2.
+- Les échanges et les enchères rendent les cartes cessibles d'un compte à l'autre. Tant que tous les paquets sont gratuits, le joueur ne fait aucun « sacrifice financier » : pas de JONUM, d'où leur ouverture sans attendre l'avocat (décision du 22 octobre 2026). Des paquets payants feraient de ces cartes des « objets numériques monétisables » (loi SREN, art. 40 ; décret n° 2026-60), un régime soumis à déclaration auprès de l'ANJ : la combinaison des paquets payants et des cartes cessibles est à examiner avec l'avocat avant le lot 4.
 
 **Pages obligatoires** : mentions légales, CGU et politique de confidentialité (écrites au lot 3 : elles doivent exister avant que le site ne s'ouvre à quiconque), CGV (lot 4), probabilités, sources et crédits. Les coordonnées de l'éditeur et de l'hébergeur viennent du fichier .env du serveur. Une nouvelle version des CGU est présentée au joueur à sa visite suivante, et il l'accepte pour continuer à jouer.
 
@@ -319,6 +368,10 @@ La première version (`Design system World Up.dc.html`, socle Nocturne) est remp
 | `/c/heritage/collection` | Collection et filtres | Connecté |
 | `/c/heritage/series/[slug]` | Série | Connecté |
 | `/c/heritage/cards/[slug]` | Fiche carte | Public, référencée par Google |
+| `/c/heritage/friends/[pseudo]` | Collection d'un ami | Amis seulement |
+| `/c/heritage/trades`, `/c/heritage/trades/new`, `/c/heritage/trades/[id]` | Offres d'échange, composition, détail | Connecté |
+| `/c/heritage/market`, `/c/heritage/market/[id]`, `/c/heritage/market/sell`, `/c/heritage/market/mine` | Marché, vente, mise en vente, mes ventes et mes mises | Connecté |
+| `/friends`, `/activity` | Amis, notifications | Connecté |
 | `/leaderboard` | Classement | Public |
 | `/shop` | Abonnement et paquets | Connecté pour acheter |
 | `/account` | Abonnement, plafond, achats, données | Connecté |
@@ -376,6 +429,14 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 - [ ] Aucune carte masquée ne sort d'un paquet.
 - [ ] Un doublon revendu crédite la monnaie une seule fois ; le solde ne devient jamais négatif.
 
+**Social et marché**
+
+- [ ] Seuls les amis voient la collection d'un joueur.
+- [ ] Une carte proposée dans un échange ou mise en vente ne se revend pas et ne se promet pas deux fois.
+- [ ] Un échange accepté déplace les cartes dans les deux sens, en une transaction, même un dernier exemplaire ; une offre expire après 48 heures.
+- [ ] Une mise ne dépasse jamais les pièces disponibles, même avec deux mises simultanées ; le meneur paie la deuxième mise maximale plus un pas.
+- [ ] Une vente réglée deux fois n'écrit qu'une fois au registre ; la commission est retenue ; une carte masquée ou un joueur supprimé annule la vente.
+
 **Cartes et crédits**
 
 - [ ] Chaque carte affiche l'auteur et la licence de sa photo, avec un lien vers le fichier Commons et vers le texte de la licence.
@@ -407,7 +468,7 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 
 ## Lots de livraison et questions ouvertes
 
-Le développement avance en cinq lots, chacun livré en préproduction et validé avant le suivant. Les paiements n'arrivent qu'au lot 4, après l'avis de l'avocat.
+Le développement avance en cinq lots, chacun livré en préproduction et validé avant le suivant. Les paiements n'arrivent qu'au lot 4, après l'avis de l'avocat. Le volet social, avancé le 22 octobre 2026, passe avant le lot 4, en quatre étapes validées chacune en préproduction : amis et notifications, échanges, enchères, push web.
 
 1. **Fondations** : dépôt, Docker Compose derrière Traefik, base de données, comptes, design system intégré, intégration continue.
 2. **Catalogue** : pipeline d'import, tri éditorial, back-office du catalogue, fiches cartes publiques.
@@ -415,7 +476,7 @@ Le développement avance en cinq lots, chacun livré en préproduction et valid�
 4. **Paiements** : boutique, Stripe, abonnement, plafond de dépenses, CGV.
 5. **Lancement** : bêta fermée avec quelques dizaines de joueurs, corrections, ouverture au public.
 
-La version 2 (échanges, marché, deuxième collection) fera l'objet d'un cahier à part.
+La version 2 (deuxième collection, variante brillante, statistiques) fera l'objet d'un cahier à part.
 
 **Questions ouvertes**
 

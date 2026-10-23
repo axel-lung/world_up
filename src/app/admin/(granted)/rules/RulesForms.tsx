@@ -3,11 +3,12 @@
 import { useTranslations } from 'next-intl';
 import { useActionState } from 'react';
 import { SubmitButton } from '@/components/account/SubmitButton';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { Notice } from '@/components/ui/Notice';
 import { TextField } from '@/components/ui/TextField';
-import type { GameRules } from '@/lib/game/rules';
+import type { GameRules, MarketRules, PriceRange } from '@/lib/game/rules';
 import { RARITIES, type Rarity } from '@/lib/rarity';
-import { type RulesState, saveGameRules, saveOdds, saveResaleValues } from './actions';
+import { type RulesState, saveGameRules, saveMarketPrices, saveMarketRules, saveOdds, saveResaleValues } from './actions';
 import styles from '../../admin.module.css';
 
 function Result({ state }: { state: RulesState }) {
@@ -75,6 +76,87 @@ export function ResaleForm({ values }: { values: Record<Rarity, number> }) {
       </div>
       <SubmitButton variant="primary" pending={pending}>
         {t('saveResale')}
+      </SubmitButton>
+      <Result state={state} />
+    </form>
+  );
+}
+
+const SWITCHES = ['tradesEnabled', 'auctionsEnabled'] as const;
+const MARKET_FIELDS = [
+  'tradeExpiryHours',
+  'tradeMaxCards',
+  'auctionFeePercent',
+  'bidIncrementPercent',
+  'auctionExtensionMinutes',
+  'maxActiveAuctions',
+] as const;
+
+export function MarketRulesForm({ rules }: { rules: MarketRules }) {
+  const t = useTranslations('Admin.rules');
+  const [state, action, pending] = useActionState(saveMarketRules, null);
+  return (
+    <form action={action} className={styles.form}>
+      <div className={styles.filters}>
+        {SWITCHES.map((field) => (
+          <Checkbox key={field} name={field} defaultChecked={rules[field]}>
+            {t(`fields.${field}`)}
+          </Checkbox>
+        ))}
+      </div>
+      <div className={styles.filters}>
+        {MARKET_FIELDS.map((field) => (
+          <TextField
+            key={field}
+            label={t(`fields.${field}`)}
+            name={field}
+            type="number"
+            inputMode="numeric"
+            min={field === 'auctionFeePercent' || field === 'auctionExtensionMinutes' ? 0 : 1}
+            required
+            defaultValue={rules[field]}
+          />
+        ))}
+        <TextField
+          label={t('fields.auctionDurationsHours')}
+          name="auctionDurationsHours"
+          required
+          defaultValue={rules.auctionDurationsHours.join(', ')}
+          hint={t('durationsHint')}
+        />
+      </div>
+      <SubmitButton variant="primary" pending={pending}>
+        {t('saveMarket')}
+      </SubmitButton>
+      <Result state={state} />
+    </form>
+  );
+}
+
+export function MarketPricesForm({ prices }: { prices: Record<Rarity, PriceRange> }) {
+  const t = useTranslations('Admin.rules');
+  const tRarity = useTranslations('Rarity');
+  const [state, action, pending] = useActionState(saveMarketPrices, null);
+  return (
+    <form action={action} className={styles.form}>
+      <div className={styles.filters}>
+        {RARITIES.flatMap((rarity) =>
+          (['min', 'max'] as const).map((bound) => (
+            <TextField
+              key={`${rarity}-${bound}`}
+              label={t(bound === 'min' ? 'minPrice' : 'maxPrice', { rarity: tRarity(rarity) })}
+              name={`${rarity}${bound === 'min' ? 'Min' : 'Max'}`}
+              type="number"
+              inputMode="numeric"
+              min={1}
+              required
+              defaultValue={prices[rarity][bound]}
+            />
+          )),
+        )}
+      </div>
+      <SubmitButton variant="primary" pending={pending}>
+        {t('savePrices')}
       </SubmitButton>
       <Result state={state} />
     </form>

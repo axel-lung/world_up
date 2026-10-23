@@ -16,7 +16,8 @@ export const queues = {
     name: 'account-retention',
     options: { retryLimit: 3, retryDelay: 600, expireInSeconds: 300, deleteAfterSeconds: 7 * 86_400 },
   },
-  // Marks the expired trade offers and tells their proposers (src/lib/game/trades.ts).
+  // Settles the auctions over and marks the expired trade offers, telling their
+  // players (src/lib/game/auctions.ts, trades.ts).
   // Every minute; a run missed is caught up by the next, so no retries.
   marketSettle: {
     name: 'market-settle',
