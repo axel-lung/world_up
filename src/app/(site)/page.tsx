@@ -24,6 +24,19 @@ export default async function HomePage({ searchParams }: PageProps<'/'>) {
       <span className={styles.discAccent} aria-hidden="true" />
       <span className={styles.discSage} aria-hidden="true" />
       <Sparkle className={styles.sparkle} aria-hidden />
+      {/* The logo repeats the title: no text alternative. Above the text on a
+          phone, on the decoration beside it on a wide screen. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- a WebP already sized, like the cards */}
+      <img
+        className={styles.logo}
+        src="/logo/world-up-256.webp"
+        srcSet="/logo/world-up-256.webp 256w, /logo/world-up-512.webp 512w"
+        sizes="(min-width: 1000px) 280px, 160px"
+        width={256}
+        height={256}
+        alt=""
+        fetchPriority="high"
+      />
 
       {deleted && (
         <Notice tone="success">
