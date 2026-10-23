@@ -25,7 +25,8 @@ export default async function AdminMarketPage({ searchParams }: PageProps<'/admi
   await requireAdmin();
   const params = await searchParams;
   const { pseudo } = filtersSchema.parse({ pseudo: (Array.isArray(params.pseudo) ? params.pseudo[0] : params.pseudo) ?? '' });
-  const player = pseudo ? await findPlayer(db, pseudo) : null;
+  // Banned players too: their history is what the back-office needs
+  const player = pseudo ? await findPlayer(db, pseudo, { banned: true }) : null;
   const [t, tMarket, tTrades, format, activity] = await Promise.all([
     getTranslations('Admin.market'),
     getTranslations('Market'),
@@ -36,7 +37,8 @@ export default async function AdminMarketPage({ searchParams }: PageProps<'/admi
   ]);
   const date = (value: Date) => format.dateTime(value, { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
   // Players are set null once deleted
-  const who = (name: string | null) => name ?? t('deletedPlayer');
+  const who = (name: string | null, id: string | null) =>
+    name && id ? <Link href={`/admin/players/${id}`}>{name}</Link> : t('deletedPlayer');
 
   return (
     <main className={styles.stack}>
@@ -82,8 +84,8 @@ export default async function AdminMarketPage({ searchParams }: PageProps<'/admi
                     <td>
                       <Link href={`/admin/cards/${auction.cardId}`}>{displayName(auction.card)}</Link>
                     </td>
-                    <td>{who(auction.seller)}</td>
-                    <td>{auction.bidCount > 0 ? who(auction.leader) : t('nobody')}</td>
+                    <td>{who(auction.seller, auction.sellerId)}</td>
+                    <td>{auction.bidCount > 0 ? who(auction.leader, auction.leaderId) : t('nobody')}</td>
                     <td>{format.number(auction.price)}</td>
                     <td>{format.number(auction.bidCount)}</td>
                     <td>{tMarket(`states.${auction.state}`)}</td>
@@ -129,9 +131,9 @@ export default async function AdminMarketPage({ searchParams }: PageProps<'/admi
                 {activity.trades.map((trade) => (
                   <tr key={trade.id}>
                     <td>{date(trade.createdAt)}</td>
-                    <td>{who(trade.proposer)}</td>
+                    <td>{who(trade.proposer, trade.proposerId)}</td>
                     <td>{trade.gives}</td>
-                    <td>{who(trade.recipient)}</td>
+                    <td>{who(trade.recipient, trade.recipientId)}</td>
                     <td>{trade.gets}</td>
                     <td>{tTrades(`states.${trade.state}`)}</td>
                   </tr>

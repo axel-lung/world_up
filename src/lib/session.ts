@@ -4,8 +4,15 @@ import { cache } from 'react';
 import { getAuth } from './auth';
 import { hasAcceptedTerms } from './consents';
 
-/** The signed-in player's session, checked against the database; null if none. */
-export const getSession = cache(async () => getAuth().api.getSession({ headers: await headers() }));
+/**
+ * The signed-in player's session, checked against the database; null if none,
+ * or if the player is banned (a ban deletes their sessions: this covers one
+ * opened at the same moment).
+ */
+export const getSession = cache(async () => {
+  const session = await getAuth().api.getSession({ headers: await headers() });
+  return session?.user.bannedAt ? null : session;
+});
 
 export type Session = NonNullable<Awaited<ReturnType<typeof getSession>>>;
 

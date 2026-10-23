@@ -53,12 +53,23 @@ export const users = pgTable(
     // (src/lib/account-retention.ts).
     lastActiveAt: timestamp('last_active_at', { withTimezone: true }).notNull().defaultNow(),
     inactivityNoticeAt: timestamp('inactivity_notice_at', { withTimezone: true }),
+    // Set by the back-office (src/lib/players/admin.ts): the player can't sign
+    // in, and other players no longer see them. Who and why: audit_log.
+    bannedAt: timestamp('banned_at', { withTimezone: true }),
+    // The mailbox behind the address: no "+tag", and no dots for Gmail. Two
+    // accounts sharing it are likely one person's (spec, "Anti-abus").
+    emailNormalized: text('email_normalized')
+      .notNull()
+      .generatedAlwaysAs(
+        sql`lower(CASE WHEN lower(split_part("email", '@', 2)) IN ('gmail.com', 'googlemail.com') THEN replace(split_part(split_part("email", '@', 1), '+', 1), '.', '') || '@gmail.com' ELSE split_part(split_part("email", '@', 1), '+', 1) || '@' || split_part("email", '@', 2) END)`,
+      ),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (table) => [
     uniqueIndex('users_name_lower_key').on(sql`lower(${table.name})`),
     index('users_last_active_at_idx').on(table.lastActiveAt),
+    index('users_email_normalized_idx').on(table.emailNormalized),
   ],
 );
 

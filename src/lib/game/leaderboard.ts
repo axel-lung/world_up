@@ -3,7 +3,8 @@ import { db } from '@/db';
 
 // The leaderboard of a collection: distinct visible cards owned; ties go to
 // the rarer cards (legendary first, then ultra, and so on), and players with
-// the same counts share a rank, listed by who got there first.
+// the same counts share a rank, listed by who got there first. Banned players
+// are left out.
 
 export const LEADERBOARD_SIZE = 100;
 
@@ -36,7 +37,7 @@ function ranked(collectionId: number) {
       SELECT s.*, u.name AS pseudo,
         rank() OVER (ORDER BY distinct_cards DESC, legendary DESC, ultra DESC, super DESC, rare DESC, uncommon DESC)::int AS rank
       FROM scores AS s
-      JOIN users AS u ON u.id = s.user_id
+      JOIN users AS u ON u.id = s.user_id AND u.banned_at IS NULL
     )`;
 }
 

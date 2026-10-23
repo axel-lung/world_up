@@ -15,22 +15,23 @@ export interface RenderedEmail {
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
 
-export function renderEmail({ template, url }: EmailJob): RenderedEmail {
+export function renderEmail({ template, url, reason }: EmailJob): RenderedEmail {
   const t = createTranslator({ locale: 'fr', messages, namespace: 'Email' });
   const subject = t(`${template}.subject`);
   const intro = t(`${template}.intro`);
   const action = t(`${template}.action`);
   const note = t(`${template}.note`);
   const signature = t('signature');
+  const why = reason ? `${t('reason')} ${reason}` : null;
 
-  const text = [intro, '', `${action} : ${url}`, '', note, '', signature].join('\n');
+  const text = [intro, ...(why ? ['', why] : []), '', `${action} : ${url}`, '', note, '', signature].join('\n');
   // Plain layout with inline styles: e-mail clients ignore style sheets.
   const html = `<!doctype html>
 <html lang="fr">
 <body style="margin:0;padding:24px;background:#f3f5fe;color:#292b31;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5">
 <div style="max-width:520px;margin:0 auto">
 <p>${escapeHtml(intro)}</p>
-<p style="margin:28px 0"><a href="${escapeHtml(url)}" style="display:inline-block;padding:12px 20px;border:1px solid #8a5a34;border-radius:6px;color:#6e4526;text-decoration:none;font-weight:bold">${escapeHtml(action)}</a></p>
+${why ? `<p>${escapeHtml(why)}</p>\n` : ''}<p style="margin:28px 0"><a href="${escapeHtml(url)}" style="display:inline-block;padding:12px 20px;border:1px solid #8a5a34;border-radius:6px;color:#6e4526;text-decoration:none;font-weight:bold">${escapeHtml(action)}</a></p>
 <p style="font-size:14px;color:#595d6c">${escapeHtml(t('linkFallback'))}<br><a href="${escapeHtml(url)}" style="color:#6e4526;word-break:break-all">${escapeHtml(url)}</a></p>
 <p style="font-size:14px;color:#595d6c">${escapeHtml(note)}</p>
 <p>${escapeHtml(signature)}</p>

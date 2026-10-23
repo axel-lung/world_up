@@ -1,0 +1,3 @@
+ALTER TABLE "users" ADD COLUMN "banned_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "email_normalized" text GENERATED ALWAYS AS (lower(CASE WHEN lower(split_part("email", '@', 2)) IN ('gmail.com', 'googlemail.com') THEN replace(split_part(split_part("email", '@', 1), '+', 1), '.', '') || '@gmail.com' ELSE split_part(split_part("email", '@', 1), '+', 1) || '@' || split_part("email", '@', 2) END)) STORED NOT NULL;--> statement-breakpoint
+CREATE INDEX "users_email_normalized_idx" ON "users" USING btree ("email_normalized");

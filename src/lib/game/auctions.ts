@@ -356,6 +356,24 @@ export async function settleEndedAuctions(database: Database, now: Date, limit =
 }
 
 /**
+ * Cancels the auctions a banned player sells or leads, over but unsettled
+ * included (no sale goes through to or from them), and tells the other player.
+ * The card stays the seller's, the leader's coins are free again.
+ */
+export async function cancelAuctionsOf(executor: Executor, userId: string, now: Date): Promise<number> {
+  const cancelled = await executor
+    .update(auctions)
+    .set({ status: 'cancelled', settledAt: now })
+    .where(and(eq(auctions.status, 'active'), or(eq(auctions.sellerId, userId), eq(auctions.leaderId, userId))))
+    .returning();
+  for (const auction of cancelled) {
+    const other = (id: string | null) => (id === userId ? null : id);
+    await notifyCancelled(executor, { ...auction, sellerId: other(auction.sellerId), leaderId: other(auction.leaderId) }, now);
+  }
+  return cancelled.length;
+}
+
+/**
  * Cancels the running auctions a deleted player was the seller or the leader
  * of, and tells the other one. They are void already (their player is set
  * null): this records it, and frees the card or the coins at once.

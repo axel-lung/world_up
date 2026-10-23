@@ -92,6 +92,13 @@
       "when": 1792686248970,
       "tag": "0012_seed_market_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792796152449,
+      "tag": "0013_players_admin",
+      "breakpoints": true
     }
   ]
 }

@@ -20,6 +20,8 @@ const ACTION_LABELS = {
   'market.update': 'marketUpdate',
   'prices.update': 'pricesUpdate',
   'auction.cancel': 'auctionCancel',
+  'user.ban': 'userBan',
+  'user.unban': 'userUnban',
 } as const;
 
 const RULE_FIELDS = [
@@ -71,6 +73,8 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
       validFrom?: string;
       price?: number;
       bids?: number;
+      trades?: number;
+      auctions?: number;
     };
     if (['rules.update', 'resale.update', 'market.update', 'prices.update'].includes(row.action)) {
       const label =
@@ -86,6 +90,11 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
       const from = format.dateTime(new Date(details.validFrom), { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
       return `${t('rules.fromDate', { date: from })} · ${odds.join(' · ')}`;
     }
+    if (row.action === 'user.ban') {
+      const cancelled = t('audit.banDetails', { trades: details.trades ?? 0, auctions: details.auctions ?? 0 });
+      return details.note ? `${details.note} · ${cancelled}` : cancelled;
+    }
+    if (row.action === 'user.unban') return details.note ?? '';
     if (row.action === 'auction.cancel') {
       const sale = t('audit.auctionDetails', { price: details.price ?? 0, bids: details.bids ?? 0 });
       return details.note ? `${sale} · ${details.note}` : sale;
@@ -129,6 +138,12 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
                     <Link href="/admin/rules">{t('audit.collectionTarget')}</Link>
                   ) : row.targetType === 'auction' ? (
                     <Link href="/admin/market">{t('audit.auctionTarget', { id: row.targetId })}</Link>
+                  ) : row.targetType === 'user' ? (
+                    row.targetPseudo ? (
+                      <Link href={`/admin/players/${row.targetId}`}>{row.targetPseudo}</Link>
+                    ) : (
+                      t('audit.deletedPlayer')
+                    )
                   ) : (
                     `${row.targetType} ${row.targetId}`
                   )}

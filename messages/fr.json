@@ -90,6 +90,7 @@
     "UNDERAGE": "Le jeu est réservé aux personnes de 18 ans et plus.",
     "TERMS_NOT_ACCEPTED": "Acceptez les conditions générales d'utilisation pour créer un compte.",
     "BIRTH_DATE_LOCKED": "La date de naissance ne peut pas être modifiée.",
+    "ACCOUNT_BANNED": "Ce compte est suspendu. Le motif vous a été envoyé par e-mail ; pour contester la décision, écrivez à l'adresse indiquée dans les conditions d'utilisation.",
     "INVALID_EMAIL": "Indiquez une adresse e-mail valide.",
     "INVALID_EMAIL_OR_PASSWORD": "Adresse e-mail ou mot de passe incorrect.",
     "INVALID_PASSWORD": "Mot de passe incorrect.",
@@ -140,6 +141,7 @@
   "Email": {
     "signature": "L'équipe World Up",
     "linkFallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+    "reason": "Motif :",
     "verifyEmail": {
       "subject": "World Up - Confirmez votre adresse e-mail",
       "intro": "Bienvenue dans World Up ! Confirmez votre adresse e-mail pour activer votre compte.",
@@ -163,6 +165,18 @@
       "intro": "Votre compte World Up n'a pas servi depuis près de 3 ans. Sans connexion d'ici 30 jours, il sera supprimé avec votre collection, comme l'annonce notre politique de confidentialité.",
       "action": "Me connecter",
       "note": "Vous ne jouez plus ? Vous n'avez rien à faire : le compte sera supprimé automatiquement."
+    },
+    "accountSuspended": {
+      "subject": "Votre compte World Up est suspendu",
+      "intro": "Votre compte World Up est suspendu pour manquement aux conditions d'utilisation : vous ne pouvez plus vous y connecter.",
+      "action": "Lire les conditions d'utilisation",
+      "note": "Vous pouvez contester cette décision en écrivant à l'adresse indiquée dans les conditions d'utilisation, à la rubrique « Suspension et suppression d'un compte »."
+    },
+    "accountRestored": {
+      "subject": "Votre compte World Up est rétabli",
+      "intro": "La suspension de votre compte World Up est levée : vous pouvez de nouveau vous connecter et retrouver votre collection.",
+      "action": "Me connecter",
+      "note": "Les échanges et les enchères annulés au moment de la suspension ne sont pas rétablis."
     }
   },
   "Rarity": {
@@ -291,6 +305,7 @@
       "audit": "Journal",
       "site": "Retour au site",
       "reports": "Signalements",
+      "players": "Joueurs",
       "rules": "Règles du jeu",
       "market": "Marché"
     },
@@ -432,6 +447,10 @@
       "noPhoto": "Cette carte n'a pas de photo utilisable : remplacez-la avant de la rendre visible.",
       "rarityUnchanged": "Choisissez une rareté différente de l'actuelle.",
       "confirmRequired": "Cochez la case de confirmation.",
+      "reasonRequired": "Indiquez le motif du bannissement.",
+      "adminAccount": "Le compte d'administration ne peut pas être banni.",
+      "alreadyBanned": "Ce joueur est déjà banni.",
+      "notBanned": "Ce joueur n'est pas banni.",
       "invalid": "Vérifiez les champs du formulaire.",
       "generic": "Une erreur est survenue. Réessayez dans un instant."
     },
@@ -455,7 +474,9 @@
         "oddsPublish": "Probabilités publiées",
         "marketUpdate": "Règles du marché changées",
         "pricesUpdate": "Prix des enchères changés",
-        "auctionCancel": "Vente annulée"
+        "auctionCancel": "Vente annulée",
+        "userBan": "Joueur banni",
+        "userUnban": "Bannissement levé"
       },
       "empty": "Aucune action pour l'instant.",
       "deletedAdmin": "compte supprimé",
@@ -465,7 +486,9 @@
       "auctionTarget": "Vente n° {id}",
       "on": "oui",
       "off": "non",
-      "auctionDetails": "{price, number} {price, plural, one {pièce} other {pièces}}, {bids, plural, =0 {aucune mise} one {# mise} other {# mises}}"
+      "auctionDetails": "{price, number} {price, plural, one {pièce} other {pièces}}, {bids, plural, =0 {aucune mise} one {# mise} other {# mises}}",
+      "banDetails": "{trades, plural, =0 {aucun échange annulé} one {# échange annulé} other {# échanges annulés}}, {auctions, plural, =0 {aucune enchère annulée} one {# enchère annulée} other {# enchères annulées}}",
+      "deletedPlayer": "compte supprimé"
     },
     "reports": {
       "title": "Signalements",
@@ -574,6 +597,84 @@
       "deletedPlayer": "compte supprimé",
       "nobody": "—",
       "empty": "Rien pour l'instant."
+    },
+    "players": {
+      "title": "Joueurs",
+      "count": "{count, plural, =0 {Aucun compte} one {# compte} other {# comptes}}",
+      "intro": "Les comptes, le plus récent d'abord. Des comptes liés ont des adresses qui mènent à la même boîte aux lettres, une fois retirés le « +… » et, pour Gmail, les points.",
+      "search": "Pseudo ou adresse e-mail",
+      "status": "Afficher",
+      "statuses": {
+        "all": "Tous les comptes",
+        "banned": "Bannis",
+        "linked": "Comptes liés",
+        "unverified": "Adresse non confirmée"
+      },
+      "filter": "Filtrer",
+      "pseudo": "Pseudo",
+      "email": "Adresse e-mail",
+      "signedUp": "Inscription",
+      "lastActive": "Dernière visite",
+      "state": "État",
+      "linked": "Comptes liés",
+      "states": {
+        "active": "Actif",
+        "banned": "Banni",
+        "unverified": "Adresse non confirmée"
+      },
+      "empty": "Aucun compte ne correspond.",
+      "pagination": "Pages",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "page": "Page {page} sur {pages}"
+    },
+    "player": {
+      "back": "Tous les joueurs",
+      "adminAccount": "Compte d'administration",
+      "account": "Compte",
+      "email": "Adresse e-mail",
+      "mailbox": "Boîte aux lettres",
+      "emailVerified": "Adresse confirmée",
+      "yes": "oui",
+      "no": "non",
+      "birthDate": "Date de naissance",
+      "signedUp": "Inscription",
+      "lastActive": "Dernière visite",
+      "game": "Jeu",
+      "collection": "Collection",
+      "distinct": "Cartes différentes",
+      "copies": "Exemplaires",
+      "packsOpened": "Paquets ouverts",
+      "coins": "Pièces",
+      "noGame": "Ce joueur n'a encore ouvert aucune collection.",
+      "linkedTitle": "Comptes liés",
+      "linkedIntro": "Les autres comptes dont l'adresse mène à la même boîte aux lettres ({mailbox}) : sans doute la même personne.",
+      "noLinked": "Aucun autre compte n'utilise cette boîte aux lettres.",
+      "partnersTitle": "Avec qui il échange",
+      "partnersIntro": "Les échanges conclus et les enchères remportées, par joueur, le plus fréquent d'abord : un compte qui en alimente un autre se repère ici.",
+      "partner": "Joueur",
+      "trades": "Échanges",
+      "sales": "Vendu à ce joueur",
+      "purchases": "Acheté à ce joueur",
+      "deals": "{count, number} ({coins, number} {coins, plural, one {pièce} other {pièces}})",
+      "none": "—",
+      "noPartners": "Aucun échange ni aucune enchère conclus.",
+      "marketLink": "Ses ventes et ses échanges au marché",
+      "banTitle": "Bannissement",
+      "activeNow": "Ce compte est actif.",
+      "bannedNow": "Banni depuis le {date}.",
+      "banIntro": "Un joueur banni est déconnecté et ne peut plus se connecter. Les autres joueurs ne le voient plus (classement, amis, recherche par pseudo). Il garde ses cartes et ses pièces.",
+      "banCancels": "Le bannissement annule ses offres d'échange en cours ({trades, number}) et les enchères qu'il vend ou qu'il mène ({auctions, number}).",
+      "reason": "Motif, envoyé au joueur par e-mail",
+      "reasonHint": "Les conditions d'utilisation lui promettent le motif : écrivez-le pour lui, il le lira tel quel.",
+      "ban": "Bannir ce joueur",
+      "unbanIntro": "Lever le bannissement lui rend l'accès à son compte ; il en est prévenu par e-mail. Les échanges et les enchères annulés ne sont pas rétablis.",
+      "note": "Note (facultative)",
+      "unban": "Lever le bannissement",
+      "cannotBan": "Le compte d'administration ne peut pas être banni.",
+      "bannedDone": "Joueur banni : il est déconnecté, et le motif lui est envoyé par e-mail.",
+      "unbannedDone": "Bannissement levé : il peut de nouveau se connecter.",
+      "history": "Historique"
     }
   },
   "Credits": {
@@ -686,11 +787,11 @@
     },
     "collected": {
       "title": "Les données collectées",
-      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
     },
     "purposes": {
       "title": "Pourquoi, et sur quelle base",
-      "body": "<ul><li>Créer et gérer votre compte, faire fonctionner le jeu et le classement, vérifier votre âge : c'est l'exécution des conditions d'utilisation, notre contrat.</li><li>Vous envoyer les e-mails du compte (confirmation de l'adresse, mot de passe oublié, avertissement avant la suppression d'un compte inactif) : exécution du contrat.</li><li>Garder la preuve de votre acceptation des conditions, traiter vos signalements : notre intérêt légitime.</li><li>Protéger le site et les joueurs (limites de tentatives, détection des comptes multiples) : notre intérêt légitime.</li></ul><p>Nous n'envoyons ni lettre d'information ni publicité, et nous ne vendons ni ne louons vos données.</p>"
+      "body": "<ul><li>Créer et gérer votre compte, faire fonctionner le jeu et le classement, vérifier votre âge : c'est l'exécution des conditions d'utilisation, notre contrat.</li><li>Vous envoyer les e-mails du compte (confirmation de l'adresse, mot de passe oublié, avertissement avant la suppression d'un compte inactif, suspension d'un compte) : exécution du contrat.</li><li>Garder la preuve de votre acceptation des conditions, traiter vos signalements : notre intérêt légitime.</li><li>Protéger le site et les joueurs (limites de tentatives, détection des comptes multiples par l'adresse e-mail, suspension des comptes qui enfreignent les conditions d'utilisation) : notre intérêt légitime.</li></ul><p>Nous n'envoyons ni lettre d'information ni publicité, et nous ne vendons ni ne louons vos données.</p>"
     },
     "public": {
       "title": "Ce qui est public",
@@ -702,7 +803,7 @@
     },
     "retention": {
       "title": "Combien de temps",
-      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte, et l'autre joueur d'un échange ou d'une vente garde son historique, sans votre pseudo.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les notifications du jeu sont effacées au bout de 90 jours.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
+      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte, et l'autre joueur d'un échange ou d'une vente garde son historique, sans votre pseudo. Le journal d'administration garde la trace d'une suspension, avec sa date et son motif.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les notifications du jeu sont effacées au bout de 90 jours.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
     },
     "rights": {
       "title": "Vos droits",

@@ -13,7 +13,7 @@ export const TERMS_VERSION = '2026-10-23';
 /** The date a version of the terms carries, without its revision number. */
 export const termsDate = (version: string) => version.slice(0, 10);
 // Last change of the privacy policy (/privacy).
-export const PRIVACY_VERSION = '2026-10-23';
+export const PRIVACY_VERSION = '2026-10-24';
 
 // Letters (accents included), digits, dot, dash and underscore; 3 to 20 characters.
 const PSEUDO_PATTERN = /^[\p{L}\p{N}._-]{3,20}$/u;

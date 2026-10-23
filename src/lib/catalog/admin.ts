@@ -1,4 +1,5 @@
 import { and, count, desc, eq, ilike, inArray, isNotNull, isNull, or, type SQL, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import { type Database, db, type Transaction } from '@/db';
 import { auditLog, cards, collections, users } from '@/db/schema';
 import type { Rarity } from '@/lib/rarity';
@@ -94,6 +95,9 @@ export async function getAdminCard(id: number) {
   return card ?? null;
 }
 
+const targetUser = alias(users, 'target_user');
+
+/** The back-office's log, newest first; a player target comes with their pseudo (null once deleted). */
 export async function listAudit({ targetType, targetId, limit, offset = 0 }: {
   targetType?: string;
   targetId?: string;
@@ -109,9 +113,11 @@ export async function listAudit({ targetType, targetId, limit, offset = 0 }: {
       details: auditLog.details,
       createdAt: auditLog.createdAt,
       admin: users.name,
+      targetPseudo: targetUser.name,
     })
     .from(auditLog)
     .leftJoin(users, eq(users.id, auditLog.adminId))
+    .leftJoin(targetUser, and(eq(auditLog.targetType, 'user'), sql`${targetUser.id}::text = ${auditLog.targetId}`))
     .where(
       and(
         targetType ? eq(auditLog.targetType, targetType) : undefined,

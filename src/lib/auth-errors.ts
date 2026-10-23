@@ -7,6 +7,7 @@ export const ACCOUNT_ERRORS = {
   UNDERAGE: 'Players must be 18 or older',
   TERMS_NOT_ACCEPTED: 'The terms of use must be accepted',
   BIRTH_DATE_LOCKED: 'The birth date cannot be changed',
+  ACCOUNT_BANNED: 'This account is suspended',
 } as const;
 
 export type AccountErrorCode = keyof typeof ACCOUNT_ERRORS;

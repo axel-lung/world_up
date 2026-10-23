@@ -6,7 +6,7 @@ import { auditLog, cards, collections, reports, series, users } from '@/db/schem
 import { importCatalog } from '@/lib/catalog/import';
 import { createReport } from '@/lib/catalog/reports';
 import { testCard, testCatalog } from '@/lib/catalog/testing';
-import { expect, logIn, newPlayer, signUpAndVerify, test, totp } from './helpers';
+import { countEmails, expect, linkFromEmail, logIn, newPlayer, signUp, signUpAndVerify, test, totp } from './helpers';
 
 // ADMIN_EMAIL comes from .env, as for the web server
 const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
@@ -56,7 +56,9 @@ test.describe('back-office', () => {
     await db.delete(collections).where(eq(collections.id, collectionId));
   });
 
-  test('the admin sets up an authenticator app, signs in with a code and hides a card', async ({ page }) => {
+  test('the admin sets up an authenticator app, signs in with a code and hides a card', async ({ page, browser, baseURL }) => {
+    // One walk through the whole back-office, with e-mails to wait for: three times the usual timeout
+    test.slow();
     // A fresh admin account at each run
     await db.delete(users).where(eq(users.email, adminEmail!));
     const admin = { ...newPlayer(), email: adminEmail! };
@@ -131,8 +133,46 @@ test.describe('back-office', () => {
     await common.fill(before);
     await resale.getByRole('button', { name: 'Enregistrer les valeurs' }).click();
     await expect(page.getByRole('cell', { name: `Commune : ${after} → ${before}` })).toBeVisible();
+
+    // A banned player is signed out, told why by e-mail, and can't sign in until the ban is lifted
+    const byte = () => Math.floor(Math.random() * 254) + 1;
+    const playerContext = await browser.newContext({ baseURL, extraHTTPHeaders: { 'x-forwarded-for': `10.${byte()}.${byte()}.${byte()}` } });
+    const playerPage = await playerContext.newPage();
+    const cheat = newPlayer();
+    await signUp(playerPage, cheat);
+    await expect(playerPage.getByRole('heading', { name: 'Confirmez votre adresse e-mail' })).toBeVisible();
+    // Confirmed here rather than by its link: the other tests' e-mails fill the queue
+    await db.update(users).set({ emailVerified: true }).where(eq(users.email, cheat.email));
+    await logIn(playerPage, cheat.email, cheat.password);
+    await expect(playerPage.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${cheat.pseudo}`);
+    await page.getByRole('link', { name: 'Joueurs' }).click();
+    await page.getByLabel('Pseudo ou adresse e-mail').fill(cheat.email);
+    await page.getByRole('button', { name: 'Filtrer' }).click();
+    await page.getByRole('link', { name: cheat.pseudo }).click();
+    await expect(page.getByRole('heading', { name: cheat.pseudo, level: 1 })).toBeVisible();
+    await page.getByLabel('Motif, envoyé au joueur par e-mail').fill('Comptes multiples');
+    await page.getByRole('button', { name: 'Bannir ce joueur' }).click();
+    await expect(page.getByText('Joueur banni : il est déconnecté')).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Comptes multiples · aucun échange annulé, aucune enchère annulée' })).toBeVisible();
+
+    await playerPage.goto('/account');
+    await expect(playerPage).toHaveURL(/\/login\?next=%2Faccount$/);
+    await logIn(playerPage, cheat.email, cheat.password);
+    await expect(playerPage.getByText('Ce compte est suspendu.')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Lever le bannissement' }).click();
+    await expect(page.getByText('Bannissement levé : il peut de nouveau se connecter.')).toBeVisible();
+    await logIn(playerPage, cheat.email, cheat.password);
+    await expect(playerPage.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${cheat.pseudo}`);
+    await playerContext.close();
+    // Queued meanwhile, behind the other tests' e-mails
+    const suspended = 'Votre compte World Up est suspendu';
+    await expect.poll(() => countEmails(page.request, cheat.email, suspended), { timeout: 45_000 }).toBe(1);
+    expect(await linkFromEmail(page.request, cheat.email, suspended)).toMatch(/\/terms$/);
+    await expect.poll(() => countEmails(page.request, cheat.email, 'Votre compte World Up est rétabli'), { timeout: 45_000 }).toBe(1);
+
     const [account] = await db.select({ id: users.id }).from(users).where(eq(users.email, adminEmail!));
-    await db.delete(auditLog).where(and(eq(auditLog.adminId, account.id), eq(auditLog.targetType, 'collection')));
+    await db.delete(auditLog).where(and(eq(auditLog.adminId, account.id), inArray(auditLog.targetType, ['collection', 'user'])));
   });
 
   test('is a 404 for players', async ({ page }) => {

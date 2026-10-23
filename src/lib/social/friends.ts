@@ -1,4 +1,4 @@
-import { and, asc, count, eq, inArray, or, sql } from 'drizzle-orm';
+import { and, asc, count, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import { type Database, db, type Transaction } from '@/db';
 import { friendships, notifications, trades, users } from '@/db/schema';
 import { normalizePseudo } from '@/lib/account-rules';
@@ -44,12 +44,18 @@ function pair(a: string, b: string) {
   );
 }
 
-/** A player by pseudo, whatever the case. */
-export async function findPlayer(executor: Executor, pseudo: string) {
+/** A player by pseudo, whatever the case. A banned player is not found, except by the back-office. */
+export async function findPlayer(executor: Executor, pseudo: string, { banned = false }: { banned?: boolean } = {}) {
   const [player] = await executor
     .select({ id: users.id, pseudo: users.name })
     .from(users)
-    .where(and(eq(sql`lower(${users.name})`, normalizePseudo(pseudo).toLowerCase()), eq(users.emailVerified, true)));
+    .where(
+      and(
+        eq(sql`lower(${users.name})`, normalizePseudo(pseudo).toLowerCase()),
+        eq(users.emailVerified, true),
+        banned ? undefined : isNull(users.bannedAt),
+      ),
+    );
   return player ?? null;
 }
 
@@ -188,7 +194,7 @@ export async function endFriendship(database: Database, input: { userId: string;
   });
 }
 
-/** The player's friends, by pseudo. */
+/** The player's friends, by pseudo; banned ones are left out while they are. */
 export async function listFriends(userId: string) {
   const other = sql<string>`CASE WHEN ${friendships.requesterId} = ${userId} THEN ${friendships.addresseeId} ELSE ${friendships.requesterId} END`;
   return db
@@ -199,25 +205,26 @@ export async function listFriends(userId: string) {
       and(
         or(eq(friendships.requesterId, userId), eq(friendships.addresseeId, userId)),
         eq(friendships.status, 'accepted'),
+        isNull(users.bannedAt),
       ),
     )
     .orderBy(asc(sql`lower(${users.name})`));
 }
 
-/** Requests waiting for an answer: received by the player, and sent by them. */
+/** Requests waiting for an answer: received by the player, and sent by them (banned players left out). */
 export async function listFriendRequests(userId: string) {
   const [received, sent] = await Promise.all([
     db
       .select({ id: users.id, pseudo: users.name, at: friendships.createdAt })
       .from(friendships)
       .innerJoin(users, eq(users.id, friendships.requesterId))
-      .where(and(eq(friendships.addresseeId, userId), eq(friendships.status, 'pending')))
+      .where(and(eq(friendships.addresseeId, userId), eq(friendships.status, 'pending'), isNull(users.bannedAt)))
       .orderBy(asc(friendships.createdAt)),
     db
       .select({ id: users.id, pseudo: users.name, at: friendships.createdAt })
       .from(friendships)
       .innerJoin(users, eq(users.id, friendships.addresseeId))
-      .where(and(eq(friendships.requesterId, userId), eq(friendships.status, 'pending')))
+      .where(and(eq(friendships.requesterId, userId), eq(friendships.status, 'pending'), isNull(users.bannedAt)))
       .orderBy(asc(friendships.createdAt)),
   ]);
   return { received, sent };

@@ -13,6 +13,20 @@ describe('renderEmail', () => {
     expect(email.html).toContain('token=abc&#38;callbackURL=%2Femail-verified');
   });
 
+  it('shows a suspension reason after the intro, escaped', () => {
+    const email = renderEmail({
+      template: 'accountSuspended',
+      to: 'joueur@example.test',
+      url: 'https://jeu.example/terms',
+      reason: 'Comptes multiples <pour> les enchères',
+    });
+    expect(email.text).toContain('Motif : Comptes multiples <pour> les enchères');
+    expect(email.html).toContain('Motif : Comptes multiples &#60;pour&#62; les enchères');
+    expect(renderEmail({ template: 'accountSuspended', to: 'joueur@example.test', url: 'https://jeu.example/' }).text).not.toContain(
+      'Motif',
+    );
+  });
+
   it('never prints the recipient address', () => {
     const email = renderEmail({ template: 'verifyEmail', to: 'joueur@example.test', url: 'https://jeu.example/' });
     expect(`${email.subject}${email.text}${email.html}`).not.toContain('joueur@example.test');

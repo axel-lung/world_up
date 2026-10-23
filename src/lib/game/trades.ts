@@ -268,6 +268,16 @@ export async function cancelOrphanTrades(executor: Executor, now: Date): Promise
   return cancelled.length;
 }
 
+/** Cancels the open offers a banned player sent or received: the proposer's cards are free again. */
+export async function cancelTradesOf(executor: Executor, userId: string, now: Date): Promise<number> {
+  const cancelled = await executor
+    .update(trades)
+    .set({ status: 'cancelled', respondedAt: now })
+    .where(and(isOpen(now), or(eq(trades.proposerId, userId), eq(trades.recipientId, userId))))
+    .returning({ id: trades.id });
+  return cancelled.length;
+}
+
 export type TradeState = 'pending' | 'accepted' | 'declined' | 'cancelled' | 'expired';
 
 /** The offer's state as players see it: pending past its expiry is expired, an offer with a player gone is cancelled. */

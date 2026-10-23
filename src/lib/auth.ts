@@ -1,4 +1,4 @@
-import { and, ne, sql } from 'drizzle-orm';
+import { and, eq, ne, sql } from 'drizzle-orm';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError, createAuthMiddleware, getSessionFromCtx } from 'better-auth/api';
@@ -109,6 +109,8 @@ function createAuth() {
     user: {
       additionalFields: {
         birthDate: { type: 'string', required: true, input: true },
+        // Set by the back-office only (src/lib/players/admin.ts)
+        bannedAt: { type: 'date', required: false, input: false },
       },
       deleteUser: {
         enabled: true,
@@ -155,17 +157,23 @@ function createAuth() {
       },
       session: {
         create: {
+          // A banned player gets no session. This runs once the password is
+          // checked, so it tells nothing to someone who doesn't know it.
           // We collect e-mail, birth date and purchases only: no IP or browser.
           // Only a session opened by a second factor (code from the app, or a
           // backup code) gets to /admin.
-          before: async (session, ctx) => ({
-            data: {
-              ...session,
-              ipAddress: null,
-              userAgent: null,
-              twoFactorVerified: Boolean(ctx?.path.startsWith('/two-factor/verify')),
-            },
-          }),
+          before: async (session, ctx) => {
+            const [user] = await db.select({ bannedAt: users.bannedAt }).from(users).where(eq(users.id, session.userId));
+            if (user?.bannedAt) throw reject('ACCOUNT_BANNED');
+            return {
+              data: {
+                ...session,
+                ipAddress: null,
+                userAgent: null,
+                twoFactorVerified: Boolean(ctx?.path.startsWith('/two-factor/verify')),
+              },
+            };
+          },
           // A sign-in, and below a session refresh (once a day at most):
           // what keeps an account from being deleted as inactive.
           after: (session) => markActive(session.userId),
