@@ -141,7 +141,7 @@
     "signature": "L'équipe World Up",
     "linkFallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
     "verifyEmail": {
-      "subject": "Confirmez votre adresse e-mail",
+      "subject": "World Up - Confirmez votre adresse e-mail",
       "intro": "Bienvenue dans World Up ! Confirmez votre adresse e-mail pour activer votre compte.",
       "action": "Confirmer mon adresse",
       "note": "Ce lien est valable 24 heures. Si vous n'avez pas créé de compte, ignorez cet e-mail."
