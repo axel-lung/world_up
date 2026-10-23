@@ -57,7 +57,17 @@ export async function SiteHeader() {
       </a>
       <div className={styles.bar}>
         <Link href={session && game ? game.home : '/'} className={styles.brand}>
-          {t('brand')}
+          {/* The name beside it names the link; on a narrow screen it is only read out */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- a WebP already sized, like the cards */}
+          <img
+            src="/logo/world-up-96.webp"
+            srcSet="/logo/world-up-96.webp 96w, /logo/world-up-144.webp 144w"
+            sizes="(max-width: 479px) 40px, 48px"
+            width={96}
+            height={96}
+            alt=""
+          />
+          <span className={styles.brandName}>{t('brand')}</span>
         </Link>
         <div className={styles.player}>
           {player && game ? (

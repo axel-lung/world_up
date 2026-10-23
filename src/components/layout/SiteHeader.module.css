@@ -36,6 +36,9 @@
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-heading);
   font-size: 22px;
   line-height: 1.1;
@@ -44,8 +47,25 @@
   text-decoration: none;
 }
 
+.brand img {
+  flex: none;
+  width: 48px;
+  height: 48px;
+}
+
 .brand:hover {
   color: var(--color-accent-strong);
+}
+
+/* The logo tilts like a sticker under the pointer */
+@media (prefers-reduced-motion: no-preference) {
+  .brand img {
+    transition: transform 0.2s ease;
+  }
+
+  .brand:hover img {
+    transform: rotate(-6deg) scale(1.06);
+  }
 }
 
 .player {
@@ -190,9 +210,10 @@
   margin: 0;
 }
 
-/* Narrow screens: the account link keeps its icon and the coins their number (both
-   still read out), the signup button goes */
+/* Narrow screens: the brand keeps its logo, the account link its icon and the coins
+   their number (all still read out), the signup button goes */
 @media (max-width: 479px) {
+  .brandName,
   .accountLabel,
   .coinsWord {
     position: absolute;
@@ -207,8 +228,9 @@
     display: none;
   }
 
-  .brand {
-    font-size: 18px;
+  .brand img {
+    width: 40px;
+    height: 40px;
   }
 
   .player {
