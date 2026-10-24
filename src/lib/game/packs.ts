@@ -3,6 +3,7 @@ import { type Database, db, type Transaction } from '@/db';
 import { cards, packCards, packOpenings, packState, userCards } from '@/db/schema';
 import type { Rarity } from '@/lib/rarity';
 import { type AwardedAchievement, awardAchievements } from './achievements';
+import { addCoins } from './coins';
 import { drawRarity, type RandomInt, secureRandom } from './draw';
 import { GameError } from './game-error';
 import { type Reserve, refill, takePack } from './refill';
@@ -78,14 +79,17 @@ export interface OpenedPack {
   openingId: number;
   /** A request with the same idempotency key had already opened this pack. */
   repeated: boolean;
+  /** Coins the opening credited, achievements apart. */
+  coins: number;
   achievements: AwardedAchievement[];
 }
 
 /**
  * Opens one free pack, in one transaction holding the player's reserve row:
  * takes a pack, draws the cards, records the opening, adds the cards to the
- * collection and grants the achievements reached. A second request with the
- * same idempotency key (a double click) gets the first one's opening.
+ * collection, credits the opening's coins and grants the achievements reached.
+ * A second request with the same idempotency key (a double click) gets the
+ * first one's opening.
  */
 export async function openPack(
   database: Database,
@@ -105,7 +109,7 @@ export async function openPack(
       .select({ id: packOpenings.id })
       .from(packOpenings)
       .where(and(eq(packOpenings.userId, userId), eq(packOpenings.idempotencyKey, idempotencyKey)));
-    if (previous) return { openingId: previous.id, repeated: true, achievements: [] };
+    if (previous) return { openingId: previous.id, repeated: true, coins: 0, achievements: [] };
 
     const [{ recent }] = await tx
       .select({ recent: count() })
@@ -153,8 +157,19 @@ export async function openPack(
       .set(takePack(reserve, rules, now))
       .where(and(eq(packState.userId, userId), eq(packState.collectionId, collectionId)));
 
+    if (rules.coinsPerOpening > 0) {
+      await addCoins(tx, {
+        userId,
+        collectionId,
+        amount: rules.coinsPerOpening,
+        reason: 'pack_opening',
+        reference: String(opening.id),
+        now,
+      });
+    }
+
     const awarded = await awardAchievements(tx, userId, collectionId, now);
-    return { openingId: opening.id, repeated: false, achievements: awarded };
+    return { openingId: opening.id, repeated: false, coins: rules.coinsPerOpening, achievements: awarded };
   });
 }
 

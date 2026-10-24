@@ -8,10 +8,10 @@ La version 1 est un site web responsive. Le jeu s'appelle World Up. Un joueur ma
 
 **Version 1 (lancement)**
 
-- Comptes : e-mail et mot de passe, vérification de l'e-mail, date de naissance (18 ans et plus), profil.
+- Comptes : e-mail et mot de passe, ou compte Google (décidé le 24 octobre 2026), vérification de l'e-mail, date de naissance (18 ans et plus), profil.
 - Catalogue patrimoine importé et trié (environ 26 700 cartes avant tri).
 - Paquets gratuits avec recharge, ouverture, collection, séries, fiche carte.
-- Monnaie virtuelle gagnée en jeu : revente d'un doublon, succès.
+- Monnaie virtuelle gagnée en jeu : ouverture d'un paquet, revente d'un doublon, succès.
 - Boutique : abonnement et paquet à l'unité (désactivable), plafond de dépenses, historique d'achats.
 - Classement simple.
 - Back-office : catalogue (masquer une carte, changer sa photo), signalements, joueurs, remboursements.
@@ -42,7 +42,7 @@ Une seule application TypeScript, une base PostgreSQL et Stripe suffisent pour l
 | Site et API | Next.js (React, TypeScript) | Un seul code pour les pages et l'API ; pages de cartes publiques bien référencées par Google |
 | Base de données | PostgreSQL 16 en conteneur Docker | Transactions et verrous pour les paquets et les paiements |
 | Accès aux données | Prisma ou Drizzle | Schéma typé et migrations versionnées |
-| Comptes | Auth.js ou Better Auth | E-mail, mot de passe, vérification, sessions sécurisées |
+| Comptes | Auth.js ou Better Auth | E-mail, mot de passe, vérification, connexion Google, sessions sécurisées |
 | Paiement | Stripe (Checkout, Billing, webhooks) | Abonnements, factures, remboursements, conformité carte bancaire |
 | Images | Volume Docker « uploads », fichiers servis par l'application | Vignettes servies par nos soins, sans dépendre de Wikimedia |
 | E-mails | Brevo ou Postmark | E-mails de vérification et reçus |
@@ -162,7 +162,7 @@ networks:
 - `/api/health` répond 200 quand l'application et la base répondent ; l'application écoute sur le port 3000.
 - Les images des cartes vivent dans `/app/uploads` et sont servies par l'application avec un cache long (`Cache-Control: public, max-age=31536000, immutable`).
 - Import du catalogue : le pipeline dépose son export dans `./import` sur le serveur, puis `docker compose exec worldup-worker node import-catalog.js` l'importe.
-- Un `.env.example` dans le dépôt, le vrai `.env` sur le serveur seulement : `APP_DOMAIN`, `POSTGRES_PASSWORD`, `DATABASE_URL` (hôte `worldup-db`, port 5432), `AUTH_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, la clé du service d'e-mails, `SENTRY_DSN`.
+- Un `.env.example` dans le dépôt, le vrai `.env` sur le serveur seulement : `APP_DOMAIN`, `POSTGRES_PASSWORD`, `DATABASE_URL` (hôte `worldup-db`, port 5432), `AUTH_SECRET`, `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET` (connexion Google), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, la clé du service d'e-mails, `SENTRY_DSN`.
 - Mise en production : `git pull`, puis `docker compose up -d --build`. Les migrations passent avant le redémarrage de web et worker, et Traefik n'envoie le trafic qu'à un conteneur en bonne santé.
 - Sauvegardes : `./backups` garde 14 jours sur le serveur. Ajouter une copie quotidienne hors du serveur (par exemple rclone vers un stockage objet), sinon une panne du serveur emporte aussi les sauvegardes.
 - Préproduction : une copie du fichier avec un autre `name`, d'autres noms de conteneurs et de routeur Traefik, et un autre `APP_DOMAIN`. Sans cela, les deux piles entrent en conflit sur le serveur.
@@ -174,6 +174,7 @@ Décidée le 2026-10-22. L'application du Play Store est une Trusted Web Activit
 - Identifiant `fr.alng.worldup`, pour le site `worldup.alng.fr`. Le projet Android (`android/`) est généré par Bubblewrap, l'outil de Google.
 - Un workflow GitHub Actions, lancé à la main, produit l'APK (à installer sur un téléphone) et le bundle AAB, que l'on dépose soi-même sur la Play Console. La clé d'envoi vit dans les secrets GitHub ; Google garde la clé de signature (Play App Signing).
 - Le site publie un manifeste web et `/.well-known/assetlinks.json`, qui donne les empreintes des certificats de l'application (lues dans le .env du serveur) : sans lui, l'application affiche la barre d'adresse.
+- La connexion avec Google (décidée le 24 octobre 2026) passe par le flux web de Google : la Trusted Web Activity est le navigateur du téléphone, où Google l'autorise, sans code Android ni nouvelle version de l'application.
 - La délégation des notifications est active dès la première version : les notifications web du site, quand elles existeront, s'afficheront comme celles de l'application, sans la republier.
 - Avant de vendre dans l'application (lot 4) : Google Play impose sa facturation pour les biens numériques. Dans l'Espace économique européen, son programme de facturation alternative autorise un autre prestataire comme Stripe, contre une commission. À trancher avec l'avocat.
 - Règles du Play Store : probabilités publiées avant l'achat, suppression du compte depuis l'application et depuis le web, questionnaire de classification (public de 18 ans et plus), fiche « Sécurité des données ».
@@ -245,10 +246,11 @@ Toute la logique de jeu s'exécute sur le serveur : le navigateur affiche, il ne
 - Probabilités par défaut = part de chaque rareté dans le catalogue (0,25 % pour Légendaire…). Toute modification est datée, conservée et publiée.
 - Une carte masquée (lieu de mémoire, photo à revoir…) ne sort jamais d'un paquet.
 - Les doublons sont conservés (quantité + 1).
+- Chaque ouverture d'un paquet gratuit rapporte des pièces : 5 par défaut, paramétrable, versées une fois par ouverture, même après un double clic.
 
 **Monnaie virtuelle**
 
-- Gains : revente rapide d'un doublon (montant par rareté, paramétrable), succès, ventes aux enchères.
+- Gains : ouverture d'un paquet gratuit (paramétrable), revente rapide d'un doublon (montant par rareté, paramétrable), succès, ventes aux enchères. Qu'un paquet payant rapporte aussi des pièces reviendrait à vendre de la monnaie virtuelle : à trancher avec l'avocat avant le lot 4.
 - Dépenses : les enchères seulement.
 - Chaque mouvement est une ligne du registre ; le solde ne peut pas devenir négatif.
 - Aucun achat, aucun retrait, aucun transfert hors du jeu : les pièces ne passent d'un joueur à un autre que par les enchères.
@@ -392,11 +394,12 @@ Les adresses sont en anglais, les textes de l'interface restent en français. La
 
 ## Sécurité, données personnelles et hébergement
 
-Le site est hébergé dans l'Union européenne et ne collecte que l'e-mail, la date de naissance et l'historique d'achats.
+Le site est hébergé dans l'Union européenne et ne collecte que l'e-mail, la date de naissance et l'historique d'achats (et, pour un joueur qui se connecte avec Google, l'identifiant de son compte Google).
 
 **Sécurité**
 
 - Mots de passe hachés en argon2id ; limite de tentatives de connexion ; vérification de l'e-mail avant tout achat.
+- Connexion avec Google en option (OAuth, portées `openid` et `email` seulement : ni nom ni photo). L'inscription avec Google demande d'abord le pseudo, la date de naissance (18 ans et plus) et l'acceptation des CGU, vérifiés par le serveur avant de partir chez Google ; une connexion Google ne crée jamais de compte seule. L'adresse confirmée par Google sert d'e-mail vérifié ; une adresse qui a déjà un compte confirmé s'y rattache. Aucun jeton de Google n'est conservé. Un joueur inscrit avec Google peut se créer un mot de passe par « Mot de passe oublié ».
 - Back-office réservé aux administrateurs, avec double authentification et journal d'audit.
 - Secrets (clés Stripe, base de données) hors du code, dans le fichier .env du serveur, jamais dans le dépôt.
 - Signature des webhooks Stripe vérifiée à chaque appel.

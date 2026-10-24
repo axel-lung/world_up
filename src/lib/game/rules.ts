@@ -34,6 +34,7 @@ export async function getGameRules(executor: Executor, collectionId: number): Pr
       signupPacks: gameRules.signupPacks,
       refillMinutes: gameRules.refillMinutes,
       maxReserve: gameRules.maxReserve,
+      coinsPerOpening: gameRules.coinsPerOpening,
     })
     .from(gameRules)
     .where(eq(gameRules.collectionId, collectionId));

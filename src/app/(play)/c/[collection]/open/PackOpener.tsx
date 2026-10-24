@@ -254,7 +254,7 @@ export function PackOpener({
               <h2 id="pack-done" ref={doneHeading} tabIndex={-1}>
                 {t('doneHeading')}
               </h2>
-              <p>{t('doneSummary', { new: newCards, duplicates: opened.cards.length - newCards })}</p>
+              <p>{t('doneSummary', { new: newCards, duplicates: opened.cards.length - newCards, coins: opened.coins })}</p>
             </div>
           )}
 

@@ -44,7 +44,9 @@ export async function createTestCollection(
     .values({ slug, name: 'Test', active: true })
     .returning({ id: collections.id });
   await importCatalog(db, testCatalog(list, slug));
-  await db.insert(gameRules).values({ collectionId: id, ...rules });
+  // No coins for an opening unless the test sets them: the balances checked
+  // elsewhere come from resales, achievements and auctions
+  await db.insert(gameRules).values({ collectionId: id, coinsPerOpening: 0, ...rules });
   await db.insert(resaleValues).values(RARITIES.map((rarity) => ({ collectionId: id, rarity, coins: TEST_RESALE[rarity] })));
   await db.insert(marketRules).values({ collectionId: id, ...market });
   // Auction prices from the resale value to 100 times it, like the seed

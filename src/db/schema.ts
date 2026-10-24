@@ -341,6 +341,8 @@ export const gameRules = pgTable('game_rules', {
   signupPacks: integer('signup_packs').notNull().default(10),
   refillMinutes: integer('refill_minutes').notNull().default(10),
   maxReserve: integer('max_reserve').notNull().default(10),
+  // Coins credited by each free pack opened
+  coinsPerOpening: integer('coins_per_opening').notNull().default(5),
   updatedAt: updatedAt(),
 });
 
@@ -456,8 +458,8 @@ export const userCards = pgTable(
 );
 
 // auction_purchase and auction_sale reference the auction's ID: an auction is
-// settled once.
-export const coinReason = pgEnum('coin_reason', ['resale', 'achievement', 'auction_purchase', 'auction_sale']);
+// settled once. pack_opening references the opening's ID.
+export const coinReason = pgEnum('coin_reason', ['resale', 'achievement', 'auction_purchase', 'auction_sale', 'pack_opening']);
 
 // Append-only: the balance is the sum of the player's entries and never goes
 // below zero (src/lib/game/coins.ts).

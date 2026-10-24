@@ -6,9 +6,9 @@ import { heldCoins, reservedCopies } from './holds';
 import { getResaleValues } from './rules';
 
 // Virtual currency. coin_ledger is append-only and the balance is the sum of a
-// player's entries. Coins are earned only by reselling duplicates and from
-// achievements, and change hands only at auctions: nothing buys them, and they
-// never leave the game.
+// player's entries. Coins are earned only by opening free packs, reselling
+// duplicates and from achievements, and change hands only at auctions: nothing
+// buys them, and they never leave the game.
 
 type Executor = Database | Transaction;
 

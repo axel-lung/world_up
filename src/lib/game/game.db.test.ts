@@ -44,15 +44,17 @@ const at = (minutes: number) => new Date(t0.getTime() + minutes * 60_000);
 
 let standard: TestCollection;
 let big: TestCollection;
+let paying: TestCollection;
 const players: string[] = [];
 
 beforeAll(async () => {
   standard = await createTestCollection(CARDS, { odds: ODDS });
   big = await createTestCollection(CARDS, { odds: ODDS, rules: { signupPacks: 30, maxReserve: 30 } });
+  paying = await createTestCollection(CARDS, { odds: ODDS, rules: { coinsPerOpening: 5 } });
 });
 
 afterAll(async () => {
-  await deleteTestData([standard.id, big.id], players);
+  await deleteTestData([standard.id, big.id, paying.id], players);
 });
 
 async function newPlayer() {
@@ -171,6 +173,27 @@ describe('achievements', () => {
   });
 });
 
+describe('coins per opening', () => {
+  it('credits each opening once, a double click included, on top of the achievements', async () => {
+    const player = await newPlayer();
+    const key = randomUUID();
+    const [a, b] = await Promise.all([
+      open(player, t0, { collection: paying, key }),
+      open(player, t0, { collection: paying, key }),
+    ]);
+    expect([a.coins, b.coins].sort()).toEqual([0, 5]);
+    await open(player, at(1), { collection: paying });
+    const entries = await db
+      .select({ amount: coinLedger.amount, reference: coinLedger.reference })
+      .from(coinLedger)
+      .where(and(eq(coinLedger.userId, player), eq(coinLedger.reason, 'pack_opening')));
+    expect(entries).toHaveLength(2);
+    expect(entries.map((entry) => entry.reference)).toContain(String(a.openingId));
+    // Two openings at 5 coins, and the first pack's achievement (5)
+    expect(await coinBalance(db, player)).toBe(15);
+  });
+});
+
 describe('resellDuplicates', () => {
   it('credits a duplicate resold twice by a double click once', async () => {
     const player = await newPlayer();
@@ -284,7 +307,7 @@ describe('the back-office', () => {
 
   it('changes the pack rules and logs the change', async () => {
     const admin = await newPlayer();
-    const rules = { cardsPerPack: 5, signupPacks: 10, refillMinutes: 15, maxReserve: 12 };
+    const rules = { cardsPerPack: 5, signupPacks: 10, refillMinutes: 15, maxReserve: 12, coinsPerOpening: 0 };
     await updateGameRules(db, admin, standard.id, rules);
     expect(await failure(updateGameRules(db, admin, standard.id, rules))).toBe('unchanged');
     const [entry] = await db

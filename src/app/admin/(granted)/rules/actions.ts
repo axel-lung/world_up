@@ -36,6 +36,7 @@ const rulesSchema = z.object({
   signupPacks: count(0, 100),
   refillMinutes: count(1, 7 * 24 * 60),
   maxReserve: count(1, 100),
+  coinsPerOpening: count(0, 10_000),
 });
 
 export async function saveGameRules(_: RulesState, form: FormData): Promise<RulesState> {

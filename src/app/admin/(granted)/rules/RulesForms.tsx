@@ -25,7 +25,7 @@ function Result({ state }: { state: RulesState }) {
   );
 }
 
-const RULE_FIELDS = ['cardsPerPack', 'signupPacks', 'refillMinutes', 'maxReserve'] as const;
+const RULE_FIELDS = ['cardsPerPack', 'signupPacks', 'refillMinutes', 'maxReserve', 'coinsPerOpening'] as const;
 
 export function GameRulesForm({ rules }: { rules: GameRules }) {
   const t = useTranslations('Admin.rules');
@@ -40,7 +40,7 @@ export function GameRulesForm({ rules }: { rules: GameRules }) {
             name={field}
             type="number"
             inputMode="numeric"
-            min={field === 'signupPacks' ? 0 : 1}
+            min={field === 'signupPacks' || field === 'coinsPerOpening' ? 0 : 1}
             required
             defaultValue={rules[field]}
           />

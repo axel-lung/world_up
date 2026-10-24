@@ -21,6 +21,10 @@
     "signup": {
       "title": "Créer un compte",
       "intro": "Ouvrez vos premiers paquets dès que votre adresse e-mail est confirmée.",
+      "googleIntro": "Choisissez votre pseudo et indiquez votre date de naissance, puis continuez avec Google : votre compte prendra l'adresse e-mail de votre compte Google, sans mot de passe à retenir.",
+      "withGoogle": "S'inscrire avec Google",
+      "googleSubmit": "Continuer avec Google",
+      "withEmail": "S'inscrire plutôt avec une adresse e-mail",
       "pseudo": "Pseudo",
       "pseudoHint": "3 à 20 caractères : lettres, chiffres, point, tiret ou tiret bas. Il apparaît au classement.",
       "email": "Adresse e-mail",
@@ -54,6 +58,17 @@
       "useBackup": "Utiliser un code de secours",
       "useApp": "Utiliser l'application d'authentification",
       "verify": "Vérifier"
+    },
+    "google": {
+      "continue": "Continuer avec Google",
+      "or": "ou",
+      "errors": {
+        "cancelled": "Connexion avec Google annulée.",
+        "signup_disabled": "Ce compte Google n'a pas encore de compte World Up. <signup>Créez-le</signup> : choisissez un pseudo, puis continuez avec Google.",
+        "account_not_linked": "Un compte World Up attend la confirmation de cette adresse e-mail. Ouvrez le lien reçu par e-mail (une connexion avec votre mot de passe en renvoie un), puis réessayez avec Google.",
+        "email_not_verified": "Google n'a pas confirmé cette adresse e-mail : nous vous avons envoyé un lien pour la confirmer, valable 24 heures.",
+        "generic": "La connexion n'a pas abouti. Réessayez dans un instant."
+      }
     },
     "forgot": {
       "title": "Mot de passe oublié",
@@ -116,6 +131,9 @@
       "saved": "Pseudo enregistré.",
       "email": "Adresse e-mail",
       "birthDate": "Date de naissance",
+      "signIn": "Connexion",
+      "methodPassword": "Mot de passe",
+      "methodGoogle": "Google",
       "memberSince": "Membre depuis"
     },
     "password": {
@@ -123,7 +141,8 @@
       "current": "Mot de passe actuel",
       "new": "Nouveau mot de passe",
       "submit": "Changer le mot de passe",
-      "done": "Mot de passe modifié. Vos autres sessions ont été fermées."
+      "done": "Mot de passe modifié. Vos autres sessions ont été fermées.",
+      "none": "Vous vous connectez avec Google, sans mot de passe. Pour pouvoir aussi vous connecter avec votre adresse e-mail et un mot de passe, <link>recevez un lien</link> pour en choisir un."
     },
     "data": {
       "title": "Mes données",
@@ -135,6 +154,8 @@
       "intro": "La suppression est immédiate et définitive : votre compte et ses données sont effacés.",
       "password": "Mot de passe",
       "passwordHint": "Saisissez votre mot de passe pour confirmer.",
+      "confirm": "Je comprends que mon compte, ma collection et mes pièces seront effacés.",
+      "reauthenticate": "Par sécurité, reconnectez-vous avec Google, puis recommencez.",
       "submit": "Supprimer définitivement mon compte"
     }
   },
@@ -527,6 +548,7 @@
         "signupPacks": "Paquets à l'arrivée",
         "refillMinutes": "Minutes entre deux paquets",
         "maxReserve": "Réserve maximale",
+        "coinsPerOpening": "Pièces par paquet ouvert",
         "tradesEnabled": "Échanges ouverts",
         "auctionsEnabled": "Enchères ouvertes",
         "tradeExpiryHours": "Heures avant l'expiration d'une offre",
@@ -787,11 +809,11 @@
     },
     "collected": {
       "title": "Les données collectées",
-      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Nous ne demandons à Google ni votre nom ni votre photo, et ne gardons aucun de ses jetons d'accès.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
     },
     "purposes": {
       "title": "Pourquoi, et sur quelle base",
-      "body": "<ul><li>Créer et gérer votre compte, faire fonctionner le jeu et le classement, vérifier votre âge : c'est l'exécution des conditions d'utilisation, notre contrat.</li><li>Vous envoyer les e-mails du compte (confirmation de l'adresse, mot de passe oublié, avertissement avant la suppression d'un compte inactif, suspension d'un compte) : exécution du contrat.</li><li>Garder la preuve de votre acceptation des conditions, traiter vos signalements : notre intérêt légitime.</li><li>Protéger le site et les joueurs (limites de tentatives, détection des comptes multiples par l'adresse e-mail, suspension des comptes qui enfreignent les conditions d'utilisation) : notre intérêt légitime.</li></ul><p>Nous n'envoyons ni lettre d'information ni publicité, et nous ne vendons ni ne louons vos données.</p>"
+      "body": "<ul><li>Créer et gérer votre compte, faire fonctionner le jeu et le classement, vérifier votre âge : c'est l'exécution des conditions d'utilisation, notre contrat.</li><li>Vous envoyer les e-mails du compte (confirmation de l'adresse, mot de passe oublié, avertissement avant la suppression d'un compte inactif, suspension d'un compte) : exécution du contrat.</li><li>Vous permettre de vous connecter avec votre compte Google, si vous le choisissez : exécution du contrat.</li><li>Garder la preuve de votre acceptation des conditions, traiter vos signalements : notre intérêt légitime.</li><li>Protéger le site et les joueurs (limites de tentatives, détection des comptes multiples par l'adresse e-mail, suspension des comptes qui enfreignent les conditions d'utilisation) : notre intérêt légitime.</li></ul><p>Nous n'envoyons ni lettre d'information ni publicité, et nous ne vendons ni ne louons vos données.</p>"
     },
     "public": {
       "title": "Ce qui est public",
@@ -799,7 +821,7 @@
     },
     "recipients": {
       "title": "Qui reçoit vos données",
-      "body": "<p>L'éditeur, et les prestataires qui agissent pour lui, liés par un contrat de sous-traitance :</p><ul><li>l'hébergeur du site, {host}, dans l'Union européenne ;</li><li>Brevo, société française, qui envoie les e-mails du compte.</li></ul>"
+      "body": "<p>L'éditeur, et les prestataires qui agissent pour lui, liés par un contrat de sous-traitance :</p><ul><li>l'hébergeur du site, {host}, dans l'Union européenne ;</li><li>Brevo, société française, qui envoie les e-mails du compte.</li></ul><p>Si vous choisissez de vous connecter avec Google, Google sait que vous vous connectez à World Up, et nous transmet votre adresse e-mail et l'identifiant de votre compte. Google agit alors pour son propre compte, selon ses règles de confidentialité.</p>"
     },
     "retention": {
       "title": "Combien de temps",
@@ -811,7 +833,7 @@
     },
     "cookies": {
       "title": "Cookies",
-      "body": "<p>Le site dépose deux cookies, tous deux exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « theme », qui retient le thème d'affichage que vous avez choisi (Auto, Clair ou Sombre).</li></ul><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères sont servies par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
+      "body": "<p>Le site dépose ces cookies, tous exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « theme », qui retient le thème d'affichage que vous avez choisi (Auto, Clair ou Sombre) ;</li><li>pendant une connexion avec Google, un cookie de quelques minutes qui la protège contre une tentative de détournement.</li></ul><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères sont servies par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
     },
     "security": {
       "title": "Sécurité",
@@ -924,7 +946,7 @@
     "rarityBanner": "{rarity} !",
     "revealed": "{rarity} : {name}{isNew, select, yes {, nouvelle carte} other {}}",
     "doneHeading": "Paquet ouvert !",
-    "doneSummary": "{new, plural, =0 {Aucune nouvelle carte} one {# nouvelle carte} other {# nouvelles cartes}} · {duplicates, plural, =0 {aucun doublon} one {# doublon} other {# doublons}}",
+    "doneSummary": "{new, plural, =0 {Aucune nouvelle carte} one {# nouvelle carte} other {# nouvelles cartes}} · {duplicates, plural, =0 {aucun doublon} one {# doublon} other {# doublons}}{coins, plural, =0 {} one { · +# pièce} other { · +# pièces}}",
     "openNext": "Ouvrir le suivant · {count}",
     "noPack": "Plus de paquet",
     "seeCollection": "Voir la collection",
@@ -1164,7 +1186,7 @@
     "collectionMissing": "Les cartes qui vous manquent restent visibles, sauf les Légendaires et les Ultra rares, qui gardent leur surprise.",
     "collectionDuplicates": "Une carte obtenue plusieurs fois compte autant d'exemplaires : ce sont vos doublons.",
     "coinsHeading": "Les pièces",
-    "coinsIntro": "Vous gagnez des pièces en revendant vos doublons (vous gardez toujours un exemplaire de chaque carte) et en obtenant des succès. Un doublon rapporte selon sa rareté :",
+    "coinsIntro": "{opening, plural, =0 {Vous gagnez des pièces} one {Chaque paquet ouvert vous rapporte # pièce. Vous en gagnez aussi} other {Chaque paquet ouvert vous rapporte # pièces. Vous en gagnez aussi}} en revendant vos doublons (vous gardez toujours un exemplaire de chaque carte) et en obtenant des succès. Un doublon rapporte selon sa rareté :",
     "resaleCaption": "Pièces par doublon revendu",
     "rarity": "Rareté",
     "resaleValue": "Un doublon revendu",

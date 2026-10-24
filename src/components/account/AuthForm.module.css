@@ -56,3 +56,25 @@
   flex-wrap: wrap;
   gap: 12px;
 }
+
+/* "ou", between the Google button and the e-mail form */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--color-divider);
+}
+
+/* Back from the Google signup to the e-mail one */
+.switch {
+  align-self: center;
+}

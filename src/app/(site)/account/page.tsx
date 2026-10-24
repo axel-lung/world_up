@@ -1,8 +1,10 @@
 import { Download } from 'lucide-react';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { ChangePasswordForm, DeleteAccountForm, PseudoForm, SignOutButton } from '@/components/account/AccountForms';
 import { requireSession } from '@/lib/session';
+import { signInMethods } from '@/lib/sign-in-methods';
 import styles from './page.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,8 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // Subscription, spending cap and purchase history join this page in lot 4.
 export default async function AccountPage() {
   const { user } = await requireSession('/account', { terms: false });
-  const t = await getTranslations('Account');
-  const format = await getFormatter();
+  const [t, format, methods] = await Promise.all([getTranslations('Account'), getFormatter(), signInMethods(user.id)]);
   // birthDate is a calendar date: format it in UTC so it never shifts by a day.
   const birthDate = format.dateTime(new Date(`${user.birthDate}T00:00:00Z`), { dateStyle: 'long', timeZone: 'UTC' });
   const memberSince = format.dateTime(user.createdAt, { dateStyle: 'long', timeZone: 'Europe/Paris' });
@@ -38,6 +39,10 @@ export default async function AccountPage() {
             <dd>{birthDate}</dd>
           </div>
           <div>
+            <dt>{t('profile.signIn')}</dt>
+            <dd>{format.list([methods.password && t('profile.methodPassword'), methods.google && t('profile.methodGoogle')].filter((method) => method !== false))}</dd>
+          </div>
+          <div>
             <dt>{t('profile.memberSince')}</dt>
             <dd>{memberSince}</dd>
           </div>
@@ -47,7 +52,13 @@ export default async function AccountPage() {
 
       <section className={styles.section} aria-labelledby="password">
         <h2 id="password">{t('password.title')}</h2>
-        <ChangePasswordForm />
+        {methods.password ? (
+          <ChangePasswordForm />
+        ) : (
+          <p className={styles.muted}>
+            {t.rich('password.none', { link: (chunks) => <Link href="/forgot-password">{chunks}</Link> })}
+          </p>
+        )}
       </section>
 
       <section className={styles.section} aria-labelledby="data">
@@ -63,7 +74,7 @@ export default async function AccountPage() {
       <section className={`${styles.section} ${styles.danger}`} aria-labelledby="delete">
         <h2 id="delete">{t('delete.title')}</h2>
         <p className={styles.muted}>{t('delete.intro')}</p>
-        <DeleteAccountForm />
+        <DeleteAccountForm password={methods.password} />
       </section>
     </main>
   );

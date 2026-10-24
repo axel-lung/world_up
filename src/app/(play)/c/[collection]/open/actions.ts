@@ -22,7 +22,14 @@ export interface ReserveView {
 }
 
 export type OpenPackResult =
-  | { ok: true; openingId: number; cards: OpenedCard[]; achievements: AwardedAchievement[]; reserve: ReserveView }
+  | {
+      ok: true;
+      openingId: number;
+      cards: OpenedCard[];
+      coins: number;
+      achievements: AwardedAchievement[];
+      reserve: ReserveView;
+    }
   | { ok: false; error: GameErrorCode | 'server'; reserve: ReserveView | null };
 
 const inputSchema = z.object({ collection: z.string().max(64), key: z.uuid() });
@@ -77,6 +84,7 @@ export async function openPackAction(input: { collection: string; key: string })
     ok: true,
     openingId: opened.openingId,
     cards,
+    coins: opened.coins,
     achievements: opened.achievements,
     reserve: await reserveView(user.id, collection.id),
   };

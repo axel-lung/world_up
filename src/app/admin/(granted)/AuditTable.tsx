@@ -29,6 +29,7 @@ const RULE_FIELDS = [
   'signupPacks',
   'refillMinutes',
   'maxReserve',
+  'coinsPerOpening',
   'tradesEnabled',
   'auctionsEnabled',
   'tradeExpiryHours',

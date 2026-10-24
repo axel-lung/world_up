@@ -8,10 +8,15 @@ import { TextField } from '@/components/ui/TextField';
 import { authClient } from '@/lib/auth-client';
 import styles from './AuthForm.module.css';
 import { type FormError, useFocusOnError, useFormError } from './form-errors';
+import { GoogleButton, GoogleErrorNotice, OrDivider } from './GoogleButton';
 import { SubmitButton } from './SubmitButton';
 
-/** `returnTo`: where to go once signed in; also where a new verification link leads. */
-export function LoginForm({ returnTo }: { returnTo: string }) {
+/**
+ * `returnTo`: where to go once signed in; also where a new verification link
+ * leads. `google`: whether Google sign-in is set up on the server.
+ * `googleError`: why Google sent the player back here, if it did.
+ */
+export function LoginForm({ returnTo, google, googleError }: { returnTo: string; google: boolean; googleError?: string }) {
   const t = useTranslations('Auth.login');
   const toFormError = useFormError();
   const formRef = useRef<HTMLFormElement>(null);
@@ -105,6 +110,17 @@ export function LoginForm({ returnTo }: { returnTo: string }) {
     // POST: submitted before hydration, the password must not end up in the URL.
     <form ref={formRef} method="post" className={styles.form} onSubmit={onSubmit}>
       <h1 className={styles.title}>{t('title')}</h1>
+      {google && (
+        <>
+          {googleError && !error && <GoogleErrorNotice code={googleError} />}
+          <GoogleButton
+            callbackURL={returnTo}
+            errorCallbackURL={`/login?next=${encodeURIComponent(returnTo)}`}
+            onError={(error) => setError(toFormError(error))}
+          />
+          <OrDivider />
+        </>
+      )}
       <TextField label={t('email')} name="email" type="email" autoComplete="email" required />
       <TextField label={t('password')} name="password" type="password" autoComplete="current-password" required />
       <Link href="/forgot-password" className={styles.inlineLink}>

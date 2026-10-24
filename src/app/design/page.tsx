@@ -23,6 +23,7 @@ import {
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import type { CSSProperties, ReactNode } from 'react';
+import { GoogleLogo } from '@/components/account/GoogleButton';
 import { Card, type CardCollection } from '@/components/card/Card';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { AuctionTile } from '@/components/market/AuctionTile';
@@ -333,6 +334,9 @@ export default function DesignPage() {
                     Proposer l&apos;échange
                   </Button>
                   <Button variant="danger">Supprimer le compte</Button>
+                </div>
+                <div className={styles.row}>
+                  <Button icon={<GoogleLogo />}>Continuer avec Google</Button>
                 </div>
               </div>
 

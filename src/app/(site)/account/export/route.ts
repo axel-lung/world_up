@@ -9,6 +9,7 @@ import { playerAuctions } from '@/lib/game/market';
 import { playerOpenings } from '@/lib/game/packs';
 import { playerTrades } from '@/lib/game/trades';
 import { playerNotifications } from '@/lib/notifications/notifications';
+import { playerSignInMethods } from '@/lib/sign-in-methods';
 import { playerFriendships } from '@/lib/social/friends';
 
 // Self-service export of the player's data (GDPR right of access and
@@ -28,6 +29,7 @@ export async function GET(request: Request) {
     })
     .from(users)
     .where(eq(users.id, userId));
+  const signIn = await playerSignInMethods(userId);
   const acceptedDocuments = await db
     .select({ document: consents.document, version: consents.version, acceptedAt: consents.acceptedAt })
     .from(consents)
@@ -59,7 +61,7 @@ export async function GET(request: Request) {
   const body = JSON.stringify(
     {
       exportedAt: new Date(),
-      account,
+      account: { ...account, signIn },
       consents: acceptedDocuments,
       reports,
       game: { packReserve, openings, collection, coins: { balance: coins, ledger }, achievements: obtained },

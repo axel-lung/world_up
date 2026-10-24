@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { type FormEvent, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { Notice } from '@/components/ui/Notice';
 import { TextField } from '@/components/ui/TextField';
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from '@/lib/account-rules';
 import { authClient } from '@/lib/auth-client';
 import styles from './AuthForm.module.css';
 import { errorFor, type FormError, type FormErrorCode, formLevelError, useFocusOnError, useFormError } from './form-errors';
+import { GoogleButton } from './GoogleButton';
 import { SubmitButton } from './SubmitButton';
 
 /** Pending state, error and focus handling shared by the account page forms. */
@@ -154,29 +156,50 @@ function useLeave() {
   };
 }
 
-export function DeleteAccountForm() {
+/**
+ * Confirmed by the password, or, for a player signed up with Google who has
+ * none, by a session opened less than a day ago (Better Auth's freshAge): an
+ * older one is sent to sign in with Google again first.
+ */
+export function DeleteAccountForm({ password }: { password: boolean }) {
   const t = useTranslations('Account.delete');
   const leave = useLeave();
   const { formRef, pending, error, run } = useAccountForm();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const password = String(new FormData(event.currentTarget).get('password'));
-    if (await run(() => authClient.deleteUser({ password }))) leave('/?deleted=1');
+    const data = new FormData(event.currentTarget);
+    const body = password ? { password: String(data.get('password')) } : {};
+    if (await run(() => authClient.deleteUser(body))) leave('/?deleted=1');
   }
 
-  const formError = formLevelError(error, CURRENT_PASSWORD_CODES);
+  const reauthenticate = !password && error?.code === 'SESSION_EXPIRED';
+  const formError = reauthenticate ? undefined : formLevelError(error, CURRENT_PASSWORD_CODES);
   return (
     <form ref={formRef} method="post" className={styles.form} onSubmit={onSubmit}>
-      <TextField
-        label={t('password')}
-        name="password"
-        type="password"
-        autoComplete="current-password"
-        required
-        hint={t('passwordHint')}
-        error={errorFor(error, CURRENT_PASSWORD_CODES)}
-      />
+      {password ? (
+        <TextField
+          label={t('password')}
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          hint={t('passwordHint')}
+          error={errorFor(error, CURRENT_PASSWORD_CODES)}
+        />
+      ) : (
+        <Checkbox name="confirm" required>
+          {t('confirm')}
+        </Checkbox>
+      )}
+      {reauthenticate && (
+        <>
+          <Notice>
+            <p>{t('reauthenticate')}</p>
+          </Notice>
+          <GoogleButton callbackURL="/account#delete" errorCallbackURL="/login?next=%2Faccount" />
+        </>
+      )}
       {formError && (
         <Notice tone="danger">
           <p>{formError}</p>

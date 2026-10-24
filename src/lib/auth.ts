@@ -1,7 +1,7 @@
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { APIError, createAuthMiddleware, getSessionFromCtx } from 'better-auth/api';
+import { addOAuthServerContext, APIError, createAuthMiddleware, getOAuthState, getSessionFromCtx } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import { twoFactor } from 'better-auth/plugins';
 import { db } from '@/db';
@@ -22,6 +22,7 @@ import { cancelOrphanAuctions } from './game/auctions';
 import { cancelOrphanTrades } from './game/trades';
 import { enqueueEmail } from './job-queue';
 import { hashPassword, verifyPassword } from './password';
+import { googleCredentials } from './sign-in-methods';
 
 const reject = (code: AccountErrorCode) =>
   APIError.from('BAD_REQUEST', { code, message: ACCOUNT_ERRORS[code] });
@@ -43,20 +44,50 @@ async function checkPseudo(value: unknown, exceptUserId?: string): Promise<strin
   return pseudo;
 }
 
+interface CheckedSignup {
+  name: string;
+  birthDate: string;
+}
+
+/** What a signup must bring, by e-mail or with Google: returns the normalized pseudo and the birth date. */
+async function checkSignup(input: Record<string, unknown>): Promise<CheckedSignup> {
+  const now = new Date();
+  const birthDate = typeof input.birthDate === 'string' ? input.birthDate : '';
+  if (!isValidPseudo(normalizePseudo(String(input.name ?? '')))) throw reject('INVALID_PSEUDO');
+  if (!isValidBirthDate(birthDate, now)) throw reject('INVALID_BIRTH_DATE');
+  if (!isAdult(birthDate, now)) throw reject('UNDERAGE');
+  if (input.acceptTerms !== true) throw reject('TERMS_NOT_ACCEPTED');
+  return { name: await checkPseudo(input.name), birthDate };
+}
+
+// A signup with Google, checked before leaving for Google, waits in the OAuth
+// state's server context (which the browser can't alter) until the callback
+// creates the account.
+async function pendingGoogleSignup(): Promise<CheckedSignup | null> {
+  const signup = (await getOAuthState())?.serverContext?.signup as Partial<CheckedSignup> | undefined;
+  return typeof signup?.name === 'string' && typeof signup.birthDate === 'string'
+    ? { name: signup.name, birthDate: signup.birthDate }
+    : null;
+}
+
 // Request-level checks, before Better Auth runs the endpoint. They answer the
 // same whether the e-mail already has an account or not, so they reveal nothing
 // about existing accounts (a duplicate signup gets the generic success).
 const checkAccountInput = createAuthMiddleware(async (ctx) => {
   if (ctx.path === '/sign-up/email') {
     const body = ctx.body as Record<string, unknown>;
-    const now = new Date();
-    const birthDate = typeof body.birthDate === 'string' ? body.birthDate : '';
-    if (!isValidPseudo(normalizePseudo(String(body.name ?? '')))) throw reject('INVALID_PSEUDO');
-    if (!isValidBirthDate(birthDate, now)) throw reject('INVALID_BIRTH_DATE');
-    if (!isAdult(birthDate, now)) throw reject('UNDERAGE');
-    if (body.acceptTerms !== true) throw reject('TERMS_NOT_ACCEPTED');
-    const name = await checkPseudo(body.name);
+    const { name } = await checkSignup(body);
     return { context: { ...ctx, body: { ...body, name } } };
+  }
+
+  // Signing in with Google creates no account by itself (disableImplicitSignUp):
+  // the signup form sends requestSignUp with the pseudo, birth date and terms.
+  // The address is Google's: an existing account with it just signs in.
+  if (ctx.path === '/sign-in/social' && (ctx.body as Record<string, unknown>).requestSignUp === true) {
+    const body = ctx.body as Record<string, unknown>;
+    const signup = await checkSignup((body.additionalData ?? {}) as Record<string, unknown>);
+    await addOAuthServerContext({ signup });
+    return { context: { ...ctx, body: { ...body, additionalData: undefined } } };
   }
 
   if (ctx.path === '/update-user') {
@@ -70,8 +101,18 @@ const checkAccountInput = createAuthMiddleware(async (ctx) => {
   }
 });
 
+// Google's tokens are of no use to the game: the accounts table keeps none.
+const NO_TOKENS = {
+  accessToken: null,
+  refreshToken: null,
+  idToken: null,
+  accessTokenExpiresAt: null,
+  refreshTokenExpiresAt: null,
+};
+
 function createAuth() {
   const appUrl = requireEnv('APP_URL');
+  const google = googleCredentials();
   return betterAuth({
     appName: 'World Up',
     baseURL: appUrl,
@@ -83,6 +124,8 @@ function createAuth() {
     advanced: { database: { generateId: 'uuid' } },
     // Its info messages contain e-mail addresses: keep them out of the logs.
     logger: { level: 'warn' },
+    // A Google sign-in that fails before its own error address is known
+    onAPIError: { errorURL: `${appUrl}/login` },
 
     emailAndPassword: {
       enabled: true,
@@ -105,6 +148,29 @@ function createAuth() {
       expiresIn: 24 * 60 * 60,
       sendVerificationEmail: ({ user, url }) => enqueueEmail({ template: 'verifyEmail', to: user.email, url }),
     },
+    // Signing in with Google an address that already has a confirmed account
+    // links Google to it (Better Auth's default account linking).
+    socialProviders: google
+      ? {
+          google: {
+            ...google,
+            // The address and the account ID only: neither the name nor the photo
+            disableDefaultScope: true,
+            scope: ['openid', 'email'],
+            prompt: 'select_account',
+            disableImplicitSignUp: true,
+            requireEmailVerification: true,
+            // The account takes the pseudo and birth date checked before leaving
+            // for Google, never Google's name (the pseudo is public) nor its photo.
+            // Without a pending signup the birth date is missing, so no account
+            // can be created.
+            mapProfileToUser: async () => {
+              const signup = await pendingGoogleSignup();
+              return { name: signup?.name ?? '', image: undefined, ...(signup && { birthDate: signup.birthDate }) };
+            },
+          },
+        }
+      : undefined,
 
     user: {
       additionalFields: {
@@ -136,6 +202,7 @@ function createAuth() {
     rateLimit: {
       customRules: {
         '/sign-in/email': { window: 15 * 60, max: 10 },
+        '/sign-in/social': { window: 15 * 60, max: 10 },
         '/sign-up/email': { window: 60 * 60, max: 5 },
         '/request-password-reset': { window: 60 * 60, max: 5 },
         '/send-verification-email': { window: 60 * 60, max: 5 },
@@ -149,11 +216,16 @@ function createAuth() {
     databaseHooks: {
       user: {
         create: {
-          // Only signups that accepted the terms get here (checkAccountInput).
+          // Only signups that accepted the terms get here, by e-mail or with
+          // Google (checkAccountInput).
           after: async (user) => {
             await db.insert(consents).values({ userId: user.id, document: 'terms', version: TERMS_VERSION });
           },
         },
+      },
+      account: {
+        create: { before: async (account) => ({ data: { ...account, ...NO_TOKENS } }) },
+        update: { before: async (account) => ({ data: { ...account, ...NO_TOKENS } }) },
       },
       session: {
         create: {

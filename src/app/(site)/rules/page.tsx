@@ -62,7 +62,7 @@ export default async function RulesPage() {
 
       <section className={styles.section} aria-labelledby="coins-heading">
         <h2 id="coins-heading">{t('coinsHeading')}</h2>
-        <p>{t('coinsIntro')}</p>
+        <p>{t('coinsIntro', { opening: rules.coinsPerOpening })}</p>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <caption className="sr-only">{t('resaleCaption')}</caption>
