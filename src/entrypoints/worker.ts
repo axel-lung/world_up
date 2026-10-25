@@ -16,7 +16,7 @@ async function main() {
 
   await createQueues(boss);
   for (const job of jobs) {
-    await boss.work(job.name, job.handler);
+    await boss.work(job.name, job.options ?? {}, job.handler);
   }
   console.log(`Worker ready, ${jobs.length} queue(s)`);
 

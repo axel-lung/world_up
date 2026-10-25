@@ -809,11 +809,11 @@
     },
     "collected": {
       "title": "Les données collectées",
-      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Nous ne demandons à Google ni votre nom ni votre photo, et ne gardons aucun de ses jetons d'accès.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Nous ne demandons à Google ni votre nom ni votre photo, et ne gardons aucun de ses jetons d'accès.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous activez les notifications sur un appareil : l'adresse que le service de notifications de votre navigateur donne à cet appareil, et les clés qui chiffrent nos messages. Ni votre adresse IP, ni votre navigateur.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
     },
     "purposes": {
       "title": "Pourquoi, et sur quelle base",
-      "body": "<ul><li>Créer et gérer votre compte, faire fonctionner le jeu et le classement, vérifier votre âge : c'est l'exécution des conditions d'utilisation, notre contrat.</li><li>Vous envoyer les e-mails du compte (confirmation de l'adresse, mot de passe oublié, avertissement avant la suppression d'un compte inactif, suspension d'un compte) : exécution du contrat.</li><li>Vous permettre de vous connecter avec votre compte Google, si vous le choisissez : exécution du contrat.</li><li>Garder la preuve de votre acceptation des conditions, traiter vos signalements : notre intérêt légitime.</li><li>Protéger le site et les joueurs (limites de tentatives, détection des comptes multiples par l'adresse e-mail, suspension des comptes qui enfreignent les conditions d'utilisation) : notre intérêt légitime.</li></ul><p>Nous n'envoyons ni lettre d'information ni publicité, et nous ne vendons ni ne louons vos données.</p>"
+      "body": "<ul><li>Créer et gérer votre compte, faire fonctionner le jeu et le classement, vérifier votre âge : c'est l'exécution des conditions d'utilisation, notre contrat.</li><li>Vous envoyer les e-mails du compte (confirmation de l'adresse, mot de passe oublié, avertissement avant la suppression d'un compte inactif, suspension d'un compte) : exécution du contrat.</li><li>Vous permettre de vous connecter avec votre compte Google, si vous le choisissez : exécution du contrat.</li><li>Vous envoyer les notifications du jeu sur les appareils où vous les activez : exécution du contrat.</li><li>Garder la preuve de votre acceptation des conditions, traiter vos signalements : notre intérêt légitime.</li><li>Protéger le site et les joueurs (limites de tentatives, détection des comptes multiples par l'adresse e-mail, suspension des comptes qui enfreignent les conditions d'utilisation) : notre intérêt légitime.</li></ul><p>Nous n'envoyons ni lettre d'information ni publicité, et nous ne vendons ni ne louons vos données.</p>"
     },
     "public": {
       "title": "Ce qui est public",
@@ -821,11 +821,11 @@
     },
     "recipients": {
       "title": "Qui reçoit vos données",
-      "body": "<p>L'éditeur, et les prestataires qui agissent pour lui, liés par un contrat de sous-traitance :</p><ul><li>l'hébergeur du site, {host}, dans l'Union européenne ;</li><li>Brevo, société française, qui envoie les e-mails du compte.</li></ul><p>Si vous choisissez de vous connecter avec Google, Google sait que vous vous connectez à World Up, et nous transmet votre adresse e-mail et l'identifiant de votre compte. Google agit alors pour son propre compte, selon ses règles de confidentialité.</p>"
+      "body": "<p>L'éditeur, et les prestataires qui agissent pour lui, liés par un contrat de sous-traitance :</p><ul><li>l'hébergeur du site, {host}, dans l'Union européenne ;</li><li>Brevo, société française, qui envoie les e-mails du compte.</li></ul><p>Si vous choisissez de vous connecter avec Google, Google sait que vous vous connectez à World Up, et nous transmet votre adresse e-mail et l'identifiant de votre compte. Google agit alors pour son propre compte, selon ses règles de confidentialité.</p><p>Si vous activez les notifications, elles passent par le service de votre navigateur (Google pour Chrome et Android, Mozilla pour Firefox, Apple pour Safari, Microsoft pour Edge), qui les remet à votre appareil. Ces services sont établis aux États-Unis ; le contenu des notifications est chiffré pour votre appareil, et ils n'en voient que l'heure d'envoi.</p>"
     },
     "retention": {
       "title": "Combien de temps",
-      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte, et l'autre joueur d'un échange ou d'une vente garde son historique, sans votre pseudo. Le journal d'administration garde la trace d'une suspension, avec sa date et son motif.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les notifications du jeu sont effacées au bout de 90 jours.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
+      "body": "<ul><li>Un compte dont l'adresse n'a jamais été confirmée est supprimé au bout de 30 jours.</li><li>Votre compte est conservé tant que vous ne le supprimez pas. Après 3 ans sans visite, il est supprimé, après un e-mail qui vous prévient 30 jours avant.</li><li>La suppression d'un compte efface toutes ses données. Les signalements restent, détachés du compte, et l'autre joueur d'un échange ou d'une vente garde son historique, sans votre pseudo. Le journal d'administration garde la trace d'une suspension, avec sa date et son motif.</li><li>Les sauvegardes de la base de données sont gardées 14 jours : une donnée supprimée en disparaît dans ce délai.</li><li>Les notifications du jeu sont effacées au bout de 90 jours. Un appareil cesse de les recevoir, et son adresse est effacée, quand vous les désactivez, quand vous vous déconnectez de cet appareil, ou quand le service de notifications ne le connaît plus.</li><li>Les e-mails en attente d'envoi sont effacés un jour après leur envoi.</li></ul>"
     },
     "rights": {
       "title": "Vos droits",
@@ -1120,11 +1120,26 @@
     "empty": "Rien de nouveau pour l'instant.",
     "unread": "Nouveau",
     "markRead": "Tout marquer comme lu",
-    "list": "Notifications"
+    "list": "Notifications",
+    "push": {
+      "title": "Sur cet appareil",
+      "off": "Recevez vos notifications même quand le site est fermé : une demande d'ami, une offre d'échange, une enchère dépassée.",
+      "on": "Vos notifications arrivent sur cet appareil.",
+      "turnOn": "Activer les notifications",
+      "turnOff": "Désactiver",
+      "denied": "Les notifications de World Up sont bloquées dans les réglages de votre navigateur. Autorisez-les pour ce site, puis revenez ici.",
+      "unsupported": "Ce navigateur ne peut pas recevoir de notifications. Sur iPhone et iPad, ajoutez d'abord World Up à l'écran d'accueil.",
+      "failed": "Les notifications n'ont pas pu être activées. Réessayez dans un instant."
+    }
   },
   "Notifications": {
     "formerPlayer": "Un ancien joueur",
     "aCard": "une carte",
+    "pushTitle": {
+      "friend": "Amis",
+      "trade": "Échanges",
+      "auction": "Enchères"
+    },
     "friend_request": "{pseudo} vous demande en ami.",
     "friend_accepted": "{pseudo} a accepté votre demande d'ami.",
     "trade_received": "{pseudo} vous propose un échange.",

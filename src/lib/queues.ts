@@ -23,6 +23,20 @@ export const queues = {
     name: 'market-settle',
     options: { retryLimit: 0, expireInSeconds: 50, deleteAfterSeconds: 3_600 },
   },
+  // A notification for one device (src/worker/send-push.ts), sent by notify()
+  // in the event's transaction. A push still unsent after an hour is dropped:
+  // the notification stays on /activity.
+  push: {
+    name: 'send-push',
+    options: {
+      retryLimit: 4,
+      retryDelay: 30,
+      retryBackoff: true,
+      expireInSeconds: 30,
+      retentionSeconds: 3_600,
+      deleteAfterSeconds: 3_600,
+    },
+  },
 } satisfies Record<string, { name: string; options: QueueOptions }>;
 
 // Recurring jobs, stored by migrate.js with the queues; the worker sends them.

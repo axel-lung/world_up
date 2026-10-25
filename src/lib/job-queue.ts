@@ -1,5 +1,6 @@
-import { PgBoss } from 'pg-boss';
-import { pool } from '@/db';
+import { sql } from 'drizzle-orm';
+import { fromDrizzle, PgBoss } from 'pg-boss';
+import { type Database, pool, type Transaction } from '@/db';
 import { type EmailJob } from './email';
 import { queues } from './queues';
 
@@ -30,6 +31,27 @@ async function sender(): Promise<PgBoss> {
   }
 }
 
+/** Stops the sender, for the tests that sent a job. */
+export async function stopJobQueue(): Promise<void> {
+  const boss = globalForQueue.jobQueue;
+  globalForQueue.jobQueue = undefined;
+  await (await boss)?.stop({ graceful: false, close: false });
+}
+
 export async function enqueueEmail(job: EmailJob): Promise<void> {
   await (await sender()).send(queues.email.name, job);
+}
+
+export interface PushJob {
+  notificationId: number;
+  subscriptionId: number;
+}
+
+/** One push per device, inserted in the executor's transaction: none is sent if it rolls back. */
+export async function enqueuePushes(executor: Database | Transaction, jobs: PushJob[]): Promise<void> {
+  await (await sender()).insert(
+    queues.push.name,
+    jobs.map((data) => ({ data })),
+    { db: fromDrizzle(executor, sql) },
+  );
 }

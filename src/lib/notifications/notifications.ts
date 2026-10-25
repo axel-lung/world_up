@@ -1,11 +1,14 @@
 import { and, count, desc, eq, inArray, isNull, lt, lte, sql } from 'drizzle-orm';
 import { type Database, db, type Transaction } from '@/db';
 import { cards, collections, notifications, users } from '@/db/schema';
+import { enqueuePushes } from '@/lib/job-queue';
+import { pushDeviceIds, pushPublicKey } from './push';
 
 // What happened to a player: a friend request, a trade offer, an outbid... The
 // row is written in the transaction of the event; the header's bell counts the
-// unread ones and /activity lists them. `data` holds IDs only: the text comes
-// from messages/fr.json (Notifications) when it is shown.
+// unread ones, /activity lists them, and the worker pushes them to the devices
+// where the player turned notifications on. `data` holds IDs only: the text
+// comes from messages/fr.json (Notifications) when it is shown.
 
 type Executor = Database | Transaction;
 
@@ -37,6 +40,14 @@ export async function notify(
       createdAt: input.now,
     })
     .returning({ id: notifications.id });
+  // The pushes commit with the notification: none for an event rolled back.
+  const devices = pushPublicKey() ? await pushDeviceIds(executor, input.userId) : [];
+  if (devices.length > 0) {
+    await enqueuePushes(
+      executor,
+      devices.map((subscriptionId) => ({ notificationId: row.id, subscriptionId })),
+    );
+  }
   return row.id;
 }
 
@@ -64,6 +75,11 @@ export async function listNotifications(userId: string, limit = ACTIVITY_SIZE) {
     .where(eq(notifications.userId, userId))
     .orderBy(desc(notifications.createdAt), desc(notifications.id))
     .limit(limit);
+  return withNames(rows);
+}
+
+/** Adds the other player's pseudo and the card's name to notifications. */
+async function withNames<Row extends { data: unknown }>(rows: Row[]) {
   const others = [...new Set(rows.map((row) => (row.data as NotificationData).userId).filter((id) => id !== undefined))];
   const cardIds = [...new Set(rows.map((row) => (row.data as NotificationData).cardId).filter((id) => id !== undefined))];
   const [pseudos, names] = await Promise.all([
@@ -84,6 +100,30 @@ export async function listNotifications(userId: string, limit = ACTIVITY_SIZE) {
       card: data.cardId ? (nameOf.get(data.cardId) ?? null) : null,
     };
   });
+}
+
+/**
+ * A notification to push, with what its text needs; null once it is deleted
+ * or read, or when its player is banned.
+ */
+export async function pushableNotification(id: number) {
+  const [row] = await db
+    .select({
+      id: notifications.id,
+      userId: notifications.userId,
+      kind: notifications.kind,
+      data: notifications.data,
+      readAt: notifications.readAt,
+      bannedAt: users.bannedAt,
+      collection: collections.slug,
+    })
+    .from(notifications)
+    .innerJoin(users, eq(users.id, notifications.userId))
+    .leftJoin(collections, eq(collections.id, notifications.collectionId))
+    .where(eq(notifications.id, id));
+  if (!row || row.readAt !== null || row.bannedAt !== null) return null;
+  const [named] = await withNames([row]);
+  return named;
 }
 
 export type ActivityItem = Awaited<ReturnType<typeof listNotifications>>[number];
