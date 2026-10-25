@@ -35,6 +35,10 @@ jobs:
       SMTP_PORT: 1025
       MAIL_FROM: World Up <no-reply@localhost>
       ADMIN_EMAIL: admin@example.test
+      # Web Push, with a key pair for CI only: no real device ever subscribes with it
+      VAPID_PUBLIC_KEY: BFOtmdkoFdLMOxntqobg-JiCunkpKCNfFakSXm7ZtzMQ8fkJ5KBEi4gG62QqYUAZ_r4a5T3Ae8JxX3skyaB-Ykg
+      VAPID_PRIVATE_KEY: cmtO5ePXo-BjOri3XXX5oz-d_8uy_RM_BwAfbcpAa0U
+      VAPID_SUBJECT: mailto:admin@example.test
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -83,6 +87,9 @@ jobs:
           AUTH_SECRET=ci-only-secret-for-throwaway-test-databases
           SMTP_HOST=localhost
           MAIL_FROM=World Up <no-reply@ci.localhost>
+          VAPID_PUBLIC_KEY=BFOtmdkoFdLMOxntqobg-JiCunkpKCNfFakSXm7ZtzMQ8fkJ5KBEi4gG62QqYUAZ_r4a5T3Ae8JxX3skyaB-Ykg
+          VAPID_PRIVATE_KEY=cmtO5ePXo-BjOri3XXX5oz-d_8uy_RM_BwAfbcpAa0U
+          VAPID_SUBJECT=https://ci.localhost
           EOF
           docker compose up -d --build --wait --wait-timeout 180 worldup-web worldup-worker
       - name: Stack logs

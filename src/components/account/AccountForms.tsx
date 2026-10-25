@@ -10,6 +10,7 @@ import { Notice } from '@/components/ui/Notice';
 import { TextField } from '@/components/ui/TextField';
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from '@/lib/account-rules';
 import { authClient } from '@/lib/auth-client';
+import { forgetPushDevice } from '@/lib/notifications/push-device';
 import styles from './AuthForm.module.css';
 import { errorFor, type FormError, type FormErrorCode, formLevelError, useFocusOnError, useFormError } from './form-errors';
 import { GoogleButton } from './GoogleButton';
@@ -225,6 +226,8 @@ export function SignOutButton() {
       icon={<LogOut aria-hidden />}
       onClick={async () => {
         setPending(true);
+        // The device stops showing the player's notifications
+        await forgetPushDevice();
         await authClient.signOut();
         leave('/');
       }}

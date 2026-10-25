@@ -9,6 +9,7 @@ import { playerAuctions } from '@/lib/game/market';
 import { playerOpenings } from '@/lib/game/packs';
 import { playerTrades } from '@/lib/game/trades';
 import { playerNotifications } from '@/lib/notifications/notifications';
+import { playerPushDevices } from '@/lib/notifications/push';
 import { playerSignInMethods } from '@/lib/sign-in-methods';
 import { playerFriendships } from '@/lib/social/friends';
 
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
     .where(eq(consents.userId, userId))
     .orderBy(asc(consents.acceptedAt));
 
-  const [reports, packReserve, openings, collection, coins, ledger, obtained, friends, trades, auctions, notifications] = await Promise.all([
+  const [reports, packReserve, openings, collection, coins, ledger, obtained, friends, trades, auctions, notifications, pushDevices] = await Promise.all([
     playerReports(userId),
     db
       .select({ packs: packState.packs, lastRefill: packState.lastRefill })
@@ -56,6 +57,7 @@ export async function GET(request: Request) {
     playerTrades(userId),
     playerAuctions(userId),
     playerNotifications(userId),
+    playerPushDevices(userId),
   ]);
 
   const body = JSON.stringify(
@@ -67,6 +69,7 @@ export async function GET(request: Request) {
       game: { packReserve, openings, collection, coins: { balance: coins, ledger }, achievements: obtained },
       social: { friends, trades, auctions },
       notifications,
+      pushDevices,
     },
     null,
     2,

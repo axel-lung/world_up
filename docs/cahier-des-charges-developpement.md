@@ -303,7 +303,7 @@ Avancé de la version 2 le 22 octobre 2026, avant les paiements. Les règles chi
 
 - Demande d'ami, ami accepté, offre reçue, acceptée, refusée ou expirée, mise dépassée, vente gagnée, conclue, invendue ou annulée.
 - Écrites dans la transaction de l'événement ; une cloche dans l'en-tête compte les non-lues, `/activity` montre les 50 dernières. Effacées au bout de 90 jours.
-- En push web dans un second temps, sur l'appareil où le joueur l'active ; sur Android, l'application les affiche comme les siennes.
+- En push web dans un second temps, sur l'appareil où le joueur l'active (page Activité) ; se déconnecter les y coupe. Sur Android, l'application les affiche comme les siennes.
 
 ## Paiements et conformité
 

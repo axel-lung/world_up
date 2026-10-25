@@ -1,6 +1,6 @@
 # Registre des traitements – World Up
 
-Version du 23 octobre 2026. Registre tenu par l'éditeur au titre de l'article 30 du RGPD, à présenter à la CNIL sur demande. Il décrit les traitements du code actuel ; le lot 4 (paiements) y ajoutera le sien.
+Version du 25 octobre 2026. Registre tenu par l'éditeur au titre de l'article 30 du RGPD, à présenter à la CNIL sur demande. Il décrit les traitements du code actuel ; le lot 4 (paiements) y ajoutera le sien.
 
 **Responsable du traitement** : l'éditeur du site (coordonnées sur `/legal-notice`, à compléter selon le statut juridique retenu).
 **Délégué à la protection des données** : aucun (non obligatoire). Contact pour les demandes : l'adresse `PUBLISHER_EMAIL`.
@@ -30,7 +30,20 @@ Version du 23 octobre 2026. Registre tenu par l'éditeur au titre de l'article 3
 | Destinataires | Éditeur ; hébergeur (sous-traitant, Union européenne) |
 | Conservation | Jusqu'à la suppression du compte : l'autre joueur d'un échange ou d'une vente garde alors son historique, sans le pseudo. Notifications : 90 jours |
 
-## 3. E-mails du compte
+## 3. Notifications sur les appareils (push web)
+
+| | |
+| --- | --- |
+| Finalité | Afficher les notifications du jeu sur les appareils où le joueur les active, même le site fermé |
+| Base légale | Exécution du contrat (CGU) ; activation par le joueur, appareil par appareil |
+| Personnes | Joueurs majeurs qui les activent |
+| Données | Adresse attribuée à l'appareil par le service de push du navigateur, clés de chiffrement des messages, date d'activation (ni adresse IP, ni navigateur) ; contenu du message : texte de la notification, pseudo de l'autre joueur, nom de la carte |
+| Destinataires | Éditeur ; hébergeur ; service de push du navigateur, qui remet le message à l'appareil (Google pour Chrome et Android, Mozilla pour Firefox, Apple pour Safari, Microsoft pour Edge), pour son propre compte |
+| Transferts hors UE | Possibles, selon le navigateur : ces services sont établis aux États-Unis. Le contenu est chiffré pour l'appareil (RFC 8291) : ils ne voient que l'adresse de l'appareil et l'heure d'envoi |
+| Conservation | Jusqu'à la désactivation sur l'appareil, la déconnexion de cet appareil, la réponse du service qu'il ne le connaît plus, ou la suppression du compte. Tâche d'envoi effacée une heure après |
+| Sécurité | Seules les adresses des services de push des navigateurs sont acceptées ; adresse de l'appareil absente des journaux |
+
+## 4. E-mails du compte
 
 | | |
 | --- | --- |
@@ -41,7 +54,7 @@ Version du 23 octobre 2026. Registre tenu par l'éditeur au titre de l'article 3
 | Conservation | Tâche d'envoi effacée un jour après l'envoi ; journaux d'envoi de Brevo selon son contrat |
 | Sécurité | Adresses masquées dans les journaux d'erreur |
 
-## 4. Signalements sur les cartes
+## 5. Signalements sur les cartes
 
 | | |
 | --- | --- |
@@ -50,7 +63,7 @@ Version du 23 octobre 2026. Registre tenu par l'éditeur au titre de l'article 3
 | Données | Message du joueur, lien vers son compte |
 | Conservation | Le signalement reste, détaché du compte, après la suppression de celui-ci |
 
-## 5. Sécurité et prévention des abus
+## 6. Sécurité et prévention des abus
 
 | | |
 | --- | --- |
@@ -59,7 +72,7 @@ Version du 23 octobre 2026. Registre tenu par l'éditeur au titre de l'article 3
 | Données | Adresse IP, en mémoire du serveur web seulement, le temps de la fenêtre de limitation ; e-mail |
 | Conservation | En mémoire ; journaux d'accès de Traefik : durée à fixer s'ils sont activés |
 
-## 6. Back-office
+## 7. Back-office
 
 | | |
 | --- | --- |
