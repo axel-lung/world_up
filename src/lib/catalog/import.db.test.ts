@@ -99,6 +99,16 @@ describe('importCatalog', () => {
     expect((await seriesNumbers('centre-val-de-loire')).numbers).toEqual({ Q1: 1, Q2: 2 });
   });
 
+  it('shows a 20th-century card once the export clears it', async () => {
+    const twentieth = { twentieth_century: true, hidden_reason: 'twentieth_century' } as const;
+    await load([testCard(1), testCard(2, twentieth), testCard(3, twentieth)]);
+    await load([testCard(1), testCard(2, { twentieth_century: true }), testCard(3, twentieth)]);
+    const rows = await cardRows();
+    expect(rows.get('Q2')).toMatchObject({ hiddenReason: null, twentiethCentury: true });
+    expect(rows.get('Q3')?.hiddenReason).toBe('twentieth_century');
+    expect((await seriesNumbers('centre-val-de-loire')).numbers).toEqual({ Q1: 1, Q2: 2, Q3: null });
+  });
+
   it('keeps what the back-office decided', async () => {
     await load([testCard(1), testCard(2), testCard(3)]);
     const rows = await cardRows();

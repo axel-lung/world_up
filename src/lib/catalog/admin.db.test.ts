@@ -85,6 +85,14 @@ describe('back-office catalogue changes', () => {
     expect(await history(third.id)).toEqual([]);
   });
 
+  it('keeps a 20th-century card it hid, even once the export clears it', async () => {
+    const first = await card('Q1');
+    await setCardVisibility(db, adminId, first.id, 'twentieth_century', 'architecte encore vivant');
+    const cleared = { twentieth_century: true } as const;
+    await importCatalog(db, testCatalog([testCard(1, cleared), testCard(2), testCard(3, { photo: null, hidden_reason: 'photo' })], collectionSlug));
+    expect((await card('Q1')).hiddenReason).toBe('twentieth_century');
+  });
+
   it('changes a rarity and logs the old and new ones', async () => {
     const first = await card('Q1');
     await setCardRarity(db, adminId, first.id, 'legendary');

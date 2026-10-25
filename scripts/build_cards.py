@@ -1,8 +1,8 @@
 """Step 8: builds the game's cards: rarity, editorial flags, photo, excerpt and series.
 
 Usage: python scripts/build_cards.py data
-Reads data/catalogue_base.json, data/raw/{views,commons,extracts,type_labels}.json and
-scripts/photo_overrides.csv, and writes data/cards.json.
+Reads data/catalogue_base.json, data/raw/{views,commons,extracts,type_labels}.json,
+scripts/photo_overrides.csv and scripts/twentieth_century_cleared.csv, and writes data/cards.json.
 """
 import csv
 import json
@@ -14,6 +14,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 OVERRIDES = Path(__file__).with_name("photo_overrides.csv")
+CLEARED = Path(__file__).with_name("twentieth_century_cleared.csv")
 
 # Share of the catalogue in each rarity, rarest first (the study's tiers). The
 # default pack odds are these shares; an imported card keeps its rarity.
@@ -111,11 +112,20 @@ EXCERPT_MIN = 300
 EXCERPT_MAX = 600
 
 
+def read_list(path):
+    """The rows of a list kept by hand: separated by ";", with a header and "#" comments."""
+    with open(path, encoding="utf-8", newline="") as f:
+        return list(csv.DictReader((line for line in f if line.strip() and not line.startswith("#")), delimiter=";"))
+
+
 def read_photo_overrides(path=OVERRIDES):
     """Photos chosen by hand: Wikidata ID -> Commons file name."""
-    with open(path, encoding="utf-8", newline="") as f:
-        rows = csv.DictReader((line for line in f if line.strip() and not line.startswith("#")), delimiter=";")
-        return {row["wikidata_id"].strip(): row["photo"].strip() for row in rows}
+    return {row["wikidata_id"].strip(): row["photo"].strip() for row in read_list(path)}
+
+
+def read_cleared(path=CLEARED):
+    """Wikidata IDs of the 20th-century cards reviewed and shown: their authors' copyright has run out."""
+    return {row["wikidata_id"].strip() for row in read_list(path)}
 
 
 def slugify(text):
@@ -245,7 +255,7 @@ def assign_rarities(cards):
         card["rarity"] = next(rarity for rarity, bound in bounds if rank < bound)
 
 
-def build(base, views, commons, extracts, labels, overrides, today):
+def build(base, views, commons, extracts, labels, overrides, today, cleared=frozenset()):
     cards, slugs = [], set()
     for it in base["items"].values():
         if not (it["article"] and it["image"]):
@@ -261,6 +271,8 @@ def build(base, views, commons, extracts, labels, overrides, today):
             "national_domain": it["qid"] in NATIONAL_DOMAINS,
             "twentieth_century": twentieth_century(it, today),
         }
+        # A reviewed 20th-century card keeps its flag but is shown
+        hiding = {**flags, "twentieth_century": flags["twentieth_century"] and it["qid"] not in cleared}
         cards.append({
             "wikidata_id": it["qid"],
             "name": it["label"] or it["article"].replace("_", " "),
@@ -283,7 +295,7 @@ def build(base, views, commons, extracts, labels, overrides, today):
             "photo_problem": problem,
             **flags,
             # Most lasting reason first: an approved 20th-century card still needs a photo
-            "hidden_reason": next((r for r in ("memorial", "commercial", "national_domain", "twentieth_century") if flags[r]),
+            "hidden_reason": next((r for r in ("memorial", "commercial", "national_domain", "twentieth_century") if hiding[r]),
                                   "photo" if problem else None),
         })
 
@@ -315,7 +327,7 @@ def main(data_dir):
         return json.loads(path.read_text(encoding="utf-8"))
     cards, series = build(read(data / "catalogue_base.json"), read(raw / "views.json"), read(raw / "commons.json"),
                           read(raw / "extracts.json"), read(raw / "type_labels.json"), read_photo_overrides(),
-                          date.today())
+                          date.today(), read_cleared())
     out = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "rarity_shares": dict(RARITY_SHARES), "series": series, "cards": cards}
     (data / "cards.json").write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")

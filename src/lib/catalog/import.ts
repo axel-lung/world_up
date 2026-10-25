@@ -181,9 +181,15 @@ export async function importCatalog(database: Database, catalog: Catalog): Promi
             nationalDomain: excluded(cards.nationalDomain),
             // A visible card leaves the packs until the back-office reviews it
             // when it has just entered a national domain (a new decree), or
-            // when the export now refuses its photo for its licence
+            // when the export now refuses its photo for its licence. A card
+            // hidden as 20th-century comes back once the export clears it
+            // (scripts/twentieth_century_cleared.csv), unless the back-office hid it.
             hiddenReason: sql`CASE
               WHEN "cards"."hidden_reason" = 'photo' AND excluded."photo_image" IS NOT NULL THEN excluded."hidden_reason"
+              WHEN "cards"."hidden_reason" = 'twentieth_century' AND excluded."hidden_reason" IS DISTINCT FROM 'twentieth_century'
+                AND NOT EXISTS (SELECT 1 FROM "audit_log" WHERE "audit_log"."target_type" = 'card'
+                  AND "audit_log"."target_id" = "cards"."id"::text AND "audit_log"."action" = 'card.hide')
+                THEN excluded."hidden_reason"
               WHEN "cards"."hidden_reason" IS NULL AND excluded."national_domain" AND NOT "cards"."national_domain"
                 THEN 'national_domain'::hidden_reason
               WHEN "cards"."hidden_reason" IS NULL AND NOT "cards"."photo_locked" AND excluded."photo_problem" = 'license'

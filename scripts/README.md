@@ -39,13 +39,24 @@ Tests: `python -m unittest discover -s scripts`.
   - `memorial`: places of remembrance (camps, necropolises, prisons…);
   - `commercial`: businesses still trading, whose name is often a brand;
   - `national_domain`: inside a "domaine national" (Code du patrimoine, art. L621-42), where a commercial use of the monument's image needs the authorisation of the domain's manager. The cards are listed by Wikidata ID in `NATIONAL_DOMAINS`, from the decrees of 2017, 2021, 2022 and 2024; doubtful ones are in too. Show one in the back-office once the authorisation is obtained, or the lawyer has ruled the use exempt. Check Légifrance for new decrees before each re-import: the import hides a visible card that newly enters the list;
-  - `twentieth_century`: possibly still under the architect's copyright (built from 1900, a "XXe siècle" label, or an architect dead less than 70 years ago). To review in the back-office before showing it;
+  - `twentieth_century`: possibly still under the architect's copyright (built from 1900, a "XXe siècle" label, or an architect dead less than 70 years ago). To review before showing it, in the back-office or in `twentieth_century_cleared.csv` (below);
   - `photo`: no usable photo. Photos under 1,000 px on their long side, under the GFDL or the GPL alone (both want their full text with every copy) or without a licence are rejected, as are failed downloads, and photos under a licence that wants the author named (CC BY, CC BY-SA, Free Art) when no author can be named. The import also hides a visible card whose photo the export now refuses for its licence, unless the back-office chose that photo.
 - **Photo credit**: the credit line the author requires (Commons' `Attribution` field, without the "I, " of the licence templates, when under 120 characters), else the author (`Artist`), else whoever uploaded the file's first version, unless a bot that transferred it.
 - **Photos chosen by hand**: `photo_overrides.csv` replaces a monument's Wikidata photo, for example to keep a day photo of the Eiffel Tower (its night lighting is protected). Add a line there, or use the back-office, for a rare card whose photo was rejected.
 - **Excerpt**: the start of the article's introduction, whole paragraphs until 300 characters (a first paragraph is often a single sentence saying where the monument is), cut after a sentence past 600, with the article's revision number.
 - **Slug**: from the article title, which is unique on Wikipedia (`chateau-de-chambord`). The import keeps a card's slug once it exists, so its public address never changes.
 - **Series**: region, family (except "Autres"), Patrimoine mondial de l'UNESCO, Patrimoine en péril.
+
+## Reviewing the 20th-century cards
+
+`twentieth_century_cleared.csv` lists the 20th-century cards reviewed and shown, with why: the export shows them, and the import shows them again in a database that already hides them, unless the back-office hid them. A card goes in when every known author of what its photo shows has been dead for more than 70 years:
+
+- the authors are the monument's architects, creators and designers on Wikidata (P84, P170, P287) and those in the infobox of its French Wikipedia article, which often names more;
+- an author whose death year is unknown keeps the card hidden, but an engineer who only worked on the structure, or an architect who only restored an older monument, does not count;
+- an author who died between 1939 and 1955 must not have died "pour la France", which adds 30 years: check the biography;
+- a collective work (the rebuilt centre of Le Havre) or a photo showing a later work (the entrance of the Niaux cave) keeps the card hidden.
+
+The cards not listed stay hidden as `twentieth_century`. When a listed card turns out to be protected, remove its line and hide it in the back-office.
 
 ## Replacing the rejected photos of rare cards
 

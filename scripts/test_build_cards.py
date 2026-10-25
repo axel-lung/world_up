@@ -18,10 +18,10 @@ def photo(width=4000, height=3000, license="CC BY-SA 4.0", sha1="ab" * 20):
             "artist": "Jean Photo", "download_url": "https://upload.example/x.jpg"}
 
 
-def build(*items, commons=None, overrides=None, views=None):
+def build(*items, commons=None, overrides=None, views=None, cleared=frozenset()):
     base = {"items": {i["qid"]: i for i in items}, "depts": {"41": {"label": "Loir-et-Cher"}}}
     commons = commons if commons is not None else {i["image"]: photo() for i in items}
-    return bc.build(base, views or {}, commons, {}, {}, overrides or {}, TODAY)
+    return bc.build(base, views or {}, commons, {}, {}, overrides or {}, TODAY, cleared)
 
 
 class RarityTest(unittest.TestCase):
@@ -107,6 +107,18 @@ class EditorialTest(unittest.TestCase):
     def test_review_reason_comes_before_a_missing_photo(self):
         [card], _ = build(item(inception=1931), commons={})
         self.assertEqual((card["hidden_reason"], card["photo_problem"]), ("twentieth_century", "missing"))
+
+    def test_reviewed_twentieth_century_card_is_shown(self):
+        cards, _ = build(item("Q1", inception=1931), item("Q2", inception=1931), item("Q3", inception=1931),
+                         commons={"Q1.jpg": photo(), "Q2.jpg": photo()}, cleared={"Q1", "Q3"})
+        by_id = {c["wikidata_id"]: c for c in cards}
+        self.assertEqual({q: (c["twentieth_century"], c["hidden_reason"]) for q, c in by_id.items()},
+                         {"Q1": (True, None), "Q2": (True, "twentieth_century"), "Q3": (True, "photo")})
+
+    def test_reads_the_reviewed_cards(self):
+        cleared = bc.read_cleared()
+        self.assertIn("Q457318", cleared)
+        self.assertTrue(all(q.startswith("Q") for q in cleared))
 
     def test_national_domains_go_to_review_first(self):
         louvre = item("Q1075988", label="palais du Louvre", designations=["Q3214312"])
