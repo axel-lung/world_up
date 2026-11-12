@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { connection } from 'next/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
+import { NativeApp } from '@/components/layout/NativeApp';
 import { getDefaultThemeCss } from '@/lib/collections';
 import { indexingAllowed } from '@/lib/indexing';
 import { themeAttribute, themePreference } from '@/lib/theme-preference';
@@ -51,6 +52,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
       </head>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NativeApp />
       </body>
     </html>
   );

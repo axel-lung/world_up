@@ -2,10 +2,20 @@
 
 import { z } from 'zod';
 import { getSession } from '@/lib/session';
-import { deletePushSubscription, isPushDevice, pushPublicKey, pushSubscriptionInput, savePushSubscription } from './push';
+import {
+  appPushEnabled,
+  appPushTokenInput,
+  deletePushSubscription,
+  isPushDevice,
+  pushPublicKey,
+  pushSubscriptionInput,
+  saveAppPushDevice,
+  savePushSubscription,
+} from './push';
 
 // Called by the /activity switch (PushSwitch) and by signing out
-// (forgetPushDevice()), with the browser's PushSubscription.
+// (forgetPushDevice()), with the browser's PushSubscription, or in the app
+// with its Firebase token: the "address" of the other two.
 
 const endpoint = z.string().max(1024);
 
@@ -15,6 +25,15 @@ export async function savePushDeviceAction(subscription: unknown): Promise<boole
   const session = await getSession();
   if (!input.success || !session || !pushPublicKey()) return false;
   await savePushSubscription(session.user.id, input.data, new Date());
+  return true;
+}
+
+/** Turns notifications on for the signed-in player in the app, on this phone. */
+export async function saveAppPushDeviceAction(token: unknown): Promise<boolean> {
+  const input = appPushTokenInput.safeParse(token);
+  const session = await getSession();
+  if (!input.success || !session || !appPushEnabled()) return false;
+  await saveAppPushDevice(session.user.id, input.data, new Date());
   return true;
 }
 

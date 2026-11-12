@@ -4,7 +4,7 @@ import { PushSwitch } from '@/components/social/PushSwitch';
 import { Button } from '@/components/ui/Button';
 import { notificationHref, notificationValues } from '@/lib/notifications/describe';
 import { listNotifications } from '@/lib/notifications/notifications';
-import { pushPublicKey } from '@/lib/notifications/push';
+import { appPushEnabled, pushPublicKey } from '@/lib/notifications/push';
 import { requireSession } from '@/lib/session';
 import { markReadFormAction } from './actions';
 import { ActivityList } from './ActivityList';
@@ -15,10 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t('title') };
 }
 
-/** The player's notifications: friend requests, trades, auctions; and Web Push on this device. */
+/** The player's notifications: friend requests, trades, auctions; and push on this device. */
 export default async function ActivityPage() {
   const { user } = await requireSession('/activity');
   const publicKey = pushPublicKey();
+  const app = appPushEnabled();
   const [t, tNotification, format, items] = await Promise.all([
     getTranslations('Activity'),
     getTranslations('Notifications'),
@@ -40,7 +41,7 @@ export default async function ActivityPage() {
         <h1>{t('title')}</h1>
         <p className={styles.muted}>{t('intro')}</p>
       </header>
-      {publicKey && <PushSwitch publicKey={publicKey} />}
+      {(publicKey || app) && <PushSwitch publicKey={publicKey} app={app} />}
       {entries.length === 0 ? (
         <p className={styles.muted}>{t('empty')}</p>
       ) : (

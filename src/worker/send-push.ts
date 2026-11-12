@@ -11,9 +11,10 @@ import { notificationHref, notificationValues, type NotificationView } from '@/l
 import { pushableNotification } from '@/lib/notifications/notifications';
 import { isPushService } from '@/lib/notifications/push';
 import { queues } from '@/lib/queues';
+import { type AppPushSend, fcmSender, parseServiceAccount } from './fcm';
 import type { JobDefinition } from './jobs';
 
-/** What public/sw.js shows. */
+/** What public/sw.js shows, and the app (through Firebase). */
 export interface PushMessage {
   title: string;
   body: string;
@@ -44,24 +45,39 @@ export type PushSend = (device: Device, payload: string) => Promise<number>;
 
 export type PushOutcome = 'sent' | 'skipped' | 'gone' | 'refused';
 
+/** How the worker reaches each kind of device: null while that kind is off. */
+export interface PushSenders {
+  web: PushSend | null;
+  app: AppPushSend | null;
+}
+
+/** Sends to the device; resolves with the push service's name (logged instead of the address) and its answer. */
+async function send(device: typeof pushSubscriptions.$inferSelect, message: PushMessage, senders: PushSenders) {
+  if (device.kind === 'app') {
+    return senders.app && { service: 'Firebase', status: await senders.app(device.endpoint, message) };
+  }
+  if (!senders.web || !device.p256dh || !device.auth || !isPushService(device.endpoint)) return null;
+  const keys = { p256dh: device.p256dh, auth: device.auth };
+  const status = await senders.web({ endpoint: device.endpoint, keys }, JSON.stringify(message));
+  return { service: new URL(device.endpoint).hostname, status };
+}
+
 /**
  * Pushes one notification to one device. Nothing goes out once the
  * notification is read or deleted, its player banned, or the device signed
  * out or taken by another account. A device the push service no longer knows
  * is forgotten; a busy or failing service is tried again (pg-boss retries).
  */
-export async function deliverPush({ notificationId, subscriptionId }: PushJob, send: PushSend): Promise<PushOutcome> {
+export async function deliverPush(
+  { notificationId, subscriptionId }: PushJob,
+  senders: PushSenders,
+): Promise<PushOutcome> {
   const [device] = await db.select().from(pushSubscriptions).where(eq(pushSubscriptions.id, subscriptionId));
   const notification = device && (await pushableNotification(notificationId));
-  if (!device || !notification || notification.userId !== device.userId || !isPushService(device.endpoint)) {
-    return 'skipped';
-  }
-  const status = await send(
-    { endpoint: device.endpoint, keys: { p256dh: device.p256dh, auth: device.auth } },
-    JSON.stringify(renderPush(notification)),
-  );
-  // Logged in place of the address, which identifies the device
-  const service = new URL(device.endpoint).hostname;
+  if (!device || !notification || notification.userId !== device.userId) return 'skipped';
+  const sent = await send(device, renderPush(notification), senders);
+  if (!sent) return 'skipped';
+  const { service, status } = sent;
   if (status >= 200 && status < 300) return 'sent';
   if (status === 404 || status === 410) {
     await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, device.id));
@@ -92,14 +108,19 @@ function webPushSend(): PushSend {
 
 /**
  * Web Push, once VAPID_PUBLIC_KEY is set: VAPID_PRIVATE_KEY and VAPID_SUBJECT
- * are then required. Without the keys no device can turn notifications on, and
- * a push left from before is dropped.
+ * are then required. The app's notifications, once FCM_SERVICE_ACCOUNT is.
+ * Without them no device of that kind can turn notifications on, and a push
+ * left from before is dropped.
  */
 export function createPushJob(): JobDefinition {
   const publicKey = process.env.VAPID_PUBLIC_KEY;
-  // Checks the keys and the subject at startup
+  const firebase = process.env.FCM_SERVICE_ACCOUNT;
+  // Checks the keys, the subject and the service account at startup
   if (publicKey) webpush.setVapidDetails(requireEnv('VAPID_SUBJECT'), publicKey, requireEnv('VAPID_PRIVATE_KEY'));
-  const send = publicKey ? webPushSend() : null;
+  const senders: PushSenders = {
+    web: publicKey ? webPushSend() : null,
+    app: firebase ? fcmSender(parseServiceAccount(firebase), { timeoutMs: TIMEOUT_MS, ttlSeconds: TTL_SECONDS }) : null,
+  };
 
   return {
     name: queues.push.name,
@@ -107,7 +128,7 @@ export function createPushJob(): JobDefinition {
     // settled apart, so that a failure retries its own device only.
     options: { batchSize: 20, burstWhenBatchFull: true, perJobResults: true },
     handler: async (jobs: { id: string; data: PushJob }[]): Promise<JobResult[]> => {
-      const outcomes = await Promise.allSettled(jobs.map((job) => (send ? deliverPush(job.data, send) : 'skipped')));
+      const outcomes = await Promise.allSettled(jobs.map((job) => deliverPush(job.data, senders)));
       return jobs.map((job, index) => {
         const outcome = outcomes[index];
         if (outcome.status === 'fulfilled') return { id: job.id, status: 'completed', output: { outcome: outcome.value } };

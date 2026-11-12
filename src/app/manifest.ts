@@ -1,9 +1,9 @@
 import type { MetadataRoute } from 'next';
 import { getTranslations } from 'next-intl/server';
 
-// The web app manifest (/manifest.webmanifest): installing the site, and the
-// Android app's name, colors and icons (android/twa-manifest.json repeats them).
-// The icons in public/icons come from the World Up logo (see CLAUDE.md, "Android app").
+// The web app manifest (/manifest.webmanifest): installing the site from a
+// browser. The icons in public/icons come from the World Up logo (see
+// CLAUDE.md, "Android app"), as do the Android app's own (android/).
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const t = await getTranslations('Metadata');
   return {

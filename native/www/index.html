@@ -1,0 +1,80 @@
+<!doctype html>
+<!--
+  Shown by the Android app (capacitor.config.ts, errorPath) when the site can't
+  be reached. It ships inside the app, so it loads nothing from the network. The
+  page that failed is the one before it in the history: the button goes back to
+  it, which loads it again.
+-->
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>World Up</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f5ead8;
+        --text: #201e1d;
+        --muted: #645c50;
+        --accent: #c67139;
+        --on-accent: #201e1d;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #201e1d;
+          --text: #f5ead8;
+          --muted: #c0b6a5;
+          --accent: #f6a06b;
+        }
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        box-sizing: border-box;
+        background: var(--bg);
+        color: var(--text);
+        font: 17px/1.5 system-ui, sans-serif;
+        text-align: center;
+      }
+      main {
+        max-width: 22rem;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+      }
+      p {
+        margin: 0 0 24px;
+        color: var(--muted);
+      }
+      button {
+        min-height: 48px;
+        padding: 0 24px;
+        border: 2px solid var(--text);
+        border-radius: 999px;
+        background: var(--accent);
+        color: var(--on-accent);
+        font: inherit;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Pas de connexion</h1>
+      <p>World Up a besoin d'Internet. Vérifiez votre connexion, puis réessayez.</p>
+      <button type="button" id="retry">Réessayer</button>
+    </main>
+    <script>
+      document.getElementById('retry').addEventListener('click', function () {
+        history.back();
+      });
+    </script>
+  </body>
+</html>

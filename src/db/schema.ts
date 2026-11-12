@@ -742,6 +742,10 @@ export const notifications = pgTable(
 
 // One Web Push subscription per device that turned notifications on. No user
 // agent, no IP address.
+// A browser's Web Push subscription ('web'), or the Android app's Firebase
+// Cloud Messaging registration ('app'), whose token takes the endpoint's place
+export const pushDeviceKind = pgEnum('push_device_kind', ['web', 'app']);
+
 export const pushSubscriptions = pgTable(
   'push_subscriptions',
   {
@@ -749,10 +753,18 @@ export const pushSubscriptions = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    kind: pushDeviceKind('kind').notNull().default('web'),
     endpoint: text('endpoint').notNull().unique(),
-    p256dh: text('p256dh').notNull(),
-    auth: text('auth').notNull(),
+    p256dh: text('p256dh'),
+    auth: text('auth'),
     createdAt: createdAt(),
   },
-  (table) => [index('push_subscriptions_user_id_idx').on(table.userId)],
+  (table) => [
+    index('push_subscriptions_user_id_idx').on(table.userId),
+    // Web Push encrypts each message with the browser's keys
+    check(
+      'push_subscriptions_web_keys',
+      sql`${table.kind} <> 'web' or (${table.p256dh} is not null and ${table.auth} is not null)`,
+    ),
+  ],
 );

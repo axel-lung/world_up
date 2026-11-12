@@ -2,7 +2,7 @@ import { and, count, desc, eq, inArray, isNull, lt, lte, sql } from 'drizzle-orm
 import { type Database, db, type Transaction } from '@/db';
 import { cards, collections, notifications, users } from '@/db/schema';
 import { enqueuePushes } from '@/lib/job-queue';
-import { pushDeviceIds, pushPublicKey } from './push';
+import { pushDeviceIds } from './push';
 
 // What happened to a player: a friend request, a trade offer, an outbid... The
 // row is written in the transaction of the event; the header's bell counts the
@@ -41,7 +41,7 @@ export async function notify(
     })
     .returning({ id: notifications.id });
   // The pushes commit with the notification: none for an event rolled back.
-  const devices = pushPublicKey() ? await pushDeviceIds(executor, input.userId) : [];
+  const devices = await pushDeviceIds(executor, input.userId);
   if (devices.length > 0) {
     await enqueuePushes(
       executor,

@@ -1,7 +1,10 @@
+import { isNativeApp } from '@/lib/native-app';
+import { turnAppPushOff } from './app-push-device';
 import { deletePushDeviceAction, isPushDeviceAction, savePushDeviceAction } from './push-actions';
 
 // The browser's side of Web Push, for the /activity switch and signing out.
-// public/sw.js receives the pushes and shows them.
+// public/sw.js receives the pushes and shows them. The app has its own
+// (app-push-device.ts).
 
 export type PushState = 'unsupported' | 'denied' | 'off' | 'on';
 
@@ -70,7 +73,8 @@ export async function turnPushOff(): Promise<void> {
  */
 export async function forgetPushDevice(): Promise<void> {
   try {
-    if (supported()) await turnPushOff();
+    if (isNativeApp()) await turnAppPushOff();
+    else if (supported()) await turnPushOff();
   } catch {
     // The device is forgotten once its push service no longer knows it
   }

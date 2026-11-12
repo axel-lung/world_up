@@ -1,9 +1,9 @@
 name: Android app
 
-# Builds the Android app (android/), which opens the production site: an APK to
-# install on a phone, and the bundle (AAB) to upload to the Play Console. Run it
-# by hand from the Actions tab. A pull request that touches android/ only
-# checks that the app still builds, unsigned.
+# Builds the Android app (android/, capacitor.config.ts), which shows the site
+# in its own WebView: an APK to install on a phone, and the bundle (AAB) to
+# upload to the Play Console. Run it by hand from the Actions tab. A pull
+# request that touches the app only checks that it still builds, unsigned.
 on:
   workflow_dispatch:
     inputs:
@@ -11,9 +11,16 @@ on:
         description: Version shown on the Play Store (1.0.0)
         required: true
         default: 1.0.0
+      server_url:
+        description: Site the app shows (staging to try it before a deployment)
+        required: true
+        default: https://worldup.alng.fr
   pull_request:
     paths:
       - android/**
+      - native/**
+      - capacitor.config.ts
+      - package-lock.json
       - .github/workflows/android.yml
 
 permissions:
@@ -29,10 +36,23 @@ jobs:
       VERSION_NAME: ${{ inputs.version_name || '1.0.0' }}
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      # The plugins' native code is read from node_modules
+      - run: npm ci
+        working-directory: .
+      - name: Capacitor sync
+        working-directory: .
+        env:
+          CAPACITOR_SERVER_URL: ${{ inputs.server_url }}
+        run: npx cap sync android
+
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
       # Caches Gradle's downloads, and checks the wrapper's checksum
       - uses: gradle/actions/setup-gradle@v6
 
@@ -48,13 +68,26 @@ jobs:
           fi
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
           echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
-          # Not a secret: the site's ANDROID_CERT_FINGERPRINTS lists it, so the APK opens without an address bar
+          # Not secrets: the site's ANDROID_CERT_FINGERPRINTS lists the SHA-256, so that
+          # the site's links open in the APK; Google Cloud's Android OAuth client takes the SHA-1
           {
-            echo "Upload key fingerprint (SHA-256):"
+            echo "Upload key fingerprints:"
             echo
-            keytool -list -keystore "$RUNNER_TEMP/upload.jks" -storepass:env ANDROID_KEYSTORE_PASSWORD -alias upload \
-              | sed -n 's/.*(SHA-256): /    /p'
+            keytool -list -v -keystore "$RUNNER_TEMP/upload.jks" -storepass:env ANDROID_KEYSTORE_PASSWORD -alias upload \
+              | sed -n 's/^\s*\(SHA1\|SHA256\): /    \1: /p'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Firebase's configuration, for the notifications: without it the app builds but receives none
+      - name: Firebase
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            echo "::warning::No GOOGLE_SERVICES_JSON_BASE64 secret: this build receives no notifications (android/README.md)"
+            exit 0
+          fi
+          echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > app/google-services.json
 
       # The Play Store refuses a versionCode it has already received: the run number only goes up
       - name: Build

@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Notice';
 import { authClient } from '@/lib/auth-client';
+import { isNativeApp } from '@/lib/native-app';
+import { googleClientIdAction } from '@/lib/sign-in-actions';
 import { useHydrated } from '@/lib/use-hydrated';
 import styles from './AuthForm.module.css';
 
@@ -33,27 +35,73 @@ export function GoogleLogo() {
   );
 }
 
+interface GoogleOptions {
+  callbackURL: string;
+  errorCallbackURL: string;
+  signup?: { name: string; birthDate: string; acceptTerms: boolean };
+}
+
 /**
  * Leaves for Google, which comes back to `callbackURL` signed in, or to
  * `errorCallbackURL` with an `error` parameter (GoogleErrorNotice). With
  * `signup`, a new account gets that pseudo and birth date: the server checks
  * them first (src/lib/auth.ts), and its refusal is returned before leaving.
  */
-export async function continueWithGoogle({
-  callbackURL,
-  errorCallbackURL,
-  signup,
-}: {
-  callbackURL: string;
-  errorCallbackURL: string;
-  signup?: { name: string; birthDate: string; acceptTerms: boolean };
-}) {
+export async function continueWithGoogle({ callbackURL, errorCallbackURL, signup }: GoogleOptions) {
+  // Google refuses its sign-in page in an app's WebView
+  if (isNativeApp()) return continueInApp({ callbackURL, errorCallbackURL, signup });
   const { error } = await authClient.signIn.social({
     provider: 'google',
     callbackURL,
     errorCallbackURL,
     ...(signup && { requestSignUp: true, additionalData: signup }),
   });
+  return error;
+}
+
+/** Leaves for `errorCallbackURL` with `error`, as Google's callback does. */
+function backWithError(errorCallbackURL: string, error: string) {
+  const url = new URL(errorCallbackURL, window.location.origin);
+  url.searchParams.set('error', error);
+  window.location.assign(url.pathname + url.search + url.hash);
+}
+
+/**
+ * The same in the app: the phone's own Google sign-in gives an ID token,
+ * which Better Auth checks and signs in with (or signs up, with `signup`),
+ * then the page goes where Google's callback would have sent it. The
+ * refusals the server makes before leaving for Google are returned.
+ */
+async function continueInApp({ callbackURL, errorCallbackURL, signup }: GoogleOptions) {
+  let idToken: string | null = null;
+  try {
+    const [{ SocialLogin }, webClientId] = await Promise.all([
+      import('@capgo/capacitor-social-login'),
+      googleClientIdAction(),
+    ]);
+    if (!webClientId) throw new Error('Google sign-in is off on the server');
+    await SocialLogin.initialize({ google: { webClientId } });
+    const { result } = await SocialLogin.login({ provider: 'google', options: {} });
+    if (result.responseType === 'online') idToken = result.idToken;
+  } catch (error) {
+    // The player closed Google's sheet, as access_denied on the web
+    if ((error as { code?: string }).code === 'USER_CANCELLED') return backWithError(errorCallbackURL, 'access_denied');
+    console.error('Google sign-in failed in the app', error);
+  }
+  if (!idToken) return backWithError(errorCallbackURL, 'generic');
+
+  const { error } = await authClient.signIn.social({
+    provider: 'google',
+    idToken: { token: idToken },
+    callbackURL,
+    ...(signup && { requestSignUp: true, additionalData: signup }),
+  });
+  if (!error) return window.location.assign(callbackURL);
+  // Better Auth's answers once the token is checked, which the web flow
+  // gives in the callback address ("signup disabled" there is signup_disabled)
+  if (error.code === 'OAUTH_LINK_ERROR') return backWithError(errorCallbackURL, (error.message ?? '').replace(/ /g, '_'));
+  if (error.code === 'EMAIL_NOT_VERIFIED') return backWithError(errorCallbackURL, 'email_not_verified');
+  if (error.code === 'ACCOUNT_BANNED') return backWithError(errorCallbackURL, 'ACCOUNT_BANNED');
   return error;
 }
 
@@ -74,7 +122,8 @@ export function GoogleButton({
   async function onClick() {
     setPending(true);
     const error = await continueWithGoogle({ callbackURL, errorCallbackURL });
-    // On success the browser is on its way to Google: the button stays busy
+    // On success the browser is on its way to Google (or, in the app, to the
+    // next page): the button stays busy
     if (error) {
       setPending(false);
       onError?.(error);

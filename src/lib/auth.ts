@@ -1,6 +1,7 @@
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { defineRequestState } from '@better-auth/core/context';
 import { addOAuthServerContext, APIError, createAuthMiddleware, getOAuthState, getSessionFromCtx } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import { twoFactor } from 'better-auth/plugins';
@@ -62,9 +63,16 @@ async function checkSignup(input: Record<string, unknown>): Promise<CheckedSignu
 
 // A signup with Google, checked before leaving for Google, waits in the OAuth
 // state's server context (which the browser can't alter) until the callback
-// creates the account.
+// creates the account. In the Android app, Google's sign-in is native and the
+// app sends its ID token: the account is created in that same request, which
+// holds the checked signup instead.
+const inAppGoogleSignup = defineRequestState<CheckedSignup | null>(() => null);
+
 async function pendingGoogleSignup(): Promise<CheckedSignup | null> {
-  const signup = (await getOAuthState())?.serverContext?.signup as Partial<CheckedSignup> | undefined;
+  const signup = ((await getOAuthState())?.serverContext?.signup ?? (await inAppGoogleSignup.get())) as
+    | Partial<CheckedSignup>
+    | null
+    | undefined;
   return typeof signup?.name === 'string' && typeof signup.birthDate === 'string'
     ? { name: signup.name, birthDate: signup.birthDate }
     : null;
@@ -86,7 +94,8 @@ const checkAccountInput = createAuthMiddleware(async (ctx) => {
   if (ctx.path === '/sign-in/social' && (ctx.body as Record<string, unknown>).requestSignUp === true) {
     const body = ctx.body as Record<string, unknown>;
     const signup = await checkSignup((body.additionalData ?? {}) as Record<string, unknown>);
-    await addOAuthServerContext({ signup });
+    if (body.idToken) await inAppGoogleSignup.set(signup);
+    else await addOAuthServerContext({ signup });
     return { context: { ...ctx, body: { ...body, additionalData: undefined } } };
   }
 

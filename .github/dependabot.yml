@@ -5,6 +5,9 @@ updates:
     schedule:
       interval: weekly
     groups:
+      # The CLI, the Android runtime and the plugins move together
+      capacitor:
+        patterns: ["@capacitor/*", "@capgo/capacitor-*"]
       minor-and-patch:
         update-types: [minor, patch]
     ignore:
@@ -21,7 +24,7 @@ updates:
     schedule:
       interval: weekly
 
-  # The Android app: Android Gradle plugin, android-browser-helper, Gradle wrapper
+  # The Android app: Android Gradle plugin, Firebase's plugin, AndroidX, Gradle wrapper
   - package-ecosystem: gradle
     directory: /android
     schedule:
