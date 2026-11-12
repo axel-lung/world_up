@@ -471,7 +471,7 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 
 ## Lots de livraison et questions ouvertes
 
-Le développement avance en cinq lots, chacun livré en préproduction et validé avant le suivant. Les paiements n'arrivent qu'au lot 4, après l'avis de l'avocat. Le volet social, avancé le 22 octobre 2026, passe avant le lot 4, en quatre étapes validées chacune en préproduction : amis et notifications, échanges, enchères, push web.
+Le développement avance en cinq lots, chacun livré en préproduction et validé avant le suivant. Les paiements n'arrivent qu'au lot 4, après l'avis de l'avocat. Le volet social, avancé le 22 octobre 2026, passe avant le lot 4, en quatre étapes validées chacune en préproduction : amis et notifications, échanges, enchères, push web. Le 25 octobre 2026, le lot 4 est mis de côté : la bêta fermée du lot 5 ouvre avec un jeu entièrement gratuit, et les paiements viendront plus tard, toujours après l'avis de l'avocat. D'ici là, les points « Paiements » de la recette attendent. La bêta n'a pas de barrière à l'inscription (l'adresse n'est donnée qu'aux testeurs), et la production garde `NOINDEX=1` jusqu'à l'ouverture au public.
 
 1. **Fondations** : dépôt, Docker Compose derrière Traefik, base de données, comptes, design system intégré, intégration continue.
 2. **Catalogue** : pipeline d'import, tri éditorial, back-office du catalogue, fiches cartes publiques.
