@@ -2,17 +2,21 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { type FormEvent, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Notice } from '@/components/ui/Notice';
 import { TextField } from '@/components/ui/TextField';
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, todayInFrance } from '@/lib/account-rules';
+import { heldGoogleAccount } from '@/lib/app-google-sign-in';
 import { authClient } from '@/lib/auth-client';
 import styles from './AuthForm.module.css';
 import { errorFor, type FormError, type FormErrorCode, formLevelError, useFocusOnError, useFormError } from './form-errors';
 import { continueWithGoogle, GoogleErrorNotice, GoogleLogo, OrDivider } from './GoogleButton';
 import { SubmitButton } from './SubmitButton';
+
+// Nothing changes the account held while the form is shown
+const noSubscription = () => () => {};
 
 const FIELD_CODES = {
   name: ['INVALID_PSEUDO', 'PSEUDO_TAKEN'],
@@ -28,6 +32,8 @@ const FIELD_CODES = {
  * confirmed. `google`: whether Google sign-in is set up on the server;
  * `withGoogle`: start with it (/signup?with=google). `home`: where a player
  * signed up with Google lands. `googleError`: why Google sent them back here.
+ * In the app, after the first launch's sheet chose an account with no World Up
+ * account (GoogleAppPrompt), the form names it and signs up with it.
  */
 export function SignupForm({
   google,
@@ -48,6 +54,7 @@ export function SignupForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<FormError | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const heldEmail = useSyncExternalStore(noSubscription, () => heldGoogleAccount()?.email ?? null, () => null);
   useFocusOnError(formRef, error);
 
   // The button that switched the method is gone: focus the first field
@@ -119,7 +126,9 @@ export function SignupForm({
     // POST: submitted before hydration, the password must not end up in the URL.
     <form ref={formRef} method="post" className={styles.form} onSubmit={onSubmit}>
       <h1 className={styles.title}>{t('title')}</h1>
-      <p className={styles.intro}>{method === 'google' ? t('googleIntro') : t('intro')}</p>
+      <p className={styles.intro}>
+        {method === 'google' ? (heldEmail ? t('googleHeldIntro', { email: heldEmail }) : t('googleIntro')) : t('intro')}
+      </p>
       {googleError && !error && <GoogleErrorNotice code={googleError} />}
       {google && method === 'email' && (
         <>
@@ -192,7 +201,7 @@ export function SignupForm({
         <>
           {/* Google's logo keeps its colors on a light button, as its branding rules ask */}
           <SubmitButton block pending={pending} icon={<GoogleLogo />}>
-            {t('googleSubmit')}
+            {heldEmail ? t('submit') : t('googleSubmit')}
           </SubmitButton>
           <button type="button" className={`${styles.linkButton} ${styles.switch}`} onClick={() => switchTo('email')}>
             {t('withEmail')}

@@ -22,6 +22,7 @@
       "title": "Créer un compte",
       "intro": "Ouvrez vos premiers paquets dès que votre adresse e-mail est confirmée.",
       "googleIntro": "Choisissez votre pseudo et indiquez votre date de naissance, puis continuez avec Google : votre compte prendra l'adresse e-mail de votre compte Google, sans mot de passe à retenir.",
+      "googleHeldIntro": "Le compte Google {email} n'a pas encore de compte World Up : choisissez votre pseudo et indiquez votre date de naissance pour le créer, sans mot de passe à retenir.",
       "withGoogle": "S'inscrire avec Google",
       "googleSubmit": "Continuer avec Google",
       "withEmail": "S'inscrire plutôt avec une adresse e-mail",

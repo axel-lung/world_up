@@ -4,7 +4,7 @@ World Up on the Play Store: a native Android shell, built with [Capacitor](https
 
 What the app does natively, where a WebView can't do what a browser does:
 
-- **Google sign-in**: Google refuses its sign-in page in a WebView. The site asks the phone's own Google sign-in (Credential Manager, through `@capgo/capacitor-social-login`) for an ID token, which Better Auth checks and signs in with (`src/components/account/GoogleButton.tsx`).
+- **Google sign-in**: Google refuses its sign-in page in a WebView. The site asks the phone's own Google sign-in (Credential Manager, through `@capgo/capacitor-social-login`) for an ID token, which Better Auth checks and signs in with (`src/components/account/GoogleButton.tsx`). At the first launch, the home page offers the phone's Google accounts at once, in the sheet that rises from the bottom (`GoogleAppPrompt`); a Google account with no World Up account goes on to the signup form, which only asks for the pseudo and birth date.
 - **Notifications**: a WebView has no Web Push. The phone registers with Firebase Cloud Messaging, the server keeps its token as a device next to the browsers', and the worker sends through Firebase (`src/lib/notifications/app-push-device.ts`, `src/worker/fcm.ts`). They show while the app is open too (`presentationOptions` in `capacitor.config.ts`), and touching one opens its page.
 - **The site's links** (address confirmation and password reset e-mails, shared card pages) open in the app, verified by the site's `/.well-known/assetlinks.json` (`AndroidManifest.xml`, `MainActivity.java`).
 - **Offline**: a page packaged with the app (`native/www/index.html`) says so and tries again. The site's own error pages (404, 500) still show.
