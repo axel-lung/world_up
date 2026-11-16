@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createSign, generateKeyPairSync, randomUUID } from 'node:crypto';
 import { eq, inArray } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { db } from '@/db';
@@ -151,5 +151,85 @@ describe('signing in with Google', () => {
     expect(after).toEqual({ name: before.name, image: null });
     const linked = await db.select({ provider: accounts.providerId, accountId: accounts.accountId }).from(accounts).where(eq(accounts.userId, id));
     expect(linked).toEqual([{ provider: 'google', accountId: sub }]);
+  });
+});
+
+describe('in the Android app', () => {
+  // Google's signing key: the app's native sign-in gives an ID token, which the
+  // server checks against Google's published keys (simulated here)
+  const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+  const jwk = { ...publicKey.export({ format: 'jwk' }), kid: 'test-key', alg: 'RS256', use: 'sig' };
+
+  function signedIdToken(claims: Record<string, unknown>, key = privateKey) {
+    const part = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url');
+    const now = Math.floor(Date.now() / 1000);
+    const header = part({ alg: 'RS256', typ: 'JWT', kid: 'test-key' });
+    const payload = part({
+      iss: 'https://accounts.google.com',
+      aud: 'test-client',
+      iat: now,
+      exp: now + 3600,
+      email_verified: true,
+      name: 'Prénom Nom',
+      picture: 'https://example.test/photo.jpg',
+      ...claims,
+    });
+    const signature = createSign('RSA-SHA256').update(`${header}.${payload}`).sign(key).toString('base64url');
+    return `${header}.${payload}.${signature}`;
+  }
+
+  /** The app sends the ID token the phone's Google sign-in gave it. */
+  async function signInWithIdToken(token: string, body: Record<string, unknown> = {}) {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const target = input instanceof Request ? input.url : String(input);
+      if (target !== 'https://www.googleapis.com/oauth2/v3/certs') throw new Error(`Unexpected request to ${target}`);
+      return Response.json({ keys: [jwk] });
+    });
+    try {
+      return await getAuth().handler(
+        new Request(`${APP_URL}/api/auth/sign-in/social`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Origin: APP_URL },
+          body: JSON.stringify({ provider: 'google', idToken: { token }, callbackURL: HOME, ...body }),
+        }),
+      );
+    } finally {
+      fetchSpy.mockRestore();
+    }
+  }
+
+  it('signs up with the pseudo and birth date checked in the same request, and signs in', async () => {
+    const email = newEmail();
+    const request = signup();
+    const response = await signInWithIdToken(signedIdToken({ sub: `sub-${tag()}`, email }), request);
+    expect(response.status).toBe(200);
+    expect(response.headers.getSetCookie().some((cookie) => cookie.includes('session_token='))).toBe(true);
+
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    expect(user).toMatchObject({ name: request.additionalData.name, birthDate: '1990-05-17', emailVerified: true, image: null });
+    expect(await db.select({ version: consents.version }).from(consents).where(eq(consents.userId, user.id))).toEqual([
+      { version: TERMS_VERSION },
+    ]);
+    const [account] = await db.select().from(accounts).where(eq(accounts.userId, user.id));
+    expect(account).toMatchObject({ providerId: 'google', idToken: null });
+  });
+
+  it('checks the signup as on the web, and creates no account from a sign-in alone', async () => {
+    const email = newEmail();
+    const token = signedIdToken({ sub: `sub-${tag()}`, email });
+    expect(await errorCode(await signInWithIdToken(token, signup({ birthDate: '2015-01-01' })))).toBe('UNDERAGE');
+    const alone = await signInWithIdToken(token);
+    expect(alone.status).toBe(401);
+    expect(await alone.json()).toMatchObject({ code: 'OAUTH_LINK_ERROR', message: 'signup disabled' });
+    expect(await db.select().from(users).where(eq(users.email, email))).toEqual([]);
+  });
+
+  it("refuses a token Google didn't sign, or issued to another app", async () => {
+    const email = newEmail();
+    const forged = signedIdToken({ sub: `sub-${tag()}`, email }, generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey);
+    expect(await errorCode(await signInWithIdToken(forged, signup()))).toBe('INVALID_TOKEN');
+    const elsewhere = signedIdToken({ sub: `sub-${tag()}`, email, aud: 'another-client' });
+    expect(await errorCode(await signInWithIdToken(elsewhere, signup()))).toBe('INVALID_TOKEN');
+    expect(await db.select().from(users).where(eq(users.email, email))).toEqual([]);
   });
 });

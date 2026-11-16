@@ -1,12 +1,18 @@
 import { randomUUID } from 'node:crypto';
-import { Coins } from 'lucide-react';
+import { Coins, PackageOpen } from 'lucide-react';
+import Form from 'next/form';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { Card } from '@/components/card/Card';
-import { Button } from '@/components/ui/Button';
+import { CardRow } from '@/components/card/CardRow';
+import { RarityDot } from '@/components/rarity/Rarity';
+import { Button, ButtonLink } from '@/components/ui/Button';
 import type { Emblem } from '@/lib/collection-theme';
+import { collectionView } from '@/lib/collection-view';
 import { duplicatesValue } from '@/lib/game/coins';
 import {
+  COLLECTION_MAX_PAGES,
   COLLECTION_PAGE_SIZE,
   COLLECTION_TABS,
   type CollectionTab,
@@ -14,13 +20,16 @@ import {
   listCollectionCards,
   toCollectionCards,
 } from '@/lib/game/collection';
+import { gamePath } from '@/lib/game/paths';
 import { RARITIES, type Rarity } from '@/lib/rarity';
 import { resellAction } from './collection/actions';
 import styles from './game.module.css';
+import { AutoSubmitSelect, FocusBroughtCards, LoadMore, ViewSwitch } from './GridControls';
 
 export interface GridFilters {
   tab: CollectionTab;
   rarity: Rarity | null;
+  /** How many pages are shown, from the first. */
   page: number;
 }
 
@@ -29,10 +38,16 @@ export interface GridLabels {
   empty: Partial<Record<CollectionTab, string>>;
 }
 
+// The first card of each page carries an id: "Voir plus" gives it the focus
+const LIST_ID = 'cards';
+const pageStart = (index: number) => `${LIST_ID}-${index}`;
+
 /**
- * The collection's tabs, filters and card grid, for the collection page, a
- * series page and a friend's collection. Links keep the filters in the
- * address, so every view can be bookmarked and works without JavaScript.
+ * The collection's tabs, filters and cards, for the collection page, a series
+ * page and a friend's collection: the tabs, the rarity chips and the series
+ * list (which apply at once), the cards as a grid or a denser list (the
+ * player's choice, ViewSwitch), then "Voir plus". Links keep the filters in
+ * the address, so every view can be bookmarked and works without JavaScript.
  */
 export async function CollectionGrid({
   collection,
@@ -63,13 +78,14 @@ export async function CollectionGrid({
   seriesOptions?: { slug: string; name: string }[];
 }) {
   const query = { userId, viewerId, collectionId: collection.id, rarity: filters.rarity, seriesId: series?.id ?? null };
-  const [t, tRarity, tCard, format, counts, rows] = await Promise.all([
+  const [t, tRarity, tCard, format, counts, rows, cookieStore] = await Promise.all([
     getTranslations('Collection'),
     getTranslations('Rarity'),
     getTranslations('Card'),
     getFormatter(),
     collectionCounts(query),
-    listCollectionCards({ ...query, tab: filters.tab, page: filters.page }),
+    listCollectionCards({ ...query, tab: filters.tab, pages: filters.page }),
+    cookies(),
   ]);
   const cards = await toCollectionCards(rows, collection.slug, {
     publicDomain: tCard('publicDomain'),
@@ -79,10 +95,12 @@ export async function CollectionGrid({
     tabs: Object.fromEntries(COLLECTION_TABS.map((tab) => [tab, t(`tabs.${tab}`)])),
     empty: Object.fromEntries(COLLECTION_TABS.map((tab) => [tab, t(`empty.${tab}`)])),
   };
+  const view = collectionView(cookieStore);
   const resale = !viewerId && filters.tab === 'duplicates' && !filters.rarity && !series;
   const duplicates = resale ? await duplicatesValue(userId, collection.id, new Date()) : null;
   const total = counts[filters.tab];
-  const pages = Math.max(1, Math.ceil(total / COLLECTION_PAGE_SIZE));
+  const shown = cards.length;
+  const more = shown < total && filters.page < COLLECTION_MAX_PAGES;
 
   const link = (changes: Partial<GridFilters>) => {
     const next = { ...filters, page: 1, ...changes };
@@ -97,35 +115,6 @@ export async function CollectionGrid({
 
   return (
     <>
-      <form method="get" action={path} className={styles.filters}>
-        {filters.tab !== tabs[0] && <input type="hidden" name="tab" value={filters.tab} />}
-        <div className="field">
-          <label htmlFor="rarity">{t('rarity')}</label>
-          <select id="rarity" name="rarity" className="input" defaultValue={filters.rarity ?? ''}>
-            <option value="">{t('allRarities')}</option>
-            {RARITIES.map((rarity) => (
-              <option key={rarity} value={rarity}>
-                {tRarity(rarity)}
-              </option>
-            ))}
-          </select>
-        </div>
-        {seriesOptions && (
-          <div className="field">
-            <label htmlFor="series">{t('series')}</label>
-            <select id="series" name="series" className="input" defaultValue={series?.slug ?? ''}>
-              <option value="">{t('allSeries')}</option>
-              {seriesOptions.map((option) => (
-                <option key={option.slug} value={option.slug}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        <Button type="submit">{t('filter')}</Button>
-      </form>
-
       <nav className={styles.tabs} aria-label={t('tabsLabel')}>
         <ul>
           {tabs.map((tab) => (
@@ -138,6 +127,63 @@ export async function CollectionGrid({
           ))}
         </ul>
       </nav>
+
+      <div className={styles.filterRow}>
+        {seriesOptions && (
+          // Applies once a series is picked (AutoSubmitSelect); the button is for browsers without JavaScript
+          <Form action={path} className={styles.seriesFilter}>
+            {filters.tab !== tabs[0] && <input type="hidden" name="tab" value={filters.tab} />}
+            {filters.rarity && <input type="hidden" name="rarity" value={filters.rarity} />}
+            <label htmlFor="series" className="sr-only">
+              {t('series')}
+            </label>
+            {/* Keyed on the series shown: back in the history, the list shows the page's series again */}
+            <AutoSubmitSelect
+              key={series?.slug ?? ''}
+              id="series"
+              name="series"
+              className={`input ${styles.pillSelect}`}
+              defaultValue={series?.slug ?? ''}
+            >
+              <option value="">{t('allSeries')}</option>
+              {seriesOptions.map((option) => (
+                <option key={option.slug} value={option.slug}>
+                  {option.name}
+                </option>
+              ))}
+            </AutoSubmitSelect>
+            <noscript>
+              <Button type="submit">{t('filter')}</Button>
+            </noscript>
+          </Form>
+        )}
+        <nav className={styles.chips} aria-label={t('rarity')}>
+          <ul>
+            <li>
+              <Link href={link({ rarity: null })} className={styles.chip} aria-current={filters.rarity ? undefined : 'page'}>
+                {t('anyRarity')}
+              </Link>
+            </li>
+            {RARITIES.map((rarity) => (
+              <li key={rarity}>
+                <Link
+                  href={link({ rarity })}
+                  className={styles.chip}
+                  aria-current={filters.rarity === rarity ? 'page' : undefined}
+                >
+                  <RarityDot rarity={rarity} />
+                  {tRarity(rarity)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <div className={styles.resultsBar}>
+        <p className={styles.resultsCount}>{t('count', { count: total })}</p>
+        <ViewSwitch initial={view} labels={{ label: t('view.label'), grid: t('view.grid'), list: t('view.list') }} />
+      </div>
 
       {duplicates && duplicates.copies > 0 && (
         <form action={resellAction} className={styles.actions}>
@@ -153,30 +199,47 @@ export async function CollectionGrid({
       )}
 
       {cards.length === 0 ? (
-        <p className={styles.empty}>{text.empty[filters.tab]}</p>
+        <div className={styles.empty}>
+          <p>{text.empty[filters.tab]}</p>
+          {!viewerId && filters.tab === 'owned' && (
+            <ButtonLink href={gamePath(collection.slug).open} variant="primary" icon={<PackageOpen aria-hidden />}>
+              {t('openPack')}
+            </ButtonLink>
+          )}
+        </div>
       ) : (
-        <ul className={styles.grid}>
-          {cards.map((card) => (
-            <li key={card.id}>
-              <Card
-                card={card.data}
-                collection={collection}
-                state={card.state}
-                copies={card.copies}
-                href={card.href ?? undefined}
-                sizes="(max-width: 520px) calc(50vw - 20px), 200px"
-              />
+        <ul id={LIST_ID} className={view === 'list' ? styles.list : styles.grid}>
+          {cards.map((card, index) => (
+            <li
+              key={card.id}
+              {...(index % COLLECTION_PAGE_SIZE === 0 ? { id: pageStart(index), tabIndex: -1 } : {})}
+            >
+              {view === 'list' ? (
+                <CardRow card={card.data} state={card.state} copies={card.copies} href={card.href ?? undefined} />
+              ) : (
+                <Card
+                  card={card.data}
+                  collection={collection}
+                  state={card.state}
+                  copies={card.copies}
+                  href={card.href ?? undefined}
+                  sizes="(max-width: 520px) calc(50vw - 20px), 200px"
+                />
+              )}
             </li>
           ))}
         </ul>
       )}
 
-      {pages > 1 && (
-        <nav className={styles.pagination} aria-label={t('pagination')}>
-          {filters.page > 1 && <Link href={link({ page: filters.page - 1 })}>{t('previous')}</Link>}
-          <span>{t('page', { page: filters.page, pages })}</span>
-          {filters.page < pages && <Link href={link({ page: filters.page + 1 })}>{t('next')}</Link>}
-        </nav>
+      <FocusBroughtCards shown={shown} />
+      {shown > 0 && shown < total && (
+        <LoadMore
+          href={more ? link({ page: filters.page + 1 }) : null}
+          next={pageStart(shown)}
+          label={t('more')}
+          status={t('shown', { shown, total })}
+          hint={more ? null : t('narrow')}
+        />
       )}
     </>
   );

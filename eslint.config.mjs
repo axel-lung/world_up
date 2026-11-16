@@ -7,6 +7,15 @@ export default defineConfig([
   ...nextTs,
   // Playwright fixtures receive a `use` callback that is not React's use().
   { files: ['e2e/**'], rules: { 'react-hooks/rules-of-hooks': 'off' } },
-  // Playwright's reports bundle its trace viewer when a test fails
-  globalIgnores(['.next/**', 'dist/**', 'drizzle/**', 'next-env.d.ts', 'playwright-report/**', 'test-results/**']),
+  // Playwright's reports bundle its trace viewer when a test fails; the Android
+  // project holds the scripts `npx cap sync` copies there
+  globalIgnores([
+    '.next/**',
+    'dist/**',
+    'drizzle/**',
+    'next-env.d.ts',
+    'playwright-report/**',
+    'test-results/**',
+    'android/**',
+  ]),
 ]);

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, notInArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { type Database, db, type Transaction } from '@/db';
 import { pushSubscriptions } from '@/db/schema';
@@ -6,10 +6,14 @@ import { pushSubscriptions } from '@/db/schema';
 // Web Push: a device where the player turns notifications on gives the address
 // its browser's push service assigned it and the keys that encrypt the
 // messages; the worker sends each notification there (src/worker/send-push.ts).
-// On once the VAPID keys are set. A device belongs to one account: the last to
-// turn it on, until it signs out there.
+// On once the VAPID keys are set. The Android app, whose WebView has no Web
+// Push, gives instead the token Firebase Cloud Messaging assigned it, and the
+// worker sends through Firebase: on once its service account is set. A device
+// belongs to one account: the last to turn it on, until it signs out there.
 
 type Executor = Database | Transaction;
+
+type DeviceKind = (typeof pushSubscriptions.$inferSelect)['kind'];
 
 /** Devices kept per player: turning on an eleventh forgets the oldest. */
 export const MAX_PUSH_DEVICES = 10;
@@ -17,6 +21,18 @@ export const MAX_PUSH_DEVICES = 10;
 /** The VAPID public key the browsers subscribe with; null while Web Push is off. */
 export function pushPublicKey(): string | null {
   return process.env.VAPID_PUBLIC_KEY || null;
+}
+
+/** Whether the app's notifications are on: the worker holds Firebase's service account. */
+export function appPushEnabled(): boolean {
+  return Boolean(process.env.FCM_SERVICE_ACCOUNT);
+}
+
+function enabledKinds(): DeviceKind[] {
+  const kinds: DeviceKind[] = [];
+  if (pushPublicKey()) kinds.push('web');
+  if (appPushEnabled()) kinds.push('app');
+  return kinds;
 }
 
 // The worker posts to the address a browser gives: only the browsers' push
@@ -54,13 +70,30 @@ export const pushSubscriptionInput = z.object({
 
 export type PushSubscriptionInput = z.infer<typeof pushSubscriptionInput>;
 
-/** Turns notifications on for the player on this device, taking it from another account if need be. */
-export async function savePushSubscription(userId: string, input: PushSubscriptionInput, now: Date): Promise<void> {
-  const device = { userId, p256dh: input.keys.p256dh, auth: input.keys.auth, createdAt: now };
+/** The app's registration token, as Firebase Cloud Messaging gives it. */
+export const appPushTokenInput = z.string().min(1).max(1024).regex(/^[\w:-]+$/);
+
+/** Turns notifications on for the player on this browser, taking it from another account if need be. */
+export function savePushSubscription(userId: string, input: PushSubscriptionInput, now: Date): Promise<void> {
+  const keys = { p256dh: input.keys.p256dh, auth: input.keys.auth };
+  return saveDevice(userId, { kind: 'web', endpoint: input.endpoint, ...keys }, now);
+}
+
+/** The same in the app, with its Firebase token. */
+export function saveAppPushDevice(userId: string, token: string, now: Date): Promise<void> {
+  return saveDevice(userId, { kind: 'app', endpoint: token, p256dh: null, auth: null }, now);
+}
+
+async function saveDevice(
+  userId: string,
+  { endpoint, ...rest }: { kind: DeviceKind; endpoint: string; p256dh: string | null; auth: string | null },
+  now: Date,
+): Promise<void> {
+  const device = { userId, ...rest, createdAt: now };
   await db.transaction(async (tx) => {
     await tx
       .insert(pushSubscriptions)
-      .values({ endpoint: input.endpoint, ...device })
+      .values({ endpoint, ...device })
       .onConflictDoUpdate({ target: pushSubscriptions.endpoint, set: device });
     const kept = tx
       .select({ id: pushSubscriptions.id })
@@ -90,19 +123,21 @@ export async function isPushDevice(userId: string, endpoint: string): Promise<bo
   return row !== undefined;
 }
 
-/** The player's devices, for notify(). */
+/** The player's devices the server can notify now, for notify(). */
 export async function pushDeviceIds(executor: Executor, userId: string): Promise<number[]> {
+  const kinds = enabledKinds();
+  if (kinds.length === 0) return [];
   const rows = await executor
     .select({ id: pushSubscriptions.id })
     .from(pushSubscriptions)
-    .where(eq(pushSubscriptions.userId, userId));
+    .where(and(eq(pushSubscriptions.userId, userId), inArray(pushSubscriptions.kind, kinds)));
   return rows.map((row) => row.id);
 }
 
 /** The player's devices, for the account export. */
 export async function playerPushDevices(userId: string) {
   return db
-    .select({ endpoint: pushSubscriptions.endpoint, since: pushSubscriptions.createdAt })
+    .select({ kind: pushSubscriptions.kind, endpoint: pushSubscriptions.endpoint, since: pushSubscriptions.createdAt })
     .from(pushSubscriptions)
     .where(eq(pushSubscriptions.userId, userId))
     .orderBy(asc(pushSubscriptions.createdAt));

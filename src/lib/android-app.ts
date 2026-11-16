@@ -1,7 +1,8 @@
-// The Android app (android/) is a Trusted Web Activity: Chrome opens the site
-// in it, without its address bar, once /.well-known/assetlinks.json names the
-// app and the SHA-256 fingerprints of the certificates it is signed with.
-// Both come from the environment: ANDROID_APP_ID, and ANDROID_CERT_FINGERPRINTS
+// The Android app (android/) shows the site in its own WebView. The site's
+// links, from an e-mail or another app, open in it (verified Android App
+// Links) once /.well-known/assetlinks.json names the app and the SHA-256
+// fingerprints of the certificates it is signed with. Both come from the
+// environment: ANDROID_APP_ID, and ANDROID_CERT_FINGERPRINTS
 // (Play Console > Test and release > App integrity: the app signing key, which
 // signs what the Play Store installs, and the upload key, which signs the APK
 // built by the "Android app" workflow). Without them, no app is declared.
@@ -20,7 +21,7 @@ export function assetLinks(env: Record<string, string | undefined>): AssetLinkSt
     .map((value) => value.trim().toUpperCase())
     .filter(Boolean);
   if (!appId || fingerprints.length === 0) return [];
-  // A mistyped fingerprint would silently put the address bar back in the app
+  // A mistyped fingerprint would silently send the site's links to the browser
   for (const fingerprint of fingerprints) {
     if (!FINGERPRINT.test(fingerprint)) throw new Error(`Invalid ANDROID_CERT_FINGERPRINTS entry: ${fingerprint}`);
   }

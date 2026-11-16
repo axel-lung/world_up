@@ -21,13 +21,15 @@ playwright-report/
 __pycache__/
 /backups/
 
-# Android app: Gradle's output, and signing keys, which never enter the repository
-/android/.gradle/
-/android/build/
-/android/app/build/
-/android/local.properties
+# Android app (android/.gitignore has Gradle's output and what `npx cap sync`
+# writes): signing keys and Firebase's configuration never enter the repository
+/android/app/google-services.json
+# Android Studio's settings for the project
+/android/.idea/
 *.jks
 *.keystore
 
 .DS_Store
 Thumbs.db
+QUI_SERT_A_QUOI.md
+NOTES.md

@@ -16,3 +16,5 @@ docs
 *.md
 data
 scripts
+android
+native

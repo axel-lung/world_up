@@ -1,0 +1,128 @@
+/* The leaderboard as a list: the rank, the player and their rarest cards, the
+   count, then "Ajouter". On a phone the action goes under the player. */
+.board {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "rank who score"
+    "rank action action";
+  align-items: center;
+  column-gap: 12px;
+  min-height: 64px;
+  padding: 10px 16px;
+}
+
+.row + .row {
+  border-top: 1px solid var(--color-divider);
+}
+
+.row[data-me] {
+  background: var(--color-accent-tint);
+}
+
+.board > .row[data-me]:first-child {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.board > .row[data-me]:last-child {
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.board > .row[data-me]:only-child {
+  border-radius: var(--radius-lg);
+}
+
+@media (min-width: 560px) {
+  .row {
+    grid-template-columns: 48px minmax(0, 1fr) auto 168px;
+    grid-template-areas: "rank who score action";
+  }
+}
+
+.rank {
+  grid-area: rank;
+  justify-self: center;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The first three, as terracotta stickers */
+.rank[data-podium] {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--sticker-line);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 2px 0 var(--sticker-shadow);
+  font-size: 17px;
+}
+
+.who {
+  grid-area: who;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pseudo {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.row[data-me] .pseudo {
+  font-weight: 700;
+}
+
+.rares {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.score {
+  grid-area: score;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.score strong {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.score span {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.action {
+  grid-area: action;
+  justify-self: start;
+  /* The ghost button's padding lines its text up with the pseudo */
+  margin-left: -12px;
+}
+
+@media (min-width: 560px) {
+  .action {
+    justify-self: end;
+    margin: 0;
+  }
+}

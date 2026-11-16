@@ -1,14 +1,16 @@
 import { Sparkle } from 'lucide-react';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import { GoogleAppPrompt } from '@/components/account/GoogleButton';
 import { EmblemIcon } from '@/components/collection/Emblem';
 import { ButtonLink } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Notice';
 import { Tag } from '@/components/ui/Tag';
-import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
+import { DEFAULT_COLLECTION_SLUG, PLAYER_HOME } from '@/lib/collections';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
 import { getSession } from '@/lib/session';
+import { googleSignInEnabled } from '@/lib/sign-in-methods';
 import styles from './page.module.css';
 
 export default async function HomePage({ searchParams }: PageProps<'/'>) {
@@ -51,6 +53,8 @@ export default async function HomePage({ searchParams }: PageProps<'/'>) {
       <h1>{t('title')}</h1>
       <p className={styles.lead}>{t('intro')}</p>
       <p>{t.rich('learnMore', { rules: (chunks) => <Link href="/rules">{chunks}</Link>, odds: (chunks) => <Link href="/odds">{chunks}</Link> })}</p>
+      {/* In the app, its first launch offers the phone's Google accounts */}
+      {!session && googleSignInEnabled() && <GoogleAppPrompt home={PLAYER_HOME} />}
       <div className={styles.actions}>
         {session ? (
           <ButtonLink href={gamePath(DEFAULT_COLLECTION_SLUG).home} variant="primary" size="large">

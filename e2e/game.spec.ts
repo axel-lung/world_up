@@ -76,6 +76,17 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
   await expect(page.getByText(/^(Aucune nouvelle carte|\d nouvelles? cartes?) · (aucun doublon|\d doublons?)$/)).toBeVisible();
   await expect(page.getByText('Succès obtenu : Ouvrir votre premier paquet · +5 pièces')).toBeVisible();
 
+  // A card shown large, from the keyboard: the next one, then Escape closes it
+  await page.getByRole('button', { name: /^Agrandir : / }).first().focus();
+  await page.keyboard.press('Enter');
+  const zoom = page.getByRole('dialog');
+  await expect(zoom.getByRole('article')).toBeVisible();
+  await expect(zoom).toContainText('1 sur 5');
+  await zoom.getByRole('button', { name: 'Voir la carte suivante' }).click();
+  await expect(zoom).toContainText('2 sur 5');
+  await page.keyboard.press('Escape');
+  await expect(zoom).toBeHidden();
+
   // The next pack opens straight from the end of this one. Ten cards out of
   // five possible: there are duplicates to resell
   await page.getByRole('button', { name: 'Ouvrir le suivant · 9' }).click();

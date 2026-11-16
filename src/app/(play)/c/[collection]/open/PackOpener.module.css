@@ -491,6 +491,40 @@
   outline-offset: 6px;
 }
 
+/* At the end, each card opens large (CardZoom): a touch on the card itself,
+   or this button over it for the keyboard */
+.slot[data-zoomable] {
+  cursor: zoom-in;
+}
+
+.zoomHint {
+  position: absolute;
+  top: calc(var(--hint-top) * var(--unit));
+  left: calc(24 * var(--unit));
+  right: calc(24 * var(--unit));
+  margin: 0;
+  text-align: center;
+  font-size: max(13px, calc(14 * var(--unit)));
+  color: var(--color-text-muted);
+  animation: burst 0.4s ease-out both;
+}
+
+.zoomButton {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  pointer-events: none;
+}
+
+/* Drawn inside the scaled-down card: thicker to stay visible */
+.zoomButton:focus-visible {
+  outline: 6px solid var(--color-accent);
+  outline-offset: 8px;
+}
+
 /* — what a rare card or better sets off — */
 
 .burst {

@@ -30,15 +30,6 @@
   color: var(--color-text-muted);
 }
 
-.trades {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
-  margin-top: 8px;
-  font-weight: 600;
-}
-
 .section {
   display: flex;
   flex-direction: column;

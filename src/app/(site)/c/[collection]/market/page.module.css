@@ -1,8 +1,3 @@
-/* The checkbox sits at the foot of the filter row, level with the selects */
-.missing {
-  align-self: flex-end;
-}
-
 /* An auction or a sale form: the card, then its panel; side by side from 860 px */
 .auction {
   display: grid;

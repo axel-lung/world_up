@@ -1,17 +1,22 @@
 import { z } from 'zod';
-import { COLLECTION_TABS, type CollectionTab } from '@/lib/game/collection';
-import { MARKET_SORTS } from '@/lib/game/market';
+import { COLLECTION_MAX_PAGES, COLLECTION_TABS, type CollectionTab } from '@/lib/game/collection';
+import { MARKET_MAX_PAGES, MARKET_SORTS } from '@/lib/game/market';
 import { RARITIES } from '@/lib/rarity';
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
 const one = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
+/** How many pages a list shows, from the first ("Voir plus"): 1 when malformed, `max` at most. */
+const pagesShown = (max: number) =>
+  z.coerce.number().int().min(1).catch(1).transform((pages) => Math.min(pages, max));
+
 // Unknown or malformed parameters fall back to their default
 const gridSchema = z.object({
   rarity: z.enum(RARITIES).nullable().catch(null),
   series: z.string().max(100).nullable().catch(null),
-  page: z.coerce.number().int().min(1).max(10_000).catch(1),
+  // How many pages the grid shows, from the first
+  page: pagesShown(COLLECTION_MAX_PAGES),
 });
 
 /** The grid's filters; `tabs` are the page's tabs, the first one being the default. */
@@ -43,6 +48,7 @@ export function parseResaleParams(params: SearchParams) {
 }
 
 const marketSchema = gridSchema.extend({
+  page: pagesShown(MARKET_MAX_PAGES),
   card: z.string().max(200).nullable().catch(null),
   missing: z.boolean().catch(false),
   sort: z.enum(MARKET_SORTS).catch(MARKET_SORTS[0]),

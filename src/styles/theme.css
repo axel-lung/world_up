@@ -12,6 +12,11 @@
   --font-heading: var(--font-caprasimo), system-ui, sans-serif;
   --font-body: var(--font-figtree), system-ui, sans-serif;
 
+  /* The phone's tab bar (src/components/layout/TabBar.module.css), and how far
+     from the bottom of the screen it puts what sticks there: 0 without it. */
+  --tab-bar-height: 64px;
+  --tab-bar-offset: 0px;
+
   /* Rarity fills and the ink printed on them (over 4.5:1 on all six). */
   --rar-legendary: #e0654a;
   --rar-ultra: #e9b949;

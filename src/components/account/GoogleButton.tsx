@@ -1,11 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Notice';
+import { askPhoneForGoogle, heldGoogleAccount, holdGoogleAccount, releaseGoogleAccount } from '@/lib/app-google-sign-in';
 import { authClient } from '@/lib/auth-client';
+import { isNativeApp } from '@/lib/native-app';
 import { useHydrated } from '@/lib/use-hydrated';
 import styles from './AuthForm.module.css';
 
@@ -33,21 +36,21 @@ export function GoogleLogo() {
   );
 }
 
+interface GoogleOptions {
+  callbackURL: string;
+  errorCallbackURL: string;
+  signup?: { name: string; birthDate: string; acceptTerms: boolean };
+}
+
 /**
  * Leaves for Google, which comes back to `callbackURL` signed in, or to
  * `errorCallbackURL` with an `error` parameter (GoogleErrorNotice). With
  * `signup`, a new account gets that pseudo and birth date: the server checks
  * them first (src/lib/auth.ts), and its refusal is returned before leaving.
  */
-export async function continueWithGoogle({
-  callbackURL,
-  errorCallbackURL,
-  signup,
-}: {
-  callbackURL: string;
-  errorCallbackURL: string;
-  signup?: { name: string; birthDate: string; acceptTerms: boolean };
-}) {
+export async function continueWithGoogle({ callbackURL, errorCallbackURL, signup }: GoogleOptions) {
+  // Google refuses its sign-in page in an app's WebView
+  if (isNativeApp()) return continueInApp({ callbackURL, errorCallbackURL, signup });
   const { error } = await authClient.signIn.social({
     provider: 'google',
     callbackURL,
@@ -55,6 +58,100 @@ export async function continueWithGoogle({
     ...(signup && { requestSignUp: true, additionalData: signup }),
   });
   return error;
+}
+
+/** Leaves for `errorCallbackURL` with `error`, as Google's callback does. */
+function backWithError(errorCallbackURL: string, error: string) {
+  const url = new URL(errorCallbackURL, window.location.origin);
+  url.searchParams.set('error', error);
+  window.location.assign(url.pathname + url.search + url.hash);
+}
+
+/**
+ * Where Google's callback would have sent the player for Better Auth's answer
+ * once the token is checked: the `error` parameter of the login or signup page,
+ * or null for an error the form shows itself.
+ */
+function errorParam(error: { code?: string; message?: string }): string | null {
+  // "signup disabled" is signup_disabled in the web flow's address
+  if (error.code === 'OAUTH_LINK_ERROR') return (error.message ?? '').replace(/ /g, '_');
+  if (error.code === 'EMAIL_NOT_VERIFIED') return 'email_not_verified';
+  if (error.code === 'ACCOUNT_BANNED') return 'ACCOUNT_BANNED';
+  return null;
+}
+
+/**
+ * The same in the app: the phone's own Google sign-in gives an ID token,
+ * which Better Auth checks and signs in with (or signs up, with `signup`),
+ * then the page goes where Google's callback would have sent it. The
+ * refusals the server makes before leaving for Google are returned.
+ */
+async function continueInApp({ callbackURL, errorCallbackURL, signup }: GoogleOptions) {
+  // A signup after the first launch's sheet has the account already
+  const account = (signup && heldGoogleAccount()) || (await askPhoneForGoogle());
+  // The player closed Google's sheet, as access_denied on the web
+  if (account === 'cancelled') return backWithError(errorCallbackURL, 'access_denied');
+  if (account === 'failed') return backWithError(errorCallbackURL, 'generic');
+
+  const { error } = await authClient.signIn.social({
+    provider: 'google',
+    idToken: { token: account.idToken },
+    callbackURL,
+    ...(signup && { requestSignUp: true, additionalData: signup }),
+  });
+  if (!error) {
+    releaseGoogleAccount();
+    return window.location.assign(callbackURL);
+  }
+  const param = errorParam(error);
+  if (param) return backWithError(errorCallbackURL, param);
+  return error;
+}
+
+/**
+ * At the app's first launch, on the visitor home page: the phone offers its
+ * Google accounts at once, in the sheet that rises from the bottom. A player
+ * with a World Up account (or a confirmed one at that address, which Google
+ * joins) is signed in; otherwise the signup form keeps the account chosen and
+ * asks for the pseudo and birth date. Once per install of the app: a player who
+ * closes the sheet has the buttons of the login and signup pages.
+ */
+export function GoogleAppPrompt({ home }: { home: string }) {
+  const router = useRouter();
+  useEffect(() => {
+    if (!isNativeApp() || !firstOffer()) return;
+    void (async () => {
+      const account = await askPhoneForGoogle({ sheet: true });
+      // Closed, or no Google sign-in on this phone: the page stays as it is
+      if (typeof account === 'string') return;
+      const { error } = await authClient.signIn.social({
+        provider: 'google',
+        idToken: { token: account.idToken },
+        callbackURL: home,
+      });
+      if (!error) return window.location.assign(home);
+      const param = errorParam(error) ?? 'generic';
+      if (param !== 'signup_disabled') return backWithError('/login', param);
+      // A navigation within the site, so that the account stays in memory
+      holdGoogleAccount(account);
+      router.push('/signup?with=google');
+    })();
+  }, [home, router]);
+  return null;
+}
+
+const OFFERED_KEY = 'worldup.googleOffered';
+
+/** Whether this install of the app has yet to offer Google sign-in; it has now. */
+function firstOffer(): boolean {
+  try {
+    if (localStorage.getItem(OFFERED_KEY)) return false;
+    localStorage.setItem(OFFERED_KEY, '1');
+    return true;
+  } catch {
+    // Unable to remember it: better never than at every launch
+    return false;
+  }
 }
 
 /** Signs in with Google an account that already exists. */
@@ -74,7 +171,8 @@ export function GoogleButton({
   async function onClick() {
     setPending(true);
     const error = await continueWithGoogle({ callbackURL, errorCallbackURL });
-    // On success the browser is on its way to Google: the button stays busy
+    // On success the browser is on its way to Google (or, in the app, to the
+    // next page): the button stays busy
     if (error) {
       setPending(false);
       onError?.(error);

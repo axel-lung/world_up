@@ -1,37 +1,44 @@
-import { Coins, Gavel } from 'lucide-react';
+import { Check, Coins, Gavel } from 'lucide-react';
 import type { Metadata } from 'next';
+import Form from 'next/form';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { displayName } from '@/components/card/card-format';
 import { AuctionTile } from '@/components/market/AuctionTile';
+import { RarityDot } from '@/components/rarity/Rarity';
 import { Button, ButtonLink } from '@/components/ui/Button';
-import { Checkbox } from '@/components/ui/Checkbox';
+import { MoreInfo } from '@/components/ui/MoreInfo';
 import { Notice } from '@/components/ui/Notice';
 import { db } from '@/db';
 import { coinBalance } from '@/lib/game/coins';
 import { getSeries, seriesProgress } from '@/lib/game/collection';
 import { heldCoins } from '@/lib/game/holds';
-import { listMarket, MARKET_PAGE_SIZE, MARKET_SORTS, marketCard } from '@/lib/game/market';
+import { listMarket, MARKET_MAX_PAGES, MARKET_PAGE_SIZE, MARKET_SORTS, marketCard } from '@/lib/game/market';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection, getMarketRules } from '@/lib/game/rules';
 import { RARITIES } from '@/lib/rarity';
 import { requireSession } from '@/lib/session';
 import { type MarketParams, parseMarketParams } from '../filters';
 import styles from '../game.module.css';
+import { AutoSubmitSelect, FocusBroughtCards, LoadMore } from '../GridControls';
 import { auctionTileProps } from './auction-tile';
 import { MarketNotice } from './MarketNotice';
-import own from './page.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Market');
   return { title: t('title') };
 }
 
+// The first auction of each page carries an id: "Voir plus" gives it the focus
+const LIST_ID = 'auctions';
+const pageStart = (index: number) => `${LIST_ID}-${index}`;
+
 /**
  * The collection's running auctions, with filters (rarity, series, the cards
- * the player lacks, one card) and a sort. Links keep them in the address, so
- * every view works without JavaScript.
+ * the player lacks, one card) and a sort, which apply at once, then "Voir
+ * plus". Links keep them in the address, so every view works without
+ * JavaScript.
  */
 export default async function MarketPage({ params, searchParams }: PageProps<'/c/[collection]/market'>) {
   const collection = await getActiveCollection((await params).collection);
@@ -62,7 +69,7 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
     missing: filters.missing,
     cardId: card?.id ?? null,
     sort: filters.sort,
-    page: filters.page,
+    pages: filters.page,
     now,
   });
   const tiles = await auctionTileProps(market.auctions, collection.slug, {
@@ -70,7 +77,8 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
     unknownLicense: tCard('unknownLicense'),
     formerPlayer: t('formerPlayer'),
   });
-  const pages = Math.max(1, Math.ceil(market.total / MARKET_PAGE_SIZE));
+  const shown = tiles.length;
+  const more = shown < market.total && filters.page < MARKET_MAX_PAGES;
 
   const link = (changes: Partial<MarketParams>) => {
     const next = { ...filters, page: 1, ...changes };
@@ -92,7 +100,6 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
           <Link href={paths.home}>{collection.name}</Link>
         </p>
         <h1>{t('title')}</h1>
-        <p className={styles.muted}>{t('intro')}</p>
         <p className={styles.balance}>
           <Coins aria-hidden />
           <span>
@@ -104,10 +111,11 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
           <ButtonLink href={paths.myAuctions} icon={<Gavel aria-hidden />}>
             {t('mine.title')}
           </ButtonLink>
-          <span className={styles.muted}>
-            {t.rich('sellHint', { collection: (chunks) => <Link href={paths.collection}>{chunks}</Link> })}
-          </span>
         </div>
+        <MoreInfo summary={t('howItWorks')}>
+          <p>{t('intro')}</p>
+          <p>{t.rich('sellHint', { collection: (chunks) => <Link href={paths.collection}>{chunks}</Link> })}</p>
+        </MoreInfo>
       </header>
 
       {!rules.auctionsEnabled && (
@@ -117,45 +125,82 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
       )}
       <MarketNotice params={query} />
 
-      <form method="get" action={paths.market} className={styles.filters}>
+      {/* The series and the sort apply once picked (AutoSubmitSelect); the button is for browsers without JavaScript */}
+      <Form action={paths.market} className={styles.selectRow}>
         {card && <input type="hidden" name="card" value={card.slug} />}
-        <div className="field">
-          <label htmlFor="rarity">{tCollection('rarity')}</label>
-          <select id="rarity" name="rarity" className="input" defaultValue={filters.rarity ?? ''}>
-            <option value="">{tCollection('allRarities')}</option>
+        {filters.rarity && <input type="hidden" name="rarity" value={filters.rarity} />}
+        {filters.missing && <input type="hidden" name="missing" value="1" />}
+        <label htmlFor="series" className="sr-only">
+          {tCollection('series')}
+        </label>
+        <AutoSubmitSelect
+          key={`series-${series?.slug ?? ''}`}
+          id="series"
+          name="series"
+          className={`input ${styles.pillSelect}`}
+          defaultValue={series?.slug ?? ''}
+        >
+          <option value="">{tCollection('allSeries')}</option>
+          {allSeries.map((option) => (
+            <option key={option.slug} value={option.slug}>
+              {option.name}
+            </option>
+          ))}
+        </AutoSubmitSelect>
+        <label htmlFor="sort" className="sr-only">
+          {t('sort')}
+        </label>
+        <AutoSubmitSelect
+          key={`sort-${filters.sort}`}
+          id="sort"
+          name="sort"
+          className={`input ${styles.pillSelect}`}
+          defaultValue={filters.sort}
+        >
+          {MARKET_SORTS.map((sort) => (
+            <option key={sort} value={sort}>
+              {t(`sorts.${sort}`)}
+            </option>
+          ))}
+        </AutoSubmitSelect>
+        <noscript>
+          <Button type="submit">{tCollection('filter')}</Button>
+        </noscript>
+      </Form>
+
+      <div className={styles.filterRow}>
+        <nav className={styles.chips} aria-label={t('filtersLabel')}>
+          <ul>
+            <li>
+              <Link
+                href={link({ missing: !filters.missing })}
+                className={styles.chip}
+                aria-current={filters.missing ? 'true' : undefined}
+              >
+                {filters.missing && <Check aria-hidden />}
+                {t('missingOnly')}
+              </Link>
+            </li>
+            <li>
+              <Link href={link({ rarity: null })} className={styles.chip} aria-current={filters.rarity ? undefined : 'page'}>
+                {tCollection('anyRarity')}
+              </Link>
+            </li>
             {RARITIES.map((rarity) => (
-              <option key={rarity} value={rarity}>
-                {tRarity(rarity)}
-              </option>
+              <li key={rarity}>
+                <Link
+                  href={link({ rarity })}
+                  className={styles.chip}
+                  aria-current={filters.rarity === rarity ? 'page' : undefined}
+                >
+                  <RarityDot rarity={rarity} />
+                  {tRarity(rarity)}
+                </Link>
+              </li>
             ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="series">{tCollection('series')}</label>
-          <select id="series" name="series" className="input" defaultValue={series?.slug ?? ''}>
-            <option value="">{tCollection('allSeries')}</option>
-            {allSeries.map((option) => (
-              <option key={option.slug} value={option.slug}>
-                {option.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="sort">{t('sort')}</label>
-          <select id="sort" name="sort" className="input" defaultValue={filters.sort}>
-            {MARKET_SORTS.map((sort) => (
-              <option key={sort} value={sort}>
-                {t(`sorts.${sort}`)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <Checkbox name="missing" value="1" defaultChecked={filters.missing} className={own.missing}>
-          {t('missingOnly')}
-        </Checkbox>
-        <Button type="submit">{tCollection('filter')}</Button>
-      </form>
+          </ul>
+        </nav>
+      </div>
 
       {card && (
         <p className={styles.actions}>
@@ -170,21 +215,24 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
       {tiles.length === 0 ? (
         <p className={styles.empty}>{t('empty')}</p>
       ) : (
-        <ul className={styles.grid}>
-          {tiles.map((tile) => (
-            <li key={tile.href}>
+        <ul id={LIST_ID} className={styles.grid}>
+          {tiles.map((tile, index) => (
+            <li key={tile.href} {...(index % MARKET_PAGE_SIZE === 0 ? { id: pageStart(index), tabIndex: -1 } : {})}>
               <AuctionTile {...tile} collection={collection} serverNow={now.toISOString()} />
             </li>
           ))}
         </ul>
       )}
 
-      {pages > 1 && (
-        <nav className={styles.pagination} aria-label={tCollection('pagination')}>
-          {filters.page > 1 && <Link href={link({ page: filters.page - 1 })}>{tCollection('previous')}</Link>}
-          <span>{tCollection('page', { page: filters.page, pages })}</span>
-          {filters.page < pages && <Link href={link({ page: filters.page + 1 })}>{tCollection('next')}</Link>}
-        </nav>
+      <FocusBroughtCards shown={shown} />
+      {shown > 0 && shown < market.total && (
+        <LoadMore
+          href={more ? link({ page: filters.page + 1 }) : null}
+          next={pageStart(shown)}
+          label={tCollection('more')}
+          status={t('shown', { shown, total: market.total })}
+          hint={more ? null : tCollection('narrow')}
+        />
       )}
     </main>
   );

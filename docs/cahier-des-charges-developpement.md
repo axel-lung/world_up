@@ -25,7 +25,7 @@ La version 1 est un site web responsive. Le jeu s'appelle World Up. Un joueur ma
 
 Les échanges et les enchères passent avant les paiements (décision du 22 octobre 2026). Un marché entre joueurs demande une surveillance anti-fraude : le back-office montre les ventes et les échanges par joueur, et un interrupteur en base coupe les échanges ou les enchères sans redéployer.
 
-**Hors périmètre** : application mobile native (l'application Android du Play Store est le site lui-même, voir « Application Android »), NFT ou blockchain, toute conversion de la monnaie virtuelle en euros.
+**Hors périmètre** : une seconde interface, native (l'application Android du Play Store affiche le site lui-même, voir « Application Android »), NFT ou blockchain, toute conversion de la monnaie virtuelle en euros.
 
 ## Architecture
 
@@ -169,13 +169,16 @@ networks:
 
 ### Application Android
 
-Décidée le 2026-10-22. L'application du Play Store est une Trusted Web Activity : une coquille Android qui ouvre le site de production en plein écran dans le navigateur du téléphone, sans barre d'adresse. Il n'y a ni API ni seconde interface : le serveur ne change pas, et un déploiement du site met l'application à jour.
+Décidée le 2026-10-22. L'application du Play Store a d'abord été une Trusted Web Activity, qui ouvrait le site dans le navigateur du téléphone. Depuis le 12 novembre 2026, c'est une coquille native, construite avec Capacitor, dont la propre vue web affiche le site de production en plein écran : plus de navigateur entre le joueur et le jeu. Il n'y a toujours ni API ni seconde interface : le serveur est le même, un déploiement du site met l'application à jour, et la version web ne change pas.
 
-- Identifiant `fr.alng.worldup`, pour le site `worldup.alng.fr`. Le projet Android (`android/`) est généré par Bubblewrap, l'outil de Google.
-- Un workflow GitHub Actions, lancé à la main, produit l'APK (à installer sur un téléphone) et le bundle AAB, que l'on dépose soi-même sur la Play Console. La clé d'envoi vit dans les secrets GitHub ; Google garde la clé de signature (Play App Signing).
-- Le site publie un manifeste web et `/.well-known/assetlinks.json`, qui donne les empreintes des certificats de l'application (lues dans le .env du serveur) : sans lui, l'application affiche la barre d'adresse.
-- La connexion avec Google (décidée le 24 octobre 2026) passe par le flux web de Google : la Trusted Web Activity est le navigateur du téléphone, où Google l'autorise, sans code Android ni nouvelle version de l'application.
-- La délégation des notifications est active dès la première version : les notifications web du site, quand elles existeront, s'afficheront comme celles de l'application, sans la republier.
+- Identifiant `fr.alng.worldup`, pour le site `worldup.alng.fr`. Le projet Android (`android/`) est généré par Capacitor ; sa configuration est `capacitor.config.ts`.
+- Un workflow GitHub Actions, lancé à la main, produit l'APK (à installer sur un téléphone) et le bundle AAB, que l'on dépose soi-même sur la Play Console. La clé d'envoi vit dans les secrets GitHub ; Google garde la clé de signature (Play App Signing). Le workflow peut viser la préproduction, pour essayer l'application avant un déploiement.
+- Le site utilise les fonctions natives du téléphone là seulement où une vue web ne fait pas ce que fait un navigateur :
+  - la connexion avec Google (décidée le 24 octobre 2026) : Google refuse sa page de connexion dans une vue web, l'application passe donc par la connexion Google du téléphone, qui donne au serveur un jeton d'identité vérifié comme le flux web ;
+  - les notifications : une vue web n'a pas le push web, l'application les reçoit donc par Firebase Cloud Messaging, le service de notifications de Google, activées sur la page Activité comme sur le site ;
+  - les liens du site (e-mails de confirmation et de mot de passe, fiches cartes partagées) s'ouvrent dans l'application, grâce à `/.well-known/assetlinks.json`, qui donne les empreintes des certificats de l'application (lues dans le .env du serveur) ;
+  - hors connexion, une page fournie avec l'application le dit et propose de réessayer ; le bouton retour revient à la page précédente.
+- Une application iOS serait la même coquille : elle demanderait « Se connecter avec Apple » à côté de Google (règle de l'App Store).
 - Avant de vendre dans l'application (lot 4) : Google Play impose sa facturation pour les biens numériques. Dans l'Espace économique européen, son programme de facturation alternative autorise un autre prestataire comme Stripe, contre une commission. À trancher avec l'avocat.
 - Règles du Play Store : probabilités publiées avant l'achat, suppression du compte depuis l'application et depuis le web, questionnaire de classification (public de 18 ans et plus), fiche « Sécurité des données ».
 
@@ -303,7 +306,7 @@ Avancé de la version 2 le 22 octobre 2026, avant les paiements. Les règles chi
 
 - Demande d'ami, ami accepté, offre reçue, acceptée, refusée ou expirée, mise dépassée, vente gagnée, conclue, invendue ou annulée.
 - Écrites dans la transaction de l'événement ; une cloche dans l'en-tête compte les non-lues, `/activity` montre les 50 dernières. Effacées au bout de 90 jours.
-- En push web dans un second temps, sur l'appareil où le joueur l'active (page Activité) ; se déconnecter les y coupe. Sur Android, l'application les affiche comme les siennes.
+- En push web dans un second temps, sur l'appareil où le joueur l'active (page Activité) ; se déconnecter les y coupe. Dans l'application Android, elles passent par Firebase Cloud Messaging, qui en voit le texte : la politique de confidentialité le dit.
 
 ## Paiements et conformité
 
@@ -471,7 +474,7 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 
 ## Lots de livraison et questions ouvertes
 
-Le développement avance en cinq lots, chacun livré en préproduction et validé avant le suivant. Les paiements n'arrivent qu'au lot 4, après l'avis de l'avocat. Le volet social, avancé le 22 octobre 2026, passe avant le lot 4, en quatre étapes validées chacune en préproduction : amis et notifications, échanges, enchères, push web.
+Le développement avance en cinq lots, chacun livré en préproduction et validé avant le suivant. Les paiements n'arrivent qu'au lot 4, après l'avis de l'avocat. Le volet social, avancé le 22 octobre 2026, passe avant le lot 4, en quatre étapes validées chacune en préproduction : amis et notifications, échanges, enchères, push web. Le 25 octobre 2026, le lot 4 est mis de côté : la bêta fermée du lot 5 ouvre avec un jeu entièrement gratuit, et les paiements viendront plus tard, toujours après l'avis de l'avocat. D'ici là, les points « Paiements » de la recette attendent. La bêta n'a pas de barrière à l'inscription (l'adresse n'est donnée qu'aux testeurs), et la production garde `NOINDEX=1` jusqu'à l'ouverture au public.
 
 1. **Fondations** : dépôt, Docker Compose derrière Traefik, base de données, comptes, design system intégré, intégration continue.
 2. **Catalogue** : pipeline d'import, tri éditorial, back-office du catalogue, fiches cartes publiques.

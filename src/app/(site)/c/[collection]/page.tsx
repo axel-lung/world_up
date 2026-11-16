@@ -1,4 +1,4 @@
-import { Check, Coins, PackageOpen, Trophy } from 'lucide-react';
+import { Check, ChevronDown, Coins, PackageOpen, Trophy } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -23,8 +23,16 @@ export async function generateMetadata({ params }: PageProps<'/c/[collection]'>)
 }
 
 const SERIES_GROUPS: SeriesProgress['type'][] = ['region', 'family', 'unesco', 'endangered'];
+// What the home shows before "Voir tout": the series furthest along, the achievements closest
+const TOP_SERIES = 4;
+type AchievementProgress = Awaited<ReturnType<typeof listAchievements>>[number];
+const NEXT_ACHIEVEMENTS = 3;
 
-/** The player's home in a collection: packs, progress, series, coins and achievements. */
+/**
+ * The player's home in a collection: packs, progress, coins, then the series
+ * furthest along and the achievements closest to hand, each with the full list
+ * folded under "Voir tout".
+ */
 export default async function GameHomePage({ params }: PageProps<'/c/[collection]'>) {
   const collection = await getActiveCollection((await params).collection);
   if (!collection) notFound();
@@ -48,6 +56,42 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
   const percent = (owned: number, total: number) =>
     format.number(total ? owned / total : 0, { style: 'percent', maximumFractionDigits: 1 });
   const obtained = achievements.filter((a) => a.obtainedAt).length;
+  const share = (owned: number, total: number) => (total ? owned / total : 0);
+  const topSeries = series
+    .filter((s) => s.owned > 0)
+    .sort((a, b) => share(b.owned, b.total) - share(a.owned, a.total) || b.owned - a.owned)
+    .slice(0, TOP_SERIES);
+  const nextAchievements = achievements
+    .filter((a) => !a.obtainedAt)
+    .sort((a, b) => b.progress / b.threshold - a.progress / a.threshold || a.threshold - b.threshold)
+    .slice(0, NEXT_ACHIEVEMENTS);
+
+  const seriesGauge = (s: SeriesProgress) => (
+    <li key={s.id}>
+      <Gauge
+        label={<Link href={paths.series(s.slug)}>{s.name}</Link>}
+        value={share(s.owned, s.total)}
+        tone={s.type === 'unesco' ? 'sage' : 'accent'}
+        valueText={`${number(s.owned)} / ${number(s.total)}`}
+      />
+    </li>
+  );
+  const achievementRow = (achievement: AchievementProgress) => (
+    <li key={achievement.id} className={styles.achievement} data-done={achievement.obtainedAt ? true : undefined}>
+      <span className={styles.achievementIcon} aria-hidden="true">
+        {achievement.obtainedAt ? <Check /> : <Trophy />}
+      </span>
+      <span className={styles.achievementText}>
+        <span>{achievementTitle(tAchievement, tRarity, achievement)}</span>
+        <span className={styles.achievementMeta}>
+          {achievement.obtainedAt
+            ? t('obtainedOn', { date: format.dateTime(achievement.obtainedAt, { dateStyle: 'long', timeZone: 'Europe/Paris' }) })
+            : t('progress', { progress: number(achievement.progress), threshold: number(achievement.threshold) })}
+        </span>
+      </span>
+      <span className={styles.reward}>{t('reward', { coins: achievement.rewardCoins })}</span>
+    </li>
+  );
 
   return (
     <main className={styles.page}>
@@ -103,27 +147,29 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
 
       <section className={styles.section} aria-labelledby="series-heading">
         <h2 id="series-heading">{t('seriesHeading')}</h2>
-        {SERIES_GROUPS.map((type) => {
-          const group = series.filter((s) => s.type === type);
-          if (group.length === 0) return null;
-          return (
-            <div key={type} className={styles.stack}>
-              <h3 className={styles.groupTitle}>{t(`seriesTypes.${type}`)}</h3>
-              <ul className={styles.gauges}>
-                {group.map((s) => (
-                  <li key={s.id}>
-                    <Gauge
-                      label={<Link href={paths.series(s.slug)}>{s.name}</Link>}
-                      value={s.total ? s.owned / s.total : 0}
-                      tone={type === 'unesco' ? 'sage' : 'accent'}
-                      valueText={`${number(s.owned)} / ${number(s.total)}`}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        })}
+        {topSeries.length > 0 ? (
+          <ul className={styles.gauges}>{topSeries.map(seriesGauge)}</ul>
+        ) : (
+          <p className={styles.muted}>{t('noSeriesYet')}</p>
+        )}
+        <details className={styles.seeAll}>
+          <summary>
+            {t('allSeries', { count: series.length })}
+            <ChevronDown aria-hidden />
+          </summary>
+          <div className={styles.stack}>
+            {SERIES_GROUPS.map((type) => {
+              const group = series.filter((s) => s.type === type);
+              if (group.length === 0) return null;
+              return (
+                <div key={type} className={styles.stack}>
+                  <h3 className={styles.groupTitle}>{t(`seriesTypes.${type}`)}</h3>
+                  <ul className={styles.gauges}>{group.map(seriesGauge)}</ul>
+                </div>
+              );
+            })}
+          </div>
+        </details>
       </section>
 
       <section className={styles.section} aria-labelledby="achievements-heading">
@@ -131,24 +177,19 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
           <h2 id="achievements-heading">{t('achievementsHeading')}</h2>
           <span className={styles.muted}>{t('achievementsCount', { obtained, total: achievements.length })}</span>
         </div>
-        <ul className={styles.achievements}>
-          {achievements.map((achievement) => (
-            <li key={achievement.id} className={styles.achievement} data-done={achievement.obtainedAt ? true : undefined}>
-              <span className={styles.achievementIcon} aria-hidden="true">
-                {achievement.obtainedAt ? <Check /> : <Trophy />}
-              </span>
-              <span className={styles.achievementText}>
-                <span>{achievementTitle(tAchievement, tRarity, achievement)}</span>
-                <span className={styles.achievementMeta}>
-                  {achievement.obtainedAt
-                    ? t('obtainedOn', { date: format.dateTime(achievement.obtainedAt, { dateStyle: 'long', timeZone: 'Europe/Paris' }) })
-                    : t('progress', { progress: number(achievement.progress), threshold: number(achievement.threshold) })}
-                </span>
-              </span>
-              <span className={styles.reward}>{t('reward', { coins: achievement.rewardCoins })}</span>
-            </li>
-          ))}
-        </ul>
+        {nextAchievements.length > 0 && (
+          <>
+            <h3 className={styles.groupTitle}>{t('nextAchievements')}</h3>
+            <ul className={styles.achievements}>{nextAchievements.map(achievementRow)}</ul>
+          </>
+        )}
+        <details className={styles.seeAll}>
+          <summary>
+            {t('allAchievements', { count: achievements.length })}
+            <ChevronDown aria-hidden />
+          </summary>
+          <ul className={styles.achievements}>{achievements.map(achievementRow)}</ul>
+        </details>
       </section>
     </main>
   );

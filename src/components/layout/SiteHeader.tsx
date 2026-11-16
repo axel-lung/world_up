@@ -1,40 +1,24 @@
-import { CircleUser, Coins } from 'lucide-react';
+import { CircleUser, Coins, Gavel, House, Layers, PackageOpen, Users } from 'lucide-react';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { PackReserveCompact } from '@/components/pack/PackReserve';
 import { ButtonLink } from '@/components/ui/Button';
-import { db } from '@/db';
-import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
-import { coinBalance } from '@/lib/game/coins';
-import { gamePath } from '@/lib/game/paths';
-import { getReserve } from '@/lib/game/packs';
-import { getActiveCollection } from '@/lib/game/rules';
-import { unreadCount } from '@/lib/notifications/notifications';
-import { getSession } from '@/lib/session';
 import { themePreference } from '@/lib/theme-preference';
 import { NavLinks } from './NavLinks';
 import { NotificationBell } from './NotificationBell';
+import { getPlayerStatus } from './player-status';
 import styles from './SiteHeader.module.css';
+import { TabBar } from './TabBar';
 import { ThemeSwitch } from './ThemeSwitch';
 
-/** The site's header: the game's pages, and the player's packs, coins and notifications once signed in. */
+/**
+ * The site's header: the game's pages, and the player's packs, coins and
+ * notifications once signed in. On a phone, a player's links move to the tab
+ * bar (SiteTabBar) and the rest of the header stays in sight.
+ */
 export async function SiteHeader() {
-  const [t, session, collection] = await Promise.all([
-    getTranslations('Nav'),
-    getSession(),
-    getActiveCollection(DEFAULT_COLLECTION_SLUG),
-  ]);
-  const now = new Date();
-  const player =
-    session && collection
-      ? await Promise.all([
-          getReserve(session.user.id, collection.id, now),
-          coinBalance(db, session.user.id),
-          unreadCount(session.user.id),
-        ])
-      : null;
-  const game = collection ? gamePath(collection.slug) : null;
+  const [t, { session, now, game, player }] = await Promise.all([getTranslations('Nav'), getPlayerStatus()]);
 
   const items = [
     ...(session && game
@@ -51,7 +35,7 @@ export async function SiteHeader() {
   ];
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-player={player ? true : undefined}>
       <a href="#content" className={styles.skip}>
         {t('skip')}
       </a>
@@ -75,17 +59,17 @@ export async function SiteHeader() {
               {/* Named by the reserve's own sentence: "7 paquets en réserve, prochain dans 04:32" */}
               <Link href={game.open} className={styles.reserve}>
                 <PackReserveCompact
-                  available={player[0].packs}
-                  max={player[0].maxReserve}
-                  nextPackAt={player[0].nextPackAt?.toISOString() ?? null}
+                  available={player.reserve.packs}
+                  max={player.reserve.maxReserve}
+                  nextPackAt={player.reserve.nextPackAt?.toISOString() ?? null}
                   serverNow={now.toISOString()}
                 />
               </Link>
               <span className={styles.coins}>
                 <Coins aria-hidden />
-                <span>{t.rich('coins', { count: player[1], word: (chunks) => <span className={styles.coinsWord}>{chunks}</span> })}</span>
+                <span>{t.rich('coins', { count: player.coins, word: (chunks) => <span className={styles.coinsWord}>{chunks}</span> })}</span>
               </span>
-              <NotificationBell unread={player[2]} label={t('activity', { count: player[2] })} />
+              <NotificationBell unread={player.unread} label={t('activity', { count: player.unread })} />
               <Link href="/account" className={styles.account}>
                 <CircleUser aria-hidden />
                 <span className={styles.accountLabel}>{t('account')}</span>
@@ -106,35 +90,83 @@ export async function SiteHeader() {
   );
 }
 
-export async function SiteFooter() {
-  const [t, cookieStore] = await Promise.all([getTranslations('Nav'), cookies()]);
+/**
+ * A player's navigation on a phone (TabBar.tsx): home, collection, the
+ * opening with the packs waiting, market, and friends, which also stands for
+ * the trades and the leaderboard (SocialTabs). Nothing for a visitor.
+ */
+export async function SiteTabBar() {
+  const [t, { game, player }] = await Promise.all([getTranslations('Nav'), getPlayerStatus()]);
+  if (!player || !game) return null;
+  const packs = player.reserve.packs;
   return (
-    <footer className={styles.footer}>
-      <ul>
-        <li>
-          <Link href="/rules">{t('rules')}</Link>
-        </li>
-        <li>
-          <Link href="/odds">{t('odds')}</Link>
-        </li>
-        <li>
-          <Link href="/leaderboard">{t('leaderboard')}</Link>
-        </li>
-        <li>
-          <Link href="/credits">{t('credits')}</Link>
-        </li>
-        <li>
-          <Link href="/terms">{t('terms')}</Link>
-        </li>
-        <li>
-          <Link href="/privacy">{t('privacy')}</Link>
-        </li>
-        <li>
-          <Link href="/legal-notice">{t('legalNotice')}</Link>
-        </li>
-      </ul>
+    <TabBar
+      label={t('label')}
+      items={[
+        { href: game.home, label: t('home'), icon: <House aria-hidden /> },
+        {
+          href: game.collection,
+          label: t('collection'),
+          icon: <Layers aria-hidden />,
+          prefix: true,
+          also: [`${game.home}/series`, `${game.home}/cards`],
+        },
+        {
+          href: game.open,
+          label: t('open'),
+          icon: <PackageOpen aria-hidden />,
+          primary: true,
+          badge: packs > 0 ? { value: String(packs), label: t('packs', { count: packs }) } : undefined,
+        },
+        { href: game.market, label: t('market'), icon: <Gavel aria-hidden />, prefix: true },
+        {
+          href: '/friends',
+          label: t('friends'),
+          icon: <Users aria-hidden />,
+          also: [game.trades, `${game.home}/friends`, '/leaderboard'],
+        },
+      ]}
+    />
+  );
+}
+
+export async function SiteFooter() {
+  const [t, cookieStore, { player }] = await Promise.all([getTranslations('Nav'), cookies(), getPlayerStatus()]);
+  return (
+    <footer className={styles.footer} data-player={player ? true : undefined}>
+      <FooterLinks />
       <ThemeSwitch initial={themePreference(cookieStore)} />
       <p>{t('noMoneyValue')}</p>
     </footer>
+  );
+}
+
+/** The footer's links, also listed on a player's account page, where a phone shows them instead. */
+export async function FooterLinks({ className }: { className?: string }) {
+  const t = await getTranslations('Nav');
+  return (
+    <ul className={className}>
+      <li>
+        <Link href="/rules">{t('rules')}</Link>
+      </li>
+      <li>
+        <Link href="/odds">{t('odds')}</Link>
+      </li>
+      <li>
+        <Link href="/leaderboard">{t('leaderboard')}</Link>
+      </li>
+      <li>
+        <Link href="/credits">{t('credits')}</Link>
+      </li>
+      <li>
+        <Link href="/terms">{t('terms')}</Link>
+      </li>
+      <li>
+        <Link href="/privacy">{t('privacy')}</Link>
+      </li>
+      <li>
+        <Link href="/legal-notice">{t('legalNotice')}</Link>
+      </li>
+    </ul>
   );
 }

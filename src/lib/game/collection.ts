@@ -11,10 +11,15 @@ import { getOpeningCards } from './packs';
 // Hidden cards stay out, even the ones the player already has. A friend's
 // collection shows the cards they own, and those the viewer lacks.
 
-export const COLLECTION_TABS = ['all', 'owned', 'missing', 'duplicates'] as const;
+// The first tab is the default: the cards a player has, rather than the
+// thousands they lack.
+export const COLLECTION_TABS = ['owned', 'all', 'missing', 'duplicates'] as const;
 export const FRIEND_TABS = ['owned', 'duplicates', 'youLack'] as const;
 export type CollectionTab = (typeof COLLECTION_TABS)[number] | (typeof FRIEND_TABS)[number];
+// The grid shows a page, then one more each time the player asks ("Voir plus"),
+// up to a cap past which the filters narrow it down: every page shown is sent again.
 export const COLLECTION_PAGE_SIZE = 48;
+export const COLLECTION_MAX_PAGES = 10;
 
 // Missing cards of these rarities keep their surprise: no name, no photo
 export const MASKED_RARITIES: readonly Rarity[] = ['legendary', 'ultra'];
@@ -82,8 +87,8 @@ export async function collectionCounts(filters: CollectionFilters): Promise<Reco
   return { all: row.all, owned: row.owned, missing: row.all - row.owned, duplicates: row.duplicates, youLack: row.youLack };
 }
 
-/** One page of a tab: by rank, or by number within the series when filtering on one. */
-export async function listCollectionCards(filters: CollectionFilters & { tab: CollectionTab; page: number }) {
+/** A tab's first `pages` pages: by rank, or by number within the series when filtering on one. */
+export async function listCollectionCards(filters: CollectionFilters & { tab: CollectionTab; pages: number }) {
   const where = and(...filterConditions(filters), tabCondition(filters.tab, filters.viewerId));
   const query = db
     .select({ ...cardColumns, quantity: userCards.quantity })
@@ -95,7 +100,7 @@ export async function listCollectionCards(filters: CollectionFilters & { tab: Co
         .where(where)
         .orderBy(asc(cardSeries.number))
     : query.where(where).orderBy(asc(cards.rank), asc(cards.id));
-  return ordered.limit(COLLECTION_PAGE_SIZE).offset((filters.page - 1) * COLLECTION_PAGE_SIZE);
+  return ordered.limit(Math.min(filters.pages, COLLECTION_MAX_PAGES) * COLLECTION_PAGE_SIZE);
 }
 
 export type CollectionRow = Awaited<ReturnType<typeof listCollectionCards>>[number];
