@@ -1,14 +1,13 @@
-import { ArrowLeftRight, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { FriendList, FriendRow } from '@/components/social/FriendRow';
+import { SocialTabs } from '@/components/social/SocialTabs';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
 import { gamePath } from '@/lib/game/paths';
-import { getActiveCollection } from '@/lib/game/rules';
-import { receivedOffers } from '@/lib/game/trades';
 import { listFriendRequests, listFriends } from '@/lib/social/friends';
 import { requireSession } from '@/lib/session';
 import { acceptFriendAction, endFriendshipAction, requestFriendAction } from './actions';
@@ -30,21 +29,14 @@ export default async function FriendsPage({ searchParams }: PageProps<'/friends'
     listFriendRequests(user.id),
   ]);
   const game = gamePath(DEFAULT_COLLECTION_SLUG);
-  const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
-  const offers = collection ? await receivedOffers(user.id, collection.id, new Date()) : 0;
   const date = (value: Date) => format.dateTime(value, { dateStyle: 'long', timeZone: 'Europe/Paris' });
 
   return (
     <main className={styles.page}>
+      <SocialTabs current="friends" userId={user.id} />
       <header className={styles.header}>
         <h1>{t('title')}</h1>
         <p className={styles.muted}>{t('intro')}</p>
-        <div className={styles.trades}>
-          <ButtonLink href={game.trades} variant={offers > 0 ? 'primary' : 'secondary'} icon={<ArrowLeftRight aria-hidden />}>
-            {t('tradesLink')}
-          </ButtonLink>
-          {offers > 0 && <span>{t('offersWaiting', { count: offers })}</span>}
-        </div>
       </header>
 
       <FriendNotice params={query} />

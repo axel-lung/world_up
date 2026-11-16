@@ -14,11 +14,13 @@ import type { Emblem } from '@/lib/collection-theme';
 import { achievementTitle } from '@/lib/game/achievement-title';
 import { RARITY_PIPS } from '@/lib/rarity';
 import { openPackAction, type OpenPackResult, type ReserveView } from './actions';
+import { CardZoom } from './CardZoom';
 import styles from './PackOpener.module.css';
 import {
   CARD,
   CENTER,
   gridPlace,
+  gridSlots,
   HIDDEN,
   LIFTED,
   type Place,
@@ -65,6 +67,11 @@ const SCENE_STYLE = {
   '--card-width': CARD.width,
 } as CSSProperties;
 
+/** Where the final grid ends, in scene units. */
+function gridBottom(count: number): number {
+  return Math.max(...gridSlots(count).map((slot) => slot.top + slot.height));
+}
+
 /** The confetti thrown by an ultra rare (14 pieces) or a legendary (22). */
 function confetti(pips: number) {
   const count = pips >= 6 ? 22 : 14;
@@ -107,6 +114,8 @@ export function PackOpener({
   const [revealed, setRevealed] = useState(false);
   const [suspense, setSuspense] = useState(false);
   const [error, setError] = useState<Extract<OpenPackResult, { ok: false }>['error'] | null>(null);
+  // At the end, the card shown large (CardZoom)
+  const [zoom, setZoom] = useState<number | null>(null);
   const timers = useRef<number[]>([]);
   const shownOpening = useRef<number | null>(null);
   const focusOpen = useRef(false);
@@ -155,6 +164,7 @@ export function PackOpener({
     const reduced = reducedMotion();
     clearTimers();
     setError(null);
+    setZoom(null);
     setOpened(null);
     setIndex(0);
     setRevealed(false);
@@ -258,6 +268,13 @@ export function PackOpener({
             </div>
           )}
 
+          {phase === 'done' && opened && (
+            // Under the last row of cards, in the room the grid leaves
+            <p className={styles.zoomHint} style={{ '--hint-top': gridBottom(count) + 14 } as CSSProperties}>
+              {t('zoomHint')}
+            </p>
+          )}
+
           {shownRarity && pips >= 3 && (
             <div key={`burst-${index}`} className={styles.burst} data-rarity={shownRarity} data-level={level} aria-hidden="true">
               <span className={styles.rays} />
@@ -300,7 +317,9 @@ export function PackOpener({
                     // until the end. The top one takes clicks (an inert element
                     // takes none) and hides only its face while turned down.
                     inert={!(done || isTop) || undefined}
-                    onClick={isTop ? tap : undefined}
+                    data-zoomable={done || undefined}
+                    // At the end, a touch shows the card large
+                    onClick={isTop ? tap : done ? () => setZoom(i) : undefined}
                   >
                     <div className={styles.tilt} data-suspense={(isTop && suspense && (RARITY_PIPS[entry.card.data.rarity] >= 6 ? 'strong' : 'soft')) || undefined}>
                       <div className={styles.flip}>
@@ -311,7 +330,6 @@ export function PackOpener({
                               collection={{ name: collectionName, emblem }}
                               isNew={entry.isNew}
                               copies={entry.card.copies}
-                              href={done ? (entry.card.href ?? undefined) : undefined}
                               sizes="260px"
                               priority
                             />
@@ -333,6 +351,18 @@ export function PackOpener({
                         </div>
                       </div>
                     </div>
+                    {/* Pointer touches reach the card (its credit button included); this button is for the keyboard */}
+                    {done && (
+                      <button
+                        type="button"
+                        className={styles.zoomButton}
+                        aria-label={t('zoomCard', { name: displayName(entry.card.data.name) })}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setZoom(i);
+                        }}
+                      />
+                    )}
                   </li>
                 );
               })}
@@ -458,6 +488,10 @@ export function PackOpener({
           </>
         )}
       </div>
+
+      {phase === 'done' && opened && (
+        <CardZoom cards={opened.cards} index={zoom} onIndexChange={setZoom} collection={{ name: collectionName, emblem }} />
+      )}
 
       {/* Each card is read out as it turns over */}
       <p className="sr-only" aria-live="polite">

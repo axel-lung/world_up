@@ -3,7 +3,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import { SocialTabs } from '@/components/social/SocialTabs';
 import { Button } from '@/components/ui/Button';
+import { MoreInfo } from '@/components/ui/MoreInfo';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
 import { leaderboard, type LeaderboardRow } from '@/lib/game/leaderboard';
 import { gamePath } from '@/lib/game/paths';
@@ -13,6 +15,7 @@ import { getSession } from '@/lib/session';
 import { requestFriendAction } from '../friends/actions';
 import { FriendNotice } from '../friends/FriendNotice';
 import styles from '../info.module.css';
+import board from './page.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Leaderboard');
@@ -51,64 +54,51 @@ export default async function LeaderboardPage({ searchParams }: PageProps<'/lead
     );
   };
 
+  // A list rather than a table: it fits a phone, the counts labelled on each row
   const row = (entry: LeaderboardRow) => {
     const me = entry.userId === session?.user.id;
     return (
-      <tr key={entry.userId} data-me={me || undefined}>
-        <td className={styles.number}>{format.number(entry.rank)}</td>
-        <td>
-          {entry.pseudo}
-          {me && <span className={styles.me}> {t('you')}</span>}
-        </td>
-        <td className={styles.number}>{format.number(entry.distinct)}</td>
-        <td className={styles.number}>{format.number(entry.legendary)}</td>
-        <td className={styles.number}>{format.number(entry.ultra)}</td>
-        {states && <td>{me ? null : friendCell(entry, states.get(entry.userId))}</td>}
-      </tr>
+      <li key={entry.userId} className={board.row} data-me={me || undefined}>
+        <span className={board.rank} data-podium={entry.rank <= 3 || undefined}>
+          <span className="sr-only">{t('rank')} </span>
+          {format.number(entry.rank)}
+        </span>
+        <span className={board.who}>
+          <span className={board.pseudo}>
+            {entry.pseudo}
+            {me && <span className={styles.me}> {t('you')}</span>}
+          </span>
+          <span className={board.rares}>{t('rares', { legendary: entry.legendary, ultra: entry.ultra })}</span>
+        </span>
+        <span className={board.score}>
+          <strong>{format.number(entry.distinct)}</strong>
+          <span>{t('cardsUnit', { count: entry.distinct })}</span>
+        </span>
+        {states && !me && <div className={board.action}>{friendCell(entry, states.get(entry.userId))}</div>}
+      </li>
     );
   };
 
   return (
     <main className={styles.page}>
+      {session && <SocialTabs current="leaderboard" userId={session.user.id} />}
       <header className={styles.header}>
         <h1>{t('title')}</h1>
-        <p className={styles.muted}>{t('rule', { collection: collection.name })}</p>
+        <MoreInfo summary={t('howItWorks')}>
+          <p>{t('rule', { collection: collection.name })}</p>
+        </MoreInfo>
       </header>
       {session && <FriendNotice params={query} />}
       {rows.length === 0 ? (
         <p className={styles.muted}>{t('empty')}</p>
       ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <caption className="sr-only">{t('caption', { count: rows.length })}</caption>
-            <thead>
-              <tr>
-                <th scope="col" className={styles.number}>
-                  {t('rank')}
-                </th>
-                <th scope="col">{t('player')}</th>
-                <th scope="col" className={styles.number}>
-                  {t('distinct')}
-                </th>
-                <th scope="col" className={styles.number}>
-                  {t('legendary')}
-                </th>
-                <th scope="col" className={styles.number}>
-                  {t('ultra')}
-                </th>
-                {states && (
-                  <th scope="col">
-                    <span className="sr-only">{t('friends')}</span>
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(row)}
-              {player && !playerInTop && row(player)}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <ol className={board.board} aria-label={t('caption', { count: rows.length })}>
+            {rows.map(row)}
+          </ol>
+          {/* The player, further down */}
+          {player && !playerInTop && <ol className={board.board}>{row(player)}</ol>}
+        </>
       )}
       {session && !player && <p className={styles.muted}>{t('notRanked')}</p>}
     </main>

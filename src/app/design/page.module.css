@@ -561,3 +561,28 @@
   padding: 12px 0 0;
   list-style: none;
 }
+
+/* The tab bar, laid out in the page, with room above for the raised opening */
+.tabBars {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 420px;
+  padding-top: 30px;
+}
+
+/* The collection's list view, as in src/app/(site)/c/[collection]/game.module.css */
+.rowList {
+  display: flex;
+  flex-direction: column;
+  max-width: 440px;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.rowList > li + li {
+  border-top: 1px solid var(--color-divider);
+}

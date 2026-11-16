@@ -1,0 +1,168 @@
+/* The game's navigation on a phone (TabBar.tsx): five tabs at the bottom of
+   the screen, the pack opening raised in the middle as an inked sticker. */
+.tabBar {
+  background: var(--color-bg);
+  box-shadow: 0 -1px 0 var(--color-divider);
+  /* Above the gesture bar, when the page is drawn under it */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.tabBar ul {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 4px;
+  list-style: none;
+}
+
+/* Fixed under 720 px; wider screens keep the header's links */
+.fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+}
+
+.spacer {
+  height: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 720px) {
+  .fixed,
+  .spacer {
+    display: none;
+  }
+}
+
+@media (max-width: 719px) {
+  /* What sticks to the bottom of a page (the trade composer's summary) stays
+     above the bar, and the end of the page clears it. */
+  :root:has(.fixed) {
+    --tab-bar-offset: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: var(--tab-bar-offset);
+  }
+
+  /* While a text field has the focus, the keyboard is up: the bar steps aside
+     rather than sit on top of it. */
+  :root:has(:is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="submit"], [type="button"]), textarea):focus) .fixed {
+    display: none;
+  }
+
+  :root:has(.fixed):has(:is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="submit"], [type="button"]), textarea):focus) {
+    --tab-bar-offset: 0px;
+  }
+}
+
+.tab {
+  display: flex;
+  justify-content: center;
+  min-height: var(--tab-bar-height);
+  padding: 6px 0 8px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab:focus-visible {
+  outline-offset: -4px;
+  border-radius: var(--radius-md);
+}
+
+.face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 30px;
+  border-radius: 999px;
+}
+
+.icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--color-text);
+  }
+}
+
+/* The current tab, and a touched one while its page comes */
+.tab[aria-current="page"],
+.tab:has(.face[data-pending]) {
+  color: var(--color-accent-strong);
+}
+
+.tab[aria-current="page"] .icon,
+.face[data-pending] .icon {
+  background: var(--color-accent-tint);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .icon {
+    transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  }
+}
+
+/* The opening: a terracotta sticker standing out of the bar */
+.tab[data-primary] {
+  color: var(--color-text);
+}
+
+.tab[data-primary] .icon,
+.tab[data-primary] .face[data-pending] .icon {
+  width: 56px;
+  height: 56px;
+  margin-top: -26px;
+  border-radius: 50%;
+  border: 2px solid var(--sticker-line);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 3px 0 var(--sticker-shadow);
+}
+
+.tab[data-primary] .icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.tab[data-primary]:active .icon,
+.tab[data-primary] .face[data-pending] .icon {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--sticker-shadow);
+}
+
+/* The packs waiting, a paper sticker on the opening's shoulder */
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  border: 1.5px solid var(--sticker-line);
+  background: var(--sticker-paper);
+  color: var(--card-ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 19px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

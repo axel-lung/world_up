@@ -90,3 +90,58 @@
     padding: 20px 16px;
   }
 }
+
+/* Settings and information: on a phone only, where a player's footer is hidden */
+@media (min-width: 720px) {
+  .more {
+    display: none;
+  }
+}
+
+.theme {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  font-weight: 600;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.links li + li {
+  border-top: 1px solid var(--color-divider);
+}
+
+.links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* A chevron drawn in CSS, so that nothing is read out */
+.links a::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-top: 2px solid var(--color-text-muted);
+  border-right: 2px solid var(--color-text-muted);
+  transform: rotate(45deg);
+}
+
+.links a:hover {
+  color: var(--color-accent-strong);
+}

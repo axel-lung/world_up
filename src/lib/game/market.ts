@@ -92,7 +92,10 @@ function toView(row: SelectedAuction, viewerId: string | null, now: Date): Aucti
 
 export const MARKET_SORTS = ['ending', 'newest', 'price'] as const;
 export type MarketSort = (typeof MARKET_SORTS)[number];
+// The market shows a page, then one more each time the player asks ("Voir
+// plus"), up to a cap past which the filters narrow it down
 export const MARKET_PAGE_SIZE = 24;
+export const MARKET_MAX_PAGES = 10;
 
 export interface MarketFilters {
   collectionId: number;
@@ -103,7 +106,8 @@ export interface MarketFilters {
   missing?: boolean;
   cardId?: number | null;
   sort: MarketSort;
-  page: number;
+  /** How many pages, from the first. */
+  pages: number;
   now: Date;
 }
 
@@ -129,15 +133,14 @@ const MARKET_ORDER: Record<MarketSort, SQL[]> = {
   price: [asc(auctions.currentPrice), asc(auctions.endsAt), asc(auctions.id)],
 };
 
-/** One page of the running auctions of a collection, and how many there are under the filters. */
+/** The first `pages` pages of the running auctions of a collection, and how many there are under the filters. */
 export async function listMarket(filters: MarketFilters): Promise<{ auctions: AuctionView[]; total: number }> {
   const where = and(...marketConditions(filters));
   const [rows, [{ total }]] = await Promise.all([
     selectAuctions(filters.viewerId)
       .where(where)
       .orderBy(...MARKET_ORDER[filters.sort])
-      .limit(MARKET_PAGE_SIZE)
-      .offset((filters.page - 1) * MARKET_PAGE_SIZE),
+      .limit(Math.min(filters.pages, MARKET_MAX_PAGES) * MARKET_PAGE_SIZE),
     db.select({ total: count() }).from(auctions).innerJoin(cards, eq(cards.id, auctions.cardId)).where(where),
   ]);
   return { auctions: rows.map((row) => toView(row, filters.viewerId, filters.now)), total };

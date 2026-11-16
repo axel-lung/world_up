@@ -26,6 +26,13 @@
   }
 }
 
+/* A phone keeps the title to a line or two */
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 30px;
+  }
+}
+
 /* The collection's name, as a terracotta tag above the title */
 .eyebrow {
   align-self: flex-start;
@@ -133,6 +140,41 @@
   gap: 12px;
 }
 
+/* "Voir tout": the full list, folded under the first few */
+.seeAll summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  color: var(--color-accent-strong);
+}
+
+.seeAll summary::-webkit-details-marker {
+  display: none;
+}
+
+.seeAll summary svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .seeAll summary svg {
+    transition: transform 0.2s ease;
+  }
+}
+
+.seeAll[open] summary {
+  margin-bottom: 8px;
+}
+
+.seeAll[open] summary svg {
+  transform: rotate(180deg);
+}
+
 .groupTitle {
   margin: 8px 0 0;
   font-family: var(--font-body);
@@ -158,22 +200,6 @@
   .grid {
     gap: 32px 24px;
   }
-}
-
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.filters :global(.field) {
-  min-width: 180px;
-}
-
-.filters select {
-  min-height: 44px;
-  font-size: 16px;
 }
 
 /* The collection's tabs: pills on a surface strip, the current one inked */
@@ -227,36 +253,160 @@
   font-variant-numeric: tabular-nums;
 }
 
-.pagination {
+.empty {
+  margin: 0;
+  padding: 24px 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 16px;
+  text-align: center;
+  color: var(--color-text-muted);
 }
 
-.pagination a {
-  display: inline-flex;
+.empty p {
+  margin: 0;
+}
+
+/* The grid's filters on one line: the series list, then the rarity chips,
+   scrolling sideways on a narrow screen rather than wrapping */
+.filterRow {
+  display: flex;
   align-items: center;
-  min-height: 44px;
-  padding: 0 18px;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* From one edge of the screen to the other, with room for the focus ring */
+  margin: -4px -16px;
+  padding: 4px 16px;
+}
+
+.seriesFilter {
+  flex: none;
+  display: flex;
+  gap: 8px;
+}
+
+.pillSelect {
+  min-height: 40px;
+  max-width: 220px;
+  padding-block: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chips ul {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid var(--color-divider);
-  font-family: var(--font-heading);
+  border: 1.5px solid var(--color-divider);
   color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
   text-decoration: none;
 }
 
-.pagination a:hover {
+.chip:hover {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
-.empty {
+.chip[aria-current="page"],
+.chip[aria-current="page"]:hover {
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* A filter that is on or off (the market's "cards I lack"): sage when on */
+.chip[aria-current="true"],
+.chip[aria-current="true"]:hover {
+  border-color: var(--color-sage);
+  background: var(--color-sage);
+  color: var(--color-on-accent);
+}
+
+.chip svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+/* Lists that apply once picked, side by side (the market's series and sort) */
+.selectRow {
+  display: flex;
+  gap: 8px;
+}
+
+.selectRow .pillSelect {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 260px;
+}
+
+/* How many cards, and the grid or the list */
+.resultsBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.resultsCount {
   margin: 0;
-  padding: 24px 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.viewSwitch :global(.seg-opt) {
+  min-height: 40px;
+}
+
+/* The list view: rows on a surface sheet, one under the other */
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.list > li + li {
+  border-top: 1px solid var(--color-divider);
+}
+
+/* "Voir plus" focuses the first card it brings: a ring for the keyboard only */
+.list > li:focus:not(:focus-visible),
+.grid > li:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.grid > li:focus-visible {
+  outline-offset: 6px;
+  border-radius: var(--radius-lg);
+}
+
+.loadMore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   text-align: center;
-  color: var(--color-text-muted);
 }
 
 .achievements {

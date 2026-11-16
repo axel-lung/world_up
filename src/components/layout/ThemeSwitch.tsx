@@ -6,8 +6,11 @@ import { useState } from 'react';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { themeAttribute, themeCookie, type ThemePreference } from '@/lib/theme-preference';
 
-/** The theme choice in the footer: follow the device, or force light or dark on every page. */
-export function ThemeSwitch({ initial }: { initial: ThemePreference }) {
+/**
+ * The theme choice, in the footer and on a phone's account page: follow the
+ * device, or force light or dark on every page. Two on a page need two `name`s.
+ */
+export function ThemeSwitch({ initial, name = 'theme' }: { initial: ThemePreference; name?: string }) {
   const t = useTranslations('Theme');
   const [preference, setPreference] = useState(initial);
 
@@ -22,7 +25,7 @@ export function ThemeSwitch({ initial }: { initial: ThemePreference }) {
 
   return (
     <SegmentedControl
-      name="theme"
+      name={name}
       ariaLabel={t('label')}
       value={preference}
       onValueChange={choose}

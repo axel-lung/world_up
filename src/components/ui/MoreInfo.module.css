@@ -1,0 +1,49 @@
+.more {
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.more summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  color: var(--color-accent-strong);
+}
+
+.more summary::-webkit-details-marker {
+  display: none;
+}
+
+.info,
+.chevron {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chevron {
+    transition: transform 0.2s ease;
+  }
+}
+
+.more[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 62ch;
+  padding: 4px 0 8px 26px;
+  color: var(--color-text-muted);
+}
+
+.body p {
+  margin: 0;
+}

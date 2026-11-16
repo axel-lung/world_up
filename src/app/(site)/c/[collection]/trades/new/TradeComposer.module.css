@@ -163,7 +163,8 @@
 
 .submit {
   position: sticky;
-  bottom: 0;
+  /* Above the phone's tab bar */
+  bottom: var(--tab-bar-offset);
   z-index: 1;
   display: flex;
   flex-wrap: wrap;

@@ -625,6 +625,18 @@
   color: var(--card-muted);
 }
 
+/* The licence links take the card's link color: the card is cream in both
+   themes, where the site's dark-theme link color would hardly show */
+.textLicense a,
+.photoAuthor a {
+  color: var(--card-link);
+}
+
+.textLicense a:hover,
+.photoAuthor a:hover {
+  color: var(--card-ink);
+}
+
 .photoSection {
   display: flex;
   flex-direction: column;

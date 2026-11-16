@@ -292,12 +292,12 @@ describe('an auction', () => {
     const { auctionId } = await sell(seller, 'Q4');
     await bid(anna, auctionId, 30);
     const market = (viewerId: string, now = at(2)) =>
-      listMarket({ collectionId: collection.id, viewerId, cardId: ids.get('Q4')!, sort: 'ending', page: 1, now });
+      listMarket({ collectionId: collection.id, viewerId, cardId: ids.get('Q4')!, sort: 'ending', pages: 1, now });
     expect((await market(anna)).auctions.map((a) => [a.id, a.viewer])).toEqual([[auctionId, 'leading']]);
     expect((await market(seller)).auctions[0].viewer).toBe('seller');
     // Missing only: Anna doesn't own Q4, the seller does
     const missing = (viewerId: string) =>
-      listMarket({ collectionId: collection.id, viewerId, cardId: ids.get('Q4')!, missing: true, sort: 'ending', page: 1, now: at(2) });
+      listMarket({ collectionId: collection.id, viewerId, cardId: ids.get('Q4')!, missing: true, sort: 'ending', pages: 1, now: at(2) });
     expect((await missing(anna)).total).toBe(1);
     expect((await missing(seller)).total).toBe(0);
     expect((await market(anna, at(24))).total).toBe(0);

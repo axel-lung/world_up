@@ -1,0 +1,65 @@
+/* A card of the opened pack, large (CardZoom.tsx): the whole screen, the card
+   in the middle, as large as the screen's width and height allow. */
+.zoom {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 64px 16px 24px;
+  border: 0;
+  /* The stage's dark ground: nothing of the page behind shows through */
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.zoom[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.zoom::backdrop {
+  background: #0c0b0a;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zoom[open] .card {
+    animation: zoom-in 0.22s cubic-bezier(0.34, 1.35, 0.5, 1) both;
+  }
+}
+
+@keyframes zoom-in {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+}
+
+/* The large card reads from 300 px wide; the controls take about 150 px of height */
+.card {
+  width: min(360px, calc(100vw - 48px), calc((100dvh - 190px) * 80 / 131));
+  min-width: 260px;
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.position {
+  min-width: 56px;
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}

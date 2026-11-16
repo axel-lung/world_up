@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import { SocialTabs } from '@/components/social/SocialTabs';
 import { TradeSummary } from '@/components/trade/TradeSummary';
 import { ButtonLink } from '@/components/ui/Button';
+import { MoreInfo } from '@/components/ui/MoreInfo';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
 import { listTrades, type TradeView } from '@/lib/game/trades';
@@ -71,15 +73,18 @@ export default async function TradesPage({ params }: PageProps<'/c/[collection]/
 
   return (
     <main className={styles.page}>
+      <SocialTabs current="trades" userId={user.id} collection={collection} />
       <header className={styles.header}>
         <p className={styles.eyebrow}>
           <Link href={paths.home}>{collection.name}</Link>
         </p>
         <h1>{t('title')}</h1>
-        <p className={styles.muted}>{t('intro')}</p>
         <p className={styles.muted}>
           {t.rich('newTrade', { friends: (chunks) => <Link href="/friends">{chunks}</Link> })}
         </p>
+        <MoreInfo summary={t('howItWorks')}>
+          <p>{t('intro')}</p>
+        </MoreInfo>
       </header>
       {await section('received-heading', t('receivedHeading'), trades.received, t('noneReceived'))}
       {await section('sent-heading', t('sentHeading'), trades.sent, t('noneSent'))}

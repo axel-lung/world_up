@@ -1,10 +1,14 @@
 import { Download } from 'lucide-react';
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { ChangePasswordForm, DeleteAccountForm, PseudoForm, SignOutButton } from '@/components/account/AccountForms';
+import { FooterLinks } from '@/components/layout/SiteHeader';
+import { ThemeSwitch } from '@/components/layout/ThemeSwitch';
 import { requireSession } from '@/lib/session';
 import { signInMethods } from '@/lib/sign-in-methods';
+import { themePreference } from '@/lib/theme-preference';
 import styles from './page.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,7 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
 // Subscription, spending cap and purchase history join this page in lot 4.
 export default async function AccountPage() {
   const { user } = await requireSession('/account', { terms: false });
-  const [t, format, methods] = await Promise.all([getTranslations('Account'), getFormatter(), signInMethods(user.id)]);
+  const [t, tNav, format, methods, cookieStore] = await Promise.all([
+    getTranslations('Account'),
+    getTranslations('Nav'),
+    getFormatter(),
+    signInMethods(user.id),
+    cookies(),
+  ]);
   // birthDate is a calendar date: format it in UTC so it never shifts by a day.
   const birthDate = format.dateTime(new Date(`${user.birthDate}T00:00:00Z`), { dateStyle: 'long', timeZone: 'UTC' });
   const memberSince = format.dateTime(user.createdAt, { dateStyle: 'long', timeZone: 'Europe/Paris' });
@@ -48,6 +58,17 @@ export default async function AccountPage() {
           </div>
         </dl>
         <PseudoForm pseudo={user.name} />
+      </section>
+
+      {/* A phone hides a player's footer: its theme and links are here instead */}
+      <section className={`${styles.section} ${styles.more}`} aria-labelledby="more">
+        <h2 id="more">{t('more.title')}</h2>
+        <div className={styles.theme}>
+          <span aria-hidden="true">{t('more.theme')}</span>
+          <ThemeSwitch initial={themePreference(cookieStore)} name="theme-account" />
+        </div>
+        <FooterLinks className={styles.links} />
+        <p className={styles.muted}>{tNav('noMoneyValue')}</p>
       </section>
 
       <section className={styles.section} aria-labelledby="password">

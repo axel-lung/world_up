@@ -3,6 +3,7 @@ import {
   Ban,
   Check,
   CircleUser,
+  Gavel,
   Hourglass,
   House,
   Info,
@@ -18,6 +19,7 @@ import {
   Store,
   Timer,
   TriangleAlert,
+  Users,
   X,
 } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -25,7 +27,9 @@ import { notFound } from 'next/navigation';
 import type { CSSProperties, ReactNode } from 'react';
 import { GoogleLogo } from '@/components/account/GoogleButton';
 import { Card, type CardCollection } from '@/components/card/Card';
+import { CardRow } from '@/components/card/CardRow';
 import { NotificationBell } from '@/components/layout/NotificationBell';
+import { TabBar, type TabBarItem } from '@/components/layout/TabBar';
 import { AuctionTile } from '@/components/market/AuctionTile';
 import { PackReserve, PackReserveCompact } from '@/components/pack/PackReserve';
 import { RarityBadge } from '@/components/rarity/Rarity';
@@ -61,6 +65,23 @@ function SectionTitle({ id, number, tone, title, children }: { id: string; numbe
       </div>
     </div>
   );
+}
+
+// The phone's tab bar, as SiteTabBar builds it, with `packs` waiting
+function tabBarSample(packs: number): TabBarItem[] {
+  return [
+    { href: '/c/heritage', label: 'Accueil', icon: <House aria-hidden /> },
+    { href: '/c/heritage/collection', label: 'Collection', icon: <Layers aria-hidden />, prefix: true },
+    {
+      href: '/c/heritage/open',
+      label: 'Ouvrir',
+      icon: <PackageOpen aria-hidden />,
+      primary: true,
+      badge: packs > 0 ? { value: String(packs), label: `${packs} paquets disponibles` } : undefined,
+    },
+    { href: '/c/heritage/market', label: 'Marché', icon: <Gavel aria-hidden />, prefix: true },
+    { href: '/friends', label: 'Amis', icon: <Users aria-hidden />, also: ['/c/heritage/trades', '/leaderboard'] },
+  ];
 }
 
 // Development showcase of design/Design system World Up v2.dc.html, to check the
@@ -414,6 +435,18 @@ export default function DesignPage() {
               </div>
 
               <div className={styles.group}>
+                <h3>Barre d&apos;onglets</h3>
+                <div className={styles.tabBars}>
+                  <TabBar label="Navigation (exemple)" items={tabBarSample(7)} inline currentPath="/c/heritage/collection" />
+                  <TabBar label="Navigation (exemple, sans paquet)" items={tabBarSample(0)} inline currentPath="/leaderboard" />
+                </div>
+                <span className={styles.muted}>
+                  Fixée en bas de l&apos;écran sous 720&nbsp;px, pour un joueur connecté&nbsp;: l&apos;ouverture en relief avec les
+                  paquets disponibles, l&apos;onglet de la page courante teinté. Collection, puis Classement (sous Amis).
+                </span>
+              </div>
+
+              <div className={styles.group}>
                 <h3>Amis et activité</h3>
                 <FriendList label="Exemples d'amis">
                   <FriendRow pseudo="Margaux" meta="Amis depuis le 3 octobre 2026">
@@ -645,6 +678,39 @@ export default function DesignPage() {
                   <figcaption>Manquante, nom masqué</figcaption>
                 </figure>
               </div>
+            </div>
+          ))}
+        </div>
+
+        <h3>Vue liste</h3>
+        <p className={styles.lead}>
+          La vue dense de la collection, au choix du joueur (Grille ou Liste) : vignette, nom, étiquette de rareté, lieu,
+          crédit photo sur une ligne (un auteur trop long est abrégé, jamais la licence) et exemplaires. Toute la ligne
+          ouvre la fiche.
+        </p>
+        <div className={styles.themes}>
+          {THEMES.map(({ theme, label }) => (
+            <div key={theme} data-theme={theme} className={styles.themePanel}>
+              <Tag variant="subtle" className={styles.themeLabel}>
+                {label}
+              </Tag>
+              <ul className={styles.rowList}>
+                <li>
+                  <CardRow card={samples.napoleon} href="#" />
+                </li>
+                <li>
+                  <CardRow card={samples.compiegne} copies={3} href="#" />
+                </li>
+                <li>
+                  <CardRow card={samples.soissons} href="#" />
+                </li>
+                <li>
+                  <CardRow card={samples.horloge} state="missing" href="#" />
+                </li>
+                <li>
+                  <CardRow card={{ ...samples.chambord, photo: { ...samples.chambord.photo, src: '' } }} state="masked" />
+                </li>
+              </ul>
             </div>
           ))}
         </div>

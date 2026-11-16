@@ -145,6 +145,10 @@
       "done": "Mot de passe modifié. Vos autres sessions ont été fermées.",
       "none": "Vous vous connectez avec Google, sans mot de passe. Pour pouvoir aussi vous connecter avec votre adresse e-mail et un mot de passe, <link>recevez un lien</link> pour en choisir un."
     },
+    "more": {
+      "title": "Réglages et informations",
+      "theme": "Thème"
+    },
     "data": {
       "title": "Mes données",
       "intro": "Téléchargez une copie des données de votre compte, au format JSON.",
@@ -228,6 +232,7 @@
     "copiesLarge": "Exemplaires possédés : {count}",
     "copiesGrid": "{count, plural, one {# exemplaire} other {# exemplaires}}",
     "copiesBadge": "{count} exemplaires",
+    "photoLine": "<name>Photo : {author}</name><licence>· {license}</licence>",
     "new": "Nouveau",
     "selected": "Sélectionnée",
     "collectionEmblem": "Collection {collection}",
@@ -860,6 +865,7 @@
     "credits": "Sources et crédits",
     "account": "Mon compte",
     "activity": "Activité{count, plural, =0 {} one {, # non lue} other {, # non lues}}",
+    "packs": "{count, plural, one {# paquet disponible} other {# paquets disponibles}}",
     "login": "Se connecter",
     "signup": "Créer un compte",
     "coins": "{count, number} <word>{count, plural, one {pièce} other {pièces}}</word>",
@@ -885,6 +891,8 @@
     "seeCollection": "Voir ma collection",
     "seeDuplicates": "Revendre les doublons",
     "seriesHeading": "Séries",
+    "noSeriesYet": "Ouvrez des paquets pour avancer dans les séries.",
+    "allSeries": "Voir toutes les séries ({count})",
     "seriesTypes": {
       "region": "Régions",
       "family": "Familles de monuments",
@@ -893,6 +901,8 @@
     },
     "achievementsHeading": "Succès",
     "achievementsCount": "{obtained} sur {total} obtenus",
+    "nextAchievements": "Les prochains",
+    "allAchievements": "Voir tous les succès ({count})",
     "obtainedOn": "Obtenu le {date}",
     "progress": "{progress} sur {threshold}",
     "reward": "+{coins, plural, one {# pièce} other {# pièces}}",
@@ -951,7 +961,14 @@
     "openNext": "Ouvrir le suivant · {count}",
     "noPack": "Plus de paquet",
     "seeCollection": "Voir la collection",
-    "unlocked": "Succès obtenu : {title} · +{coins, plural, one {# pièce} other {# pièces}}"
+    "unlocked": "Succès obtenu : {title} · +{coins, plural, one {# pièce} other {# pièces}}",
+    "zoomHint": "Touchez une carte pour l'agrandir.",
+    "zoomCard": "Agrandir : {name}",
+    "zoomClose": "Fermer la carte",
+    "zoomPrevious": "Voir la carte précédente",
+    "zoomNext": "Voir la carte suivante",
+    "zoomPosition": "{current} sur {count}",
+    "cardPage": "Voir sa fiche"
   },
   "Collection": {
     "title": "Ma collection",
@@ -960,8 +977,19 @@
     "allRarities": "Toutes les raretés",
     "series": "Série",
     "allSeries": "Toutes les séries",
+    "anyRarity": "Toutes",
     "filter": "Filtrer",
     "tabsLabel": "Cartes affichées",
+    "count": "{count, plural, =0 {Aucune carte} one {# carte} other {# cartes}}",
+    "view": {
+      "label": "Affichage",
+      "grid": "Grille",
+      "list": "Liste"
+    },
+    "more": "Voir plus",
+    "shown": "{shown, plural, one {# carte affichée} other {# cartes affichées}} sur {total, number}",
+    "narrow": "Pour voir les autres, affinez avec les filtres plus haut.",
+    "openPack": "Ouvrir un paquet",
     "tabs": {
       "all": "Toutes",
       "owned": "Possédées",
@@ -977,10 +1005,6 @@
       "missing": "Vous avez toutes les cartes de cette sélection.",
       "duplicates": "Aucun doublon pour l'instant."
     },
-    "pagination": "Pages",
-    "previous": "Page précédente",
-    "next": "Page suivante",
-    "page": "Page {page} sur {pages}",
     "seriesTypes": {
       "region": "Série régionale",
       "family": "Famille de monuments",
@@ -1035,9 +1059,14 @@
       "tooManyRequests": "Vous avez trop de demandes en attente : attendez des réponses avant d'en envoyer d'autres.",
       "tooFast": "Vous avez envoyé beaucoup de demandes : réessayez dans une heure.",
       "noRequest": "Cette demande n'existe plus."
-    },
-    "tradesLink": "Mes échanges",
-    "offersWaiting": "{count, plural, one {# offre d'échange attend} other {# offres d'échange attendent}} votre réponse."
+    }
+  },
+  "Social": {
+    "label": "Amis, échanges et classement",
+    "friends": "Amis",
+    "trades": "Échanges",
+    "leaderboard": "Classement",
+    "waiting": "{count, plural, one {# en attente de votre réponse} other {# en attente de votre réponse}}"
   },
   "FriendCollection": {
     "title": "Collection de {pseudo}",
@@ -1057,6 +1086,7 @@
   },
   "Trades": {
     "title": "Échanges",
+    "howItWorks": "Comment marchent les échanges ?",
     "intro": "Échangez des cartes avec vos amis, gratuitement. Les cartes que vous proposez restent réservées jusqu'à la réponse.",
     "receivedHeading": "Offres reçues",
     "sentHeading": "Offres envoyées",
@@ -1158,17 +1188,15 @@
   "Leaderboard": {
     "title": "Classement",
     "description": "Les collectionneurs de World Up, classés par nombre de cartes différentes.",
+    "howItWorks": "Comment est fait le classement ?",
     "rule": "{collection} : classement par nombre de cartes différentes. À égalité, le plus de Légendaires passe devant, puis le plus d'Ultra rares, et ainsi de suite.",
     "caption": "Les {count} premiers joueurs",
     "rank": "Rang",
-    "player": "Joueur",
-    "distinct": "Cartes différentes",
     "you": "(vous)",
+    "rares": "{legendary, plural, one {# Légendaire} other {# Légendaires}} · {ultra, plural, one {# Ultra rare} other {# Ultra rares}}",
+    "cardsUnit": "{count, plural, one {carte} other {cartes}}",
     "empty": "Personne n'a encore ouvert de paquet.",
-    "notRanked": "Ouvrez votre premier paquet pour entrer au classement.",
-    "legendary": "Légendaires",
-    "ultra": "Ultra rares",
-    "friends": "Amis"
+    "notRanked": "Ouvrez votre premier paquet pour entrer au classement."
   },
   "Odds": {
     "title": "Probabilités",
@@ -1234,6 +1262,7 @@
   },
   "Market": {
     "title": "Marché",
+    "howItWorks": "Comment marchent les enchères ?",
     "intro": "Achetez et vendez des cartes aux enchères, contre des pièces. Indiquez le prix maximum que vous acceptez de payer : le jeu enchérit pour vous, juste ce qu'il faut pour rester devant.",
     "balance": "Vous avez <strong>{count, number}</strong> {count, plural, one {pièce} other {pièces}}",
     "held": ", dont {count, plural, one {# engagée} other {# engagées}} dans vos enchères en tête",
@@ -1255,10 +1284,12 @@
       "newest": "Les plus récentes",
       "price": "Prix le plus bas"
     },
-    "missingOnly": "Seulement les cartes qui me manquent",
+    "missingOnly": "Il me manque",
+    "filtersLabel": "Filtres",
     "cardFilter": "Les ventes de {name}",
     "allCards": "Voir toutes les ventes",
     "count": "{count, plural, =0 {Aucune vente en cours} one {# vente en cours} other {# ventes en cours}}",
+    "shown": "{shown, plural, one {# vente affichée} other {# ventes affichées}} sur {total, number}",
     "empty": "Aucune vente ne correspond pour l'instant.",
     "formerPlayer": "un ancien joueur",
     "coins": "{count, number} {count, plural, one {pièce} other {pièces}}",
