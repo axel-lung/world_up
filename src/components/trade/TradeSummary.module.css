@@ -96,8 +96,10 @@
   color: inherit;
 }
 
-.chip a:hover {
-  color: var(--color-accent-strong);
+@media (hover: hover) {
+  .chip a:hover {
+    color: var(--color-accent-strong);
+  }
 }
 
 .count {

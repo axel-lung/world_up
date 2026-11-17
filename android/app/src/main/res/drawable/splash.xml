@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Before Android 12: the cut-out logo, centred on the site's ground -->
+<!-- The cut-out logo, centred on the site's ground, at the size of Android 12's
+     splash icon (splash_icon.xml): the splash before Android 12, and behind
+     the WebView until the site is drawn (activity_main.xml) -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/splash_background" />
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/splash_logo" />
-    </item>
+    <item
+        android:width="288dp"
+        android:height="288dp"
+        android:drawable="@drawable/splash_icon"
+        android:gravity="center" />
 </layer-list>

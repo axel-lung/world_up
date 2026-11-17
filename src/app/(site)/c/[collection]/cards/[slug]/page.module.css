@@ -38,9 +38,11 @@
   text-decoration: none;
 }
 
-.collection:hover {
-  color: var(--color-accent-strong);
-  text-decoration: underline;
+@media (hover: hover) {
+  .collection:hover {
+    color: var(--color-accent-strong);
+    text-decoration: underline;
+  }
 }
 
 .place {

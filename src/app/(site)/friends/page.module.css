@@ -89,7 +89,14 @@
   color: var(--color-text-muted);
 }
 
-.confirm summary:hover {
+@media (hover: hover) {
+  .confirm summary:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+.confirm summary:active {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }

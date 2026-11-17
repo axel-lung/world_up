@@ -31,7 +31,14 @@
   text-decoration: none;
 }
 
-.tab:hover {
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+.tab:active {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }

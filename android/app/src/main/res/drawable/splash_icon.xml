@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The cut-out logo as Android 12's splash icon (values-v31/styles.xml): the
+     system draws it at 288 dp and shows only the circle of 192 dp at its
+     centre, which the inset keeps the logo within. The launcher icon can't
+     serve: its logo is in its background layer, which the splash leaves out. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/splash_logo"
+    android:inset="20%" />

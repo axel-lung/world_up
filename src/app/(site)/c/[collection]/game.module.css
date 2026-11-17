@@ -52,9 +52,11 @@
   text-decoration: none;
 }
 
-.eyebrow a:hover {
-  color: inherit;
-  text-decoration: underline;
+@media (hover: hover) {
+  .eyebrow a:hover {
+    color: inherit;
+    text-decoration: underline;
+  }
 }
 
 .muted {
@@ -130,8 +132,10 @@
   color: inherit;
 }
 
-.gauges a:hover {
-  color: var(--color-accent-strong);
+@media (hover: hover) {
+  .gauges a:hover {
+    color: var(--color-accent-strong);
+  }
 }
 
 .stack {
@@ -235,7 +239,14 @@
   text-decoration: none;
 }
 
-.tab:hover {
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+.tab:active {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
@@ -318,7 +329,14 @@
   text-decoration: none;
 }
 
-.chip:hover {
+@media (hover: hover) {
+  .chip:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+.chip:active {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }

@@ -19,7 +19,8 @@
   color: var(--color-bg);
 }
 
-.skip:focus {
+/* From the keyboard only: a tap or a script's focus doesn't show it */
+.skip:focus-visible {
   top: 8px;
   color: var(--color-bg);
 }
@@ -53,12 +54,15 @@
   height: 48px;
 }
 
-.brand:hover {
-  color: var(--color-accent-strong);
+@media (hover: hover) {
+  .brand:hover {
+    color: var(--color-accent-strong);
+  }
 }
 
-/* The logo tilts like a sticker under the pointer */
-@media (prefers-reduced-motion: no-preference) {
+/* The logo tilts like a sticker under the pointer (not after a tap: a touch
+   screen would keep it tilted) */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
   .brand img {
     transition: transform 0.2s ease;
   }
@@ -84,12 +88,14 @@
   align-self: center;
 }
 
-.reserve:hover {
-  color: inherit;
-}
+@media (hover: hover) {
+  .reserve:hover {
+    color: inherit;
+  }
 
-.reserve:hover > * {
-  box-shadow: inset 0 0 0 1.5px var(--color-accent);
+  .reserve:hover > * {
+    box-shadow: inset 0 0 0 1.5px var(--color-accent);
+  }
 }
 
 .coins {
@@ -129,7 +135,14 @@
   height: 22px;
 }
 
-.account:hover {
+@media (hover: hover) {
+  .account:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+.account:active {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
@@ -163,7 +176,14 @@
   text-decoration: none;
 }
 
-.navLink:hover {
+@media (hover: hover) {
+  .navLink:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+.navLink:active {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
@@ -202,8 +222,10 @@
   color: var(--color-text-muted);
 }
 
-.footer a:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .footer a:hover {
+    color: var(--color-text);
+  }
 }
 
 .footer p {

@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { isNativeApp } from '@/lib/native-app';
 import { openTouchedNotifications, refreshAppPushToken } from '@/lib/notifications/app-push-device';
@@ -17,15 +18,24 @@ function firstTimeThisLaunch(): boolean {
   return true;
 }
 
+/** Gives the phone's system bars the ground of the page as it is drawn now. */
+function repaintSystemBars() {
+  void import('@/lib/app-system-bars').then(({ paintSystemBars }) => paintSystemBars());
+}
+
 /**
- * The page's share of the Android app (android/README.md): hides the splash
- * screen once the page is drawn, opens the page of a notification the player
- * touched, and keeps the phone's push token current. Renders nothing, and does
- * nothing in a browser.
+ * The page's share of the Android app (android/README.md): marks the page as
+ * the app's (data-app, for the styles of theme.css), hides the splash screen
+ * once the page is drawn, gives the system bars the page's ground, opens the
+ * page of a notification the player touched, and keeps the phone's push token
+ * current. Renders nothing, and does nothing in a browser.
  */
 export function NativeApp() {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (!isNativeApp()) return;
+    document.documentElement.dataset.app = '';
     let stop: (() => void) | undefined;
     let live = true;
     void import('@capacitor/splash-screen').then(({ SplashScreen }) => SplashScreen.hide());
@@ -34,10 +44,25 @@ export function NativeApp() {
       else remove();
     });
     if (firstTimeThisLaunch()) refreshAppPushToken().catch(() => undefined);
+    // The theme forced from the switch (ThemeSwitch), or the phone's changing
+    const forcedTheme = new MutationObserver(repaintSystemBars);
+    forcedTheme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    const phoneTheme = window.matchMedia('(prefers-color-scheme: dark)');
+    phoneTheme.addEventListener('change', repaintSystemBars);
     return () => {
       live = false;
       stop?.();
+      forcedTheme.disconnect();
+      phoneTheme.removeEventListener('change', repaintSystemBars);
     };
   }, []);
+
+  // Each page, once drawn: the pack opening's stage is dark in both themes
+  useEffect(() => {
+    if (!isNativeApp()) return;
+    const frame = requestAnimationFrame(repaintSystemBars);
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
+
   return null;
 }

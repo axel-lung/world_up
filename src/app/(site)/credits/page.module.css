@@ -37,9 +37,11 @@
   text-decoration: none;
 }
 
-.home:hover {
-  color: var(--color-accent-strong);
-  text-decoration: underline;
+@media (hover: hover) {
+  .home:hover {
+    color: var(--color-accent-strong);
+    text-decoration: underline;
+  }
 }
 
 .note {

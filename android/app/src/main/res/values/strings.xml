@@ -8,4 +8,6 @@
     <string name="notification_channel_id" translatable="false">activity</string>
     <string name="notification_channel_name">Amis, échanges et enchères</string>
     <string name="notification_channel_description">Demandes d\'ami, offres d\'échange, enchères dépassées ou remportées</string>
+    <!-- A file the site sends, such as the player's data (MainActivity.java) -->
+    <string name="download_started">Téléchargement de %1$s…</string>
 </resources>

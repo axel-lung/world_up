@@ -28,7 +28,13 @@
   color: var(--color-text);
 }
 
-.tab:hover {
+@media (hover: hover) {
+  .tab:hover {
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+.tab:active {
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 

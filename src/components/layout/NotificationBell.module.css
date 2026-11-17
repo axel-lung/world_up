@@ -13,7 +13,14 @@
   height: 22px;
 }
 
-.bell:hover {
+@media (hover: hover) {
+  .bell:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+.bell:active {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }

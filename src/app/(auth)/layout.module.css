@@ -15,8 +15,10 @@
   text-decoration: none;
 }
 
-.brand:hover {
-  color: var(--color-accent-strong);
+@media (hover: hover) {
+  .brand:hover {
+    color: var(--color-accent-strong);
+  }
 }
 
 .panel {
