@@ -180,10 +180,49 @@
    shade. In Organic's layer, so any component class still sets its own color. */
 @layer organic {
   a { color: var(--color-accent-strong); }
-  a:hover { color: var(--color-accent); }
+  a:active { color: var(--color-accent); }
+
+  @media (hover: hover) {
+    a:hover { color: var(--color-accent); }
+  }
+
+  /* A touch screen keeps a tapped element's hover until the next tap: there,
+     Organic's buttons keep their fill and only darken while pressed. */
+  @media (hover: none) {
+    .btn-primary:hover { background: var(--color-accent); }
+    .btn-secondary:hover,
+    .btn-ghost:hover { background: transparent; }
+    .btn-primary:active { background: var(--color-accent-700); }
+    .btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+    .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+  }
 
   /* A pill suits one line, not a text area */
   textarea.input { border-radius: var(--radius-md); }
+}
+
+/* A tap draws no browser highlight: the controls show their own pressed state
+   (:active), and hover styles wait for a pointer that hovers. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* In the Android app (data-app, set by NativeApp.tsx), a long press does what
+   it does in a native app: nothing. No text selected with its Copy and Share
+   bar, no image or link dragged. Fields keep their selection, to paste. */
+html[data-app] body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html[data-app] :is(input, textarea, [contenteditable]) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+html[data-app] :is(img, a) {
+  -webkit-user-drag: none;
 }
 
 /* Lucide icons with a thickened stroke, as in the design system. */

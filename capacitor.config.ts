@@ -19,12 +19,11 @@ const config: CapacitorConfig = {
     // own error pages (404...) still show (MainActivity.java)
     errorPath: 'index.html',
   },
-  android: {
-    // The WebView's ground while the first page loads: the site's cream
-    backgroundColor: '#F5EAD8',
-  },
+  // The WebView is transparent until the site paints its ground, over the
+  // splash's logo (MainActivity.java, activity_main.xml)
   plugins: {
-    // Hidden by the site as soon as it is drawn (NativeApp.tsx), or after 3 s
+    // Hidden by the site as soon as it is drawn (NativeApp.tsx), or after 3 s;
+    // the logo stays behind the WebView until the site comes
     SplashScreen: {
       launchShowDuration: 3000,
       launchFadeOutDuration: 300,

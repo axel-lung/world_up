@@ -23,18 +23,9 @@
 }
 
 /* Ink on the terracotta fill (4.5:1 at least, as --color-on-accent promises),
-   and a lighter fill under the pointer, in both themes. */
+   in both themes. */
 .primary {
   color: var(--color-on-accent);
-}
-
-.primary:hover {
-  color: var(--color-on-accent);
-  background: color-mix(in srgb, var(--color-accent) 75%, white);
-}
-
-.primary:active {
-  background: color-mix(in srgb, var(--color-accent) 55%, white);
 }
 
 /* Terracotta text takes the strong shade at button size */
@@ -43,22 +34,9 @@
   color: var(--color-accent-strong);
 }
 
-.ghost:hover {
-  color: var(--color-accent-strong);
-}
-
 .sage {
   background: var(--color-sage);
   color: var(--color-on-accent);
-}
-
-.sage:hover {
-  color: var(--color-on-accent);
-  background: color-mix(in srgb, var(--color-sage) 80%, white);
-}
-
-.secondary:hover {
-  color: var(--color-text);
 }
 
 .danger {
@@ -66,8 +44,43 @@
   border-color: var(--color-danger);
 }
 
-.danger:hover {
-  color: var(--color-danger);
+/* A lighter fill under a pointer that hovers. Not on a touch screen, which
+   would keep it after a tap (Organic's hover too, theme.css). */
+@media (hover: hover) {
+  .primary:hover {
+    color: var(--color-on-accent);
+    background: color-mix(in srgb, var(--color-accent) 75%, white);
+  }
+
+  .ghost:hover {
+    color: var(--color-accent-strong);
+  }
+
+  .sage:hover {
+    color: var(--color-on-accent);
+    background: color-mix(in srgb, var(--color-sage) 80%, white);
+  }
+
+  .secondary:hover {
+    color: var(--color-text);
+  }
+
+  .danger:hover {
+    color: var(--color-danger);
+    background: var(--color-danger-tint);
+  }
+}
+
+/* A deeper one while pressed, by a pointer or a finger */
+.primary:active {
+  background: color-mix(in srgb, var(--color-accent) 55%, white);
+}
+
+.sage:active {
+  background: color-mix(in srgb, var(--color-sage) 60%, white);
+}
+
+.danger:active {
   background: var(--color-danger-tint);
 }
 

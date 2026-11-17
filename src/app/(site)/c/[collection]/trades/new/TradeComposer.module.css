@@ -86,7 +86,13 @@
   cursor: pointer;
 }
 
-.chipButton:hover {
+@media (hover: hover) {
+  .chipButton:hover {
+    background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  }
+}
+
+.chipButton:active {
   background: color-mix(in srgb, var(--color-text) 10%, transparent);
 }
 

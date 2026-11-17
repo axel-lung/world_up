@@ -667,7 +667,13 @@
   color: var(--color-text);
 }
 
-.revealAll:hover {
+@media (hover: hover) {
+  .revealAll:hover {
+    color: var(--color-text);
+  }
+}
+
+.revealAll:active {
   color: var(--color-text);
 }
 

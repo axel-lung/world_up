@@ -439,9 +439,11 @@
   border-radius: var(--card-radius);
 }
 
-.nameLink:hover {
-  color: inherit;
-  text-decoration: underline;
+@media (hover: hover) {
+  .nameLink:hover {
+    color: inherit;
+    text-decoration: underline;
+  }
 }
 
 .toDiscover {
@@ -598,9 +600,11 @@
   text-underline-offset: 3px;
 }
 
-.articleLink:hover,
-.commonsLink:hover {
-  color: var(--card-ink);
+@media (hover: hover) {
+  .articleLink:hover,
+  .commonsLink:hover {
+    color: var(--card-ink);
+  }
 }
 
 .articleLink svg,
@@ -632,9 +636,11 @@
   color: var(--card-link);
 }
 
-.textLicense a:hover,
-.photoAuthor a:hover {
-  color: var(--card-ink);
+@media (hover: hover) {
+  .textLicense a:hover,
+  .photoAuthor a:hover {
+    color: var(--card-ink);
+  }
 }
 
 .photoSection {

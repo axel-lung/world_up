@@ -65,9 +65,11 @@
   font-weight: 700;
 }
 
-.text:hover {
-  color: var(--color-accent-strong);
-  text-decoration: underline;
+@media (hover: hover) {
+  .text:hover {
+    color: var(--color-accent-strong);
+    text-decoration: underline;
+  }
 }
 
 .meta {
