@@ -12,7 +12,7 @@ export interface NotificationView {
   pseudo: string | null;
   /** The card's name, as stored (lowercase). */
   card: string | null;
-  /** The collection's slug, for trades and auctions. */
+  /** The collection's slug, for trades, auctions and the full reserve. */
   collection: string | null;
 }
 
@@ -20,6 +20,7 @@ export interface NotificationView {
 export function notificationHref({ kind, data, collection }: NotificationView): string {
   if (collection && data.tradeId && kind.startsWith('trade_')) return gamePath(collection).trade(data.tradeId);
   if (collection && data.auctionId && kind.startsWith('auction_')) return gamePath(collection).auction(data.auctionId);
+  if (collection && kind === 'packs_full') return gamePath(collection).open;
   return kind.startsWith('friend_') ? '/friends' : '/activity';
 }
 

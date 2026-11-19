@@ -7,6 +7,7 @@ import {
   auditLog,
   cards,
   coinLedger,
+  notifications,
   packCards,
   packOpenings,
   rarityOdds,
@@ -20,7 +21,7 @@ import { publishOdds, RulesError, updateGameRules } from './admin';
 import { addCoins, coinBalance, duplicatesValue, resellDuplicates } from './coins';
 import { GameError } from './game-error';
 import { reservedCopies } from './holds';
-import { getReserve, OPENINGS_PER_MINUTE, openPack } from './packs';
+import { getReserve, notifyFullReserves, OPENINGS_PER_MINUTE, openPack } from './packs';
 import { currentOdds } from './rules';
 import { createTestCollection, createTestPlayer, deleteTestData, type TestCollection, TEST_RESALE } from './testing';
 
@@ -45,16 +46,18 @@ const at = (minutes: number) => new Date(t0.getTime() + minutes * 60_000);
 let standard: TestCollection;
 let big: TestCollection;
 let paying: TestCollection;
+let short: TestCollection;
 const players: string[] = [];
 
 beforeAll(async () => {
   standard = await createTestCollection(CARDS, { odds: ODDS });
   big = await createTestCollection(CARDS, { odds: ODDS, rules: { signupPacks: 30, maxReserve: 30 } });
   paying = await createTestCollection(CARDS, { odds: ODDS, rules: { coinsPerOpening: 5 } });
+  short = await createTestCollection(CARDS, { odds: ODDS, rules: { signupPacks: 8 } });
 });
 
 afterAll(async () => {
-  await deleteTestData([standard.id, big.id, paying.id], players);
+  await deleteTestData([standard.id, big.id, paying.id, short.id], players);
 });
 
 async function newPlayer() {
@@ -117,6 +120,56 @@ describe('the reserve', () => {
     for (let i = 0; i < 10; i++) await open(player, at(i / 10));
     expect(await rejection(open(player, at(1)))).toBe('noPack');
     expect(await getReserve(player, standard.id, at(1))).toMatchObject({ packs: 0, nextPackAt: at(10) });
+  });
+});
+
+describe('the full reserve notice', () => {
+  const notices = (userId: string) =>
+    db
+      .select({ collectionId: notifications.collectionId, createdAt: notifications.createdAt })
+      .from(notifications)
+      .where(and(eq(notifications.userId, userId), eq(notifications.kind, 'packs_full')));
+
+  it('tells the player once the reserve is full again, and only once', async () => {
+    const player = await newPlayer();
+    // Created full: nothing to tell
+    await getReserve(player, standard.id, t0);
+    await notifyFullReserves(db, at(60));
+    expect(await notices(player)).toEqual([]);
+
+    // 8 packs left: full again 2 intervals after the first opening
+    await open(player, at(1));
+    await open(player, at(2));
+    await notifyFullReserves(db, at(20.99));
+    expect(await notices(player)).toEqual([]);
+    await notifyFullReserves(db, at(21));
+    expect(await notices(player)).toEqual([{ collectionId: standard.id, createdAt: at(21) }]);
+    await notifyFullReserves(db, at(30));
+    expect(await notices(player)).toHaveLength(1);
+
+    // The next opening makes it worth telling again
+    await open(player, at(40));
+    await notifyFullReserves(db, at(50));
+    expect(await notices(player)).toHaveLength(2);
+  });
+
+  it('waits again when the player opens a pack before the reserve is full', async () => {
+    const player = await newPlayer();
+    await open(player, at(1));
+    await open(player, at(9));
+    await notifyFullReserves(db, at(11));
+    expect(await notices(player)).toEqual([]);
+    await notifyFullReserves(db, at(21));
+    expect(await notices(player)).toHaveLength(1);
+  });
+
+  it('tells a new player whose signup packs are below the maximum', async () => {
+    const player = await newPlayer();
+    expect(await getReserve(player, short.id, t0)).toMatchObject({ packs: 8 });
+    await notifyFullReserves(db, at(19.99));
+    expect(await notices(player)).toEqual([]);
+    await notifyFullReserves(db, at(20));
+    expect(await notices(player)).toEqual([{ collectionId: short.id, createdAt: at(20) }]);
   });
 });
 

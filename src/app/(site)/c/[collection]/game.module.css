@@ -206,6 +206,11 @@
   }
 }
 
+/* Under the pointer, every other card tilts the other way (Card.module.css) */
+.grid > li:nth-child(even) {
+  --hover-tilt: 2deg;
+}
+
 /* The collection's tabs: pills on a surface strip, the current one inked */
 .tabs {
   align-self: flex-start;

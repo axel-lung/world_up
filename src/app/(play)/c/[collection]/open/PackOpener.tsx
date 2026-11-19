@@ -7,7 +7,7 @@ import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/card/Card';
 import { displayName } from '@/components/card/card-format';
 import { EmblemIcon } from '@/components/collection/Emblem';
-import { formatCountdown, useCountdown } from '@/components/pack/useCountdown';
+import { formatCountdown, useCountdown, useRefreshWhenDue } from '@/components/pack/useCountdown';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Notice';
 import type { Emblem } from '@/lib/collection-theme';
@@ -107,6 +107,13 @@ export function PackOpener({
   // Kept until a pack has opened: a retry sends the same key
   const [key, setKey] = useState(() => crypto.randomUUID());
   const [reserve, setReserve] = useState(initialReserve);
+  // The page sent again (once the timer is up, or after an opening) brings a
+  // newer reserve, which replaces the one shown unless an opening's is newer
+  const [pageReserveAt, setPageReserveAt] = useState(initialReserve.serverNow);
+  if (pageReserveAt !== initialReserve.serverNow) {
+    setPageReserveAt(initialReserve.serverNow);
+    if (Date.parse(initialReserve.serverNow) > Date.parse(reserve.serverNow)) setReserve(initialReserve);
+  }
   const [phase, setPhase] = useState<Phase>('pack');
   const [opened, setOpened] = useState<Opened | null>(null);
   // The top card of the stack, whether it is face up, and whether it is trembling
@@ -125,7 +132,9 @@ export function PackOpener({
   const scene = useRef<HTMLDivElement>(null);
   const [cardScale, setCardScale] = useState(1);
   const remaining = useCountdown(reserve.nextPackAt, reserve.serverNow);
-  // The server decides: once the timer is up, a pack has come
+  useRefreshWhenDue(reserve.nextPackAt, remaining);
+  // The server decides: once the timer is up, a pack has come (the page sent
+  // again then gives the reserve's new count)
   const canOpen = reserve.available > 0 || (reserve.nextPackAt !== null && remaining === 0);
 
   const later = (run: () => void, ms: number) => {

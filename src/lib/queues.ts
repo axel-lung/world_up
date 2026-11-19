@@ -23,6 +23,12 @@ export const queues = {
     name: 'market-settle',
     options: { retryLimit: 0, expireInSeconds: 50, deleteAfterSeconds: 3_600 },
   },
+  // Tells the players whose free pack reserve is full again (notifyFullReserves
+  // in src/lib/game/packs.ts). Every minute; a run missed is caught up by the next.
+  packsFull: {
+    name: 'packs-full',
+    options: { retryLimit: 0, expireInSeconds: 50, deleteAfterSeconds: 3_600 },
+  },
   // A notification for one device (src/worker/send-push.ts), sent by notify()
   // in the event's transaction. A push still unsent after an hour is dropped:
   // the notification stays on /activity.
@@ -44,6 +50,7 @@ export const queues = {
 const schedules = [
   { queue: queues.accountRetention.name, cron: '30 4 * * *' },
   { queue: queues.marketSettle.name, cron: '* * * * *' },
+  { queue: queues.packsFull.name, cron: '* * * * *' },
 ];
 
 export async function createQueues(boss: PgBoss): Promise<void> {

@@ -26,7 +26,7 @@ export interface PushMessage {
 
 export function renderPush(notification: NotificationView & { id: number }): PushMessage {
   const t = createTranslator({ locale: 'fr', messages, namespace: 'Notifications' });
-  const topic = notification.kind.slice(0, notification.kind.indexOf('_')) as 'friend' | 'trade' | 'auction';
+  const topic = notification.kind.slice(0, notification.kind.indexOf('_')) as 'friend' | 'trade' | 'auction' | 'packs';
   return {
     title: t(`pushTitle.${topic}`),
     body: t(notification.kind, notificationValues(notification, { formerPlayer: t('formerPlayer'), aCard: t('aCard') })),

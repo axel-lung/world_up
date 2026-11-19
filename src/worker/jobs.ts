@@ -1,6 +1,7 @@
 import type { PgBoss, WorkHandler, WorkOptions } from 'pg-boss';
 import { queues } from '@/lib/queues';
 import { createRetentionJob } from './account-retention';
+import { createPacksFullJob } from './notify-full-reserves';
 import { createMarketJob } from './settle-market';
 import { createEmailJob } from './send-email';
 import { createPushJob } from './send-push';
@@ -22,6 +23,7 @@ export function createJobs(boss: PgBoss): JobDefinition[] {
       await boss.send(queues.email.name, job);
     }),
     createMarketJob(),
+    createPacksFullJob(),
     createPushJob(),
   ];
 }

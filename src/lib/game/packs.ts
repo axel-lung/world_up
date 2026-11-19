@@ -1,6 +1,7 @@
 import { and, asc, count, eq, gte, inArray, isNull, sql } from 'drizzle-orm';
 import { type Database, db, type Transaction } from '@/db';
 import { cards, packCards, packOpenings, packState, userCards } from '@/db/schema';
+import { notify } from '@/lib/notifications/notifications';
 import type { Rarity } from '@/lib/rarity';
 import { type AwardedAchievement, awardAchievements } from './achievements';
 import { addCoins } from './coins';
@@ -17,11 +18,20 @@ type Executor = Database | Transaction;
 // Openings per player and minute, on top of the reserve: a script can't hammer the draw
 export const OPENINGS_PER_MINUTE = 20;
 
-/** The reserve row, created with the signup packs on the player's first visit. */
+/**
+ * The reserve row, created with the signup packs on the player's first visit;
+ * a reserve that starts below its maximum will be worth a notice once full.
+ */
 async function ensureReserve(executor: Executor, userId: string, collectionId: number, rules: GameRules, now: Date) {
   await executor
     .insert(packState)
-    .values({ userId, collectionId, packs: rules.signupPacks, lastRefill: now })
+    .values({
+      userId,
+      collectionId,
+      packs: rules.signupPacks,
+      lastRefill: now,
+      notifyWhenFull: rules.signupPacks < rules.maxReserve,
+    })
     .onConflictDoNothing();
 }
 
@@ -152,9 +162,10 @@ export async function openPack(
         set: { quantity: sql.raw('"user_cards"."quantity" + excluded."quantity"') },
       });
 
+    // The reserve is below its maximum now: the player is told once it is full again
     await tx
       .update(packState)
-      .set(takePack(reserve, rules, now))
+      .set({ ...takePack(reserve, rules, now), notifyWhenFull: true })
       .where(and(eq(packState.userId, userId), eq(packState.collectionId, collectionId)));
 
     if (rules.coinsPerOpening > 0) {
@@ -170,6 +181,36 @@ export async function openPack(
 
     const awarded = await awardAchievements(tx, userId, collectionId, now);
     return { openingId: opening.id, repeated: false, coins: rules.coinsPerOpening, achievements: awarded };
+  });
+}
+
+/**
+ * Tells the players whose reserve has filled up since their last opening
+ * (the worker's packs-full job, every minute). The refill stays computed on
+ * read: a reserve is full once `last_refill` plus one interval per missing
+ * pack has passed, by the collection's current rules. Each row is told once,
+ * under the lock an opening takes, so an opening in between moves the time
+ * on instead. An inactive collection's players wait for it to come back.
+ */
+export async function notifyFullReserves(database: Database, now: Date, limit = 500): Promise<number> {
+  return database.transaction(async (tx) => {
+    const full = await tx.execute<{ user_id: string; collection_id: number }>(sql`
+      UPDATE pack_state SET notify_when_full = false
+      WHERE (user_id, collection_id) IN (
+        SELECT ps.user_id, ps.collection_id
+        FROM pack_state AS ps
+        JOIN game_rules AS gr ON gr.collection_id = ps.collection_id
+        JOIN collections AS c ON c.id = ps.collection_id AND c.active
+        WHERE ps.notify_when_full
+          AND ps.last_refill + make_interval(mins => gr.refill_minutes * greatest(gr.max_reserve - ps.packs, 0)) <= ${now}
+        LIMIT ${limit}
+        FOR UPDATE OF ps SKIP LOCKED
+      )
+      RETURNING user_id, collection_id`);
+    for (const row of full.rows) {
+      await notify(tx, { userId: row.user_id, kind: 'packs_full', collectionId: row.collection_id, data: {}, now });
+    }
+    return full.rows.length;
   });
 }
 
