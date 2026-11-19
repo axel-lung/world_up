@@ -390,8 +390,14 @@ export const packState = pgTable(
       .references(() => collections.id),
     packs: integer('packs').notNull(),
     lastRefill: timestamp('last_refill', { withTimezone: true }).notNull(),
+    // Set by an opening, cleared once the player is told the reserve is full
+    // again (notifyFullReserves, the worker's packs-full job, every minute)
+    notifyWhenFull: boolean('notify_when_full').notNull().default(false),
   },
-  (table) => [primaryKey({ columns: [table.userId, table.collectionId] })],
+  (table) => [
+    primaryKey({ columns: [table.userId, table.collectionId] }),
+    index('pack_state_notify_when_full_idx').on(table.collectionId).where(sql`${table.notifyWhenFull}`),
+  ],
 );
 
 export const packOrigin = pgEnum('pack_origin', ['free', 'subscription', 'bonus', 'purchase']);
@@ -715,6 +721,7 @@ export const notificationKind = pgEnum('notification_kind', [
   'auction_sold',
   'auction_unsold',
   'auction_cancelled',
+  'packs_full',
 ]);
 
 // What happened to the player (/activity, the header's bell, Web Push). `data`

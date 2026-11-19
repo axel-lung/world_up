@@ -573,9 +573,10 @@ export default function DesignPage() {
 
       <section className={styles.section} aria-labelledby="carte">
         <SectionTitle id="carte" number={6} tone="sage" title="La carte">
-          Nouvelle structure : une carte autocollant, la photo dans une fenêtre arrondie, l&apos;étiquette de rareté
-          posée à cheval sur la photo, le nom en Caprasimo et l&apos;emblème de la collection en pied. Lisible à 160 px,
-          grand format à partir de 300 px.
+          Une carte autocollant encadrée à la couleur de sa rareté : le cadre s&apos;élargit en pied en un bandeau qui
+          porte le nom de la rareté. Dedans, la photo dans une fenêtre arrondie, le nom en Caprasimo et l&apos;emblème de
+          la collection. Lisible à 160 px, grand format à partir de 300 px. Une carte qui mène à sa fiche se penche et
+          grossit au survol.
         </SectionTitle>
         <div className={styles.cardIntro}>
           <figure className={styles.large320}>
@@ -594,7 +595,8 @@ export default function DesignPage() {
                 de la même photo.
               </li>
               <li>
-                <strong>Étiquette de rareté</strong> à cheval sur la photo : couleur, nom, 1 à 6 pastilles.
+                <strong>Cadre de rareté</strong> sous le contour encré, élargi en pied en bandeau : nom de la rareté et
+                1 à 6 pastilles.
               </li>
               <li>
                 <strong>Nom</strong> en Caprasimo, 3 lignes au plus.
@@ -621,13 +623,13 @@ export default function DesignPage() {
         <h3>Les six raretés, grille 160&nbsp;px</h3>
         <div className={styles.grid160}>
           {[samples.notreDame, samples.soissons, samples.isle, samples.napoleon, samples.compiegne, samples.horloge].map((card) => (
-            <Card key={card.name} card={card} collection={heritage} />
+            <Card key={card.name} card={card} collection={heritage} href="#" />
           ))}
           <Card card={samples.thoronet} collection={heritage} face="back" />
         </div>
         <span className={styles.muted}>
-          La dernière carte montre le verso en grille : extrait abrégé, crédit et exemplaires, sans lien (l&apos;appui
-          ouvre la fiche).
+          Survolez une carte pour la voir se pencher. La dernière carte montre le verso en grille : extrait abrégé,
+          crédit et exemplaires, sans lien (l&apos;appui ouvre la fiche).
         </span>
 
         <h3>Les six raretés, grand format</h3>
@@ -639,8 +641,9 @@ export default function DesignPage() {
 
         <h3>États</h3>
         <p className={styles.lead}>
-          Manquante : contour en pointillés, photo désaturée, étiquette au trait. Nom masqué : un « ? » à la place de
-          la photo (Légendaires et Ultra rares). Brillante : reflet irisé et pastille.
+          Manquante : grisée, contour en pointillés et cadre pâle de la couleur de sa rareté ; seuls le nom et la rareté
+          se lisent, un emplacement vide remplace la photo, et elle ne mène nulle part. Brillante : reflet irisé et
+          pastille.
         </p>
         <div className={styles.themes}>
           {THEMES.map(({ theme, label }) => (
@@ -671,11 +674,11 @@ export default function DesignPage() {
                 </figure>
                 <figure>
                   <Card card={samples.horloge} collection={heritage} state="missing" />
-                  <figcaption>Manquante, nom visible</figcaption>
+                  <figcaption>Manquante</figcaption>
                 </figure>
                 <figure>
-                  <Card card={{ ...samples.chambord, photo: { ...samples.chambord.photo, src: '' } }} collection={heritage} state="masked" />
-                  <figcaption>Manquante, nom masqué</figcaption>
+                  <Card card={samples.chambord} collection={heritage} state="missing" />
+                  <figcaption>Manquante, Légendaire</figcaption>
                 </figure>
               </div>
             </div>
@@ -684,9 +687,9 @@ export default function DesignPage() {
 
         <h3>Vue liste</h3>
         <p className={styles.lead}>
-          La vue dense de la collection, au choix du joueur (Grille ou Liste) : vignette, nom, étiquette de rareté, lieu,
-          crédit photo sur une ligne (un auteur trop long est abrégé, jamais la licence) et exemplaires. Toute la ligne
-          ouvre la fiche.
+          La vue dense de la collection, au choix du joueur (Grille ou Liste) : vignette encadrée à la couleur de la
+          rareté, nom, étiquette de rareté, lieu, crédit photo sur une ligne (un auteur trop long est abrégé, jamais la
+          licence) et exemplaires. Toute la ligne ouvre la fiche ; une carte manquante n&apos;a que son nom et sa rareté.
         </p>
         <div className={styles.themes}>
           {THEMES.map(({ theme, label }) => (
@@ -705,10 +708,10 @@ export default function DesignPage() {
                   <CardRow card={samples.soissons} href="#" />
                 </li>
                 <li>
-                  <CardRow card={samples.horloge} state="missing" href="#" />
+                  <CardRow card={samples.horloge} state="missing" />
                 </li>
                 <li>
-                  <CardRow card={{ ...samples.chambord, photo: { ...samples.chambord.photo, src: '' } }} state="masked" />
+                  <CardRow card={samples.chambord} state="missing" />
                 </li>
               </ul>
             </div>

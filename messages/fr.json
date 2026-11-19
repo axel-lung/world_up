@@ -220,7 +220,6 @@
     },
     "unesco": "UNESCO",
     "shiny": "Brillante",
-    "toDiscover": "À découvrir…",
     "photoCredit": "Crédit photo",
     "photoOverlay": "Photo : {author} · <licenseLink>{license}</licenseLink> · <link>Commons</link>",
     "photoCaption": "<hidden>Photo : </hidden>{author} · <licenseLink>{license}</licenseLink> · <link>Commons</link>",
@@ -236,7 +235,6 @@
     "new": "Nouveau",
     "selected": "Sélectionnée",
     "collectionEmblem": "Collection {collection}",
-    "ariaMasked": "Carte manquante, {rarity}",
     "ariaMissing": "manquante",
     "ariaShiny": "brillante",
     "showBack": "Voir le verso",
@@ -1171,7 +1169,8 @@
     "pushTitle": {
       "friend": "Amis",
       "trade": "Échanges",
-      "auction": "Enchères"
+      "auction": "Enchères",
+      "packs": "Paquets"
     },
     "friend_request": "{pseudo} vous demande en ami.",
     "friend_accepted": "{pseudo} a accepté votre demande d'ami.",
@@ -1183,7 +1182,8 @@
     "auction_won": "Vous avez remporté {card} aux enchères !",
     "auction_sold": "Votre vente de {card} est conclue.",
     "auction_unsold": "Votre vente de {card} s'est terminée sans enchère.",
-    "auction_cancelled": "La vente de {card} a été annulée."
+    "auction_cancelled": "La vente de {card} a été annulée.",
+    "packs_full": "Votre réserve est pleine : vos paquets gratuits vous attendent. Ouvrez-en un pour relancer le minuteur."
   },
   "Leaderboard": {
     "title": "Classement",

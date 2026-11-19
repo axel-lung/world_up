@@ -1,4 +1,4 @@
-import { inArray } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 // The pool stays open: Playwright runs the next test files in the same worker
 import { db } from '@/db';
 import { users } from '@/db/schema';
@@ -101,16 +101,39 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
   await expect(page.getByText("Aucun doublon pour l'instant.")).toBeVisible();
 });
 
-test('a missing legendary keeps its surprise, and hidden cards never show', async ({ page }) => {
+test('the reserve shows the new pack once the timer runs out, with no reload', async ({ page }) => {
+  const player = await signedInPlayer(page);
+  const home = `/c/${collection.slug}`;
+  await page.goto(home);
+  const packs = page.getByRole('region', { name: 'Vos paquets' });
+  await expect(packs).toContainText('10 paquets en réserve sur 10');
+
+  // Three packs left, the next one due in 3 seconds
+  const [user] = await db.select({ id: users.id }).from(users).where(eq(users.email, player.email));
+  await db.execute(sql`
+    UPDATE pack_state SET packs = 3, last_refill = now() - make_interval(
+      secs => (SELECT refill_minutes * 60 - 3 FROM game_rules WHERE collection_id = ${collection.id})
+    )
+    WHERE user_id = ${user.id} AND collection_id = ${collection.id}`);
+  await page.reload();
+  await expect(packs).toContainText('3 paquets en réserve sur 10');
+  // The page asks the server again when its timer ends
+  await expect(packs).toContainText('4 paquets en réserve sur 10', { timeout: 10_000 });
+});
+
+test('a missing card shows its name and rarity only, and hidden cards never show', async ({ page }) => {
   await signedInPlayer(page);
   await page.goto(`/c/${collection.slug}/collection?tab=missing&rarity=legendary`);
   const grid = page.getByRole('main').getByRole('list').last();
   await expect(grid.getByRole('article')).toHaveCount(1);
-  await expect(grid.getByRole('article')).toHaveAccessibleName('Carte manquante, Légendaire');
-  // Neither its name nor its photo reaches the browser
+  // Legendaries included, since 2026-11-17
+  await expect(grid.getByRole('article')).toHaveAccessibleName('Trésor caché, Légendaire, manquante');
+  await expect(grid.getByRole('heading', { name: 'Trésor caché' })).toBeVisible();
+  // Neither its photo nor its page: the card leads nowhere
+  await expect(grid.getByRole('link')).toHaveCount(0);
   const html = await page.content();
-  expect(html).not.toContain('trésor caché');
   expect(html).not.toContain('f6aaaaaaaaaaaaaaaaaa');
+  expect(html).not.toContain('/cards/monument-6');
 
   await page.goto(`/c/${collection.slug}/collection`);
   await expect(page.getByRole('link', { name: /Toutes\s*6/ })).toBeVisible();

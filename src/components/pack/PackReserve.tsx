@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';
 import styles from './PackReserve.module.css';
-import { formatCountdown, useCountdown } from './useCountdown';
+import { formatCountdown, useCountdown, useRefreshWhenDue } from './useCountdown';
 
 export interface PackReserveProps {
   available: number;
@@ -23,6 +23,7 @@ export interface PackReserveProps {
 export function PackReserve({ available, max, nextPackAt, serverNow, refillMinutes, shopHref = '/shop' }: PackReserveProps) {
   const t = useTranslations('Pack');
   const remaining = useCountdown(nextPackAt, serverNow);
+  useRefreshWhenDue(nextPackAt, remaining);
   const full = available >= max;
   const filled = max > 0 ? Math.min(1, available / max) : 0;
 
@@ -58,6 +59,7 @@ export function PackReserve({ available, max, nextPackAt, serverNow, refillMinut
 export function PackReserveCompact({ available, max, nextPackAt, serverNow }: Omit<PackReserveProps, 'refillMinutes' | 'shopHref'>) {
   const t = useTranslations('Pack');
   const remaining = useCountdown(nextPackAt, serverNow);
+  useRefreshWhenDue(nextPackAt, remaining);
   const full = available >= max;
   const time = formatCountdown(remaining);
   const label = full ? t('compact', { count: available }) : `${t('compact', { count: available })}, ${t('compactNext', { time })}`;

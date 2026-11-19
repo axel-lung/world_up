@@ -1,9 +1,10 @@
 /* A card as a row of the list view (CardRow.tsx): the Card's sticker look,
-   flattened to a line. --rar-fill and --rar-line come from data-rarity
-   (theme.css). Missing and masked rows take the Card's dashed, greyed look. */
+   flattened to a line, the thumbnail framed in the rarity's color inside an
+   inked outline. --rar-fill and --rar-line come from data-rarity (theme.css).
+   Missing rows take the Card's dashed, greyed look, with an empty thumbnail. */
 .row {
-  --thumb-border: 2px solid var(--sticker-line);
-  --thumb-filter: none;
+  --thumb-border: 3px solid var(--rar-fill);
+  --thumb-outline: 0 0 0 2px var(--sticker-line);
   --stk-bg: var(--rar-fill);
   --stk-border: 1.5px solid var(--sticker-line);
   --stk-ink: var(--rar-ink);
@@ -18,10 +19,9 @@
   color: var(--row-ink);
 }
 
-.row[data-state="missing"],
-.row[data-state="masked"] {
-  --thumb-border: 2px dashed var(--miss-line);
-  --thumb-filter: var(--miss-filter);
+.row[data-state="missing"] {
+  --thumb-border: 2px dashed var(--rar-line);
+  --thumb-outline: none;
   --stk-bg: transparent;
   --stk-border: 1.5px dashed var(--rar-line);
   --stk-ink: var(--rar-line);
@@ -38,11 +38,11 @@
   place-items: center;
   border-radius: 12px;
   border: var(--thumb-border);
+  box-shadow: var(--thumb-outline);
   background: var(--card-photo-bg);
 }
 
-.row[data-state="missing"] .thumb,
-.row[data-state="masked"] .thumb {
+.row[data-state="missing"] .thumb {
   background: var(--miss-photo);
 }
 
@@ -50,20 +50,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: var(--thumb-filter);
-}
-
-.mystery {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 2px dashed var(--miss-muted);
-  background: var(--miss-bg);
-  color: var(--miss-muted);
-  font-family: var(--font-heading);
-  font-size: 16px;
 }
 
 .text {
@@ -85,10 +71,6 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   overflow-wrap: anywhere;
-}
-
-.row[data-state="masked"] .name {
-  color: var(--color-text-muted);
 }
 
 /* The whole row leads to the card's page */

@@ -1,24 +1,27 @@
 /* Ported from CarteV2.dc.html (Claude Design project): a sticker card, the
-   photo in a rounded window, the rarity sticker astride the photo, the name in
-   Caprasimo and the collection's emblem in the footer. The card is cream and
-   inked in both themes (theme.css); only its drop shadow, the missing state and
-   the emblem's color (--skin-color) change. --rar-fill and --rar-line come
-   from data-rarity (theme.css). */
+   photo in a rounded window, the name in Caprasimo and the collection's emblem
+   in the footer. Since 2026-11-17 the rarity frames the card: an inked outline,
+   then a frame in the rarity's color that widens at the foot into a band with
+   its name and dots, around the cream panel. The card is cream and inked in
+   both themes (theme.css); only its drop shadow, the missing state and the
+   emblem's color (--skin-color) change. --rar-fill and --rar-line come from
+   data-rarity (theme.css). */
 
 .card {
   /* grid size: readable from 160 px wide */
   --card-radius: 16px;
-  --face-pad: 7px;
+  --frame: 5px;
+  --face-pad: 6px;
   --face-gap: 6px;
   --back-gap: 4px;
-  --photo-radius: 10px;
+  --photo-radius: 8px;
+  --band-pad: 4px 6px 4px;
   --stk-off: 6px;
-  --stk-drop: -10px;
   --stk-pad: 4px 7px;
   --fs-stk: 9.5px;
   --dot: 4.5px;
   --dot-gap: 2.5px;
-  --name-pt: 8px;
+  --name-pt: 2px;
   --text-gap: 4px;
   --fs-meta: 11px;
   --fs-tag: 9.5px;
@@ -33,22 +36,18 @@
   --fit: cover;
 
   /* owned */
+  --frame-bg: var(--rar-fill);
   --face-bg: var(--sticker-paper);
   --face-border: 2px solid var(--sticker-line);
   --face-shadow: 0 4px 0 var(--sticker-shadow);
   --photo-bg: var(--card-photo-bg);
-  --stk-bg: var(--rar-fill);
-  --stk-border: 2px solid var(--sticker-line);
-  --stk-ink: var(--rar-ink);
-  --stk-shadow: 0 2px 0 var(--sticker-line);
+  --band-ink: var(--rar-ink);
   --dot-color: var(--rar-ink);
   --badge-line: rgba(32, 30, 29, 0.35);
   --unesco-bg: #e1eecc;
   --unesco-line: #7a8a5e;
   --emb-bg: var(--skin-color, var(--sticker-new));
   --emb-ink: var(--skin-ink, var(--sticker-line));
-  --img-filter: none;
-  --img-opacity: 1;
 
   position: relative;
   width: 100%;
@@ -64,17 +63,18 @@
 
 .card[data-size="large"] {
   --card-radius: 24px;
-  --face-pad: 12px;
+  --frame: 8px;
+  --face-pad: 11px;
   --face-gap: 10px;
   --back-gap: 9px;
-  --photo-radius: 16px;
+  --photo-radius: 12px;
+  --band-pad: 7px 10px 6px;
   --stk-off: 10px;
-  --stk-drop: -14px;
   --stk-pad: 6px 11px;
   --fs-stk: 13px;
   --dot: 7px;
   --dot-gap: 4px;
-  --name-pt: 12px;
+  --name-pt: 4px;
   --text-gap: 8px;
   --fs-meta: 15px;
   --fs-tag: 12px;
@@ -89,26 +89,20 @@
   font-size: 24px;
 }
 
-.card[data-state="missing"],
-.card[data-state="masked"] {
+/* Not owned yet: greyed, a dashed outline and a faint frame in the rarity's
+   color, an empty slot instead of the photo */
+.card[data-state="missing"] {
   --card-ink: var(--miss-ink);
   --card-muted: var(--miss-muted);
+  --frame-bg: color-mix(in srgb, var(--rar-fill) 24%, var(--miss-bg));
   --face-bg: var(--miss-bg);
-  --face-border: 2px dashed var(--miss-line);
+  --face-border: 2px dashed var(--rar-line);
   --face-shadow: none;
   --photo-bg: var(--miss-photo);
-  --stk-bg: var(--miss-bg);
-  --stk-border: 2px dashed var(--rar-line);
-  --stk-ink: var(--rar-line);
-  --stk-shadow: none;
+  --band-ink: var(--miss-ink);
   --dot-color: var(--rar-line);
-  --badge-line: var(--miss-line);
-  --unesco-bg: transparent;
-  --unesco-line: var(--miss-line);
   --emb-bg: transparent;
   --emb-ink: var(--miss-muted);
-  --img-filter: var(--miss-filter);
-  --img-opacity: 0.7;
 }
 
 .card[data-letterbox] {
@@ -128,6 +122,42 @@
   cursor: pointer;
 }
 
+/* A card with a page leans in under the pointer, zoomed and tilted (a grid can
+   tilt every other card the other way with --hover-tilt); pressed, it sinks */
+.card[data-linked] {
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (hover: hover) {
+  .card[data-linked]:hover {
+    --face-shadow: 0 8px 0 var(--sticker-shadow);
+    z-index: 2;
+    transform: scale(1.06) rotate(var(--hover-tilt, -2deg));
+  }
+}
+
+.card[data-linked]:has(.nameLink:focus-visible) {
+  --face-shadow: 0 8px 0 var(--sticker-shadow);
+  z-index: 2;
+  transform: scale(1.06) rotate(var(--hover-tilt, -2deg));
+}
+
+.card[data-linked]:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card[data-linked] {
+    transition: none;
+  }
+
+  .card[data-linked]:hover,
+  .card[data-linked]:has(.nameLink:focus-visible),
+  .card[data-linked]:active {
+    transform: none;
+  }
+}
+
 .inner {
   position: relative;
   height: 100%;
@@ -145,16 +175,27 @@
   }
 }
 
+/* The face is the frame, in the rarity's color: the panel inside, the band below */
 .face {
+  display: flex;
+  flex-direction: column;
+  padding: var(--frame) var(--frame) 0;
+  border-radius: var(--card-radius);
+  background: var(--frame-bg);
+  border: var(--face-border);
+  box-shadow: var(--face-shadow);
+  backface-visibility: hidden;
+}
+
+.panel {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--face-gap);
   padding: var(--face-pad);
-  border-radius: var(--card-radius);
+  border-radius: calc(var(--card-radius) - var(--frame) - 2px);
   background: var(--face-bg);
-  border: var(--face-border);
-  box-shadow: var(--face-shadow);
-  backface-visibility: hidden;
 }
 
 .front {
@@ -168,36 +209,30 @@
   inset: 0;
   overflow: hidden;
   transform: rotateY(180deg);
-  gap: var(--back-gap);
 }
 
-/* — rarity sticker — */
+.back .panel {
+  gap: var(--back-gap);
+  overflow: hidden;
+}
 
-.sticker {
+/* — rarity band — */
+
+.band {
+  flex: none;
   display: flex;
   align-items: center;
-  gap: var(--dot-gap);
-  padding: var(--stk-pad);
-  border-radius: 999px;
-  background: var(--stk-bg);
-  border: var(--stk-border);
-  color: var(--stk-ink);
+  justify-content: center;
+  gap: calc(var(--dot-gap) * 2);
+  min-width: 0;
+  padding: var(--band-pad);
+  color: var(--band-ink);
   font-size: var(--fs-stk);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-/* Astride the bottom edge of the photo, slightly tilted */
-.frontSticker {
-  position: absolute;
-  left: var(--stk-off);
-  bottom: var(--stk-drop);
-  transform: rotate(-2.5deg);
-  box-shadow: var(--stk-shadow);
-  z-index: 2;
 }
 
 .dots {
@@ -244,8 +279,6 @@
 .photoImage {
   object-fit: var(--fit);
   object-position: center;
-  filter: var(--img-filter);
-  opacity: var(--img-opacity);
 }
 
 /* No photo: a flat with the monument's name */
@@ -271,25 +304,27 @@
   height: 1.4em;
 }
 
-/* A masked card: a question mark instead of the photo */
-.mystery {
+/* A missing card: an empty slot with the collection's emblem instead of the photo */
+.slot {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
 }
 
-.mystery > span {
-  width: 2.6em;
-  height: 2.6em;
+.slot > span {
+  width: 3.4em;
+  height: 3.4em;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--miss-bg);
   border: 2px dashed var(--card-muted);
-  font-family: var(--font-heading);
-  font-size: 1.5em;
   color: var(--card-muted);
+}
+
+.slot svg {
+  width: 1.6em;
+  height: 1.6em;
 }
 
 /* Over the photo, whatever the theme: the card's own cream and ink. */
@@ -369,18 +404,15 @@
   height: 1.1em;
 }
 
-/* Large size: the photo credit under the photo, right-aligned and clear of the
-   rarity sticker that hangs below the photo */
+/* Large size: the photo credit right under the photo */
 .credit {
   display: flex;
   align-items: flex-start;
-  justify-content: flex-end;
   gap: 5px;
-  margin-top: 4px;
+  margin-top: -4px;
   font-size: 11.5px;
   line-height: 1.35;
   color: var(--card-muted);
-  text-align: right;
 }
 
 .credit svg {
@@ -392,7 +424,6 @@
 
 .credit > span {
   min-width: 0;
-  max-width: 70%;
 }
 
 /* — front text — */
@@ -439,19 +470,6 @@
   border-radius: var(--card-radius);
 }
 
-@media (hover: hover) {
-  .nameLink:hover {
-    color: inherit;
-    text-decoration: underline;
-  }
-}
-
-.toDiscover {
-  font-family: var(--font-heading);
-  font-size: 1.06em;
-  line-height: 1.12;
-  color: var(--card-muted);
-}
 
 .place {
   display: flex;
@@ -560,20 +578,17 @@
 
 .backTop {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   flex: none;
 }
 
-.backTop .emblem {
-  margin-left: auto;
-}
-
 .backName {
+  flex: 1;
+  min-width: 0;
   font-size: 0.95em;
   -webkit-line-clamp: 2;
   line-clamp: 2;
-  flex: none;
 }
 
 .excerpt {

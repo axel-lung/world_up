@@ -8,8 +8,9 @@ import type { Rarity } from '@/lib/rarity';
 import { getOpeningCards } from './packs';
 
 // A player's collection: the visible cards of a collection, owned or not.
-// Hidden cards stay out, even the ones the player already has. A friend's
-// collection shows the cards they own, and those the viewer lacks.
+// Hidden cards stay out, even the ones the player already has. A card not owned
+// shows its name and rarity only. A friend's collection shows the cards they
+// own, and those the viewer lacks.
 
 // The first tab is the default: the cards a player has, rather than the
 // thousands they lack.
@@ -20,9 +21,6 @@ export type CollectionTab = (typeof COLLECTION_TABS)[number] | (typeof FRIEND_TA
 // up to a cap past which the filters narrow it down: every page shown is sent again.
 export const COLLECTION_PAGE_SIZE = 48;
 export const COLLECTION_MAX_PAGES = 10;
-
-// Missing cards of these rarities keep their surprise: no name, no photo
-export const MASKED_RARITIES: readonly Rarity[] = ['legendary', 'ultra'];
 
 export interface CollectionFilters {
   /** Whose collection: the player's own, or a friend's. */
@@ -107,9 +105,9 @@ export type CollectionRow = Awaited<ReturnType<typeof listCollectionCards>>[numb
 
 export interface CollectionCard {
   id: number;
-  /** The card page; null for a masked card, whose address would give its name away. */
+  /** The card page; null for a card not owned, which the grid shows greyed and doesn't link. */
   href: string | null;
-  state: 'owned' | 'missing' | 'masked';
+  state: 'owned' | 'missing';
   copies: number;
   data: CardData;
 }
@@ -120,8 +118,9 @@ export interface LicenseLabels {
 }
 
 /**
- * What the grid shows of a card. A masked card carries its rarity, place and
- * series only: its name and photo never reach the browser.
+ * What the grid shows of a card. A card not owned carries its name, rarity and
+ * place in its series only (decided on 2026-11-17, Legendaries included): its
+ * photo, its place on the map and its address never reach the browser.
  */
 export function toCollectionCard(
   row: Pick<CollectionRow, keyof typeof cardColumns | 'quantity'>,
@@ -130,20 +129,19 @@ export function toCollectionCard(
   labels: LicenseLabels,
 ): CollectionCard {
   const copies = row.quantity ?? 0;
-  const state = copies > 0 ? 'owned' : MASKED_RARITIES.includes(row.rarity) ? 'masked' : 'missing';
-  if (state === 'masked') {
+  if (copies === 0) {
     return {
       id: row.id,
       href: null,
-      state,
+      state: 'missing',
       copies,
       data: {
-        name: '',
+        name: row.name,
         rarity: row.rarity,
-        department: row.department,
-        region: row.region,
-        protection: row.protection,
-        unesco: row.unesco,
+        department: null,
+        region: null,
+        protection: null,
+        unesco: false,
         series: printed,
         photo: { src: '', author: null, license: '', fileUrl: '' },
       },
@@ -152,7 +150,7 @@ export function toCollectionCard(
   return {
     id: row.id,
     href: cardPath(collectionSlug, row.slug),
-    state,
+    state: 'owned',
     copies,
     data: toCardData({ ...row, photoImage: row.photoImage! }, printed, photoLicenseLabel(row.photoLicense, labels)),
   };

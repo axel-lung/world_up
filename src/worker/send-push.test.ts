@@ -33,4 +33,14 @@ describe('renderPush', () => {
     const request = renderPush({ id: 2, kind: 'friend_request', data: { userId: 'u2' }, pseudo: null, card: null, collection: null });
     expect(request).toMatchObject({ title: 'Amis', body: 'Un ancien joueur vous demande en ami.', url: '/friends' });
   });
+
+  it('tells a full reserve, and opens the pack opening', () => {
+    const full = renderPush({ id: 3, kind: 'packs_full', data: {}, pseudo: null, card: null, collection: 'heritage' });
+    expect(full).toEqual({
+      title: 'Paquets',
+      body: 'Votre réserve est pleine : vos paquets gratuits vous attendent. Ouvrez-en un pour relancer le minuteur.',
+      url: '/c/heritage/open',
+      tag: 'notification-3',
+    });
+  });
 });
