@@ -1,7 +1,9 @@
-import { MapPin } from 'lucide-react';
+import { ChevronRight, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { EmblemIcon } from '@/components/collection/Emblem';
 import { RarityPips } from '@/components/rarity/Rarity';
+import type { Emblem } from '@/lib/collection-theme';
 import type { CardData } from './Card';
 import { displayName } from './card-format';
 import styles from './CardRow.module.css';
@@ -10,19 +12,23 @@ import styles from './CardRow.module.css';
  * A card as a row of the collection's list view, denser than the grid on a
  * phone: a thumbnail of the photo framed in the rarity's color, the name, the
  * rarity sticker, the place, the photo's credit and the copies owned. The whole
- * row leads to the card's page. Same states and accessible name as the Card: a
- * missing card shows its name and rarity only, and leads nowhere.
+ * row leads to the card's page (with a chevron on a phone). Same states and
+ * accessible name as the Card: a missing card shows its name and rarity only,
+ * the collection's emblem in place of its photo, and leads nowhere.
  */
 export function CardRow({
   card,
   state = 'owned',
   copies = 1,
   href,
+  emblem,
 }: {
   card: CardData;
   state?: 'owned' | 'missing';
   copies?: number;
   href?: string;
+  /** The collection's emblem, on a missing card's empty thumbnail. */
+  emblem?: Emblem;
 }) {
   const t = useTranslations('Card');
   const tRarity = useTranslations('Rarity');
@@ -42,6 +48,7 @@ export function CardRow({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={photo.src} srcSet={photo.srcSet} sizes="72px" alt="" loading="lazy" decoding="async" />
         )}
+        {missing && emblem && <EmblemIcon emblem={emblem} aria-hidden className={styles.emblem} />}
       </div>
       <div className={styles.text}>
         <h3 className={styles.name}>
@@ -84,6 +91,7 @@ export function CardRow({
           <span className="sr-only">{t('copiesBadge', { count: copies })}</span>
         </span>
       )}
+      {link && <ChevronRight aria-hidden className={styles.chevron} />}
     </article>
   );
 }

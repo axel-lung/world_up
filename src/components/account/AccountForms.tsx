@@ -215,13 +215,17 @@ export function DeleteAccountForm({ password }: { password: boolean }) {
   );
 }
 
-export function SignOutButton() {
+/** Ghost in the account page's header; a phone's profile shows it as a block (`block`). */
+export function SignOutButton({ block = false, className }: { block?: boolean; className?: string }) {
   const t = useTranslations('Account');
   const leave = useLeave();
   const [pending, setPending] = useState(false);
   return (
     <Button
-      variant="ghost"
+      variant={block ? 'secondary' : 'ghost'}
+      size={block ? 'large' : 'medium'}
+      block={block}
+      className={className}
       disabled={pending}
       icon={<LogOut aria-hidden />}
       onClick={async () => {

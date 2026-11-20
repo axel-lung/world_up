@@ -230,6 +230,16 @@ export async function listFriendRequests(userId: string) {
   return { received, sent };
 }
 
+/** Requests waiting for the player's answer, for the phone's tab bar. */
+export async function receivedRequestCount(userId: string): Promise<number> {
+  const [row] = await db
+    .select({ count: count() })
+    .from(friendships)
+    .innerJoin(users, eq(users.id, friendships.requesterId))
+    .where(and(eq(friendships.addresseeId, userId), eq(friendships.status, 'pending'), isNull(users.bannedAt)));
+  return row.count;
+}
+
 export type FriendState = 'friends' | 'sent' | 'received';
 
 /** Where the player stands with each of `others` (absent: no link), for the leaderboard. */

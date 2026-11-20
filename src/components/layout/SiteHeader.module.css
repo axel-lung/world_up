@@ -232,30 +232,11 @@
   margin: 0;
 }
 
-/* A player on a phone: the links move to the tab bar (TabBar.tsx), and what
-   is left (packs, coins, notifications, account) stays in sight. */
+/* A player on a phone: the links move to the tab bar (TabBar.tsx) and each
+   page heads itself (the home has the bell, the reserve and the coins; the
+   profile the coins). The footer's links and theme are on the profile. */
 @media (max-width: 719px) {
-  .header[data-player] {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-  }
-
-  .header[data-player] .bar {
-    min-height: 60px;
-    padding: 8px 16px;
-  }
-
-  .header[data-player] .nav {
-    display: none;
-  }
-
-  /* An anchor or a focused field is not hidden under the header */
-  :root:has(.header[data-player]) {
-    scroll-padding-top: 76px;
-  }
-
-  /* The footer's links and theme are on the account page */
+  .header[data-player],
   .footer[data-player] {
     display: none;
   }

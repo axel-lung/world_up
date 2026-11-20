@@ -35,7 +35,8 @@ export function SegmentedControl<T extends string>({
             onChange={() => onValueChange(option.value)}
           />
           {option.icon}
-          {option.label}
+          {/* A page can keep the icon alone on a phone, the name still read out (seg-label) */}
+          <span className="seg-label">{option.label}</span>
         </label>
       ))}
     </div>

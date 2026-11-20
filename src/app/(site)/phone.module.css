@@ -1,0 +1,469 @@
+/* The pieces a player's pages share on a phone (under 720 px, the "thumb"
+   layout): the page's own head, lists of rows on the surface, tiles, rings and
+   two- or three-way selectors. Wider screens keep each page's own layout. */
+
+@media (max-width: 719px) {
+  main.page {
+    padding: 12px 16px 28px;
+    gap: 14px;
+  }
+
+  main.page[data-tight] {
+    gap: 12px;
+  }
+}
+
+/* The page's head: the title, and what goes on its right */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+}
+
+.head h1 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.headAside {
+  flex: none;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A link in the accent, with no fill: "Tout voir", "Marché", "Effacer" */
+.ghost {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-accent-strong);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ghost svg {
+  width: 17px;
+  height: 17px;
+}
+
+.ghost:active {
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+@media (hover: hover) {
+  .ghost:hover {
+    color: var(--color-accent-strong);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.section h2,
+.sectionHead h2 {
+  margin: 4px 0 0;
+  font-size: 19px;
+}
+
+.sectionHead .ghost {
+  margin-right: -8px;
+}
+
+/* A group's name above its rows: "À répondre", "Régions" */
+.groupTitle {
+  margin: 0 0 0 4px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.muted {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* Rows on the surface, one under the other */
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 14px;
+  list-style: none;
+  border-radius: 24px;
+  background: var(--color-surface);
+}
+
+.rows > li + li {
+  border-top: 1px solid var(--color-divider);
+}
+
+/* A row: a disc, two lines of text, then a chevron or actions. As a link or a
+   button, the whole row is the target. */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.row:hover {
+  color: var(--color-text);
+}
+
+.row:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--radius-md);
+}
+
+.row:active {
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+}
+
+.disc {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+.disc svg {
+  width: 18px;
+  height: 18px;
+}
+
+.disc[data-tone="sage"] {
+  background: var(--color-sage-tint);
+  color: var(--color-accent-2-800);
+}
+
+.disc[data-tone="accent"] {
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+}
+
+.rowText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rowTitle {
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.rowMeta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chevron {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-muted);
+}
+
+/* A player's initial: sage tint, or an inked paper sticker (data-inked) */
+.avatar {
+  flex: none;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--color-sage-tint);
+  color: var(--color-accent-2-800);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.avatar[data-size="large"] {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+}
+
+.avatar[data-inked] {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--sticker-line);
+  background: var(--sticker-paper);
+  color: var(--card-ink);
+}
+
+/* A round action of 44 px, outlined */
+.iconAction {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-divider);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.iconAction svg {
+  width: 18px;
+  height: 18px;
+}
+
+.iconAction[data-tone="sage"] {
+  color: var(--color-sage);
+}
+
+.iconAction:active {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+@media (hover: hover) {
+  .iconAction:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+/* Tiles side by side: an icon, a figure, a word */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 20px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+a.tile:hover {
+  color: var(--color-text);
+}
+
+a.tile:active {
+  background: var(--color-track);
+}
+
+.tile svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-accent);
+}
+
+.tileValue {
+  margin-top: 4px;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.tileLabel {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+/* A share as a ring: --ring-fill (an angle) in --ring-color, a percentage in the hole */
+.ring {
+  --ring-size: 40px;
+  --ring-hole: 30px;
+
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--ring-size);
+  height: var(--ring-size);
+  border-radius: 50%;
+  background: conic-gradient(var(--ring-color, var(--color-accent)) var(--ring-fill, 0deg), var(--color-track) 0);
+}
+
+.ring > span {
+  display: grid;
+  place-items: center;
+  width: var(--ring-hole);
+  height: var(--ring-hole);
+  border-radius: 50%;
+  background: var(--color-surface);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ring[data-size="large"] {
+  --ring-size: 44px;
+  --ring-hole: 34px;
+}
+
+.ring[data-size="large"] > span {
+  font-size: 11px;
+}
+
+/* Two or three equal choices on a strip, the current one inked */
+.switch {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 4px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border-radius: 999px;
+  background: var(--color-surface);
+}
+
+.switchOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 6px;
+  border-radius: 999px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+.switchOption:hover {
+  color: var(--color-text);
+}
+
+.switchOption:active {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+.switchOption[aria-current="page"] {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* A big block on the surface, with a decorative disc in a corner (data-disc) */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px 16px;
+  border-radius: 28px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.card > * {
+  position: relative;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -60px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: var(--color-accent-tint);
+}
+
+.card[data-disc="sage"]::before {
+  top: -40px;
+  right: -50px;
+  width: 160px;
+  height: 160px;
+  background: var(--color-sage-tint);
+}
+
+.card[data-disc="none"]::before {
+  content: none;
+}
+
+/* A secondary action as a block of 48 px: "Ajouter un ami", "Se déconnecter" */
+.block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--color-divider);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.block svg {
+  width: 18px;
+  height: 18px;
+}
+
+.block:active {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}

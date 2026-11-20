@@ -13,7 +13,7 @@ export interface TabBarItem {
   also?: string[];
   /** Below href too. */
   prefix?: boolean;
-  /** The raised tab in the middle: the pack opening. */
+  /** The raised tab in the middle: the packs. */
   primary?: boolean;
   /** A count on the icon (`value`), and the words a screen reader says for it. */
   badge?: { value: string; label: string };
@@ -50,7 +50,7 @@ function TabFace({ item }: { item: TabBarItem }) {
 
 /**
  * The game's navigation on a phone: five tabs within the thumb's reach, the
- * pack opening raised in the middle. Fixed to the bottom of the screen under
+ * packs raised in the middle. Fixed to the bottom of the screen under
  * 720 px only; wider screens keep the header's links. `inline` lays it out in
  * the page instead, for the /design showcase, with `currentPath` as the page.
  */

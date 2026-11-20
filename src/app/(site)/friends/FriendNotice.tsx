@@ -44,7 +44,7 @@ export async function FriendNotice({ params }: { params: SearchParams }) {
   }
   if (!outcome.done) return null;
   return (
-    <Notice tone="success">
+    <Notice tone="success" toast>
       <p>{t(`done.${outcome.done}`, { pseudo: outcome.pseudo })}</p>
     </Notice>
   );

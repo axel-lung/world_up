@@ -1,18 +1,20 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import { RedirectType, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { db } from '@/db';
 import { acceptFriend, endFriendship, FriendError, requestFriend } from '@/lib/social/friends';
 import { requireSession } from '@/lib/session';
 
 // The friends page's forms. Each goes back to the page it came from (the
-// friends page or the leaderboard) with its outcome in the address.
+// friends page or the leaderboard) with its outcome in the address, in place
+// of the page sent from: a phone sends them from a sheet, whose history entry
+// the outcome takes.
 
 const back = z.enum(['/friends', '/leaderboard']).catch('/friends');
 
 function backTo(path: string, outcome: Record<string, string>): never {
-  redirect(`${path}?${new URLSearchParams(outcome)}`);
+  redirect(`${path}?${new URLSearchParams(outcome)}`, RedirectType.replace);
 }
 
 async function attempt(path: string, run: () => Promise<Record<string, string>>): Promise<never> {

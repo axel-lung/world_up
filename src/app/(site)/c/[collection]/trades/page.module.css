@@ -31,3 +31,134 @@
 .answer form {
   display: contents;
 }
+
+/* A phone: the offers as an inbox, grouped */
+.inbox {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* An offer waiting for the player's answer: a terracotta dot on the avatar */
+.waiting {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--color-surface);
+  background: var(--color-accent);
+}
+
+/* The offer's sheet: who and when, then both sides, one above the other */
+.sheetHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sides {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--color-surface);
+}
+
+.sideLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A card as a full-width inked chip */
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--sticker-line);
+  background: var(--color-bg);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chipName {
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.chipName:hover {
+  color: var(--color-accent-strong);
+}
+
+.chipCount {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.swap {
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: 2px 0;
+  border-radius: 50%;
+  background: var(--color-sage);
+  color: var(--color-on-accent);
+}
+
+.swap svg {
+  width: 16px;
+  height: 16px;
+}
+
+.answers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.answers button {
+  min-height: 50px;
+}
+
+.sheetMore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sheetMore svg {
+  width: 16px;
+  height: 16px;
+}

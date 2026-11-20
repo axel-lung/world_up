@@ -87,7 +87,7 @@ export function PackOpener({
   collectionName,
   emblem,
   cardsPerPack,
-  homeHref,
+  closeHref,
   collectionHref,
   initialReserve,
 }: {
@@ -95,7 +95,8 @@ export function PackOpener({
   collectionName: string;
   emblem: Emblem;
   cardsPerPack: number;
-  homeHref: string;
+  /** Where the close button leads: the packs page. */
+  closeHref: string;
   collectionHref: string;
   initialReserve: ReserveView;
 }) {
@@ -250,7 +251,7 @@ export function PackOpener({
   return (
     <main className={styles.stage} data-theme="dark" data-phase={phase}>
       <header className={styles.bar}>
-        <ButtonLink href={homeHref} iconOnly aria-label={t('close')} icon={<X aria-hidden />} className={styles.close} />
+        <ButtonLink href={closeHref} iconOnly aria-label={t('close')} icon={<X aria-hidden />} className={styles.close} />
         <h1 className={styles.title}>{t('stageTitle', { collection: collectionName })}</h1>
         <span className={styles.counter}>
           <span aria-hidden="true">

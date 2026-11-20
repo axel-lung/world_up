@@ -7,8 +7,10 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { themeAttribute, themeCookie, type ThemePreference } from '@/lib/theme-preference';
 
 /**
- * The theme choice, in the footer and on a phone's account page: follow the
- * device, or force light or dark on every page. Two on a page need two `name`s.
+ * The theme choice, in the footer and on a phone's profile: follow the device,
+ * or force light or dark on every page. Two on a page need two `name`s. Each
+ * choice's name is in a `seg-label` span, which the profile keeps for screen
+ * readers only, beside the icon.
  */
 export function ThemeSwitch({ initial, name = 'theme' }: { initial: ThemePreference; name?: string }) {
   const t = useTranslations('Theme');

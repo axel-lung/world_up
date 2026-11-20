@@ -9,7 +9,8 @@ test('a player signs up, confirms the address, edits the profile, exports and de
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${player.pseudo}`);
   await page.getByRole('link', { name: 'Mon compte' }).click();
   await expect(page.getByRole('heading', { name: 'Mon compte', exact: true })).toBeVisible();
-  await expect(page.getByText(player.email)).toBeVisible();
+  // The address is in the profile's facts (a phone's settings row shows it too, hidden here)
+  await expect(page.getByRole('definition').filter({ hasText: player.email })).toBeVisible();
   await expect(page.getByText('31 mai 1990')).toBeVisible();
 
   const newPseudo = `${player.pseudo}x`.slice(-20);

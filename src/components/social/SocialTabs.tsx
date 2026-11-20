@@ -11,8 +11,9 @@ export type SocialTab = 'friends' | 'trades' | 'leaderboard';
 
 /**
  * The tabs between the friends, the trades and the leaderboard, which the
- * phone's tab bar gathers under "Amis": each shows how many requests or
- * offers wait for the player's answer. For a signed-in player only.
+ * phone's tab bar gathers under "Échanges": each shows how many requests or
+ * offers wait for the player's answer. On a phone, three equal parts under the
+ * page's title, the offers first. For a signed-in player only.
  */
 export async function SocialTabs({
   current,
@@ -33,7 +34,15 @@ export async function SocialTabs({
   const tabs = [
     { key: 'friends', href: '/friends', label: t('friends'), waiting: requests.received.length },
     ...(tradesCollection
-      ? [{ key: 'trades', href: gamePath(tradesCollection.slug).trades, label: t('trades'), waiting: offers }]
+      ? [
+          {
+            key: 'trades',
+            href: gamePath(tradesCollection.slug).trades,
+            label: t('trades'),
+            phoneLabel: t('offers'),
+            waiting: offers,
+          },
+        ]
       : []),
     { key: 'leaderboard', href: '/leaderboard', label: t('leaderboard'), waiting: 0 },
   ];
@@ -42,9 +51,16 @@ export async function SocialTabs({
     <nav aria-label={t('label')} className={styles.tabs}>
       <ul>
         {tabs.map((tab) => (
-          <li key={tab.key}>
+          <li key={tab.key} data-tab={tab.key}>
             <Link href={tab.href} className={styles.tab} aria-current={tab.key === current ? 'page' : undefined}>
-              {tab.label}
+              {'phoneLabel' in tab ? (
+                <>
+                  <span className="wide-only">{tab.label}</span>
+                  <span className="phone-only">{tab.phoneLabel}</span>
+                </>
+              ) : (
+                tab.label
+              )}
               {tab.waiting > 0 && (
                 <>
                   <span className={styles.count} aria-hidden="true">

@@ -4,6 +4,7 @@ export function gamePath(collection: string) {
   return {
     home,
     open: `${home}/open`,
+    packs: `${home}/packs`,
     collection: `${home}/collection`,
     series: (slug: string) => `${home}/series/${slug}`,
     friend: (pseudo: string) => `${home}/friends/${encodeURIComponent(pseudo)}`,

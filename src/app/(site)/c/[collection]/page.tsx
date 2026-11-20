@@ -1,21 +1,33 @@
-import { Check, ChevronDown, Coins, PackageOpen, Trophy } from 'lucide-react';
+import { randomUUID } from 'node:crypto';
+import { ArrowLeftRight, Check, ChevronDown, ChevronRight, Coins, Layers, PackageOpen, Trophy } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations } from 'next-intl/server';
-import { PackReserve } from '@/components/pack/PackReserve';
-import { ButtonLink } from '@/components/ui/Button';
+import type { CSSProperties } from 'react';
+import { NotificationBell } from '@/components/layout/NotificationBell';
+import { PackReserve, PackReserveHero } from '@/components/pack/PackReserve';
+import { Button, ButtonLink } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
+import { Sheet } from '@/components/ui/Sheet';
 import { db } from '@/db';
 import { achievementTitle } from '@/lib/game/achievement-title';
 import { listAchievements } from '@/lib/game/achievements';
 import { coinBalance, duplicatesValue } from '@/lib/game/coins';
 import { collectionCounts, seriesProgress, type SeriesProgress } from '@/lib/game/collection';
+import { playerRank } from '@/lib/game/leaderboard';
 import { getReserve } from '@/lib/game/packs';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
+import { nextReceivedOffer } from '@/lib/game/trades';
+import { unreadCount } from '@/lib/notifications/notifications';
 import { requireSession } from '@/lib/session';
+import phone from '../../phone.module.css';
+import { resellAction } from './collection/actions';
+import { parseResaleParams } from './filters';
 import styles from './game.module.css';
+import home from './home.module.css';
+import { ResaleNotice } from './ResaleNotice';
 
 export async function generateMetadata({ params }: PageProps<'/c/[collection]'>): Promise<Metadata> {
   const collection = await getActiveCollection((await params).collection);
@@ -31,27 +43,36 @@ const NEXT_ACHIEVEMENTS = 3;
 /**
  * The player's home in a collection: packs, progress, coins, then the series
  * furthest along and the achievements closest to hand, each with the full list
- * folded under "Voir tout".
+ * folded under "Voir tout". A phone gets it at a glance instead: the reserve
+ * and its button, three figures, what waits for the player ("À faire"), then
+ * the series furthest along.
  */
-export default async function GameHomePage({ params }: PageProps<'/c/[collection]'>) {
+export default async function GameHomePage({ params, searchParams }: PageProps<'/c/[collection]'>) {
   const collection = await getActiveCollection((await params).collection);
   if (!collection) notFound();
   const paths = gamePath(collection.slug);
   const { user } = await requireSession(paths.home);
   const now = new Date();
 
-  const [t, tAchievement, tRarity, format, reserve, counts, series, achievements, balance, duplicates] = await Promise.all([
-    getTranslations('Game'),
-    getTranslations('Achievements'),
-    getTranslations('Rarity'),
-    getFormatter(),
-    getReserve(user.id, collection.id, now),
-    collectionCounts({ userId: user.id, collectionId: collection.id }),
-    seriesProgress(user.id, collection.id),
-    listAchievements(user.id, collection.id),
-    coinBalance(db, user.id),
-    duplicatesValue(user.id, collection.id, now),
-  ]);
+  const [t, tNav, tTrades, tAchievement, tRarity, format, query, reserve, counts, series, achievements, balance, duplicates, rank, offer, unread] =
+    await Promise.all([
+      getTranslations('Game'),
+      getTranslations('Nav'),
+      getTranslations('Trades'),
+      getTranslations('Achievements'),
+      getTranslations('Rarity'),
+      getFormatter(),
+      searchParams,
+      getReserve(user.id, collection.id, now),
+      collectionCounts({ userId: user.id, collectionId: collection.id }),
+      seriesProgress(user.id, collection.id),
+      listAchievements(user.id, collection.id),
+      coinBalance(db, user.id),
+      duplicatesValue(user.id, collection.id, now),
+      playerRank(collection.id, user.id),
+      nextReceivedOffer(user.id, collection.id, now),
+      unreadCount(user.id),
+    ]);
   const number = (value: number) => format.number(value);
   const percent = (owned: number, total: number) =>
     format.number(total ? owned / total : 0, { style: 'percent', maximumFractionDigits: 1 });
@@ -65,6 +86,8 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
     .filter((a) => !a.obtainedAt)
     .sort((a, b) => b.progress / b.threshold - a.progress / a.threshold || a.threshold - b.threshold)
     .slice(0, NEXT_ACHIEVEMENTS);
+  const [nearest] = nextAchievements;
+  const cardsCount = (items: { quantity: number }[]) => items.reduce((sum, item) => sum + item.quantity, 0);
 
   const seriesGauge = (s: SeriesProgress) => (
     <li key={s.id}>
@@ -92,15 +115,195 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
       <span className={styles.reward}>{t('reward', { coins: achievement.rewardCoins })}</span>
     </li>
   );
+  // A series' share as a ring, a sliver at least once a card is in
+  const seriesRing = (s: SeriesProgress) => {
+    const part = share(s.owned, s.total);
+    const style = {
+      '--ring-fill': `${s.owned > 0 ? Math.max(10, Math.round(part * 360)) : 0}deg`,
+      '--ring-color': s.type === 'unesco' ? 'var(--color-sage)' : undefined,
+    } as CSSProperties;
+    return (
+      <span className={phone.ring} style={style} aria-hidden="true">
+        <span>{format.number(s.owned > 0 ? Math.max(0.01, part) : 0, { style: 'percent', maximumFractionDigits: 0 })}</span>
+      </span>
+    );
+  };
 
   return (
-    <main className={styles.page}>
-      <header className={styles.header}>
+    <main className={`${styles.page} ${phone.page}`}>
+      <ResaleNotice outcome={parseResaleParams(query)} />
+
+      {/* A phone */}
+      <header className={`${phone.head} ${home.head} phone-only`}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- a WebP already sized, like the cards */}
+        <img src="/logo/world-up-96.webp" width={96} height={96} alt={tNav('brand')} className={home.logo} />
+        <h1>{t('welcome', { pseudo: user.name })}</h1>
+        <NotificationBell unread={unread} label={tNav('activity', { count: unread })} className={home.bell} />
+      </header>
+
+      <section className={`${phone.card} phone-only`} aria-labelledby="reserve-heading">
+        <h2 id="reserve-heading" className="sr-only">
+          {t('packsHeading')}
+        </h2>
+        <PackReserveHero
+          available={reserve.packs}
+          max={reserve.maxReserve}
+          nextPackAt={reserve.nextPackAt?.toISOString() ?? null}
+          serverNow={now.toISOString()}
+          openHref={paths.open}
+          emblem={collection.emblem}
+        />
+      </section>
+
+      <ul className={`${phone.tiles} ${home.tiles} phone-only`}>
+        <li>
+          <Link href={paths.collection} className={phone.tile}>
+            <Layers aria-hidden />
+            <span className={phone.tileValue}>{number(counts.owned)}</span>
+            <span className={phone.tileLabel}>{t('stats.cards', { count: counts.owned })}</span>
+          </Link>
+        </li>
+        <li>
+          <Link href="/account" className={phone.tile}>
+            <Coins aria-hidden />
+            <span className={phone.tileValue}>{number(balance)}</span>
+            <span className={phone.tileLabel}>{t('stats.coins', { count: balance })}</span>
+          </Link>
+        </li>
+        <li>
+          <Link href="/leaderboard" className={phone.tile}>
+            <Trophy aria-hidden />
+            <span className={phone.tileValue}>{rank ? t('stats.rankValue', { rank }) : '–'}</span>
+            <span className={phone.tileLabel}>{t('stats.rank')}</span>
+          </Link>
+        </li>
+      </ul>
+
+      {(offer || duplicates.copies > 0 || nearest) && (
+        <section className={`${phone.section} phone-only`} aria-labelledby="todo-heading">
+          <h2 id="todo-heading">{t('todo')}</h2>
+          <ul className={phone.rows}>
+            {offer && (
+              <li>
+                <Link href={`${paths.trades}?offer=${offer.id}`} className={phone.row}>
+                  <span className={phone.disc} data-tone="sage" aria-hidden="true">
+                    <ArrowLeftRight />
+                  </span>
+                  <span className={phone.rowText}>
+                    <span className={phone.rowTitle}>{t('todoOffer', { pseudo: offer.other ?? tTrades('formerPlayer') })}</span>
+                    <span className={phone.rowMeta}>
+                      {tTrades('summary', { give: cardsCount(offer.gives), get: cardsCount(offer.gets) })} ·{' '}
+                      {tTrades('expiresIn', { when: format.relativeTime(offer.expiresAt, now) })}
+                    </span>
+                  </span>
+                  <ChevronRight aria-hidden className={phone.chevron} />
+                </Link>
+              </li>
+            )}
+            {duplicates.copies > 0 && (
+              <li>
+                <Sheet
+                  title={t('resellTitle')}
+                  closeOnSubmit
+                  trigger={{
+                    className: phone.row,
+                    content: (
+                      <>
+                        <span className={phone.disc} data-tone="accent" aria-hidden="true">
+                          <Coins />
+                        </span>
+                        <span className={phone.rowText}>
+                          <span className={phone.rowTitle}>{t('todoDuplicates', { copies: duplicates.copies })}</span>
+                          <span className={phone.rowMeta}>{t('todoDuplicatesFor', { coins: duplicates.coins })}</span>
+                        </span>
+                        <ChevronRight aria-hidden className={phone.chevron} />
+                      </>
+                    ),
+                  }}
+                >
+                  <form action={resellAction} className={home.resell}>
+                    <p>{t('resellAllQuestion', { copies: duplicates.copies, coins: duplicates.coins })}</p>
+                    <p className={phone.muted}>{t('resellHint')}</p>
+                    <input type="hidden" name="collection" value={collection.slug} />
+                    {/* A new key each time the page renders: sending the form twice sells once */}
+                    <input type="hidden" name="key" value={randomUUID()} />
+                    <input type="hidden" name="back" value={paths.home} />
+                    <Button type="submit" variant="primary" size="large" block icon={<Coins aria-hidden />}>
+                      {t('resellAllSubmit', { copies: duplicates.copies })}
+                    </Button>
+                  </form>
+                </Sheet>
+              </li>
+            )}
+            {nearest && (
+              <li>
+                <Sheet
+                  title={t('achievementsHeading')}
+                  trigger={{
+                    className: phone.row,
+                    content: (
+                      <>
+                        <span className={phone.disc} aria-hidden="true">
+                          <Trophy />
+                        </span>
+                        <span className={phone.rowText}>
+                          <span className={phone.rowTitle}>{achievementTitle(tAchievement, tRarity, nearest)}</span>
+                          <span className={phone.rowMeta}>
+                            {t('progress', { progress: number(nearest.progress), threshold: number(nearest.threshold) })} ·{' '}
+                            {t('reward', { coins: nearest.rewardCoins })}
+                          </span>
+                        </span>
+                        <ChevronRight aria-hidden className={phone.chevron} />
+                      </>
+                    ),
+                  }}
+                >
+                  <p className={phone.muted}>{t('achievementsCount', { obtained, total: achievements.length })}</p>
+                  <ul className={`${styles.achievements} ${home.achievements}`}>
+                    {[...nextAchievements, ...achievements.filter((a) => !nextAchievements.includes(a))].map(achievementRow)}
+                  </ul>
+                </Sheet>
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
+
+      <section className={`${phone.section} phone-only`} aria-labelledby="progress-heading">
+        <div className={phone.sectionHead}>
+          <h2 id="progress-heading">{t('seriesInProgress')}</h2>
+          <Link href={`${paths.collection}?by=series`} className={phone.ghost}>
+            {t('seeAll')}
+          </Link>
+        </div>
+        {topSeries.length > 0 ? (
+          <ul className={home.series}>
+            {topSeries.map((s) => (
+              <li key={s.id}>
+                <Link href={`${paths.collection}?series=${s.slug}`} className={home.seriesTile}>
+                  {seriesRing(s)}
+                  <span className={phone.rowText}>
+                    <span className={home.seriesName}>{s.name}</span>
+                    <span className={home.seriesCount}>
+                      {number(s.owned)} / {number(s.total)}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={phone.muted}>{t('noSeriesYet')}</p>
+        )}
+      </section>
+
+      {/* A wider screen */}
+      <header className={`${styles.header} wide-only`}>
         <p className={styles.eyebrow}>{collection.name}</p>
         <h1>{t('welcome', { pseudo: user.name })}</h1>
       </header>
 
-      <div className={styles.columns}>
+      <div className={`${styles.columns} wide-only`}>
         <section className={styles.section} aria-labelledby="packs-heading">
           <h2 id="packs-heading">{t('packsHeading')}</h2>
           <PackReserve
@@ -145,7 +348,7 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
         </section>
       </div>
 
-      <section className={styles.section} aria-labelledby="series-heading">
+      <section className={`${styles.section} wide-only`} aria-labelledby="series-heading">
         <h2 id="series-heading">{t('seriesHeading')}</h2>
         {topSeries.length > 0 ? (
           <ul className={styles.gauges}>{topSeries.map(seriesGauge)}</ul>
@@ -172,7 +375,7 @@ export default async function GameHomePage({ params }: PageProps<'/c/[collection
         </details>
       </section>
 
-      <section className={styles.section} aria-labelledby="achievements-heading">
+      <section className={`${styles.section} wide-only`} aria-labelledby="achievements-heading">
         <div className={styles.sectionHeader}>
           <h2 id="achievements-heading">{t('achievementsHeading')}</h2>
           <span className={styles.muted}>{t('achievementsCount', { obtained, total: achievements.length })}</span>

@@ -1,15 +1,17 @@
 import { randomUUID } from 'node:crypto';
-import { Coins, PackageOpen } from 'lucide-react';
+import { Check, ChevronDown, Coins, PackageOpen } from 'lucide-react';
 import Form from 'next/form';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import type { ReactNode } from 'react';
 import { Card } from '@/components/card/Card';
 import { CardRow } from '@/components/card/CardRow';
 import { RarityDot } from '@/components/rarity/Rarity';
 import { Button, ButtonLink } from '@/components/ui/Button';
+import { Sheet } from '@/components/ui/Sheet';
 import type { Emblem } from '@/lib/collection-theme';
-import { collectionView } from '@/lib/collection-view';
+import { collectionView, isPhoneRequest } from '@/lib/collection-view';
 import { duplicatesValue } from '@/lib/game/coins';
 import {
   COLLECTION_MAX_PAGES,
@@ -18,10 +20,12 @@ import {
   type CollectionTab,
   collectionCounts,
   listCollectionCards,
+  ownedByRarity,
   toCollectionCards,
 } from '@/lib/game/collection';
 import { gamePath } from '@/lib/game/paths';
 import { RARITIES, type Rarity } from '@/lib/rarity';
+import phone from '../../phone.module.css';
 import { resellAction } from './collection/actions';
 import styles from './game.module.css';
 import { AutoSubmitSelect, FocusBroughtCards, LoadMore, ViewSwitch } from './GridControls';
@@ -42,12 +46,23 @@ export interface GridLabels {
 const LIST_ID = 'cards';
 const pageStart = (index: number) => `${LIST_ID}-${index}`;
 
+interface FilterOption {
+  key: string;
+  href: string;
+  label: string;
+  count?: string;
+  rarity?: Rarity;
+  current: boolean;
+}
+
 /**
  * The collection's tabs, filters and cards, for the collection page, a series
  * page and a friend's collection: the tabs, the rarity chips and the series
  * list (which apply at once), the cards as a grid or a denser list (the
  * player's choice, ViewSwitch), then "Voir plus". Links keep the filters in
  * the address, so every view can be bookmarked and works without JavaScript.
+ * A phone gets the tabs, the rarity and the series as three menus instead,
+ * each opening a sheet of choices, so that nothing scrolls sideways.
  */
 export async function CollectionGrid({
   collection,
@@ -78,14 +93,16 @@ export async function CollectionGrid({
   seriesOptions?: { slug: string; name: string }[];
 }) {
   const query = { userId, viewerId, collectionId: collection.id, rarity: filters.rarity, seriesId: series?.id ?? null };
-  const [t, tRarity, tCard, format, counts, rows, cookieStore] = await Promise.all([
+  const [t, tRarity, tCard, format, counts, rows, byRarity, cookieStore, headerList] = await Promise.all([
     getTranslations('Collection'),
     getTranslations('Rarity'),
     getTranslations('Card'),
     getFormatter(),
     collectionCounts(query),
     listCollectionCards({ ...query, tab: filters.tab, pages: filters.page }),
+    ownedByRarity(query),
     cookies(),
+    headers(),
   ]);
   const cards = await toCollectionCards(rows, collection.slug, {
     publicDomain: tCard('publicDomain'),
@@ -95,27 +112,105 @@ export async function CollectionGrid({
     tabs: Object.fromEntries(COLLECTION_TABS.map((tab) => [tab, t(`tabs.${tab}`)])),
     empty: Object.fromEntries(COLLECTION_TABS.map((tab) => [tab, t(`empty.${tab}`)])),
   };
-  const view = collectionView(cookieStore);
+  const view = collectionView(cookieStore, isPhoneRequest(headerList));
   const resale = !viewerId && filters.tab === 'duplicates' && !filters.rarity && !series;
   const duplicates = resale ? await duplicatesValue(userId, collection.id, new Date()) : null;
   const total = counts[filters.tab];
   const shown = cards.length;
   const more = shown < total && filters.page < COLLECTION_MAX_PAGES;
+  const seriesFiltered = Boolean(seriesOptions && series);
+  const filtered = filters.tab !== tabs[0] || Boolean(filters.rarity) || seriesFiltered;
 
-  const link = (changes: Partial<GridFilters>) => {
+  const link = (changes: Partial<GridFilters> & { series?: string | null }) => {
     const next = { ...filters, page: 1, ...changes };
+    const seriesSlug = changes.series === undefined ? (series?.slug ?? null) : changes.series;
     const params = new URLSearchParams();
     if (next.tab !== tabs[0]) params.set('tab', next.tab);
     if (next.rarity) params.set('rarity', next.rarity);
-    if (seriesOptions && series) params.set('series', series.slug);
+    if (seriesOptions && seriesSlug) params.set('series', seriesSlug);
     if (next.page > 1) params.set('page', String(next.page));
     const search = params.toString();
     return search ? `${path}?${search}` : path;
   };
+  // The player's own cards lead to their pages with this list in the address:
+  // the card's page goes from card to card of it, and back to it
+  const list = link({ page: filters.page });
+  const cardHref = (href: string | null) => (href && !viewerId ? `${href}?from=${encodeURIComponent(list)}` : (href ?? undefined));
+
+  // A phone's filter: a menu showing its choice, opening a sheet of choices
+  const menu = (title: string, choice: string | null, options: FilterOption[]) => (
+    <Sheet
+      title={title}
+      trigger={{
+        className: choice ? `${styles.menu} ${styles.chosen}` : styles.menu,
+        // Its text names it ("Rareté"); once chosen, the choice is named with the filter
+        label: choice ? `${title} : ${choice}` : undefined,
+        content: (
+          <>
+            <span className={styles.menuLabel}>{choice ?? title}</span>
+            <ChevronDown aria-hidden />
+          </>
+        ),
+      }}
+    >
+      <ul className={styles.choices}>
+        {options.map((option) => (
+          <li key={option.key}>
+            <Link href={option.href} replace className={styles.choice} aria-current={option.current ? 'page' : undefined}>
+              {option.rarity && <RarityDot rarity={option.rarity} />}
+              <span className={styles.choiceLabel}>{option.label}</span>
+              {option.count && <span className={styles.choiceCount}>{option.count}</span>}
+              <span className={styles.choiceMark} aria-hidden="true">
+                {option.current && <Check />}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Sheet>
+  );
+  const chosenSeries = seriesOptions?.find((option) => option.slug === series?.slug);
+  const menus: ReactNode[] = [
+    menu(
+      t('state'),
+      filters.tab === tabs[0] ? null : (text.tabs[filters.tab] ?? null),
+      tabs.map((tab) => ({
+        key: tab,
+        href: link({ tab }),
+        label: text.tabs[tab] ?? tab,
+        count: format.number(counts[tab]),
+        current: tab === filters.tab,
+      })),
+    ),
+    menu(t('rarity'), filters.rarity ? tRarity(filters.rarity) : null, [
+      { key: 'all', href: link({ rarity: null }), label: t('allRarities'), current: !filters.rarity },
+      ...RARITIES.map((rarity) => ({
+        key: rarity,
+        href: link({ rarity }),
+        label: tRarity(rarity),
+        rarity,
+        count: t('ownedCount', { count: byRarity[rarity] }),
+        current: filters.rarity === rarity,
+      })),
+    ]),
+  ];
+  if (seriesOptions) {
+    menus.push(
+      menu(t('series'), chosenSeries?.name ?? null, [
+        { key: '', href: link({ series: null }), label: t('allSeries'), current: !series },
+        ...seriesOptions.map((option) => ({
+          key: option.slug,
+          href: link({ series: option.slug }),
+          label: option.name,
+          current: option.slug === series?.slug,
+        })),
+      ]),
+    );
+  }
 
   return (
     <>
-      <nav className={styles.tabs} aria-label={t('tabsLabel')}>
+      <nav className={`${styles.tabs} wide-only`} aria-label={t('tabsLabel')}>
         <ul>
           {tabs.map((tab) => (
             <li key={tab}>
@@ -128,7 +223,7 @@ export async function CollectionGrid({
         </ul>
       </nav>
 
-      <div className={styles.filterRow}>
+      <div className={`${styles.filterRow} wide-only`}>
         {seriesOptions && (
           // Applies once a series is picked (AutoSubmitSelect); the button is for browsers without JavaScript
           <Form action={path} className={styles.seriesFilter}>
@@ -180,8 +275,17 @@ export async function CollectionGrid({
         </nav>
       </div>
 
+      <div className={`${styles.menus} phone-only`} role="group" aria-label={t('filters')}>
+        {menus}
+      </div>
+
       <div className={styles.resultsBar}>
         <p className={styles.resultsCount}>{t('count', { count: total })}</p>
+        {filtered && (
+          <Link href={path} className={`${phone.ghost} ${styles.clear} phone-only`}>
+            {t('clear')}
+          </Link>
+        )}
         <ViewSwitch initial={view} labels={{ label: t('view.label'), grid: t('view.grid'), list: t('view.list') }} />
       </div>
 
@@ -215,14 +319,20 @@ export async function CollectionGrid({
               {...(index % COLLECTION_PAGE_SIZE === 0 ? { id: pageStart(index), tabIndex: -1 } : {})}
             >
               {view === 'list' ? (
-                <CardRow card={card.data} state={card.state} copies={card.copies} href={card.href ?? undefined} />
+                <CardRow
+                  card={card.data}
+                  state={card.state}
+                  copies={card.copies}
+                  href={cardHref(card.href)}
+                  emblem={collection.emblem}
+                />
               ) : (
                 <Card
                   card={card.data}
                   collection={collection}
                   state={card.state}
                   copies={card.copies}
-                  href={card.href ?? undefined}
+                  href={cardHref(card.href)}
                   sizes="(max-width: 520px) calc(50vw - 20px), 200px"
                 />
               )}

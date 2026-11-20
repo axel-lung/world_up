@@ -1,0 +1,122 @@
+/* A bottom sheet (Sheet.tsx): the dialog is the panel, over the screen's
+   bottom edge, above the tab bar (a modal dialog sits in the top layer). */
+.sheet {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 86dvh;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 28px 28px 0 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: 0 -12px 32px color-mix(in srgb, var(--color-neutral-900) 22%, transparent);
+}
+
+.sheet::backdrop {
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 8px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+}
+
+.chrome {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.handle {
+  align-self: center;
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-neutral-400);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -4px -8px -4px 0;
+}
+
+.head h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.close svg {
+  width: 19px;
+  height: 19px;
+}
+
+.close:active {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+@media (hover: hover) {
+  .close:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sheet[open] {
+    animation: sheet-in 0.24s cubic-bezier(0.3, 0.7, 0.4, 1);
+  }
+
+  .sheet[open]::backdrop {
+    animation: shade-in 0.2s ease;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes shade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Inline (the account's forms): from 720 px, a closed sheet's content is laid
+   out in the page as if the sheet weren't there */
+@media (min-width: 720px) {
+  .sheet[data-inline]:not([open]),
+  .sheet[data-inline]:not([open]) .panel {
+    display: contents;
+  }
+
+  .sheet[data-inline]:not([open]) .chrome {
+    display: none;
+  }
+}

@@ -64,3 +64,29 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
+
+/* A phone: three equal parts, the offers first, nothing scrolling sideways */
+@media (max-width: 719px) {
+  .tabs {
+    align-self: stretch;
+    overflow: visible;
+  }
+
+  .tabs ul {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: 4px;
+  }
+
+  .tabs li[data-tab="trades"] {
+    order: -1;
+  }
+
+  .tab {
+    justify-content: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 0 6px;
+  }
+}

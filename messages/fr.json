@@ -147,7 +147,8 @@
     },
     "more": {
       "title": "Réglages et informations",
-      "theme": "Thème"
+      "theme": "Thème",
+      "help": "Aide et informations"
     },
     "data": {
       "title": "Mes données",
@@ -162,7 +163,9 @@
       "confirm": "Je comprends que mon compte, ma collection et mes pièces seront effacés.",
       "reauthenticate": "Par sécurité, reconnectez-vous avec Google, puis recommencez.",
       "submit": "Supprimer définitivement mon compte"
-    }
+    },
+    "profileTitle": "Profil",
+    "memberSinceOn": "Membre depuis le {date}"
   },
   "Email": {
     "signature": "L'équipe World Up",
@@ -286,7 +289,21 @@
     "notOwned": "Vous n'avez pas encore cette carte : elle peut sortir de votre prochain paquet.",
     "resellOne": "Revendre un doublon pour {coins, plural, one {# pièce} other {# pièces}}",
     "sell": "Mettre aux enchères",
-    "liveAuctions": "{count, plural, one {Voir la vente en cours} other {Voir les # ventes en cours}}"
+    "liveAuctions": "{count, plural, one {Voir la vente en cours} other {Voir les # ventes en cours}}",
+    "close": "Revenir à la liste",
+    "position": "{position, number} / {total, number}",
+    "previous": "Carte précédente",
+    "next": "Carte suivante",
+    "flipHint": "Touchez la carte pour lire le verso",
+    "dockResell": "Revendre · {coins}",
+    "dockAuctions": "Enchères",
+    "dockTrade": "Échanger",
+    "resellTitle": "Revendre",
+    "resellQuestion": "Revendre un doublon de {name} pour {coins, plural, one {# pièce} other {# pièces}} ?",
+    "resellKeep": "Vous gardez au moins un exemplaire de la carte.",
+    "tradeTitle": "Proposer un échange",
+    "tradeWith": "À quel ami proposer {name} ?",
+    "tradeNoFriends": "Les échanges se font entre amis : ajoutez-en depuis la page <friends>Amis</friends>."
   },
   "Pack": {
     "reserve": "{count, plural, one {# paquet} other {# paquets}} en réserve sur {max}",
@@ -300,7 +317,18 @@
     "compact": "{count, plural, one {# paquet} other {# paquets}} en réserve",
     "compactNext": "prochain dans {time}",
     "open": "Ouvrir un paquet",
-    "none": "Aucun paquet"
+    "none": "Aucun paquet",
+    "count": "{count, plural, one {# paquet} other {# paquets}}",
+    "outOf": "en réserve sur {max}",
+    "of": "sur {max}",
+    "nextIn": "Prochain dans {time}",
+    "nextPackIn": "Prochain paquet dans {time}"
+  },
+  "Packs": {
+    "title": "Paquets",
+    "reserveHeading": "Votre réserve",
+    "odds": "Probabilités de chaque rareté",
+    "oddsHistory": "Tout savoir sur les probabilités"
   },
   "Purchase": {
     "packTitle": "Acheter un paquet",
@@ -870,7 +898,13 @@
     "noMoneyValue": "Les cartes et les pièces n'ont aucune valeur en argent : elles ne s'échangent pas contre des euros et ne quittent jamais le jeu.",
     "legalNotice": "Mentions légales",
     "terms": "Conditions d'utilisation",
-    "privacy": "Confidentialité"
+    "privacy": "Confidentialité",
+    "packsTab": "Paquets",
+    "trades": "Échanges",
+    "profile": "Profil"
+  },
+  "Sheet": {
+    "close": "Fermer"
   },
   "Theme": {
     "label": "Thème",
@@ -928,7 +962,23 @@
       "bidTooHigh": "Votre mise dépasse le prix maximum de cette rareté.",
       "bidOverCoins": "Vous n'avez pas assez de pièces disponibles : celles de vos enchères en tête sont retenues.",
       "server": "L'ouverture n'a pas abouti. Réessayez dans un instant."
-    }
+    },
+    "stats": {
+      "cards": "{count, plural, one {carte} other {cartes}}",
+      "coins": "{count, plural, one {pièce} other {pièces}}",
+      "rank": "au classement",
+      "rankValue": "{rank, selectordinal, one {#er} other {#e}}"
+    },
+    "todo": "À faire",
+    "todoOffer": "{pseudo} vous propose un échange",
+    "todoDuplicates": "{copies, plural, one {# doublon} other {# doublons}} à revendre",
+    "todoDuplicatesFor": "pour {coins, plural, one {# pièce} other {# pièces}}",
+    "resellTitle": "Revendre",
+    "resellAllQuestion": "Revendre {copies, plural, one {votre doublon} other {vos # doublons}} pour {coins, plural, one {# pièce} other {# pièces}} ?",
+    "resellHint": "Vous gardez un exemplaire de chaque carte.",
+    "resellAllSubmit": "{copies, plural, one {Revendre le doublon} other {Revendre les # doublons}}",
+    "seriesInProgress": "Séries en cours",
+    "seeAll": "Tout voir"
   },
   "Achievements": {
     "packs_opened": "{count, plural, one {Ouvrir votre premier paquet} other {Ouvrir # paquets}}",
@@ -1010,7 +1060,17 @@
       "endangered": "Patrimoine en péril"
     },
     "seriesProgress": "Cartes de la série",
-    "seriesComplete": "Série complète !"
+    "seriesComplete": "Série complète !",
+    "heading": "Collection",
+    "market": "Marché",
+    "show": "Vue de la collection",
+    "bySeries": "Par série",
+    "allCards": "Toutes les cartes",
+    "seriesCards": "{owned} / {total} cartes",
+    "filters": "Filtres",
+    "state": "État",
+    "ownedCount": "{count, plural, =0 {aucune possédée} one {# possédée} other {# possédées}}",
+    "clear": "Effacer"
   },
   "Friends": {
     "title": "Amis",
@@ -1057,14 +1117,23 @@
       "tooManyRequests": "Vous avez trop de demandes en attente : attendez des réponses avant d'en envoyer d'autres.",
       "tooFast": "Vous avez envoyé beaucoup de demandes : réessayez dans une heure.",
       "noRequest": "Cette demande n'existe plus."
-    }
+    },
+    "requestFrom": "{pseudo} vous a demandé en ami",
+    "askedYou": "{pseudo} vous a demandé en ami : répondre",
+    "sentTo": "Demande envoyée à {pseudo}",
+    "cards": "{count, plural, =0 {Aucune carte} one {# carte} other {# cartes}}",
+    "proposeTrade": "Proposer un échange",
+    "proposeTradeTo": "Proposer un échange à {pseudo}",
+    "seeCollectionOf": "Voir la collection de {pseudo}"
   },
   "Social": {
     "label": "Amis, échanges et classement",
     "friends": "Amis",
     "trades": "Échanges",
     "leaderboard": "Classement",
-    "waiting": "{count, plural, one {# en attente de votre réponse} other {# en attente de votre réponse}}"
+    "waiting": "{count, plural, one {# en attente de votre réponse} other {# en attente de votre réponse}}",
+    "title": "Échanges",
+    "offers": "Offres"
   },
   "FriendCollection": {
     "title": "Collection de {pseudo}",
@@ -1141,7 +1210,19 @@
       "none": "Aucune carte à échanger ici.",
       "summary": "{give, plural, =0 {Aucune carte} one {# carte} other {# cartes}} contre {want, plural, =0 {aucune carte} one {# carte} other {# cartes}}",
       "send": "Envoyer l'offre"
-    }
+    },
+    "summary": "{give, plural, one {# carte} other {# cartes}} contre {get}",
+    "expiresIn": "expire {when}",
+    "headlineReceived": "{pseudo} vous propose",
+    "headlineSent": "Votre offre à {pseudo}",
+    "toAnswer": "À répondre",
+    "waitingAnswer": "En attente de réponse",
+    "history": "Historique",
+    "noneAtAll": "Aucune offre pour l'instant.",
+    "newTradePhone": "Pour proposer un échange, ouvrez la collection d'un ami dans l'onglet <friends>Amis</friends>.",
+    "offer": "Offre d'échange",
+    "acceptShort": "Accepter",
+    "seeCards": "Voir les cartes en grand"
   },
   "Activity": {
     "title": "Activité",
@@ -1204,7 +1285,9 @@
     "rares": "{legendary, plural, one {# Légendaire} other {# Légendaires}} · {ultra, plural, one {# Ultra rare} other {# Ultra rares}}",
     "cardsUnit": "{count, plural, one {carte} other {cartes}}",
     "empty": "Personne n'a encore ouvert de paquet.",
-    "notRanked": "Ouvrez votre premier paquet pour entrer au classement."
+    "notRanked": "Ouvrez votre premier paquet pour entrer au classement.",
+    "podium": "Le podium",
+    "others": "Les suivants"
   },
   "Odds": {
     "title": "Probabilités",

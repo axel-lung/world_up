@@ -34,7 +34,7 @@ export async function TradeNotice({ params, pseudo }: { params: SearchParams; ps
   }
   if (!outcome.done) return null;
   return (
-    <Notice tone="success">
+    <Notice tone="success" toast>
       <p>{t(`done.${outcome.done}`, { pseudo: pseudo ?? t('formerPlayer') })}</p>
     </Notice>
   );
