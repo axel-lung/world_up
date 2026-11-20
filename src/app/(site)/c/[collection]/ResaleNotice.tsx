@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { Notice } from '@/components/ui/Notice';
 import type { parseResaleParams } from './filters';
 
-/** What the last resale did, read from the address resellAction returned to. */
+/** What the last resale did, read from the address resellAction returned to: a toast on a phone. */
 export async function ResaleNotice({ outcome }: { outcome: ReturnType<typeof parseResaleParams> }) {
   const [t, tGame] = await Promise.all([getTranslations('Collection'), getTranslations('Game')]);
   if (outcome.error) {
@@ -14,7 +14,7 @@ export async function ResaleNotice({ outcome }: { outcome: ReturnType<typeof par
   }
   if (outcome.sold === null) return null;
   return (
-    <Notice tone="success">
+    <Notice tone="success" toast>
       <p>{t('sold', { copies: outcome.sold, coins: outcome.coins })}</p>
     </Notice>
   );

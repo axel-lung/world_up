@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // The (play) group has no site header or footer: the opening fills the screen,
-// and its close button leads back to the collection's home.
+// and its close button leads back to the packs page.
 export default async function OpenPage({ params }: PageProps<'/c/[collection]/open'>) {
   const collection = await getActiveCollection((await params).collection);
   if (!collection) notFound();
@@ -29,7 +29,7 @@ export default async function OpenPage({ params }: PageProps<'/c/[collection]/op
       collectionName={collection.name}
       emblem={collection.emblem}
       cardsPerPack={rules.cardsPerPack}
-      homeHref={paths.home}
+      closeHref={paths.packs}
       collectionHref={paths.collection}
       initialReserve={{
         available: reserve.packs,

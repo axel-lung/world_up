@@ -93,20 +93,299 @@
   }
 }
 
-/* Settings and information: on a phone only, where a player's footer is hidden */
-@media (min-width: 720px) {
-  .more {
-    display: none;
+/* A phone: the profile (page.tsx). Who the player is and their figures, then
+   the settings as rows of one list: each section gives its row (the Sheet's
+   button) and keeps its form for the sheet. */
+.settings {
+  display: contents;
+}
+
+@media (max-width: 719px) {
+  .settings {
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+    border-radius: 24px;
+    background: var(--color-surface);
+    /* Clips the first row's divider */
+    overflow: hidden;
+  }
+
+  .setting,
+  .deletion {
+    display: contents;
+  }
+
+  .first {
+    order: -1;
   }
 }
 
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: 0 -1px 0 var(--color-divider);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--radius-md);
+}
+
+.row:not(.static):active {
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+}
+
+.static {
+  cursor: default;
+}
+
+.row > svg:first-child {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  color: var(--color-text-muted);
+}
+
+.rowLabel {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.rowValue {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.chevron {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-muted);
+}
+
+/* Who the player is, on the surface with a sage disc */
+.identity {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--sticker-line);
+  background: var(--color-accent-tint);
+  color: var(--color-text);
+  box-shadow: 0 3px 0 var(--sticker-shadow);
+  font-family: var(--font-heading);
+  font-size: 28px;
+}
+
+.whoText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pseudo {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.since {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding: 10px 6px;
+  border-radius: 18px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  text-align: center;
+  text-decoration: none;
+}
+
+a.stat:hover {
+  color: var(--color-text);
+}
+
+a.stat:active {
+  background: var(--color-track);
+}
+
+.statValue {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* The theme: three icons on a pill */
 .theme {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 16px;
+  gap: 12px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 999px;
+  background: var(--color-surface);
   font-weight: 600;
+}
+
+.theme :global(.seg) {
+  gap: 2px;
+  border: 0;
+}
+
+.theme :global(.seg-opt) {
+  justify-content: center;
+  width: 44px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+}
+
+.theme :global(.seg-opt + .seg-opt) {
+  border: 0;
+}
+
+.theme :global(.seg-opt) svg {
+  width: 18px;
+  height: 18px;
+}
+
+.theme :global(.seg-label) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The site's information, folded */
+.help {
+  border-radius: 24px;
+  background: var(--color-surface);
+}
+
+.help summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 0 16px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+}
+
+.help summary::-webkit-details-marker {
+  display: none;
+}
+
+.help summary span {
+  flex: 1;
+}
+
+.helpIcon {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  color: var(--color-text-muted);
+}
+
+.helpChevron {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .helpChevron {
+    transition: transform 0.2s ease;
+  }
+}
+
+.help[open] .helpChevron {
+  transform: rotate(180deg);
+}
+
+.help .links {
+  padding: 0 16px 0 47px;
+}
+
+.help .links li {
+  border-top: 1px solid var(--color-divider);
+}
+
+.help .links a {
+  min-height: 46px;
+  font-size: 14px;
+}
+
+.help > p {
+  padding: 8px 16px 16px;
+  font-size: 13px;
+}
+
+.deleteLink {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--color-danger);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .links {
@@ -117,9 +396,6 @@
   list-style: none;
 }
 
-.links li + li {
-  border-top: 1px solid var(--color-divider);
-}
 
 .links a {
   display: flex;

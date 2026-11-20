@@ -7,9 +7,19 @@ import styles from './NotificationBell.module.css';
  * `label` names it with the count ("Activité, 3 non lues"): the sticker itself
  * is not read out.
  */
-export function NotificationBell({ unread, label, href = '/activity' }: { unread: number; label: string; href?: string }) {
+export function NotificationBell({
+  unread,
+  label,
+  href = '/activity',
+  className,
+}: {
+  unread: number;
+  label: string;
+  href?: string;
+  className?: string;
+}) {
   return (
-    <Link href={href} className={styles.bell} aria-label={label}>
+    <Link href={href} className={[styles.bell, className].filter(Boolean).join(' ')} aria-label={label}>
       <Bell aria-hidden />
       {unread > 0 && (
         <span className={styles.count} aria-hidden="true">

@@ -1,6 +1,6 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import { RedirectType, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { db } from '@/db';
 import { GameError } from '@/lib/game/game-error';
@@ -12,7 +12,8 @@ import { requireSession } from '@/lib/session';
 
 // The trade forms. Each goes back to a page with its outcome in the address:
 // the offer's page once sent or answered, the composer (with the cards chosen)
-// when refused.
+// when refused. An answer from a phone's sheet goes back to the list instead,
+// or to the sheet when refused.
 
 /** "<card ID>x<copies>", as the composer sends them. */
 const cardEntry = z.string().regex(/^\d{1,9}x\d{1,3}$/);
@@ -77,6 +78,8 @@ const answerSchema = z.object({
   collection: z.string().max(64),
   trade: z.coerce.number().int().positive(),
   answer: z.enum(['accept', 'decline', 'cancel']),
+  // Sent from the trades list's sheet (?offer=12)
+  from: z.literal('sheet').optional().catch(undefined),
 });
 
 const answers = { accept: acceptTrade, decline: declineTrade, cancel: cancelTrade };
@@ -88,20 +91,27 @@ export async function answerTradeAction(form: FormData): Promise<void> {
     collection: form.get('collection'),
     trade: form.get('trade'),
     answer: form.get('answer'),
+    from: form.get('from') ?? undefined,
   });
   if (!input.success) redirect('/friends');
   const collection = await getActiveCollection(input.data.collection);
   if (!collection) redirect('/friends');
-  const page = gamePath(collection.slug).trade(input.data.trade);
+  const paths = gamePath(collection.slug);
+  const page = paths.trade(input.data.trade);
   const { user } = await requireSession(page);
 
-  let outcome: string;
+  let outcome: { done: string } | { error: string };
   try {
     await answers[input.data.answer](db, { userId: user.id, tradeId: input.data.trade, now: new Date() });
-    outcome = `done=${done[input.data.answer]}`;
+    outcome = { done: done[input.data.answer] };
   } catch (error) {
     if (!(error instanceof GameError)) throw error;
-    outcome = `error=${error.code}`;
+    outcome = { error: error.code };
   }
-  redirect(`${page}?${outcome}`);
+  if (input.data.from === 'sheet') {
+    // In place of the sheet's address: Back leaves the list rather than reopen the offer
+    const back = 'error' in outcome ? { offer: String(input.data.trade), ...outcome } : outcome;
+    redirect(`${paths.trades}?${new URLSearchParams(back)}`, RedirectType.replace);
+  }
+  redirect(`${page}?${new URLSearchParams(outcome)}`);
 }

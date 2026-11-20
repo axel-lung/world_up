@@ -1,0 +1,100 @@
+/* The game's home on a phone (page.tsx): the greeting with the bell, then the
+   reserve, the figures, what waits for the player and the series in progress. */
+.head h1 {
+  font-size: 24px;
+}
+
+.logo {
+  flex: none;
+  width: 40px;
+  height: 40px;
+}
+
+/* The bell as a round button on the surface */
+.bell {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  background: var(--color-surface);
+}
+
+.bell svg {
+  width: 21px;
+  height: 21px;
+}
+
+.bell > span {
+  top: -2px;
+  right: -2px;
+}
+
+.tiles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tiles a {
+  height: 100%;
+}
+
+/* The series furthest along, two by two */
+.series {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seriesTile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  padding: 12px;
+  border-radius: 20px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.seriesTile:hover {
+  color: var(--color-text);
+}
+
+.seriesTile:active {
+  background: var(--color-track);
+}
+
+.seriesName {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.seriesCount {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The resale's sheet */
+.resell {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.resell p {
+  margin: 0;
+}
+
+/* Every achievement, in the sheet */
+.achievements {
+  padding: 0 14px;
+  border-radius: 20px;
+  background: var(--color-surface);
+}

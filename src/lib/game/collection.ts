@@ -4,7 +4,7 @@ import { db } from '@/db';
 import { cards, cardSeries, series, userCards } from '@/db/schema';
 import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { cardColumns, cardPath, type PrintedSeries, printedSeries } from '@/lib/catalog/cards';
-import type { Rarity } from '@/lib/rarity';
+import { RARITIES, type Rarity } from '@/lib/rarity';
 import { getOpeningCards } from './packs';
 
 // A player's collection: the visible cards of a collection, owned or not.
@@ -83,6 +83,67 @@ export async function collectionCounts(filters: CollectionFilters): Promise<Reco
     .leftJoin(userCards, owned(filters.userId))
     .where(and(...filterConditions(filters)));
   return { all: row.all, owned: row.owned, missing: row.all - row.owned, duplicates: row.duplicates, youLack: row.youLack };
+}
+
+/** Cards owned of each rarity, under the series filter (the rarity filter's choices). */
+export async function ownedByRarity(filters: CollectionFilters): Promise<Record<Rarity, number>> {
+  const rows = await db
+    .select({ rarity: cards.rarity, owned: count() })
+    .from(cards)
+    .innerJoin(userCards, owned(filters.userId))
+    .where(and(...filterConditions({ ...filters, rarity: null })))
+    .groupBy(cards.rarity);
+  return Object.fromEntries(RARITIES.map((rarity) => [rarity, rows.find((row) => row.rarity === rarity)?.owned ?? 0])) as Record<
+    Rarity,
+    number
+  >;
+}
+
+export interface CardNeighbours {
+  /** From 1. */
+  position: number;
+  total: number;
+  previous: string;
+  next: string;
+}
+
+/**
+ * Where an owned card stands among the owned cards of a list (the collection
+ * or a series, under its filters), in the list's order, and the slugs of the
+ * cards before and after it, looping: the card page's arrows. Null when the
+ * card isn't in the list.
+ */
+export async function ownedNeighbours(
+  filters: CollectionFilters & { tab: CollectionTab },
+  cardId: number,
+): Promise<CardNeighbours | null> {
+  const order = filters.seriesId ? sql`${cardSeries.number}` : sql`${cards.rank}, ${cards.id}`;
+  const query = db
+    .select({
+      id: cards.id,
+      slug: cards.slug,
+      n: sql<number>`(row_number() OVER (ORDER BY ${order}))::int`.as('n'),
+      total: sql<number>`(count(*) OVER ())::int`.as('total'),
+    })
+    .from(cards)
+    .innerJoin(userCards, owned(filters.userId));
+  const where = and(...filterConditions(filters), tabCondition(filters.tab, null));
+  const list = db.$with('list').as(
+    filters.seriesId
+      ? query.innerJoin(cardSeries, and(eq(cardSeries.cardId, cards.id), eq(cardSeries.seriesId, filters.seriesId))).where(where)
+      : query.where(where),
+  );
+  const [card] = await db.with(list).select({ n: list.n, total: list.total }).from(list).where(eq(list.id, cardId));
+  if (!card) return null;
+  const before = card.n === 1 ? card.total : card.n - 1;
+  const after = card.n === card.total ? 1 : card.n + 1;
+  const around = await db
+    .with(list)
+    .select({ n: list.n, slug: list.slug })
+    .from(list)
+    .where(inArray(list.n, [before, after]));
+  const slugAt = (n: number) => around.find((row) => row.n === n)?.slug ?? '';
+  return { position: card.n, total: card.total, previous: slugAt(before), next: slugAt(after) };
 }
 
 /** A tab's first `pages` pages: by rank, or by number within the series when filtering on one. */

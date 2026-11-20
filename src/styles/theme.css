@@ -237,3 +237,23 @@ html[data-app] :is(img, a) {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* A page's phone layout (under 720 px) and its wide one, side by side: the
+   other one is out of sight, and out of the accessibility tree. A form is
+   never in both: a Sheet with `inline` shows it in the page from 720 px. */
+@media (min-width: 720px) {
+  .phone-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 719px) {
+  .wide-only {
+    display: none !important;
+  }
+}
+
+/* While a bottom sheet is open, the page behind it stays put */
+:root:has(dialog[data-sheet][open]) {
+  overflow: hidden;
+}

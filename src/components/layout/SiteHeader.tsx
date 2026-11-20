@@ -1,11 +1,15 @@
-import { CircleUser, Coins, Gavel, House, Layers, PackageOpen, Users } from 'lucide-react';
+import { ArrowLeftRight, CircleUser, Coins, House, Layers, PackageOpen } from 'lucide-react';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { PackReserveCompact } from '@/components/pack/PackReserve';
 import { PushPrompt } from '@/components/social/PushPrompt';
 import { ButtonLink } from '@/components/ui/Button';
+import { receivedOffers } from '@/lib/game/trades';
+import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
+import { getActiveCollection } from '@/lib/game/rules';
 import { appPushEnabled } from '@/lib/notifications/push';
+import { receivedRequestCount } from '@/lib/social/friends';
 import { themePreference } from '@/lib/theme-preference';
 import { NavLinks } from './NavLinks';
 import { NotificationBell } from './NotificationBell';
@@ -93,14 +97,26 @@ export async function SiteHeader() {
 }
 
 /**
- * A player's navigation on a phone (TabBar.tsx): home, collection, the
- * opening with the packs waiting, market, and friends, which also stands for
- * the trades and the leaderboard (SocialTabs). Nothing for a visitor.
+ * A player's navigation on a phone (TabBar.tsx): home, collection, the packs
+ * (raised, with the packs waiting), the trades, which also stand for the
+ * friends and the leaderboard (SocialTabs), with what waits for an answer,
+ * and the profile. The market is reached from the collection and the cards.
+ * Nothing for a visitor.
  */
 export async function SiteTabBar() {
-  const [t, { game, player }] = await Promise.all([getTranslations('Nav'), getPlayerStatus()]);
-  if (!player || !game) return null;
+  const [t, tSocial, { session, now, game, player }] = await Promise.all([
+    getTranslations('Nav'),
+    getTranslations('Social'),
+    getPlayerStatus(),
+  ]);
+  if (!session || !player || !game) return null;
+  const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
+  const [offers, requests] = await Promise.all([
+    collection ? receivedOffers(session.user.id, collection.id, now) : 0,
+    receivedRequestCount(session.user.id),
+  ]);
   const packs = player.reserve.packs;
+  const waiting = offers + requests;
   return (
     <TabBar
       label={t('label')}
@@ -114,19 +130,22 @@ export async function SiteTabBar() {
           also: [`${game.home}/series`, `${game.home}/cards`],
         },
         {
-          href: game.open,
-          label: t('open'),
+          href: game.packs,
+          label: t('packsTab'),
           icon: <PackageOpen aria-hidden />,
           primary: true,
+          also: [game.open],
           badge: packs > 0 ? { value: String(packs), label: t('packs', { count: packs }) } : undefined,
         },
-        { href: game.market, label: t('market'), icon: <Gavel aria-hidden />, prefix: true },
         {
-          href: '/friends',
-          label: t('friends'),
-          icon: <Users aria-hidden />,
-          also: [game.trades, `${game.home}/friends`, '/leaderboard'],
+          href: game.trades,
+          label: t('trades'),
+          icon: <ArrowLeftRight aria-hidden />,
+          prefix: true,
+          also: ['/friends', `${game.home}/friends`, '/leaderboard'],
+          badge: waiting > 0 ? { value: waiting > 99 ? '99+' : String(waiting), label: tSocial('waiting', { count: waiting }) } : undefined,
         },
+        { href: '/account', label: t('profile'), icon: <CircleUser aria-hidden /> },
       ]}
     />
   );

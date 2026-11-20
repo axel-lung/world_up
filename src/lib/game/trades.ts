@@ -428,6 +428,16 @@ export async function receivedOffers(userId: string, collectionId: number, now: 
   return result.rows[0].open;
 }
 
+/** The offer received that expires first, for the game's home ("À faire"). */
+export async function nextReceivedOffer(userId: string, collectionId: number, now: Date): Promise<TradeView | null> {
+  const [row] = await selectTrades()
+    .where(and(eq(trades.collectionId, collectionId), eq(trades.recipientId, userId), isOpen(now)))
+    .orderBy(asc(trades.expiresAt))
+    .limit(1);
+  if (!row) return null;
+  return toView(userId, row, (await itemsOf([row.id])).get(row.id) ?? [], now);
+}
+
 export interface TradeableCard {
   id: number;
   name: string;

@@ -61,6 +61,28 @@ const toRow = (row: Row): LeaderboardRow => ({
   super: row.super,
 });
 
+/** The player's rank, or null before their first card (the game's home, the profile). */
+export async function playerRank(collectionId: number, userId: string): Promise<number | null> {
+  const mine = await db.execute<{ rank: number }>(sql`${ranked(collectionId)}
+    SELECT rank FROM ranked WHERE user_id = ${userId}`);
+  return mine.rows[0]?.rank ?? null;
+}
+
+/** Distinct visible cards each player owns in the collection (the friends list). */
+export async function distinctCards(collectionId: number, userIds: string[]): Promise<Map<string, number>> {
+  if (userIds.length === 0) return new Map();
+  const result = await db.execute<{ user_id: string; cards: number }>(sql`
+    SELECT uc.user_id, count(*)::int AS cards
+    FROM user_cards AS uc
+    JOIN cards AS c ON c.id = uc.card_id AND c.hidden_reason IS NULL
+    WHERE uc.collection_id = ${collectionId} AND uc.user_id IN (${sql.join(
+      userIds.map((id) => sql`${id}`),
+      sql`, `,
+    )})
+    GROUP BY uc.user_id`);
+  return new Map(result.rows.map((row) => [row.user_id, row.cards]));
+}
+
 /** The top of the leaderboard, and the given player's row when it is further down. */
 export async function leaderboard(collectionId: number, userId?: string) {
   const top = await db.execute<Row>(sql`${ranked(collectionId)}

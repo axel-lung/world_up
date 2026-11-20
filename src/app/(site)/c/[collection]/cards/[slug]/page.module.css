@@ -216,3 +216,315 @@
 .sources {
   font-size: 14px;
 }
+
+/* A player's phone: the card fills the screen, without the tab bar. A bar on
+   top (back to the list, the card's place in it, the copies), the card between
+   its arrows, then the text, and the actions docked at the bottom. */
+.top,
+.hint,
+.dock {
+  display: none;
+}
+
+.face {
+  width: 100%;
+}
+
+.rarity {
+  display: inline-flex;
+}
+
+@media (max-width: 719px) {
+  .page[data-player] {
+    padding: 0;
+    gap: 0;
+    grid-template-areas:
+      "top"
+      "card"
+      "hint"
+      "tags"
+      "details"
+      "dock";
+  }
+
+  .page[data-player] .top {
+    grid-area: top;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--color-bg);
+  }
+
+  /* The header gives its tags to the page; the card shows the name */
+  .page[data-player] .header {
+    display: contents;
+  }
+
+  .page[data-player] .header h1 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .page[data-player] .collection,
+  .page[data-player] .place,
+  .page[data-player] .rarity {
+    display: none;
+  }
+
+  .page[data-player] .tags {
+    grid-area: tags;
+    margin: 0;
+    padding: 16px 16px 0;
+    gap: 6px;
+  }
+
+  .page[data-player] .card {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 6px;
+    max-width: none;
+    padding: 6px 8px 0;
+  }
+
+  .page[data-player] .face {
+    grid-column: 2;
+    max-width: 290px;
+    justify-self: center;
+    padding-bottom: 4px;
+  }
+
+  .page[data-player] .hint {
+    grid-area: hint;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+
+  .hint svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .page[data-player] .details {
+    gap: 12px;
+    padding: 12px 16px 16px;
+  }
+
+  .page[data-player] .section {
+    gap: 8px;
+    padding: 16px;
+    border-radius: 24px;
+  }
+
+  .page[data-player] .section h2 {
+    font-size: 18px;
+  }
+
+  .page[data-player] .section p {
+    font-size: 14.5px;
+  }
+
+  /* What the player owns is in the dock: only the resale's toast stays */
+  .page[data-player] .owned {
+    display: contents;
+  }
+
+  .page[data-player] .owned > :not([data-toast]) {
+    display: none;
+  }
+
+  /* The series and the photo, as lines of facts */
+  .page[data-player] .facts {
+    gap: 6px;
+    font-size: 14px;
+  }
+
+  .page[data-player] .facts h2 {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .page[data-player] .facts p {
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
+
+  .page[data-player] .series li > :first-child {
+    font-weight: 600;
+  }
+
+  .page[data-player] .dock {
+    grid-area: dock;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: var(--color-bg);
+    box-shadow: 0 -1px 0 var(--color-divider);
+  }
+
+  /* A toast floats above the dock */
+  :root:has(.dock) {
+    --dock-offset: 84px;
+  }
+}
+
+.round,
+.spacer {
+  flex: none;
+  width: 44px;
+  height: 44px;
+}
+
+.round {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.round:hover {
+  color: var(--color-text);
+}
+
+.round:active {
+  background: var(--color-track);
+}
+
+.round svg {
+  width: 20px;
+  height: 20px;
+}
+
+.position {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The copies owned, an inked pill */
+.copies {
+  flex: none;
+  min-width: 44px;
+  height: 32px;
+  padding: 0 10px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--sticker-line);
+  color: #f5ead8;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.arrow {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-divider);
+  color: var(--color-text);
+}
+
+.arrow.next {
+  grid-column: 3;
+}
+
+.arrow:hover {
+  color: var(--color-text);
+}
+
+.arrow:active {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+.arrow svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* An action of the dock: an icon over its name */
+.action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 60px;
+  padding: 4px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--color-text);
+}
+
+.action:active {
+  background: var(--color-track);
+}
+
+.action svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-accent);
+}
+
+.action.trade {
+  background: var(--color-sage-tint);
+  color: var(--color-accent-2-800);
+}
+
+.action.trade svg {
+  color: inherit;
+}
+
+.action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sheetForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sheetForm p {
+  margin: 0;
+}

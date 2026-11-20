@@ -2,10 +2,11 @@ import Link from 'next/link';
 import type { ComponentProps, ReactNode } from 'react';
 import styles from './Button.module.css';
 
-// Organic's pill .btn, in Caprasimo. primary: the terracotta fill. sage: the
-// second voice (exchanges). danger: the secondary button in the danger color,
-// e.g. "Supprimer le compte".
-type Variant = 'primary' | 'secondary' | 'ghost' | 'sage' | 'danger';
+// Organic's pill .btn, in Caprasimo. primary: the terracotta fill. sticker:
+// the same, inked like the game's objects, for a phone page's main action
+// ("Ouvrir un paquet"). sage: the second voice (exchanges). danger: the
+// secondary button in the danger color, e.g. "Supprimer le compte".
+type Variant = 'primary' | 'sticker' | 'secondary' | 'ghost' | 'sage' | 'danger';
 
 interface ButtonStyleProps {
   variant?: Variant;
@@ -19,6 +20,7 @@ interface ButtonStyleProps {
 
 const ORGANIC_CLASS: Record<Variant, string | null> = {
   primary: 'btn-primary',
+  sticker: 'btn-primary',
   secondary: 'btn-secondary',
   ghost: 'btn-ghost',
   sage: null,

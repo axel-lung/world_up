@@ -24,8 +24,34 @@
 
 /* Ink on the terracotta fill (4.5:1 at least, as --color-on-accent promises),
    in both themes. */
-.primary {
+.primary,
+.sticker {
   color: var(--color-on-accent);
+}
+
+/* The terracotta fill as an inked sticker, pressed into the page when touched */
+.sticker {
+  min-height: 52px;
+  border: 2px solid var(--sticker-line);
+  box-shadow: 0 3px 0 var(--sticker-shadow);
+  font-size: 17px;
+}
+
+.sticker svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sticker:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--sticker-shadow);
+}
+
+.sticker:disabled {
+  opacity: 0.45;
+  transform: none;
+  box-shadow: 0 3px 0 var(--sticker-shadow);
+  cursor: not-allowed;
 }
 
 /* Terracotta text takes the strong shade at button size */
@@ -47,9 +73,14 @@
 /* A lighter fill under a pointer that hovers. Not on a touch screen, which
    would keep it after a tap (Organic's hover too, theme.css). */
 @media (hover: hover) {
-  .primary:hover {
+  .primary:hover,
+  .sticker:hover {
     color: var(--color-on-accent);
     background: color-mix(in srgb, var(--color-accent) 75%, white);
+  }
+
+  .sticker:disabled:hover {
+    background: var(--color-accent);
   }
 
   .ghost:hover {
@@ -72,7 +103,8 @@
 }
 
 /* A deeper one while pressed, by a pointer or a finger */
-.primary:active {
+.primary:active,
+.sticker:active {
   background: color-mix(in srgb, var(--color-accent) 55%, white);
 }
 

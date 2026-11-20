@@ -3,7 +3,6 @@ import {
   Ban,
   Check,
   CircleUser,
-  Gavel,
   Hourglass,
   House,
   Info,
@@ -19,7 +18,6 @@ import {
   Store,
   Timer,
   TriangleAlert,
-  Users,
   X,
 } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -31,7 +29,7 @@ import { CardRow } from '@/components/card/CardRow';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { TabBar, type TabBarItem } from '@/components/layout/TabBar';
 import { AuctionTile } from '@/components/market/AuctionTile';
-import { PackReserve, PackReserveCompact } from '@/components/pack/PackReserve';
+import { PackReserve, PackReserveCompact, PackReserveDial, PackReserveHero } from '@/components/pack/PackReserve';
 import { RarityBadge } from '@/components/rarity/Rarity';
 import { PackPurchasePanel, PurchaseConfirmation } from '@/components/shop/PackPurchase';
 import { FriendList, FriendRow } from '@/components/social/FriendRow';
@@ -39,6 +37,7 @@ import { PushPromptPanel } from '@/components/social/PushPrompt';
 import { TradeSummary } from '@/components/trade/TradeSummary';
 import { Button } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
+import { Sheet } from '@/components/ui/Sheet';
 import { Tag } from '@/components/ui/Tag';
 import { RARITIES } from '@/lib/rarity';
 import { InteractiveDemo } from './InteractiveDemo';
@@ -68,20 +67,27 @@ function SectionTitle({ id, number, tone, title, children }: { id: string; numbe
   );
 }
 
-// The phone's tab bar, as SiteTabBar builds it, with `packs` waiting
-function tabBarSample(packs: number): TabBarItem[] {
+// The phone's tab bar, as SiteTabBar builds it, with `packs` and `waiting` answers
+function tabBarSample(packs: number, waiting: number): TabBarItem[] {
   return [
     { href: '/c/heritage', label: 'Accueil', icon: <House aria-hidden /> },
     { href: '/c/heritage/collection', label: 'Collection', icon: <Layers aria-hidden />, prefix: true },
     {
-      href: '/c/heritage/open',
-      label: 'Ouvrir',
+      href: '/c/heritage/packs',
+      label: 'Paquets',
       icon: <PackageOpen aria-hidden />,
       primary: true,
       badge: packs > 0 ? { value: String(packs), label: `${packs} paquets disponibles` } : undefined,
     },
-    { href: '/c/heritage/market', label: 'Marché', icon: <Gavel aria-hidden />, prefix: true },
-    { href: '/friends', label: 'Amis', icon: <Users aria-hidden />, also: ['/c/heritage/trades', '/leaderboard'] },
+    {
+      href: '/c/heritage/trades',
+      label: 'Échanges',
+      icon: <ArrowLeftRight aria-hidden />,
+      prefix: true,
+      also: ['/friends', '/leaderboard'],
+      badge: waiting > 0 ? { value: String(waiting), label: `${waiting} en attente de votre réponse` } : undefined,
+    },
+    { href: '/account', label: 'Profil', icon: <CircleUser aria-hidden /> },
   ];
 }
 
@@ -360,6 +366,15 @@ export default function DesignPage() {
                 <div className={styles.row}>
                   <Button icon={<GoogleLogo />}>Continuer avec Google</Button>
                 </div>
+                <div className={styles.row}>
+                  <Button variant="sticker" icon={<PackageOpen aria-hidden />}>
+                    Ouvrir un paquet
+                  </Button>
+                  <Button variant="sticker" disabled icon={<PackageOpen aria-hidden />}>
+                    Ouvrir un paquet
+                  </Button>
+                </div>
+                <span className={styles.muted}>Sticker : l&apos;action principale d&apos;une page sur téléphone.</span>
               </div>
 
               <div className={styles.group}>
@@ -433,17 +448,60 @@ export default function DesignPage() {
                     <span className={styles.muted}>Version compacte, pour l&apos;en-tête.</span>
                   </div>
                 </div>
+                <div className={styles.reserves}>
+                  <div className={styles.phoneBox}>
+                    <PackReserveHero
+                      available={7}
+                      max={10}
+                      nextPackAt={inSeconds(272)}
+                      serverNow={serverNow}
+                      openHref="/c/heritage/open"
+                      emblem="landmark"
+                    />
+                  </div>
+                  <div className={styles.phoneBox}>
+                    <PackReserveDial
+                      available={0}
+                      max={10}
+                      nextPackAt={inSeconds(552)}
+                      serverNow={serverNow}
+                      refillMinutes={10}
+                      openHref="/c/heritage/open"
+                    />
+                  </div>
+                </div>
+                <span className={styles.muted}>Sur téléphone : l&apos;accueil (avec le mini-paquet) et la page Paquets.</span>
+              </div>
+
+              <div className={styles.group}>
+                <h3>Feuille du bas</h3>
+                <Sheet
+                  title="Rareté"
+                  trigger={{
+                    className: 'btn btn-secondary',
+                    content: 'Ouvrir une feuille',
+                  }}
+                >
+                  <p className={styles.muted}>
+                    Un &lt;dialog&gt; natif : Échap, le fond ou Retour la ferment, et le focus revient au bouton.
+                  </p>
+                  <Button variant="primary" size="large" block>
+                    Appliquer
+                  </Button>
+                </Sheet>
+                <span className={styles.muted}>Filtres, offre d&apos;échange, revente, formulaires du profil (téléphone).</span>
               </div>
 
               <div className={styles.group}>
                 <h3>Barre d&apos;onglets</h3>
                 <div className={styles.tabBars}>
-                  <TabBar label="Navigation (exemple)" items={tabBarSample(7)} inline currentPath="/c/heritage/collection" />
-                  <TabBar label="Navigation (exemple, sans paquet)" items={tabBarSample(0)} inline currentPath="/leaderboard" />
+                  <TabBar label="Navigation (exemple)" items={tabBarSample(7, 2)} inline currentPath="/c/heritage/collection" />
+                  <TabBar label="Navigation (exemple, sans paquet)" items={tabBarSample(0, 0)} inline currentPath="/c/heritage/packs" />
                 </div>
                 <span className={styles.muted}>
-                  Fixée en bas de l&apos;écran sous 720&nbsp;px, pour un joueur connecté&nbsp;: l&apos;ouverture en relief avec les
-                  paquets disponibles, l&apos;onglet de la page courante teinté. Collection, puis Classement (sous Amis).
+                  Fixée en bas de l&apos;écran sous 720&nbsp;px, pour un joueur connecté&nbsp;: les paquets en relief avec ceux
+                  qui attendent, les échanges avec ce qui attend une réponse, l&apos;onglet de la page courante teinté.
+                  Collection, puis Paquets.
                 </span>
               </div>
 

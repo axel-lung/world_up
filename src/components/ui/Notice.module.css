@@ -47,3 +47,49 @@
   width: 18px;
   height: 18px;
 }
+
+/* A toast on a phone: an inked pill over the bottom of the screen (above the
+   tab bar, or a page's own bar: --dock-offset), gone after 2.2 s */
+@media (max-width: 719px) {
+  .notice[data-toast] {
+    position: fixed;
+    left: 50%;
+    bottom: calc(var(--tab-bar-offset) + var(--dock-offset, 0px) + 20px);
+    z-index: 90;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    box-shadow: var(--shadow-lg);
+    pointer-events: none;
+    transform: translateX(-50%);
+    animation: toast-out 0.2s ease 2.2s forwards;
+  }
+
+  .notice[data-toast] .icon {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    color: var(--color-accent-2-400);
+  }
+}
+
+@media (max-width: 719px) and (prefers-reduced-motion: reduce) {
+  .notice[data-toast] {
+    animation-duration: 0.01s;
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

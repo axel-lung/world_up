@@ -1,6 +1,6 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import { RedirectType, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { db } from '@/db';
 import { resellDuplicates, type Resale } from '@/lib/game/coins';
@@ -13,14 +13,15 @@ const resellSchema = z.object({
   key: z.uuid(),
   // Absent: every duplicate of the collection
   cardId: z.coerce.number().int().positive().optional(),
-  // Back to the collection or the card page the form was on
-  back: z.string().regex(/^\/c\/[a-z0-9-]+\/(collection|series\/[a-z0-9-]+|cards\/[a-z0-9-]+)(\?[^#]*)?$/),
+  // Back to the game's home, the collection or the card page the form was on
+  back: z.string().regex(/^\/c\/[a-z0-9-]+(\/(collection|series\/[a-z0-9-]+|cards\/[a-z0-9-]+))?(\?[^#]*)?$/),
 });
 
 /**
  * Resells one duplicate of a card, or every duplicate, then goes back to the
- * page with the outcome in its address. The form carries a key generated when
- * the page was rendered: sent twice, it sells once.
+ * page with the outcome in its address, in place of the page sent from (a
+ * phone sends it from a sheet, whose history entry it takes). The form carries
+ * a key generated when the page was rendered: sent twice, it sells once.
  */
 export async function resellAction(form: FormData): Promise<void> {
   const input = resellSchema.safeParse({
@@ -56,5 +57,5 @@ export async function resellAction(form: FormData): Promise<void> {
     back.searchParams.set('sold', String(outcome.copies));
     back.searchParams.set('coins', String(outcome.coins));
   }
-  redirect(`${back.pathname}${back.search}`);
+  redirect(`${back.pathname}${back.search}`, RedirectType.replace);
 }

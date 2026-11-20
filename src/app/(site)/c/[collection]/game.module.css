@@ -522,3 +522,197 @@
   font-weight: 400;
   font-variant-numeric: tabular-nums;
 }
+
+/* A phone's filters (CollectionGrid): two or three equal menus, each showing
+   its choice once made, inked like the current tab */
+.menus {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 6px;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 10px 0 14px;
+  border: 1.5px solid var(--color-divider);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.menu svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.menu:active {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+/* A menu whose choice is made: its label is the choice */
+.menu.chosen {
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.menuLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A sheet's choices: a tap applies one and closes the sheet */
+.choices {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 14px;
+  list-style: none;
+  border-radius: 20px;
+  background: var(--color-surface);
+}
+
+.choices li + li {
+  border-top: 1px solid var(--color-divider);
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.choice:hover {
+  color: var(--color-text);
+}
+
+.choice:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--radius-md);
+}
+
+.choiceLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.choiceCount {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.choiceMark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-divider);
+}
+
+.choiceMark svg {
+  width: 13px;
+  height: 13px;
+}
+
+.choice[aria-current="page"] .choiceMark {
+  border-color: var(--sticker-line);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* The series, one row each with its ring (the collection's "Par série") */
+.seriesGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.seriesGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.seriesRows li > a {
+  min-height: 68px;
+}
+
+@media (max-width: 719px) {
+  .resultsBar {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .resultsCount {
+    flex: 1;
+    font-size: 14px;
+  }
+
+  .clear {
+    min-height: 40px;
+    padding: 0 10px;
+  }
+
+  /* The list or the grid, as two icons, the list first */
+  .viewSwitch :global(.seg) {
+    flex-direction: row-reverse;
+    border-radius: 999px;
+  }
+
+  .viewSwitch :global(.seg-opt) {
+    justify-content: center;
+    width: 44px;
+    min-height: 40px;
+    padding: 0;
+  }
+
+  .viewSwitch :global(.seg-opt + .seg-opt) {
+    border-left: 0;
+    border-right: 1px solid var(--color-divider);
+  }
+
+  .viewSwitch :global(.seg-opt) svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .viewSwitch :global(.seg-label) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 12px;
+    padding-top: 10px;
+  }
+
+  .list {
+    border-radius: 24px;
+  }
+}

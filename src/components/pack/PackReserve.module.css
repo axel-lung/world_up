@@ -96,3 +96,159 @@
   border-radius: 50%;
   background: var(--color-text-muted);
 }
+
+/* The phone home's reserve (PackReserveHero): a small pack beside the count */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.heroRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* The opening's pack, small and tilted: the collection's skin with dots, a
+   band across the top, the emblem on a paper disc */
+.miniPack {
+  flex: none;
+  position: relative;
+  width: 64px;
+  height: 88px;
+  border-radius: 14px;
+  border: 2px solid var(--sticker-line);
+  background:
+    radial-gradient(rgba(32, 30, 29, 0.12) 1.4px, transparent 1.6px) 0 0 / 10px 10px,
+    var(--skin-color, var(--color-accent));
+  box-shadow: 0 4px 0 var(--sticker-shadow);
+  transform: rotate(-6deg);
+}
+
+.miniBand {
+  position: absolute;
+  inset: -2px -2px auto;
+  height: 18px;
+  border-radius: 14px 14px 3px 3px;
+  border: 2px solid var(--sticker-line);
+  background: color-mix(in srgb, var(--skin-color, var(--color-accent)) 88%, var(--sticker-line));
+}
+
+.miniEmblem {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -40%;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--sticker-line);
+  background: var(--sticker-paper);
+  color: var(--card-ink);
+}
+
+.miniEmblem svg {
+  width: 15px;
+  height: 15px;
+}
+
+.heroText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.heroCount {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.heroMax {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.heroNext {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.heroNext svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--color-accent);
+}
+
+/* The packs page's reserve (PackReserveDial): a large ring, centered */
+.dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.dialRing {
+  width: 132px;
+  height: 132px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(var(--color-accent) var(--filled), var(--color-track) 0);
+}
+
+.dialRing > span {
+  width: 110px;
+  height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+
+.dialCount {
+  font-family: var(--font-heading);
+  font-size: 40px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dialMax {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.dialNext {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.dialNext svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--color-accent);
+}
+
+.dialHint {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
