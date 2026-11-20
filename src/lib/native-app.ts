@@ -8,3 +8,16 @@ import { Capacitor } from '@capacitor/core';
 
 /** Whether the page runs in the app rather than in a browser. Browser side only. */
 export const isNativeApp = (): boolean => Capacitor.isNativePlatform();
+
+let build: Promise<string | null> | undefined;
+
+/**
+ * The app's build number (its versionCode), which each update raises; null
+ * from an app built before it could tell (without the App plugin).
+ */
+export function appBuild(): Promise<string | null> {
+  build ??= import('@capacitor/app').then(
+    ({ App }) => App.getInfo().then((info) => info.build),
+  ).catch(() => null);
+  return build;
+}

@@ -309,7 +309,7 @@ Avancé de la version 2 le 22 octobre 2026, avant les paiements. Les règles chi
 
 - Demande d'ami, ami accepté, offre reçue, acceptée, refusée ou expirée, mise dépassée, vente gagnée, conclue, invendue ou annulée ; réserve de paquets gratuits de nouveau pleine (ajoutée le 17 novembre 2026), une fois par remplissage après une ouverture.
 - Écrites dans la transaction de l'événement ; une cloche dans l'en-tête compte les non-lues, `/activity` montre les 50 dernières. Effacées au bout de 90 jours.
-- En push web dans un second temps, sur l'appareil où le joueur l'active (page Activité) ; se déconnecter les y coupe. Dans l'application Android, elles passent par Firebase Cloud Messaging, qui en voit le texte : la politique de confidentialité le dit.
+- En push web dans un second temps, sur l'appareil où le joueur l'active (page Activité) ; se déconnecter les y coupe. Dans l'application Android, elles passent par Firebase Cloud Messaging, qui en voit le texte : la politique de confidentialité le dit. Depuis le 19 novembre 2026, elles n'arrivent que dans l'application (le push web reste dans le code, éteint), et l'application propose de les activer au joueur qui ne les reçoit pas, une fois après chaque connexion et après chaque mise à jour de l'application.
 
 ## Paiements et conformité
 

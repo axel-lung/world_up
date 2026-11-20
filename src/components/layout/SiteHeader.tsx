@@ -3,7 +3,9 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { PackReserveCompact } from '@/components/pack/PackReserve';
+import { PushPrompt } from '@/components/social/PushPrompt';
 import { ButtonLink } from '@/components/ui/Button';
+import { appPushEnabled } from '@/lib/notifications/push';
 import { themePreference } from '@/lib/theme-preference';
 import { NavLinks } from './NavLinks';
 import { NotificationBell } from './NotificationBell';
@@ -128,6 +130,17 @@ export async function SiteTabBar() {
       ]}
     />
   );
+}
+
+/**
+ * In the app, asks a signed-in player to turn the notifications on, after each
+ * sign-in and each update of the app (PushPrompt), while the server sends to
+ * the app. Nothing in a browser.
+ */
+export async function SitePushPrompt() {
+  const { session } = await getPlayerStatus();
+  if (!session || !appPushEnabled()) return null;
+  return <PushPrompt signedInAt={session.session.createdAt.getTime()} />;
 }
 
 export async function SiteFooter() {

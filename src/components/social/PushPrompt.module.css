@@ -1,0 +1,76 @@
+/* The modal around the panel: the panel is Organic's .dialog */
+.prompt {
+  width: min(440px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100% - 32px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  overflow: visible;
+}
+
+.prompt::backdrop {
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .prompt[open] {
+    animation: rise 0.24s cubic-bezier(0.34, 1.35, 0.5, 1) both;
+  }
+
+  .prompt[open]::backdrop {
+    animation: fade 0.2s ease both;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.panel {
+  flex: 1 1 300px;
+}
+
+.icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent-tint);
+  color: var(--color-accent);
+}
+
+.icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.body p {
+  margin: 0;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  flex-wrap: wrap;
+}

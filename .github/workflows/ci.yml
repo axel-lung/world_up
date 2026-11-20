@@ -39,6 +39,9 @@ jobs:
       VAPID_PUBLIC_KEY: BFOtmdkoFdLMOxntqobg-JiCunkpKCNfFakSXm7ZtzMQ8fkJ5KBEi4gG62QqYUAZ_r4a5T3Ae8JxX3skyaB-Ykg
       VAPID_PRIVATE_KEY: cmtO5ePXo-BjOri3XXX5oz-d_8uy_RM_BwAfbcpAa0U
       VAPID_SUBJECT: mailto:admin@example.test
+      # The app's notifications, with a made-up service account: no test signs
+      # in to Firebase, since no real phone ever registers
+      FCM_SERVICE_ACCOUNT: eyJ0eXBlIjoic2VydmljZV9hY2NvdW50IiwicHJvamVjdF9pZCI6ImNpLW9ubHkiLCJjbGllbnRfZW1haWwiOiJjaUBjaS1vbmx5LmlhbS5nc2VydmljZWFjY291bnQuY29tIiwicHJpdmF0ZV9rZXkiOiJub3QtYS1rZXkifQ==
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

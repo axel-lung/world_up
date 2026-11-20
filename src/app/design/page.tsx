@@ -35,6 +35,7 @@ import { PackReserve, PackReserveCompact } from '@/components/pack/PackReserve';
 import { RarityBadge } from '@/components/rarity/Rarity';
 import { PackPurchasePanel, PurchaseConfirmation } from '@/components/shop/PackPurchase';
 import { FriendList, FriendRow } from '@/components/social/FriendRow';
+import { PushPromptPanel } from '@/components/social/PushPrompt';
 import { TradeSummary } from '@/components/trade/TradeSummary';
 import { Button } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
@@ -565,6 +566,18 @@ export default function DesignPage() {
                   />
                   <PurchaseConfirmation product="Paquet Patrimoine de France" price={1.99} fictitiousPrice />
                 </div>
+              </div>
+
+              <div className={styles.group}>
+                <h3>Demande de notifications</h3>
+                <div className={styles.dialogs}>
+                  <PushPromptPanel />
+                  <PushPromptPanel failed />
+                </div>
+                <span className={styles.muted}>
+                  Dans l&apos;app seulement, en fenêtre modale, quand le téléphone ne reçoit pas les notifications&nbsp;: une
+                  fois après chaque connexion et après chaque mise à jour de l&apos;app. Puis en cas d&apos;échec.
+                </span>
               </div>
             </div>
           ))}

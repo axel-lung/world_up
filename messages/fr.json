@@ -1161,6 +1161,14 @@
       "deniedApp": "Les notifications de World Up sont bloquées dans les réglages du téléphone. Autorisez-les pour l'app, puis revenez ici.",
       "unsupported": "Ce navigateur ne peut pas recevoir de notifications. Sur iPhone et iPad, ajoutez d'abord World Up à l'écran d'accueil.",
       "failed": "Les notifications n'ont pas pu être activées. Réessayez dans un instant."
+    },
+    "prompt": {
+      "title": "Activer les notifications ?",
+      "body": "Recevez une notification quand votre réserve de paquets est pleine, pour une demande d'ami, une offre d'échange ou une enchère dépassée.",
+      "hint": "Vous pourrez les couper à tout moment dans Activité.",
+      "later": "Plus tard",
+      "turnOn": "Activer",
+      "failed": "Les notifications n'ont pas pu être activées. Réessayez dans un instant, ou depuis la page Activité."
     }
   },
   "Notifications": {
@@ -1229,7 +1237,7 @@
     "packsDraw": "Le contenu d'un paquet est tiré par le serveur à l'ouverture, selon les <odds>probabilités publiées</odds>.",
     "collectionHeading": "La collection",
     "collectionSeries": "Chaque carte appartient à une ou plusieurs séries : sa région, sa famille de monuments, le patrimoine mondial ou le patrimoine en péril.",
-    "collectionMissing": "Les cartes qui vous manquent restent visibles, sauf les Légendaires et les Ultra rares, qui gardent leur surprise.",
+    "collectionMissing": "Les cartes qui vous manquent restent visibles, grisées : leur nom et leur rareté seulement, la photo se découvre en l'obtenant.",
     "collectionDuplicates": "Une carte obtenue plusieurs fois compte autant d'exemplaires : ce sont vos doublons.",
     "coinsHeading": "Les pièces",
     "coinsIntro": "{opening, plural, =0 {Vous gagnez des pièces} one {Chaque paquet ouvert vous rapporte # pièce. Vous en gagnez aussi} other {Chaque paquet ouvert vous rapporte # pièces. Vous en gagnez aussi}} en revendant vos doublons (vous gardez toujours un exemplaire de chaque carte) et en obtenant des succès. Un doublon rapporte selon sa rareté :",
