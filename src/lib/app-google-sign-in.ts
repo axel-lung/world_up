@@ -36,7 +36,11 @@ export async function askPhoneForGoogle({ sheet = false } = {}): Promise<PhoneGo
       googleClientIdAction(),
     ]);
     if (!webClientId) throw new Error('Google sign-in is off on the server');
-    await SocialLogin.initialize({ google: { webClientId } });
+    // Only the ID token: without this, the plugin then asks Google for an
+    // access token too, and a Google account the app has never seen needs a
+    // consent screen there, which Capacitor's own activity can't show
+    // ("requires user interaction"), so the sign-in failed.
+    await SocialLogin.initialize({ google: { webClientId, skipAuthOnlyAuthorizationAfterSignIn: true } });
     const { result } = await SocialLogin.login({ provider: 'google', options: sheet ? { style: 'bottom' } : {} });
     if (result.responseType === 'online' && result.idToken) return { idToken: result.idToken, email: result.profile.email };
     return { failed: `no ID token (${result.responseType})` };
