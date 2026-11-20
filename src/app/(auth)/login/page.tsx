@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { LoginForm } from '@/components/account/LoginForm';
 import { PLAYER_HOME } from '@/lib/collections';
 import { safeReturnPath } from '@/lib/return-path';
+import { googleErrorFrom } from '@/lib/google-error';
 import { getSession } from '@/lib/session';
 import { googleSignInEnabled } from '@/lib/sign-in-methods';
 
@@ -14,10 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Also where Google sends the player back when signing in fails, with ?error=…
 export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
-  const { next, error } = await searchParams;
-  const returnTo = safeReturnPath(next, PLAYER_HOME);
+  const params = await searchParams;
+  const returnTo = safeReturnPath(params.next, PLAYER_HOME);
   if (await getSession()) redirect(returnTo);
-  return (
-    <LoginForm returnTo={returnTo} google={googleSignInEnabled()} googleError={typeof error === 'string' ? error : undefined} />
-  );
+  return <LoginForm returnTo={returnTo} google={googleSignInEnabled()} googleError={googleErrorFrom(params)} />;
 }

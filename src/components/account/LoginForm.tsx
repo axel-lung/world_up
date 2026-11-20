@@ -8,6 +8,7 @@ import { TextField } from '@/components/ui/TextField';
 import { authClient } from '@/lib/auth-client';
 import styles from './AuthForm.module.css';
 import { type FormError, useFocusOnError, useFormError } from './form-errors';
+import type { GoogleError } from '@/lib/google-error';
 import { GoogleButton, GoogleErrorNotice, OrDivider } from './GoogleButton';
 import { SubmitButton } from './SubmitButton';
 
@@ -16,7 +17,7 @@ import { SubmitButton } from './SubmitButton';
  * leads. `google`: whether Google sign-in is set up on the server.
  * `googleError`: why Google sent the player back here, if it did.
  */
-export function LoginForm({ returnTo, google, googleError }: { returnTo: string; google: boolean; googleError?: string }) {
+export function LoginForm({ returnTo, google, googleError }: { returnTo: string; google: boolean; googleError?: GoogleError }) {
   const t = useTranslations('Auth.login');
   const toFormError = useFormError();
   const formRef = useRef<HTMLFormElement>(null);
@@ -112,7 +113,7 @@ export function LoginForm({ returnTo, google, googleError }: { returnTo: string;
       <h1 className={styles.title}>{t('title')}</h1>
       {google && (
         <>
-          {googleError && !error && <GoogleErrorNotice code={googleError} />}
+          {googleError && !error && <GoogleErrorNotice error={googleError} />}
           <GoogleButton
             callbackURL={returnTo}
             errorCallbackURL={`/login?next=${encodeURIComponent(returnTo)}`}
