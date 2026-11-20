@@ -78,3 +78,10 @@
 .switch {
   align-self: center;
 }
+
+/* A Google error with no message of its own: its code, small, to quote */
+.errorCode {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}

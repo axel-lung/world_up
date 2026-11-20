@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Notice';
 import { askPhoneForGoogle, heldGoogleAccount, holdGoogleAccount, releaseGoogleAccount } from '@/lib/app-google-sign-in';
 import { authClient } from '@/lib/auth-client';
+import { DETAIL_MAX, type GoogleError } from '@/lib/google-error';
 import { isNativeApp } from '@/lib/native-app';
 import { useHydrated } from '@/lib/use-hydrated';
 import styles from './AuthForm.module.css';
@@ -60,12 +61,25 @@ export async function continueWithGoogle({ callbackURL, errorCallbackURL, signup
   return error;
 }
 
-/** Leaves for `errorCallbackURL` with `error`, as Google's callback does. */
-function backWithError(errorCallbackURL: string, error: string) {
+/** Leaves for `errorCallbackURL` with `error`, and what failed (`detail`), as Google's callback does. */
+function backWithError(errorCallbackURL: string, error: string, detail?: string) {
   const url = new URL(errorCallbackURL, window.location.origin);
   url.searchParams.set('error', error);
+  if (detail) url.searchParams.set('error_description', detail.slice(0, DETAIL_MAX));
   window.location.assign(url.pathname + url.search + url.hash);
 }
+
+// The refusals a signup form explains itself: the server checks its pseudo,
+// birth date and terms before Google is asked
+const SIGNUP_REFUSALS = ['INVALID_PSEUDO', 'PSEUDO_TAKEN', 'INVALID_BIRTH_DATE', 'UNDERAGE', 'TERMS_NOT_ACCEPTED'];
+
+/** Whether the form shows the error (a signup refused, too many attempts) rather than the page's Google notice. */
+function formExplains(error: { code?: string; status: number }): boolean {
+  return error.status === 429 || SIGNUP_REFUSALS.includes(error.code ?? '');
+}
+
+/** An error the notice has no message for, named by its code (INVALID_TOKEN, or the status). */
+const codeOf = (error: { code?: string; status: number }) => error.code ?? `HTTP ${error.status}`;
 
 /**
  * Where Google's callback would have sent the player for Better Auth's answer
@@ -91,7 +105,8 @@ async function continueInApp({ callbackURL, errorCallbackURL, signup }: GoogleOp
   const account = (signup && heldGoogleAccount()) || (await askPhoneForGoogle());
   // The player closed Google's sheet, as access_denied on the web
   if (account === 'cancelled') return backWithError(errorCallbackURL, 'access_denied');
-  if (account === 'failed') return backWithError(errorCallbackURL, 'generic');
+  // The phone gave no account: the notice shows what it said
+  if ('failed' in account) return backWithError(errorCallbackURL, 'app_sign_in_failed', account.failed);
 
   const { error } = await authClient.signIn.social({
     provider: 'google',
@@ -105,7 +120,9 @@ async function continueInApp({ callbackURL, errorCallbackURL, signup }: GoogleOp
   }
   const param = errorParam(error);
   if (param) return backWithError(errorCallbackURL, param);
-  return error;
+  if (formExplains(error)) return error;
+  // Any other (the token refused, say): the notice, with its code
+  return backWithError(errorCallbackURL, 'generic', codeOf(error));
 }
 
 /**
@@ -123,14 +140,15 @@ export function GoogleAppPrompt({ home }: { home: string }) {
     void (async () => {
       const account = await askPhoneForGoogle({ sheet: true });
       // Closed, or no Google sign-in on this phone: the page stays as it is
-      if (typeof account === 'string') return;
+      if (account === 'cancelled' || 'failed' in account) return;
       const { error } = await authClient.signIn.social({
         provider: 'google',
         idToken: { token: account.idToken },
         callbackURL: home,
       });
       if (!error) return window.location.assign(home);
-      const param = errorParam(error) ?? 'generic';
+      const param = errorParam(error);
+      if (!param) return backWithError('/login', 'generic', codeOf(error));
       if (param !== 'signup_disabled') return backWithError('/login', param);
       // A navigation within the site, so that the account stays in memory
       holdGoogleAccount(account);
@@ -200,8 +218,12 @@ export function OrDivider() {
 // (ACCOUNT_BANNED, from the session hook)
 const KNOWN_ERRORS = ['signup_disabled', 'account_not_linked', 'email_not_verified'] as const;
 
-/** Why Google sent the player back: the `error` parameter of the login or signup page. */
-export function GoogleErrorNotice({ code }: { code: string }) {
+/**
+ * Why Google sent the player back: the `error` parameter of the login or
+ * signup page. An error with no message of its own shows its code underneath,
+ * and what failed when the address says, so that the player can quote them.
+ */
+export function GoogleErrorNotice({ error: { code, detail } }: { error: GoogleError }) {
   const t = useTranslations('Auth.google.errors');
   const tErrors = useTranslations('AuthErrors');
   // The player closed Google's page or said no
@@ -222,6 +244,9 @@ export function GoogleErrorNotice({ code }: { code: string }) {
             ? t.rich(known, { signup: (chunks) => <Link href="/signup?with=google">{chunks}</Link> })
             : t('generic')}
       </p>
+      {code !== 'ACCOUNT_BANNED' && !known && (
+        <p className={styles.errorCode}>{t('code', { code: detail ? `${code} · ${detail}` : code })}</p>
+      )}
     </Notice>
   );
 }

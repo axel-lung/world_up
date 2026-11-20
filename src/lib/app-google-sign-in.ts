@@ -10,13 +10,25 @@ export interface PhoneGoogleAccount {
   email: string | null;
 }
 
+/** The phone's sign-in failed: what its plugin said, for the player to quote (GoogleErrorNotice). */
+export interface PhoneGoogleFailure {
+  failed: string;
+}
+
+/** The plugin's error as a short line: its code, then its message. */
+function describe(error: unknown): string {
+  const { code, message } = (error ?? {}) as { code?: unknown; message?: unknown };
+  const parts = [code, message].filter((part): part is string | number => typeof part === 'string' || typeof part === 'number');
+  return parts.length ? parts.join(' ') : String(error);
+}
+
 /**
  * Asks the phone for one of its Google accounts. `sheet`: the sheet that rises
  * from the bottom ("Continuer en tant que…"), offered unasked at the first
  * launch; otherwise Google's dialog, every account and a way to add one, for a
  * button. Without any account on the phone, the plugin falls back to the dialog.
  */
-export async function askPhoneForGoogle({ sheet = false } = {}): Promise<PhoneGoogleAccount | 'cancelled' | 'failed'> {
+export async function askPhoneForGoogle({ sheet = false } = {}): Promise<PhoneGoogleAccount | PhoneGoogleFailure | 'cancelled'> {
   try {
     // The module, never a promise of the plugin: a Capacitor plugin is a proxy
     const [{ SocialLogin }, webClientId] = await Promise.all([
@@ -27,11 +39,12 @@ export async function askPhoneForGoogle({ sheet = false } = {}): Promise<PhoneGo
     await SocialLogin.initialize({ google: { webClientId } });
     const { result } = await SocialLogin.login({ provider: 'google', options: sheet ? { style: 'bottom' } : {} });
     if (result.responseType === 'online' && result.idToken) return { idToken: result.idToken, email: result.profile.email };
+    return { failed: `no ID token (${result.responseType})` };
   } catch (error) {
     if ((error as { code?: string }).code === 'USER_CANCELLED') return 'cancelled';
     console.error('Google sign-in failed in the app', error);
+    return { failed: describe(error) };
   }
-  return 'failed';
 }
 
 // The account the first launch's sheet gave when it has no World Up account

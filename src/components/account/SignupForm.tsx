@@ -10,6 +10,7 @@ import { TextField } from '@/components/ui/TextField';
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, todayInFrance } from '@/lib/account-rules';
 import { heldGoogleAccount } from '@/lib/app-google-sign-in';
 import { authClient } from '@/lib/auth-client';
+import type { GoogleError } from '@/lib/google-error';
 import styles from './AuthForm.module.css';
 import { errorFor, type FormError, type FormErrorCode, formLevelError, useFocusOnError, useFormError } from './form-errors';
 import { continueWithGoogle, GoogleErrorNotice, GoogleLogo, OrDivider } from './GoogleButton';
@@ -44,7 +45,7 @@ export function SignupForm({
   google: boolean;
   withGoogle: boolean;
   home: string;
-  googleError?: string;
+  googleError?: GoogleError;
 }) {
   const t = useTranslations('Auth.signup');
   const toFormError = useFormError();
@@ -129,7 +130,7 @@ export function SignupForm({
       <p className={styles.intro}>
         {method === 'google' ? (heldEmail ? t('googleHeldIntro', { email: heldEmail }) : t('googleIntro')) : t('intro')}
       </p>
-      {googleError && !error && <GoogleErrorNotice code={googleError} />}
+      {googleError && !error && <GoogleErrorNotice error={googleError} />}
       {google && method === 'email' && (
         <>
           <Button block onClick={() => switchTo('google')} icon={<GoogleLogo />}>

@@ -68,7 +68,8 @@
         "signup_disabled": "Ce compte Google n'a pas encore de compte World Up. <signup>Créez-le</signup> : choisissez un pseudo, puis continuez avec Google.",
         "account_not_linked": "Un compte World Up attend la confirmation de cette adresse e-mail. Ouvrez le lien reçu par e-mail (une connexion avec votre mot de passe en renvoie un), puis réessayez avec Google.",
         "email_not_verified": "Google n'a pas confirmé cette adresse e-mail : nous vous avons envoyé un lien pour la confirmer, valable 24 heures.",
-        "generic": "La connexion n'a pas abouti. Réessayez dans un instant."
+        "generic": "La connexion n'a pas abouti. Réessayez dans un instant.",
+        "code": "Code : {code}"
       }
     },
     "forgot": {

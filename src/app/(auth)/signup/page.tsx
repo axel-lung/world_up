@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { SignupForm } from '@/components/account/SignupForm';
 import { PLAYER_HOME } from '@/lib/collections';
+import { googleErrorFrom } from '@/lib/google-error';
 import { getSession } from '@/lib/session';
 import { googleSignInEnabled } from '@/lib/sign-in-methods';
 
@@ -21,7 +22,7 @@ export default async function SignupPage({ searchParams }: PageProps<'/signup'>)
       google={googleSignInEnabled()}
       withGoogle={params.with === 'google'}
       home={PLAYER_HOME}
-      googleError={typeof params.error === 'string' ? params.error : undefined}
+      googleError={googleErrorFrom(params)}
     />
   );
 }
