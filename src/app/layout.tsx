@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Caprasimo, Figtree } from 'next/font/google';
 import { cookies } from 'next/headers';
 import { connection } from 'next/server';
@@ -7,6 +7,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { NativeApp } from '@/components/layout/NativeApp';
 import { NavigationProgress } from '@/components/layout/NavigationProgress';
+import { ZoomLock } from '@/components/layout/ZoomLock';
 import { getDefaultThemeCss } from '@/lib/collections';
 import { indexingAllowed } from '@/lib/indexing';
 import { themeAttribute, themePreference } from '@/lib/theme-preference';
@@ -25,6 +26,17 @@ const caprasimo = Caprasimo({
   display: 'swap',
   preload: false,
 });
+
+// No zoom, on the site as in the app (decided on 2026-11-21): the page keeps
+// the phone's width. Safari ignores user-scalable, but keeps maximum-scale,
+// so a focused field doesn't zoom in; theme.css and ZoomLock stop its pinch
+// and double tap.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Metadata');
@@ -59,6 +71,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
           <NavigationProgress />
         </Suspense>
         <NativeApp />
+        <ZoomLock />
       </body>
     </html>
   );

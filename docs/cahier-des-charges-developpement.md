@@ -402,7 +402,7 @@ Les adresses sont en anglais, les textes de l'interface restent en français. La
 - Les fiches cartes publiques montrent la photo, l'extrait et les crédits : elles amènent des visiteurs depuis les moteurs de recherche.
 - Temps d'affichage du contenu principal (LCP) sous 2,5 s sur mobile en 4G ; images WebP en chargement différé.
 - Ouverture de paquet de 3 s au plus, passable ; simple fondu si le système demande moins d'animations.
-- Accessibilité WCAG 2.1 niveau AA.
+- Accessibilité WCAG 2.1 niveau AA, sauf le zoom : il est désactivé partout, sur le site comme dans l'application (décidé le 21 novembre 2026). Dans l'application, le texte suit toujours la taille de police choisie dans les réglages du téléphone.
 - Textes en français, regroupés dans des fichiers de traduction pour pouvoir traduire plus tard.
 
 ## Sécurité, données personnelles et hébergement

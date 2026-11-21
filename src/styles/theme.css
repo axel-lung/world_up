@@ -202,9 +202,14 @@
 }
 
 /* A tap draws no browser highlight: the controls show their own pressed state
-   (:active), and hover styles wait for a pointer that hovers. */
+   (:active), and hover styles wait for a pointer that hovers. Nor does a touch
+   zoom (decided on 2026-11-21): the page scrolls, but neither a pinch nor a
+   double tap zooms it, which also spares a tap the browser's wait for a second
+   one. An element can only narrow what its ancestors allow, so this holds on
+   the whole page. */
 html {
   -webkit-tap-highlight-color: transparent;
+  touch-action: pan-x pan-y;
 }
 
 /* In the Android app (data-app, set by NativeApp.tsx), a long press does what

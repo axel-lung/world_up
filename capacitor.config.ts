@@ -19,6 +19,9 @@ const config: CapacitorConfig = {
     // own error pages (404...) still show (MainActivity.java)
     errorPath: 'index.html',
   },
+  // No zoom in the WebView, as on the site (layout.tsx). Capacitor's default,
+  // written out since the game depends on it.
+  zoomEnabled: false,
   // The WebView is transparent until the site paints its ground, over the
   // splash's logo (MainActivity.java, activity_main.xml)
   plugins: {
