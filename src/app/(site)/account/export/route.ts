@@ -40,7 +40,13 @@ export async function GET(request: Request) {
   const [reports, packReserve, openings, collection, coins, ledger, obtained, friends, trades, auctions, notifications, pushDevices] = await Promise.all([
     playerReports(userId),
     db
-      .select({ packs: packState.packs, lastRefill: packState.lastRefill })
+      .select({
+        packs: packState.packs,
+        lastRefill: packState.lastRefill,
+        streakDays: packState.streakDays,
+        streakLastDay: packState.streakLastDay,
+        streakGraceDay: packState.streakGraceDay,
+      })
       .from(packState)
       .where(eq(packState.userId, userId)),
     playerOpenings(userId),

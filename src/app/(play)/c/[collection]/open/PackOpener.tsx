@@ -1,62 +1,64 @@
 'use client';
 
-import { FastForward, Layers, PackageOpen, Scissors, Trophy, X } from 'lucide-react';
-import Link from 'next/link';
+import { Layers, Package, PackageOpen, Scissors, Trophy, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/card/Card';
 import { displayName } from '@/components/card/card-format';
 import { EmblemIcon } from '@/components/collection/Emblem';
 import { formatCountdown, useCountdown, useRefreshWhenDue } from '@/components/pack/useCountdown';
+import { StreakScreen } from '@/components/streak/StreakScreen';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Notice';
 import type { Emblem } from '@/lib/collection-theme';
 import { achievementTitle } from '@/lib/game/achievement-title';
+import type { StreakView } from '@/lib/game/streak';
 import { RARITY_PIPS } from '@/lib/rarity';
 import { openPackAction, type OpenPackResult, type ReserveView } from './actions';
 import { CardZoom } from './CardZoom';
 import styles from './PackOpener.module.css';
 import {
+  AWAY,
   CARD,
   CENTER,
-  gridPlace,
-  gridSlots,
-  HIDDEN,
-  LIFTED,
+  donePlace,
+  doneLayout,
   type Place,
   revealOrder,
   SCENE,
-  type Slot,
+  type Spark,
+  sparks,
   stackPlace,
-  trayPlace,
-  traySlots,
+  VISIBLE_DEPTH,
 } from './stage-layout';
 
 type Opened = Extract<OpenPackResult, { ok: true }>;
-// pack: waiting for a click. shake, tear, rise: the opening, which plays by
-// itself in 1.25 s. stack: the player turns the cards over one by one, or
-// reveals them all. done: the cards side by side.
-type Phase = 'pack' | 'shake' | 'tear' | 'rise' | 'stack' | 'done';
+// pack: waiting for a touch. charge: the pack shakes harder and harder while
+// the server opens it (1 s at least). burst: a flash, and the pack torn open.
+// reveal: the player turns the cards over one by one, or reveals them all.
+// done: the cards side by side.
+type Phase = 'pack' | 'charge' | 'burst' | 'reveal' | 'done';
 
-const SHAKE_MS = 420;
-const TEAR_MS = 340;
-const RISE_MS = 490;
-const DONE_MS = 380;
-// Before a rare card or better turns over, it trembles: longer the rarer it is (by rarity pips)
-const SUSPENSE_MS: Partial<Record<number, number>> = { 3: 220, 4: 380, 5: 520, 6: 750 };
+// The opening plays by itself for 2.1 s, then the cards deal in (0.7 s): under the spec's 3 s
+const CHARGE_MS = 1000;
+const BURST_MS = 1100;
+// The burst's sparks still fly over the stack as it deals in
+const BURST_FX_MS = 1600;
+// A legendary trembles harder, then turns over with a flash
+const BUILD_MS = 750;
+// The streak screen comes once the cards of the day's first pack are laid out
+const STREAK_DELAY_MS = 900;
 
 // The Card reads best at its grid size: it is laid out this wide, then scaled
 // to the scene, text included, as the mock-up does
 const CARD_LAYOUT_WIDTH = 160;
 
+const BURST_SPARKS = sparks(26, 3, 300);
+
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function placeStyle(place: Place, z: number, delay = 0): CSSProperties {
-  return { '--x': place.x, '--y': place.y, '--s': place.scale, '--r': place.rotate, '--z': z, '--delay': `${delay}s` } as CSSProperties;
-}
-
-function slotStyle(slot: Slot): CSSProperties {
-  return { '--left': slot.left, '--top': slot.top, '--width': slot.width, '--height': slot.height } as CSSProperties;
+function placeStyle(place: Place, z: number): CSSProperties {
+  return { '--x': place.x, '--y': place.y, '--s': place.scale, '--r': place.rotate, '--z': z } as CSSProperties;
 }
 
 const SCENE_STYLE = {
@@ -67,19 +69,30 @@ const SCENE_STYLE = {
   '--card-width': CARD.width,
 } as CSSProperties;
 
-/** Where the final grid ends, in scene units. */
-function gridBottom(count: number): number {
-  return Math.max(...gridSlots(count).map((slot) => slot.top + slot.height));
-}
-
-/** The confetti thrown by an ultra rare (14 pieces) or a legendary (22). */
-function confetti(pips: number) {
-  const count = pips >= 6 ? 22 : 14;
-  return Array.from({ length: count }, (_, i) => {
-    const angle = (i / count) * Math.PI * 2 + (i % 2) * 0.2;
-    const distance = 170 + (i % 3) * 45;
-    return { dx: Math.cos(angle) * distance, dy: Math.sin(angle) * distance, bar: i % 3 === 0, tone: i % 4 };
-  });
+/** Sparks flying off from the middle of their parent, each along its own angle. */
+function SparkBurst({ list, className }: { list: Spark[]; className: string }) {
+  return (
+    <span className={className} aria-hidden="true">
+      {list.map((spark, i) => (
+        <span
+          key={i}
+          style={{ '--angle': `${spark.angle}deg`, '--distance': spark.distance } as CSSProperties}
+        >
+          <span
+            data-shape={spark.shape}
+            data-tone={spark.tone}
+            style={
+              {
+                '--size': spark.size,
+                '--duration': `${spark.duration}s`,
+                '--delay': `${spark.delay}ms`,
+              } as CSSProperties
+            }
+          />
+        </span>
+      ))}
+    </span>
+  );
 }
 
 export function PackOpener({
@@ -117,19 +130,25 @@ export function PackOpener({
   }
   const [phase, setPhase] = useState<Phase>('pack');
   const [opened, setOpened] = useState<Opened | null>(null);
-  // The top card of the stack, whether it is face up, and whether it is trembling
+  // The top card of the stack, whether it is face up, and whether a legendary is about to turn over
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const [suspense, setSuspense] = useState(false);
+  const [building, setBuilding] = useState(false);
+  // Counts the legendaries turned over: each one flashes the stage
+  const [flashes, setFlashes] = useState(0);
+  const [burstFx, setBurstFx] = useState(false);
   const [error, setError] = useState<Extract<OpenPackResult, { ok: false }>['error'] | null>(null);
   // At the end, the card shown large (CardZoom)
   const [zoom, setZoom] = useState<number | null>(null);
+  // The day's first pack moved the streak on: its screen comes at the end of that pack (or the next one)
+  const [streak, setStreak] = useState<{ view: StreakView; open: boolean; shown: boolean } | null>(null);
   const timers = useRef<number[]>([]);
   const shownOpening = useRef<number | null>(null);
   const focusOpen = useRef(false);
   const openButton = useRef<HTMLButtonElement>(null);
   const cardButton = useRef<HTMLButtonElement>(null);
   const doneHeading = useRef<HTMLHeadingElement>(null);
+  const stage = useRef<HTMLElement>(null);
   const scene = useRef<HTMLDivElement>(null);
   const [cardScale, setCardScale] = useState(1);
   const remaining = useCountdown(reserve.nextPackAt, reserve.serverNow);
@@ -160,13 +179,31 @@ export function PackOpener({
   // The focus follows the action: the card to turn over, then the summary,
   // and the pack's button again after a failed opening
   useEffect(() => {
-    if (phase === 'stack') cardButton.current?.focus();
+    if (phase === 'reveal') cardButton.current?.focus();
     if (phase === 'done') doneHeading.current?.focus();
     if (phase === 'pack' && focusOpen.current) {
       focusOpen.current = false;
       openButton.current?.focus();
     }
   }, [phase]);
+
+  // The streak screen, once the cards are laid out
+  useEffect(() => {
+    if (phase !== 'done' || !streak || streak.shown) return;
+    const timer = window.setTimeout(
+      () => setStreak((current) => current && { ...current, open: true, shown: true }),
+      reducedMotion() ? 0 : STREAK_DELAY_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [phase, streak]);
+
+  const finish = () => {
+    clearTimers();
+    setBurstFx(false);
+    setBuilding(false);
+    setRevealed(false);
+    setPhase('done');
+  };
 
   // From the closed pack, or straight from the end of the previous one
   const open = async () => {
@@ -178,8 +215,10 @@ export function PackOpener({
     setOpened(null);
     setIndex(0);
     setRevealed(false);
-    setPhase('shake');
-    const shaken = new Promise((resolve) => later(() => resolve(null), reduced ? 0 : SHAKE_MS));
+    setBuilding(false);
+    setBurstFx(false);
+    setPhase('charge');
+    const charged = new Promise((resolve) => later(() => resolve(null), reduced ? 0 : CHARGE_MS));
     const result = await openPackAction({ collection, key });
     if (result.reserve) setReserve(result.reserve);
     if (!result.ok) {
@@ -193,326 +232,380 @@ export function PackOpener({
     if (shownOpening.current === result.openingId) return;
     shownOpening.current = result.openingId;
     setKey(crypto.randomUUID());
-    await shaken;
+    if (result.streak.counted) setStreak({ view: result.streak, open: false, shown: false });
+    await charged;
     setOpened({ ...result, cards: revealOrder(result.cards) });
-    setIndex(0);
-    setRevealed(false);
     if (reduced) {
-      setPhase('stack');
+      setPhase('reveal');
       return;
     }
-    setPhase('tear');
-    later(() => setPhase('rise'), TEAR_MS);
-    later(() => setPhase('stack'), TEAR_MS + RISE_MS);
+    setPhase('burst');
+    setBurstFx(true);
+    later(() => setPhase('reveal'), BURST_MS);
+    later(() => setBurstFx(false), BURST_FX_MS);
   };
 
   const tap = () => {
-    if (phase !== 'stack' || suspense || !opened || index >= opened.cards.length) return;
+    if (phase !== 'reveal' || building || !opened || index >= opened.cards.length) return;
     if (!revealed) {
-      const wait = reducedMotion() ? 0 : (SUSPENSE_MS[RARITY_PIPS[opened.cards[index].card.data.rarity]] ?? 0);
-      if (!wait) {
+      const legendary = RARITY_PIPS[opened.cards[index].card.data.rarity] >= 6;
+      if (!legendary || reducedMotion()) {
         setRevealed(true);
         return;
       }
-      setSuspense(true);
+      setBuilding(true);
       later(() => {
-        setSuspense(false);
+        setBuilding(false);
         setRevealed(true);
-      }, wait);
+        setFlashes((count) => count + 1);
+        stage.current?.animate(
+          [
+            { transform: 'none' },
+            { transform: 'translate(-8px, 4px)', offset: 0.15 },
+            { transform: 'translate(7px, -5px)', offset: 0.3 },
+            { transform: 'translate(-5px, 3px)', offset: 0.45 },
+            { transform: 'translate(4px, -2px)', offset: 0.6 },
+            { transform: 'translate(-2px, 1px)', offset: 0.8 },
+            { transform: 'none' },
+          ],
+          { duration: 550, easing: 'ease-out' },
+        );
+      }, BUILD_MS);
       return;
     }
-    const next = index + 1;
-    setIndex(next);
+    if (index + 1 >= opened.cards.length) {
+      finish();
+      return;
+    }
+    setIndex(index + 1);
     setRevealed(false);
-    if (next >= opened.cards.length) later(() => setPhase('done'), reducedMotion() ? 0 : DONE_MS);
-  };
-
-  const revealAll = () => {
-    if (!opened) return;
-    clearTimers();
-    setSuspense(false);
-    setRevealed(false);
-    setIndex(opened.cards.length);
-    setPhase('done');
   };
 
   const count = opened?.cards.length ?? cardsPerPack;
-  const top = phase === 'stack' ? opened?.cards[index] : undefined;
-  // The card just turned over, which sets off the effects of its rarity
-  const shown = top && revealed ? top : undefined;
-  const shownRarity = shown?.card.data.rarity;
-  const pips = shownRarity ? RARITY_PIPS[shownRarity] : 0;
-  const level = pips >= 6 ? 'legendary' : pips >= 5 ? 'high' : 'rare';
-  const current = phase === 'stack' ? Math.min(index + 1, count) : phase === 'done' ? count : 0;
+  const top = phase === 'reveal' ? opened?.cards[index] : undefined;
+  const topPips = top ? RARITY_PIPS[top.card.data.rarity] : 0;
+  // A legendary face down on top: it glows and trembles before it is touched
+  const anticipating = Boolean(top && !revealed && topPips >= 6);
+  const isLast = index === count - 1;
   const newCards = opened?.cards.filter((entry) => entry.isNew).length ?? 0;
-  const packOn = phase === 'pack' || phase === 'shake' || phase === 'tear' || phase === 'rise';
+  const packOn = phase === 'pack' || phase === 'charge' || phase === 'burst';
   const nextPackIn = t('nextPackIn', { time: formatCountdown(remaining) });
+  const done = doneLayout(count);
+  const shown = top && revealed ? top : undefined;
+
+  const status = !top
+    ? ''
+    : !revealed
+      ? t('counter', { current: index + 1, count })
+      : top.isNew
+        ? t('newCard')
+        : t('duplicate', { copies: top.card.copies });
+  const hint = !top
+    ? ''
+    : !revealed
+      ? anticipating
+        ? building
+          ? '…'
+          : t('legendaryHint')
+        : t('turnHint')
+      : isLast
+        ? t('lastHint')
+        : t('nextHint');
 
   return (
-    <main className={styles.stage} data-theme="dark" data-phase={phase}>
-      <header className={styles.bar}>
-        <ButtonLink href={closeHref} iconOnly aria-label={t('close')} icon={<X aria-hidden />} className={styles.close} />
-        <h1 className={styles.title}>{t('stageTitle', { collection: collectionName })}</h1>
-        <span className={styles.counter}>
-          <span aria-hidden="true">
-            {current}/{count}
+    <>
+      <main ref={stage} className={styles.stage} data-theme="dark" data-phase={phase}>
+        <header className={styles.bar}>
+          <ButtonLink href={closeHref} iconOnly aria-label={t('close')} icon={<X aria-hidden />} className={styles.close} />
+          <h1 className={styles.title}>{t('stageTitle', { collection: collectionName })}</h1>
+          <span className={styles.packs}>
+            <Package aria-hidden />
+            <span aria-hidden="true">{reserve.available}</span>
+            <span className="sr-only">{t('packsLeft', { count: reserve.available })}</span>
           </span>
-          {phase === 'stack' && <span className="sr-only">{t('counter', { current, count })}</span>}
-        </span>
-      </header>
+        </header>
 
-      <div className={styles.sceneArea}>
-        <div ref={scene} className={styles.scene} style={{ ...SCENE_STYLE, '--card-scale': cardScale } as CSSProperties}>
-          {phase === 'stack' && top && !suspense && (
-            <p className={styles.hint} aria-hidden="true">
-              {revealed ? t('nextHint') : t('turnHint')}
-            </p>
-          )}
+        <div className={styles.sceneArea}>
+          <div ref={scene} className={styles.scene} style={{ ...SCENE_STYLE, '--card-scale': cardScale } as CSSProperties}>
+            {packOn && (
+              <div className={styles.packArea} aria-hidden="true">
+                <span className={styles.halo} />
+                {phase !== 'pack' && (
+                  <span className={styles.packRays}>
+                    <span />
+                  </span>
+                )}
+                {phase !== 'burst' && (
+                  <span className={styles.orbit}>
+                    {['n', 'e', 's', 'w', 'ne', 'sw'].map((point) => (
+                      <span key={point} data-point={point} />
+                    ))}
+                  </span>
+                )}
+                {/* The button below opens it too, for the keyboard */}
+                <div className={styles.pack} data-empty={!canOpen || undefined} onClick={open}>
+                  <div className={styles.strip}>
+                    <Scissors />
+                    {t('tearHere')}
+                  </div>
+                  <div className={styles.packBody}>
+                    <span className={styles.packEmblem}>
+                      <EmblemIcon emblem={emblem} />
+                    </span>
+                    <span className={styles.packName}>{collectionName}</span>
+                    <span className={styles.packCount}>{t('cardsInPack', { count: cardsPerPack })}</span>
+                    <span className={styles.packBand}>{tNav('brand')}</span>
+                  </div>
+                  {phase === 'charge' && <span className={styles.crack} />}
+                </div>
+              </div>
+            )}
 
-          {phase === 'done' && opened && (
-            <div className={styles.done}>
-              <h2 id="pack-done" ref={doneHeading} tabIndex={-1}>
-                {t('doneHeading')}
-              </h2>
-              <p>{t('doneSummary', { new: newCards, duplicates: opened.cards.length - newCards, coins: opened.coins })}</p>
-            </div>
-          )}
+            {burstFx && (
+              <div className={styles.burst} aria-hidden="true">
+                <span className={styles.ring} />
+                <span className={styles.ring} data-second />
+                <SparkBurst list={BURST_SPARKS} className={styles.sparks} />
+              </div>
+            )}
 
-          {phase === 'done' && opened && (
-            // Under the last row of cards, in the room the grid leaves
-            <p className={styles.zoomHint} style={{ '--hint-top': gridBottom(count) + 14 } as CSSProperties}>
-              {t('zoomHint')}
-            </p>
-          )}
+            {phase === 'done' && opened && (
+              <div
+                className={styles.done}
+                style={{ '--heading-bottom': done.headingBottom } as CSSProperties}
+              >
+                <h2 id="pack-done" ref={doneHeading} tabIndex={-1}>
+                  {t('doneHeading')}
+                </h2>
+                <p>{t('doneSummary', { new: newCards, duplicates: opened.cards.length - newCards, coins: opened.coins })}</p>
+              </div>
+            )}
 
-          {shownRarity && pips >= 3 && (
-            <div key={`burst-${index}`} className={styles.burst} data-rarity={shownRarity} data-level={level} aria-hidden="true">
-              <span className={styles.rays} />
-              <span className={styles.halo} />
-            </div>
-          )}
+            {phase === 'done' && opened && (
+              // Under the last row of cards, in the room the grid leaves
+              <p className={styles.zoomHint} style={{ '--hint-top': done.hintTop } as CSSProperties}>
+                {t('zoomHint')}
+              </p>
+            )}
 
-          {(phase === 'rise' || phase === 'stack') && (
-            <div className={styles.tray} aria-hidden="true">
-              {traySlots(count).map((slot, i) => (
-                <span key={i} style={slotStyle(slot)} />
-              ))}
-            </div>
-          )}
-
-          {opened && (
-            <ul className={styles.cards} aria-labelledby={phase === 'done' ? 'pack-done' : undefined}>
-              {opened.cards.map((entry, i) => {
-                const done = phase === 'done';
-                const isTop = phase === 'stack' && i === index;
-                const faceUp = done || i < index || (isTop && revealed);
-                let style: CSSProperties;
-                if (phase === 'tear') style = placeStyle(HIDDEN, 20 - i);
-                else if (done) style = placeStyle(gridPlace(i, count), 30 + i, i * 0.05);
-                else if (i < index) style = placeStyle(trayPlace(i, count), 30 + i);
-                else {
+            {opened && phase !== 'burst' && (
+              <ul
+                key={opened.openingId}
+                className={styles.cards}
+                aria-labelledby={phase === 'done' ? 'pack-done' : undefined}
+              >
+                {opened.cards.map((entry, i) => {
+                  const isDone = phase === 'done';
+                  const isTop = phase === 'reveal' && i === index;
+                  const faceUp = isDone || i < index || (isTop && revealed);
                   const depth = i - index;
-                  const place = isTop && revealed ? LIFTED : stackPlace(depth, i);
-                  style = placeStyle(place, 20 - depth, phase === 'rise' ? (count - 1 - i) * 0.05 : 0);
-                }
-                return (
-                  <li
-                    key={`${opened.openingId}-${entry.position}`}
-                    className={styles.slot}
-                    style={style}
-                    data-hidden={phase === 'tear' || undefined}
-                    data-face={faceUp ? 'up' : 'down'}
-                    data-top={isTop || undefined}
-                    // The cards below the top one, or put away, are out of reach
-                    // until the end. The top one takes clicks (an inert element
-                    // takes none) and hides only its face while turned down.
-                    inert={!(done || isTop) || undefined}
-                    data-zoomable={done || undefined}
-                    // At the end, a touch shows the card large
-                    onClick={isTop ? tap : done ? () => setZoom(i) : undefined}
-                  >
-                    <div className={styles.tilt} data-suspense={(isTop && suspense && (RARITY_PIPS[entry.card.data.rarity] >= 6 ? 'strong' : 'soft')) || undefined}>
-                      <div className={styles.flip}>
-                        <div className={styles.front} inert={!faceUp || undefined}>
-                          <div className={styles.cardScaler}>
-                            <Card
-                              card={entry.card.data}
-                              collection={{ name: collectionName, emblem }}
-                              isNew={entry.isNew}
-                              copies={entry.card.copies}
-                              sizes="260px"
-                              priority
-                            />
+                  const rarity = entry.card.data.rarity;
+                  const pips = RARITY_PIPS[rarity];
+                  // The card just turned over, and the one just thrown off, keep their effects as they go
+                  const effects = phase === 'reveal' && faceUp && (i === index || i === index - 1);
+                  const place = isDone ? donePlace(i, count) : depth < 0 ? AWAY : stackPlace(depth);
+                  return (
+                    <li
+                      key={`${opened.openingId}-${entry.position}`}
+                      className={styles.slot}
+                      style={{ ...placeStyle(place, isDone ? 30 + i : 20 - Math.abs(depth)), '--order': i } as CSSProperties}
+                      data-away={(!isDone && depth < 0) || undefined}
+                      data-deep={(!isDone && depth > VISIBLE_DEPTH) || undefined}
+                      data-face={faceUp ? 'up' : 'down'}
+                      data-top={isTop || undefined}
+                      data-rarity={rarity}
+                      // The cards below the top one, or thrown off, are out of reach
+                      // until the end. The top one takes clicks (an inert element
+                      // takes none) and hides only its face while turned down.
+                      inert={!(isDone || isTop) || undefined}
+                      data-zoomable={isDone || undefined}
+                      // At the end, a touch shows the card large
+                      onClick={isTop ? tap : isDone ? () => setZoom(i) : undefined}
+                    >
+                      {isTop && anticipating && <span className={styles.suspense} aria-hidden="true" />}
+                      {effects && (
+                        <span className={styles.effects} aria-hidden="true">
+                          <span className={styles.glow} />
+                          {pips >= 4 && (
+                            <span className={styles.cardRays}>
+                              <span />
+                            </span>
+                          )}
+                          <SparkBurst
+                            list={sparks(pips >= 6 ? 30 : pips >= 4 ? 20 : 12, i * 31 + 7, pips >= 6 ? 260 : 190)}
+                            className={styles.cardSparks}
+                          />
+                          <span className={styles.stamp}>
+                            <span>{pips >= 6 ? t('rarityBanner', { rarity: tRarity(rarity) }) : tRarity(rarity)}</span>
+                          </span>
+                        </span>
+                      )}
+                      <div className={styles.tilt} data-suspense={isTop && anticipating ? (building ? 'strong' : 'soft') : undefined}>
+                        <div className={styles.flip}>
+                          <div className={styles.front} inert={!faceUp || undefined}>
+                            <div className={styles.cardScaler}>
+                              <Card
+                                card={entry.card.data}
+                                collection={{ name: collectionName, emblem }}
+                                isNew={entry.isNew}
+                                copies={entry.card.copies}
+                                sizes="260px"
+                                priority
+                              />
+                            </div>
+                          </div>
+                          <div className={styles.back} aria-hidden="true">
+                            <span className={styles.backFrame} />
+                            <span className={styles.backDiamond} data-side="top" />
+                            <span className={styles.backDiamond} data-side="bottom" />
+                            <span className={styles.backEmblem}>
+                              <EmblemIcon emblem={emblem} />
+                            </span>
                           </div>
                         </div>
-                        <div className={styles.back} aria-hidden="true">
-                          <span className={styles.backFrame} />
-                          <span className={styles.backEmblem}>
-                            <EmblemIcon emblem={emblem} />
-                          </span>
-                          <span className={styles.backName}>{collectionName}</span>
-                          {isTop && suspense && (
-                            <span
-                              className={styles.glow}
-                              data-rarity={entry.card.data.rarity}
-                              data-level={RARITY_PIPS[entry.card.data.rarity] >= 6 ? 'legendary' : undefined}
-                            />
-                          )}
-                        </div>
                       </div>
-                    </div>
-                    {/* Pointer touches reach the card (its credit button included); this button is for the keyboard */}
-                    {done && (
-                      <button
-                        type="button"
-                        className={styles.zoomButton}
-                        aria-label={t('zoomCard', { name: displayName(entry.card.data.name) })}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setZoom(i);
-                        }}
-                      />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+                      {/* Pointer touches reach the card (its credit button included); this button is for the keyboard */}
+                      {isDone && (
+                        <button
+                          type="button"
+                          className={styles.zoomButton}
+                          aria-label={t('zoomCard', { name: displayName(entry.card.data.name) })}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setZoom(i);
+                          }}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            {/* Pointer clicks reach the card underneath (its credit button included);
+                this button is for the keyboard and screen readers */}
+            {top && (
+              <button
+                ref={cardButton}
+                type="button"
+                className={styles.cardButton}
+                onClick={tap}
+                aria-label={revealed ? (isLast ? t('lastCard') : t('nextCard')) : t('turnCard')}
+                aria-disabled={building || undefined}
+              />
+            )}
+          </div>
+        </div>
+
+        {flashes > 0 && phase === 'reveal' && <div key={flashes} className={styles.legendFlash} aria-hidden="true" />}
+        {phase === 'burst' && <div className={styles.whiteout} aria-hidden="true" />}
+
+        <div className={styles.controls}>
+          {error && (
+            <Notice tone={error === 'server' ? 'danger' : 'info'}>
+              <p>{tGame(`errors.${error}`)}</p>
+            </Notice>
           )}
 
-          {/* Pointer clicks reach the card underneath (its credit button included);
-              this button is for the keyboard and screen readers */}
-          {top && (
-            <button
-              ref={cardButton}
-              type="button"
-              className={styles.cardButton}
-              onClick={tap}
-              aria-label={revealed ? t('nextCard') : t('turnCard')}
-              aria-disabled={suspense || undefined}
-            />
+          {(phase === 'pack' || phase === 'charge') && (
+            <>
+              <Button
+                ref={openButton}
+                variant="primary"
+                size="large"
+                block
+                className={styles.main}
+                onClick={open}
+                disabled={!canOpen}
+                aria-disabled={phase === 'charge' || undefined}
+                data-busy={phase === 'charge' || undefined}
+                icon={<PackageOpen aria-hidden />}
+              >
+                {t('open')}
+              </Button>
+              <p className={styles.hint}>{canOpen ? t('touchPack') : nextPackIn}</p>
+            </>
           )}
 
-          {shownRarity && pips >= 5 && (
-            <div key={`confetti-${index}`} className={styles.confetti} data-rarity={shownRarity} aria-hidden="true">
-              {confetti(pips).map((piece, i) => (
-                <span
-                  key={i}
-                  data-bar={piece.bar || undefined}
-                  data-tone={piece.tone}
-                  style={{ '--dx': piece.dx, '--dy': piece.dy } as CSSProperties}
-                />
-              ))}
-            </div>
-          )}
-
-          {shownRarity && pips >= 3 && (
-            <div className={styles.banner} aria-hidden="true">
-              <span key={`banner-${index}`} data-rarity={shownRarity} data-level={level}>
-                {t('rarityBanner', { rarity: tRarity(shownRarity) })}
-              </span>
-            </div>
-          )}
-
-          {packOn && (
-            // The button below opens it too, for the keyboard
-            <div className={styles.pack} data-empty={!canOpen || undefined} onClick={open} aria-hidden="true">
-              <span className={styles.packGlow} />
-              <div className={styles.strip}>
-                <Scissors />
-                {t('tearHere')}
+          {(phase === 'burst' || phase === 'reveal') && (
+            <>
+              <p className={styles.status}>{status}</p>
+              <div className={styles.dots} aria-hidden="true">
+                {Array.from({ length: count }, (_, i) => (
+                  <span key={i} data-current={(phase === 'reveal' && i === index) || undefined} data-seen={(phase === 'reveal' && i <= index) || undefined} />
+                ))}
               </div>
-              <div className={styles.packBody}>
-                <span className={styles.packEmblem}>
-                  <EmblemIcon emblem={emblem} />
-                </span>
-                <span className={styles.packName}>{collectionName}</span>
-                <span className={styles.packCount}>{t('cardsInPack', { count: cardsPerPack })}</span>
-                <span className={styles.packBand}>{tNav('brand')}</span>
-              </div>
-            </div>
+              <p className={styles.hint} aria-hidden="true">
+                {hint}
+              </p>
+              <button type="button" className={styles.revealAll} onClick={finish}>
+                {t('revealAll')}
+              </button>
+            </>
+          )}
+
+          {phase === 'done' && opened && (
+            <>
+              {opened.achievements.length > 0 && (
+                <Notice tone="success">
+                  <ul className={styles.unlocked}>
+                    {opened.achievements.map((achievement) => (
+                      <li key={achievement.code}>
+                        <Trophy aria-hidden />
+                        <span>
+                          {t('unlocked', {
+                            title: achievementTitle(tAchievement, tRarity, achievement),
+                            coins: achievement.rewardCoins,
+                          })}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </Notice>
+              )}
+              <Button
+                variant="primary"
+                size="large"
+                block
+                className={styles.main}
+                onClick={open}
+                disabled={!canOpen}
+                icon={<PackageOpen aria-hidden />}
+              >
+                {canOpen ? t('openNext', { count: Math.max(1, reserve.available) }) : t('noPack')}
+              </Button>
+              {!canOpen && <p className={styles.hint}>{nextPackIn}</p>}
+              <ButtonLink href={collectionHref} variant="ghost" block className={styles.outline} icon={<Layers aria-hidden />}>
+                {t('seeCollection')}
+              </ButtonLink>
+            </>
           )}
         </div>
-      </div>
-
-      {shownRarity && pips >= 6 && <div key={`flash-${index}`} className={styles.flash} aria-hidden="true" />}
-
-      <div className={styles.controls}>
-        {error && (
-          <Notice tone={error === 'server' ? 'danger' : 'info'}>
-            <p>{tGame(`errors.${error}`)}</p>
-          </Notice>
-        )}
-
-        {(phase === 'pack' || phase === 'shake') && (
-          <>
-            <Button
-              ref={openButton}
-              variant="primary"
-              size="large"
-              block
-              onClick={open}
-              disabled={!canOpen}
-              icon={<PackageOpen aria-hidden />}
-            >
-              {t('open')}
-            </Button>
-            <p className={styles.reserve}>{canOpen ? t('packsLeft', { count: Math.max(1, reserve.available) }) : nextPackIn}</p>
-            <p className={styles.reserve}>
-              <Link href="/odds">{t('odds')}</Link>
-            </p>
-          </>
-        )}
-
-        {(phase === 'tear' || phase === 'rise' || phase === 'stack') && (
-          <Button variant="ghost" onClick={revealAll} icon={<FastForward aria-hidden />} className={styles.revealAll}>
-            {t('revealAll')}
-          </Button>
-        )}
 
         {phase === 'done' && opened && (
-          <>
-            {opened.achievements.length > 0 && (
-              <Notice tone="success">
-                <ul className={styles.unlocked}>
-                  {opened.achievements.map((achievement) => (
-                    <li key={achievement.code}>
-                      <Trophy aria-hidden />
-                      <span>
-                        {t('unlocked', {
-                          title: achievementTitle(tAchievement, tRarity, achievement),
-                          coins: achievement.rewardCoins,
-                        })}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </Notice>
-            )}
-            <Button variant="primary" size="large" block onClick={open} disabled={!canOpen} icon={<PackageOpen aria-hidden />}>
-              {canOpen ? t('openNext', { count: Math.max(1, reserve.available) }) : t('noPack')}
-            </Button>
-            {!canOpen && <p className={styles.reserve}>{nextPackIn}</p>}
-            <ButtonLink href={collectionHref} block icon={<Layers aria-hidden />}>
-              {t('seeCollection')}
-            </ButtonLink>
-          </>
+          <CardZoom cards={opened.cards} index={zoom} onIndexChange={setZoom} collection={{ name: collectionName, emblem }} />
         )}
-      </div>
 
-      {phase === 'done' && opened && (
-        <CardZoom cards={opened.cards} index={zoom} onIndexChange={setZoom} collection={{ name: collectionName, emblem }} />
+        {/* Each card is read out as it turns over */}
+        <p className="sr-only" aria-live="polite">
+          {shown
+            ? t('revealed', {
+                rarity: tRarity(shown.card.data.rarity),
+                name: displayName(shown.card.data.name),
+                isNew: shown.isNew ? 'yes' : 'no',
+              })
+            : ''}
+        </p>
+      </main>
+
+      {/* Outside the dark stage: the streak screen follows the player's theme */}
+      {streak && (
+        <StreakScreen
+          view={streak.view}
+          open={streak.open}
+          onClose={() => setStreak((current) => current && { ...current, open: false })}
+        />
       )}
-
-      {/* Each card is read out as it turns over */}
-      <p className="sr-only" aria-live="polite">
-        {shown
-          ? t('revealed', {
-              rarity: tRarity(shown.card.data.rarity),
-              name: displayName(shown.card.data.name),
-              isNew: shown.isNew ? 'yes' : 'no',
-            })
-          : ''}
-      </p>
-    </main>
+    </>
   );
 }

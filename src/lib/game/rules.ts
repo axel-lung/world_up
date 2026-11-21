@@ -1,10 +1,11 @@
 import { and, asc, count, desc, eq, isNull, lte, max, sql } from 'drizzle-orm';
 import { cache } from 'react';
 import { type Database, db, type Transaction } from '@/db';
-import { cards, collections, gameRules, marketPrices, marketRules, rarityOdds, resaleValues } from '@/db/schema';
+import { cards, collections, gameRules, marketPrices, marketRules, rarityOdds, resaleValues, streakRewards } from '@/db/schema';
 import { themeEmblem } from '@/lib/collection-theme';
 import { RARITIES, type Rarity } from '@/lib/rarity';
 import type { OddsSet } from './draw';
+import type { StreakReward } from './streak';
 
 // The tunable rules of a collection, read from the database on every use.
 
@@ -72,6 +73,15 @@ export async function getMarketPrices(executor: Executor, collectionId: number):
   const prices = Object.fromEntries(RARITIES.map((rarity) => [rarity, { min: 0, max: 0 }])) as Record<Rarity, PriceRange>;
   for (const row of rows) prices[row.rarity] = { min: row.minPrice, max: row.maxPrice };
   return prices;
+}
+
+/** The daily streak's milestones, shortest first. */
+export async function getStreakRewards(executor: Executor, collectionId: number): Promise<StreakReward[]> {
+  return executor
+    .select({ days: streakRewards.days, packs: streakRewards.packs })
+    .from(streakRewards)
+    .where(eq(streakRewards.collectionId, collectionId))
+    .orderBy(asc(streakRewards.days));
 }
 
 /** Coins for one resold duplicate, by rarity (0 when not set). */

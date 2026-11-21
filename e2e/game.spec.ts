@@ -42,6 +42,8 @@ async function signedInPlayer(page: import('@playwright/test').Page) {
 }
 
 test('a new player opens packs, collects the cards and resells the duplicates', async ({ page }) => {
+  // Each opening plays by itself for about 3 s, and the streak screen waits for the cards
+  test.slow();
   const player = await signedInPlayer(page);
   const home = `/c/${collection.slug}`;
 
@@ -51,7 +53,7 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
 
   await page.goto(`${home}/open`);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Paquet Test');
-  await expect(page.getByText('10 paquets disponibles')).toBeVisible();
+  await expect(page.getByText('10 paquets disponibles')).toBeAttached();
   // A double click opens one pack: the reserve goes from 10 to 9
   await page.getByRole('button', { name: 'Ouvrir le paquet' }).dblclick();
 
@@ -71,6 +73,11 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
   await expect(turn).toBeFocused();
   await page.getByRole('button', { name: 'Tout révéler' }).click();
 
+  // The day's first pack starts the streak: its screen comes over the cards
+  const streak = page.getByRole('dialog', { name: '1 jour de série !' });
+  await expect(streak).toContainText('Revenez demain pour passer à 2 jours.');
+  await streak.getByRole('button', { name: 'Continuer' }).click();
+  await expect(streak).toBeHidden();
   await expect(page.getByRole('heading', { name: /^Paquet ouvert/ })).toBeFocused();
   await expect(page.getByRole('list', { name: /^Paquet ouvert/ }).getByRole('article')).toHaveCount(5);
   await expect(page.getByText(/^(Aucune nouvelle carte|\d nouvelles? cartes?) · (aucun doublon|\d doublons?)$/)).toBeVisible();
@@ -92,6 +99,15 @@ test('a new player opens packs, collects the cards and resells the duplicates', 
   await page.getByRole('button', { name: 'Ouvrir le suivant · 9' }).click();
   await page.getByRole('button', { name: 'Tout révéler' }).click();
   await expect(page.getByRole('button', { name: 'Ouvrir le suivant · 8' })).toBeVisible();
+  // The same day: the streak stays at one day, and its screen doesn't come again
+  await expect(page.getByRole('dialog')).toBeHidden();
+
+  // The home's flame opens the streak screen again; Escape closes it
+  await page.goto(home);
+  await page.getByRole('button', { name: 'Série de jours : 1 jour' }).click();
+  await expect(streak).toContainText('Un jour manqué par semaine ne casse pas la série.');
+  await page.keyboard.press('Escape');
+  await expect(streak).toBeHidden();
 
   await page.goto(`${home}/collection?tab=duplicates`);
   const resell = page.getByRole('button', { name: /^Revendre (un doublon|les \d+ doublons) pour \d+ pièces$/ });

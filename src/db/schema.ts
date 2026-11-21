@@ -393,10 +393,33 @@ export const packState = pgTable(
     // Set by an opening, cleared once the player is told the reserve is full
     // again (notifyFullReserves, the worker's packs-full job, every minute)
     notifyWhenFull: boolean('notify_when_full').notNull().default(false),
+    // The daily streak (src/lib/game/streak.ts), moved on by the openings: the
+    // days in a row with a pack opened, the last of them and the last missed
+    // day it forgave, as days in Paris
+    streakDays: integer('streak_days').notNull().default(0),
+    streakLastDay: date('streak_last_day', { mode: 'string' }),
+    streakGraceDay: date('streak_grace_day', { mode: 'string' }),
   },
   (table) => [
     primaryKey({ columns: [table.userId, table.collectionId] }),
     index('pack_state_notify_when_full_idx').on(table.collectionId).where(sql`${table.notifyWhenFull}`),
+  ],
+);
+
+// The daily streak's milestones: a streak reaching `days` adds `packs` bonus
+// packs to the reserve, even beyond its maximum. Edited at /admin/rules.
+export const streakRewards = pgTable(
+  'streak_rewards',
+  {
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    days: integer('days').notNull(),
+    packs: integer('packs').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.collectionId, table.days] }),
+    check('streak_rewards_positive', sql`${table.days} > 0 AND ${table.packs} > 0`),
   ],
 );
 

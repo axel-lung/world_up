@@ -254,6 +254,12 @@ Toute la logique de jeu s'exécute sur le serveur : le navigateur affiche, il ne
 - Les doublons sont conservés (quantité + 1).
 - Chaque ouverture d'un paquet gratuit rapporte des pièces : 5 par défaut, paramétrable, versées une fois par ouverture, même après un double clic.
 
+**Série de jours** (décidée le 21/11/2026)
+
+- Chaque jour (heure de Paris) où le joueur ouvre au moins un paquet allonge sa série d'un jour. Un jour manqué par semaine, du lundi au dimanche, ne la casse pas : il ne compte pas, mais la série continue. Un deuxième jour manqué dans la même semaine la fait repartir de un au paquet suivant.
+- La série avance dans la transaction de l'ouverture, sous le même verrou. À un palier, des paquets bonus s'ajoutent à la réserve, même au-delà de son maximum (le minuteur attend alors, comme pour une réserve pleine). Paliers par défaut : 3, 7, 14, 30, 50, 100, 200, 365, 500 et 1000 jours, un paquet chacun ; ce sont des lignes en base, modifiables dans le back-office et publiées sur `/rules`.
+- L'écran de la série (flamme, jours, semaine en cours, prochain palier) s'affiche à la fin de la première ouverture du jour ; la flamme de l'accueil le rouvre.
+
 **Monnaie virtuelle**
 
 - Gains : ouverture d'un paquet gratuit (paramétrable), revente rapide d'un doublon (montant par rareté, paramétrable), succès, ventes aux enchères. Qu'un paquet payant rapporte aussi des pièces reviendrait à vendre de la monnaie virtuelle : à trancher avec l'avocat avant le lot 4.
@@ -364,6 +370,7 @@ La première version (`Design system World Up.dc.html`, socle Nocturne) est remp
 - Les tokens du design system deviennent des variables CSS, en thème clair et sombre.
 - Chaque composant (carte, bouton, badge, jauge, minuteur, fenêtre d'achat) devient un composant React, avec les mêmes variantes et états que dans Claude Design.
 - L'habillage d'une collection (sa couleur et son emblème, sur le paquet et en pied de carte) est lu dans `collections.theme` : ajouter une collection ne demande pas de nouveau code d'interface.
+- L'ouverture de paquet et l'écran de la série de jours suivent `MobileB.dc.html` (écrans « B · Ouverture » et « B · Série ») du projet Claude Design « World Up Mobile UX » (`04a53348-44c8-4c9f-a3fb-f3a2faf6a706`).
 
 **Pages et adresses**
 
@@ -437,6 +444,7 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 - [ ] Sur 1 000 000 de tirages simulés, chaque rareté sort à ±0,05 point de sa probabilité publiée.
 - [ ] Aucune carte masquée ne sort d'un paquet.
 - [ ] Un doublon revendu crédite la monnaie une seule fois ; le solde ne devient jamais négatif.
+- [ ] La série de jours compte un jour par jour d'ouverture, même pour deux ouvertures simultanées, pardonne un seul jour manqué par semaine et ajoute ses paquets bonus à un palier, au-delà de la réserve maximale (test avec une horloge simulée).
 
 **Social et marché**
 

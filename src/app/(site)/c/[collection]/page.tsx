@@ -7,6 +7,7 @@ import { getFormatter, getTranslations } from 'next-intl/server';
 import type { CSSProperties } from 'react';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { PackReserve, PackReserveHero } from '@/components/pack/PackReserve';
+import { StreakButton } from '@/components/streak/StreakButton';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
 import { Sheet } from '@/components/ui/Sheet';
@@ -16,7 +17,7 @@ import { listAchievements } from '@/lib/game/achievements';
 import { coinBalance, duplicatesValue } from '@/lib/game/coins';
 import { collectionCounts, seriesProgress, type SeriesProgress } from '@/lib/game/collection';
 import { playerRank } from '@/lib/game/leaderboard';
-import { getReserve } from '@/lib/game/packs';
+import { getReserve, getStreak } from '@/lib/game/packs';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
 import { nextReceivedOffer } from '@/lib/game/trades';
@@ -54,8 +55,25 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
   const { user } = await requireSession(paths.home);
   const now = new Date();
 
-  const [t, tNav, tTrades, tAchievement, tRarity, format, query, reserve, counts, series, achievements, balance, duplicates, rank, offer, unread] =
-    await Promise.all([
+  const [
+    t,
+    tNav,
+    tTrades,
+    tAchievement,
+    tRarity,
+    format,
+    query,
+    reserve,
+    streak,
+    counts,
+    series,
+    achievements,
+    balance,
+    duplicates,
+    rank,
+    offer,
+    unread,
+  ] = await Promise.all([
       getTranslations('Game'),
       getTranslations('Nav'),
       getTranslations('Trades'),
@@ -64,6 +82,7 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       getFormatter(),
       searchParams,
       getReserve(user.id, collection.id, now),
+      getStreak(user.id, collection.id, now),
       collectionCounts({ userId: user.id, collectionId: collection.id }),
       seriesProgress(user.id, collection.id),
       listAchievements(user.id, collection.id),
@@ -138,6 +157,7 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
         {/* eslint-disable-next-line @next/next/no-img-element -- a WebP already sized, like the cards */}
         <img src="/logo/world-up-96.webp" width={96} height={96} alt={tNav('brand')} className={home.logo} />
         <h1>{t('welcome', { pseudo: user.name })}</h1>
+        <StreakButton view={streak} />
         <NotificationBell unread={unread} label={tNav('activity', { count: unread })} className={home.bell} />
       </header>
 
@@ -300,7 +320,10 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       {/* A wider screen */}
       <header className={`${styles.header} wide-only`}>
         <p className={styles.eyebrow}>{collection.name}</p>
-        <h1>{t('welcome', { pseudo: user.name })}</h1>
+        <div className={home.wideTitle}>
+          <h1>{t('welcome', { pseudo: user.name })}</h1>
+          <StreakButton view={streak} />
+        </div>
       </header>
 
       <div className={`${styles.columns} wide-only`}>

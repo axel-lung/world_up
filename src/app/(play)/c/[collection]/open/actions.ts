@@ -7,9 +7,10 @@ import { db } from '@/db';
 import type { AwardedAchievement } from '@/lib/game/achievements';
 import { type OpenedCard, openingCards } from '@/lib/game/collection';
 import { GameError, type GameErrorCode } from '@/lib/game/game-error';
-import { getReserve, openPack } from '@/lib/game/packs';
+import { getReserve, getStreak, openPack } from '@/lib/game/packs';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
+import type { StreakView } from '@/lib/game/streak';
 import { requireSession } from '@/lib/session';
 
 /** PackReserve's props, as plain values the browser can receive. */
@@ -29,6 +30,8 @@ export type OpenPackResult =
       coins: number;
       achievements: AwardedAchievement[];
       reserve: ReserveView;
+      /** The daily streak; `counted` when this opening was the day's first. */
+      streak: StreakView;
     }
   | { ok: false; error: GameErrorCode | 'server'; reserve: ReserveView | null };
 
@@ -58,12 +61,13 @@ export async function openPackAction(input: { collection: string; key: string })
   const { user } = await requireSession(gamePath(collection.slug).open);
 
   let opened;
+  const now = new Date();
   try {
     opened = await openPack(db, {
       userId: user.id,
       collectionId: collection.id,
       idempotencyKey: parsed.data.key,
-      now: new Date(),
+      now,
     });
   } catch (error) {
     if (!(error instanceof GameError)) {
@@ -74,10 +78,13 @@ export async function openPackAction(input: { collection: string; key: string })
   }
 
   const t = await getTranslations('Card');
-  const cards = await openingCards(user.id, opened.openingId, collection.slug, {
-    publicDomain: t('publicDomain'),
-    unknownLicense: t('unknownLicense'),
-  });
+  const [cards, streak] = await Promise.all([
+    openingCards(user.id, opened.openingId, collection.slug, {
+      publicDomain: t('publicDomain'),
+      unknownLicense: t('unknownLicense'),
+    }),
+    getStreak(user.id, collection.id, now, opened.streak),
+  ]);
   // The header's reserve and coins
   refresh();
   return {
@@ -87,5 +94,6 @@ export async function openPackAction(input: { collection: string; key: string })
     coins: opened.coins,
     achievements: opened.achievements,
     reserve: await reserveView(user.id, collection.id),
+    streak,
   };
 }

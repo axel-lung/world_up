@@ -1,7 +1,19 @@
 import { desc, eq, or, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { type Database, db, type Transaction } from '@/db';
-import { auctions, auditLog, cards, gameRules, marketPrices, marketRules, rarityOdds, resaleValues, trades, users } from '@/db/schema';
+import {
+  auctions,
+  auditLog,
+  cards,
+  gameRules,
+  marketPrices,
+  marketRules,
+  rarityOdds,
+  resaleValues,
+  streakRewards,
+  trades,
+  users,
+} from '@/db/schema';
 import { RARITIES, type Rarity } from '@/lib/rarity';
 import { auctionState } from './auctions';
 import { type OddsSet, validOdds } from './draw';
@@ -11,10 +23,12 @@ import {
   getMarketPrices,
   getMarketRules,
   getResaleValues,
+  getStreakRewards,
   type MarketRules,
   type PriceRange,
   visibleCardsByRarity,
 } from './rules';
+import type { StreakReward } from './streak';
 import { tradeState } from './trades';
 
 // The back-office's changes to the game rules: one transaction each, with its
@@ -110,6 +124,27 @@ export async function updateMarketPrices(
         set: { minPrice: sql.raw('excluded."min_price"'), maxPrice: sql.raw('excluded."max_price"') },
       });
     await audit(tx, adminId, 'prices.update', collectionId, { from: before, to: prices });
+  });
+}
+
+/**
+ * The daily streak's milestones, replaced as a whole: a streak already past
+ * a new milestone doesn't get it, the next ones do.
+ */
+export async function updateStreakRewards(
+  database: Database,
+  adminId: string,
+  collectionId: number,
+  rewards: StreakReward[],
+): Promise<void> {
+  const sorted = rewards.map(({ days, packs }) => ({ days, packs })).sort((a, b) => a.days - b.days);
+  await database.transaction(async (tx) => {
+    await tx.execute(sql`SELECT 1 FROM ${gameRules} WHERE ${gameRules.collectionId} = ${collectionId} FOR UPDATE`);
+    const before = await getStreakRewards(tx, collectionId);
+    if (JSON.stringify(before) === JSON.stringify(sorted)) throw new RulesError('unchanged');
+    await tx.delete(streakRewards).where(eq(streakRewards.collectionId, collectionId));
+    if (sorted.length > 0) await tx.insert(streakRewards).values(sorted.map((reward) => ({ collectionId, ...reward })));
+    await audit(tx, adminId, 'streak.update', collectionId, { from: before, to: sorted });
   });
 }
 

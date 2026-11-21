@@ -14,12 +14,13 @@ import {
   getMarketPrices,
   getMarketRules,
   getResaleValues,
+  getStreakRewards,
   visibleCardsByRarity,
 } from '@/lib/game/rules';
 import { toParisDateTime } from '@/lib/paris-time';
 import { RARITIES } from '@/lib/rarity';
 import { AuditTable } from '../AuditTable';
-import { GameRulesForm, MarketPricesForm, MarketRulesForm, OddsForm, ResaleForm } from './RulesForms';
+import { GameRulesForm, MarketPricesForm, MarketRulesForm, OddsForm, ResaleForm, StreakRewardsForm } from './RulesForms';
 import styles from '../../admin.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,11 +33,12 @@ export default async function AdminRulesPage() {
   const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
   if (!collection) notFound();
   const now = new Date();
-  const [t, tRarity, format, rules, resale, market, prices, odds, visible, history] = await Promise.all([
+  const [t, tRarity, format, rules, streak, resale, market, prices, odds, visible, history] = await Promise.all([
     getTranslations('Admin.rules'),
     getTranslations('Rarity'),
     getFormatter(),
     getGameRules(db, collection.id),
+    getStreakRewards(db, collection.id),
     getResaleValues(db, collection.id),
     getMarketRules(db, collection.id),
     getMarketPrices(db, collection.id),
@@ -56,6 +58,12 @@ export default async function AdminRulesPage() {
       <section className={styles.section} aria-labelledby="packs-heading">
         <h2 id="packs-heading">{t('packsHeading')}</h2>
         <GameRulesForm rules={rules} />
+      </section>
+
+      <section className={styles.section} aria-labelledby="streak-heading">
+        <h2 id="streak-heading">{t('streakHeading')}</h2>
+        <p className={styles.muted}>{t('streakIntro')}</p>
+        <StreakRewardsForm rewards={streak} />
       </section>
 
       <section className={styles.section} aria-labelledby="resale-heading">

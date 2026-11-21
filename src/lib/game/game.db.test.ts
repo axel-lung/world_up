@@ -17,12 +17,12 @@ import {
 } from '@/db/schema';
 import { testCard } from '@/lib/catalog/testing';
 import { RARITIES } from '@/lib/rarity';
-import { publishOdds, RulesError, updateGameRules } from './admin';
+import { publishOdds, RulesError, updateGameRules, updateStreakRewards } from './admin';
 import { addCoins, coinBalance, duplicatesValue, resellDuplicates } from './coins';
 import { GameError } from './game-error';
 import { reservedCopies } from './holds';
-import { getReserve, notifyFullReserves, OPENINGS_PER_MINUTE, openPack } from './packs';
-import { currentOdds } from './rules';
+import { getReserve, getStreak, notifyFullReserves, OPENINGS_PER_MINUTE, openPack } from './packs';
+import { currentOdds, getStreakRewards } from './rules';
 import { createTestCollection, createTestPlayer, deleteTestData, type TestCollection, TEST_RESALE } from './testing';
 
 // Visible commons Q1 to Q4 and rare Q7; the hidden cards have higher IDs than
@@ -47,6 +47,7 @@ let standard: TestCollection;
 let big: TestCollection;
 let paying: TestCollection;
 let short: TestCollection;
+let streaked: TestCollection;
 const players: string[] = [];
 
 beforeAll(async () => {
@@ -54,10 +55,17 @@ beforeAll(async () => {
   big = await createTestCollection(CARDS, { odds: ODDS, rules: { signupPacks: 30, maxReserve: 30 } });
   paying = await createTestCollection(CARDS, { odds: ODDS, rules: { coinsPerOpening: 5 } });
   short = await createTestCollection(CARDS, { odds: ODDS, rules: { signupPacks: 8 } });
+  streaked = await createTestCollection(CARDS, {
+    odds: ODDS,
+    streak: [
+      { days: 2, packs: 1 },
+      { days: 3, packs: 2 },
+    ],
+  });
 });
 
 afterAll(async () => {
-  await deleteTestData([standard.id, big.id, paying.id, short.id], players);
+  await deleteTestData([standard.id, big.id, paying.id, short.id, streaked.id], players);
 });
 
 async function newPlayer() {
@@ -393,5 +401,75 @@ describe('currentOdds', () => {
       .values(RARITIES.map((rarity) => ({ collectionId: big.id, rarity, perMillion: rarity === 'rare' ? 1_000_000 : 0, validFrom: later })));
     expect((await currentOdds(db, big.id, at(59)))?.odds.rare).toBe(500_000);
     expect(await currentOdds(db, big.id, later)).toMatchObject({ validFrom: later, odds: { rare: 1_000_000, common: 0 } });
+  });
+});
+
+describe('the daily streak', () => {
+  // t0 is Tuesday 20 October 2026, 14:00 in Paris: days(n) is n days later, same time
+  const days = (n: number) => new Date(t0.getTime() + n * 24 * 3_600_000);
+  const openStreaked = (userId: string, now: Date) => open(userId, now, { collection: streaked });
+
+  it("counts each day's first pack, and adds a milestone's bonus packs even beyond the reserve's maximum", async () => {
+    const player = await newPlayer();
+    expect((await openStreaked(player, days(0))).streak).toEqual({ counted: true, before: 0, bonusPacks: 0 });
+    expect((await openStreaked(player, at(60))).streak).toEqual({ counted: false, before: 1, bonusPacks: 0 });
+
+    // Day 2, a milestone: 10 packs refilled, one taken, one given
+    expect((await openStreaked(player, days(1))).streak).toEqual({ counted: true, before: 1, bonusPacks: 1 });
+    expect(await getReserve(player, streaked.id, days(1))).toMatchObject({ packs: 10, nextPackAt: null });
+    // Day 3: two more, past the maximum; a full reserve isn't worth a notice
+    expect((await openStreaked(player, days(2))).streak).toEqual({ counted: true, before: 2, bonusPacks: 2 });
+    expect(await getReserve(player, streaked.id, days(2))).toMatchObject({ packs: 11, nextPackAt: null });
+    await notifyFullReserves(db, days(2.5));
+    const notices = await db
+      .select({ id: notifications.id })
+      .from(notifications)
+      .where(and(eq(notifications.userId, player), eq(notifications.kind, 'packs_full')));
+    expect(notices).toEqual([]);
+
+    expect(await getStreak(player, streaked.id, days(2))).toMatchObject({ days: 3, playedToday: true, next: null });
+    // An opening from beyond the maximum keeps the timer waiting
+    await openStreaked(player, days(2.1));
+    expect(await getReserve(player, streaked.id, days(2.1))).toMatchObject({ packs: 10, nextPackAt: null });
+  });
+
+  it('forgives one missed day a week, and starts again after a second', async () => {
+    const player = await newPlayer();
+    await openStreaked(player, days(0));
+    // Wednesday missed, Thursday played
+    expect((await openStreaked(player, days(2))).streak).toMatchObject({ counted: true, before: 1 });
+    const thursday = await getStreak(player, streaked.id, days(2));
+    expect(thursday).toMatchObject({ days: 2, graceUsed: true });
+    expect(thursday.week.map((day) => day.mark)).toEqual(['open', 'played', 'graced', 'played', 'open', 'open', 'open']);
+    // Friday missed too, the same week: Saturday starts again
+    expect((await getStreak(player, streaked.id, days(4))).days).toBe(0);
+    expect((await openStreaked(player, days(4))).streak).toEqual({ counted: true, before: 0, bonusPacks: 0 });
+    expect(await getStreak(player, streaked.id, days(4))).toMatchObject({ days: 1, playedToday: true });
+  });
+
+  it('counts a day once for openings sent together', async () => {
+    const player = await newPlayer();
+    const results = await Promise.all([openStreaked(player, days(0)), openStreaked(player, days(0))]);
+    expect(results.map((result) => result.streak.counted).sort()).toEqual([false, true]);
+    expect((await getStreak(player, streaked.id, days(0))).days).toBe(1);
+  });
+
+  it('lets the back-office replace the milestones, logged', async () => {
+    const admin = await newPlayer();
+    const rewards = [
+      { days: 2, packs: 1 },
+      { days: 3, packs: 2 },
+    ];
+    const unchanged = await updateStreakRewards(db, admin, streaked.id, [...rewards].reverse()).catch((error) => error);
+    expect(unchanged).toBeInstanceOf(RulesError);
+    expect(unchanged.code).toBe('unchanged');
+    await updateStreakRewards(db, admin, streaked.id, [{ days: 5, packs: 3 }]);
+    expect(await getStreakRewards(db, streaked.id)).toEqual([{ days: 5, packs: 3 }]);
+    const [entry] = await db
+      .select({ action: auditLog.action, details: auditLog.details })
+      .from(auditLog)
+      .where(and(eq(auditLog.adminId, admin), eq(auditLog.action, 'streak.update')));
+    expect(entry.details).toEqual({ from: rewards, to: [{ days: 5, packs: 3 }] });
+    await updateStreakRewards(db, admin, streaked.id, rewards);
   });
 });

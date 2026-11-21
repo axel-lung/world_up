@@ -8,7 +8,14 @@ import { achievements } from '@/db/schema';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
 import { achievementTitle } from '@/lib/game/achievement-title';
 import { gamePath } from '@/lib/game/paths';
-import { getActiveCollection, getGameRules, getMarketPrices, getMarketRules, getResaleValues } from '@/lib/game/rules';
+import {
+  getActiveCollection,
+  getGameRules,
+  getMarketPrices,
+  getMarketRules,
+  getResaleValues,
+  getStreakRewards,
+} from '@/lib/game/rules';
 import { RARITIES } from '@/lib/rarity';
 import styles from '../info.module.css';
 
@@ -21,12 +28,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RulesPage() {
   const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
   if (!collection) notFound();
-  const [t, tRarity, tAchievement, format, rules, resale, list, market, prices] = await Promise.all([
+  const [t, tRarity, tAchievement, format, rules, streak, resale, list, market, prices] = await Promise.all([
     getTranslations('Rules'),
     getTranslations('Rarity'),
     getTranslations('Achievements'),
     getFormatter(),
     getGameRules(db, collection.id),
+    getStreakRewards(db, collection.id),
     getResaleValues(db, collection.id),
     db.select().from(achievements).where(eq(achievements.collectionId, collection.id)).orderBy(asc(achievements.position)),
     getMarketRules(db, collection.id),
@@ -49,6 +57,37 @@ export default async function RulesPage() {
           <li>{t('packsFull')}</li>
           <li>{t.rich('packsDraw', { odds: (chunks) => <Link href="/odds">{chunks}</Link> })}</li>
         </ul>
+      </section>
+
+      <section className={styles.section} aria-labelledby="streak-heading">
+        <h2 id="streak-heading">{t('streakHeading')}</h2>
+        <p>{t('streakRule')}</p>
+        {streak.length > 0 && (
+          <>
+            <p>{t('streakRewards')}</p>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <caption className="sr-only">{t('streakCaption')}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{t('streakDays')}</th>
+                    <th scope="col" className={styles.number}>
+                      {t('streakPacks')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {streak.map((reward) => (
+                    <tr key={reward.days}>
+                      <th scope="row">{t('streakDaysValue', { days: reward.days })}</th>
+                      <td className={styles.number}>{t('streakPacksValue', { packs: reward.packs })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </section>
 
       <section className={styles.section} aria-labelledby="collection-heading">

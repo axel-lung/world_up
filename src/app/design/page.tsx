@@ -33,12 +33,14 @@ import { PackReserve, PackReserveCompact, PackReserveDial, PackReserveHero } fro
 import { RarityBadge } from '@/components/rarity/Rarity';
 import { PackPurchasePanel, PurchaseConfirmation } from '@/components/shop/PackPurchase';
 import { FriendList, FriendRow } from '@/components/social/FriendRow';
+import { StreakButton } from '@/components/streak/StreakButton';
 import { PushPromptPanel } from '@/components/social/PushPrompt';
 import { TradeSummary } from '@/components/trade/TradeSummary';
 import { Button } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
 import { Sheet } from '@/components/ui/Sheet';
 import { Tag } from '@/components/ui/Tag';
+import { parisDay, streakView } from '@/lib/game/streak';
 import { RARITIES } from '@/lib/rarity';
 import { InteractiveDemo } from './InteractiveDemo';
 import styles from './page.module.css';
@@ -89,6 +91,18 @@ function tabBarSample(packs: number, waiting: number): TabBarItem[] {
     },
     { href: '/account', label: 'Profil', icon: <CircleUser aria-hidden /> },
   ];
+}
+
+// The launch milestones (drizzle/0018_seed_streak_rewards.sql)
+const STREAK_REWARDS = [3, 7, 14, 30, 50, 100, 200, 365, 500, 1000].map((days) => ({ days, packs: 1 }));
+
+/** The streak screen's states: `days` played up to today, the day before yesterday forgiven if `graced`. */
+function streakSample(now: Date, days: number, { graced = false, counted = false } = {}) {
+  const today = parisDay(now);
+  const daysAgo = (n: number) => parisDay(new Date(now.getTime() - n * 86_400_000));
+  const stored = days === 0 ? { days: 0, lastDay: null, graceDay: null } : { days, lastDay: today, graceDay: graced ? daysAgo(2) : null };
+  const bonusPacks = STREAK_REWARDS.some((reward) => reward.days === days) ? 1 : 0;
+  return streakView(stored, today, STREAK_REWARDS, counted ? { counted, before: days - 1, bonusPacks } : undefined);
 }
 
 // Development showcase of design/Design system World Up v2.dc.html, to check the
@@ -471,6 +485,19 @@ export default function DesignPage() {
                   </div>
                 </div>
                 <span className={styles.muted}>Sur téléphone : l&apos;accueil (avec le mini-paquet) et la page Paquets.</span>
+              </div>
+
+              <div className={styles.group}>
+                <h3>Série de jours</h3>
+                <div className={styles.row}>
+                  <StreakButton view={streakSample(now, 12, { graced: true, counted: true })} />
+                  <StreakButton view={streakSample(now, 3, { counted: true })} />
+                  <StreakButton view={streakSample(now, 0)} />
+                </div>
+                <span className={styles.muted}>
+                  La flamme de l&apos;accueil ouvre l&apos;écran de la série : 12 jours comme après le premier paquet du
+                  jour (un jour de grâce), 3 jours avec le paquet bonus d&apos;un palier, puis aucune série.
+                </span>
               </div>
 
               <div className={styles.group}>

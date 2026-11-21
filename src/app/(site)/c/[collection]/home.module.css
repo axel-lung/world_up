@@ -1,5 +1,6 @@
-/* The game's home on a phone (page.tsx): the greeting with the bell, then the
-   reserve, the figures, what waits for the player and the series in progress. */
+/* The game's home on a phone (page.tsx): the greeting with the streak and the
+   bell, then the reserve, the figures, what waits for the player and the
+   series in progress. */
 .head h1 {
   font-size: 24px;
 }
@@ -8,6 +9,14 @@
   flex: none;
   width: 40px;
   height: 40px;
+}
+
+/* A wider screen: the streak's pill beside the greeting */
+.wideTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 /* The bell as a round button on the surface */

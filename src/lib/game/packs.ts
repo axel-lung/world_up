@@ -8,7 +8,8 @@ import { addCoins } from './coins';
 import { drawRarity, type RandomInt, secureRandom } from './draw';
 import { GameError } from './game-error';
 import { type Reserve, refill, takePack } from './refill';
-import { currentOdds, type GameRules, getGameRules } from './rules';
+import { currentOdds, type GameRules, getGameRules, getStreakRewards } from './rules';
+import { NO_STREAK, parisDay, playDay, rewardFor, type StoredStreak, streakView, type StreakView } from './streak';
 
 // Free packs: the reserve and the opening. The server decides everything; the
 // clock is a parameter so the tests can move it.
@@ -92,12 +93,15 @@ export interface OpenedPack {
   /** Coins the opening credited, achievements apart. */
   coins: number;
   achievements: AwardedAchievement[];
+  /** The daily streak: whether this opening counted today, what it showed before, the bonus packs it added. */
+  streak: { counted: boolean; before: number; bonusPacks: number };
 }
 
 /**
  * Opens one free pack, in one transaction holding the player's reserve row:
  * takes a pack, draws the cards, records the opening, adds the cards to the
- * collection, credits the opening's coins and grants the achievements reached.
+ * collection, moves the daily streak on (with its bonus packs at a
+ * milestone), credits the opening's coins and grants the achievements reached.
  * A second request with the same idempotency key (a double click) gets the
  * first one's opening.
  */
@@ -110,7 +114,13 @@ export async function openPack(
     const rules = await getGameRules(tx, collectionId);
     await ensureReserve(tx, userId, collectionId, rules, now);
     const [stored] = await tx
-      .select({ packs: packState.packs, lastRefill: packState.lastRefill })
+      .select({
+        packs: packState.packs,
+        lastRefill: packState.lastRefill,
+        streakDays: packState.streakDays,
+        streakLastDay: packState.streakLastDay,
+        streakGraceDay: packState.streakGraceDay,
+      })
       .from(packState)
       .where(and(eq(packState.userId, userId), eq(packState.collectionId, collectionId)))
       .for('update');
@@ -119,7 +129,15 @@ export async function openPack(
       .select({ id: packOpenings.id })
       .from(packOpenings)
       .where(and(eq(packOpenings.userId, userId), eq(packOpenings.idempotencyKey, idempotencyKey)));
-    if (previous) return { openingId: previous.id, repeated: true, coins: 0, achievements: [] };
+    if (previous) {
+      return {
+        openingId: previous.id,
+        repeated: true,
+        coins: 0,
+        achievements: [],
+        streak: { counted: false, before: stored.streakDays, bonusPacks: 0 },
+      };
+    }
 
     const [{ recent }] = await tx
       .select({ recent: count() })
@@ -162,10 +180,24 @@ export async function openPack(
         set: { quantity: sql.raw('"user_cards"."quantity" + excluded."quantity"') },
       });
 
-    // The reserve is below its maximum now: the player is told once it is full again
+    // The first pack of the day (in Paris) moves the streak on; a milestone
+    // adds its bonus packs to the reserve, even beyond its maximum (the timer
+    // then waits, as for a full reserve)
+    const played = playDay(streakOf(stored), parisDay(now));
+    const bonusPacks = played.counted ? rewardFor(await getStreakRewards(tx, collectionId), played.streak.days) : 0;
+    const taken = takePack(reserve, rules, now);
+    const packs = taken.packs + bonusPacks;
     await tx
       .update(packState)
-      .set({ ...takePack(reserve, rules, now), notifyWhenFull: true })
+      .set({
+        packs,
+        lastRefill: taken.lastRefill,
+        // Below its maximum now, the reserve will be worth a notice once full again
+        notifyWhenFull: packs < rules.maxReserve,
+        streakDays: played.streak.days,
+        streakLastDay: played.streak.lastDay,
+        streakGraceDay: played.streak.graceDay,
+      })
       .where(and(eq(packState.userId, userId), eq(packState.collectionId, collectionId)));
 
     if (rules.coinsPerOpening > 0) {
@@ -180,8 +212,42 @@ export async function openPack(
     }
 
     const awarded = await awardAchievements(tx, userId, collectionId, now);
-    return { openingId: opening.id, repeated: false, coins: rules.coinsPerOpening, achievements: awarded };
+    return {
+      openingId: opening.id,
+      repeated: false,
+      coins: rules.coinsPerOpening,
+      achievements: awarded,
+      streak: { counted: played.counted, before: played.before, bonusPacks },
+    };
   });
+}
+
+function streakOf(row: { streakDays: number; streakLastDay: string | null; streakGraceDay: string | null }): StoredStreak {
+  return { days: row.streakDays, lastDay: row.streakLastDay, graceDay: row.streakGraceDay };
+}
+
+/**
+ * The player's daily streak as it stands, for its screen; after an opening,
+ * with what that opening did to it.
+ */
+export async function getStreak(
+  userId: string,
+  collectionId: number,
+  now: Date,
+  opening?: OpenedPack['streak'],
+): Promise<StreakView> {
+  const [[row], rewards] = await Promise.all([
+    db
+      .select({
+        streakDays: packState.streakDays,
+        streakLastDay: packState.streakLastDay,
+        streakGraceDay: packState.streakGraceDay,
+      })
+      .from(packState)
+      .where(and(eq(packState.userId, userId), eq(packState.collectionId, collectionId))),
+    getStreakRewards(db, collectionId),
+  ]);
+  return streakView(row ? streakOf(row) : NO_STREAK, parisDay(now), rewards, opening);
 }
 
 /**

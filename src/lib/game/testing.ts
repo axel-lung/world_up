@@ -13,6 +13,7 @@ import {
   rarityOdds,
   resaleValues,
   series,
+  streakRewards,
   trades,
   users,
 } from '@/db/schema';
@@ -22,6 +23,7 @@ import { testCatalog } from '@/lib/catalog/testing';
 import { RARITIES } from '@/lib/rarity';
 import type { OddsSet } from './draw';
 import type { GameRules, MarketRules } from './rules';
+import type { StreakReward } from './streak';
 
 // Throwaway collections and players for the game's database tests.
 
@@ -36,7 +38,12 @@ export interface TestCollection {
 
 export async function createTestCollection(
   list: CatalogCard[],
-  { rules = {}, market = {}, odds }: { rules?: Partial<GameRules>; market?: Partial<MarketRules>; odds: OddsSet },
+  {
+    rules = {},
+    market = {},
+    odds,
+    streak = [],
+  }: { rules?: Partial<GameRules>; market?: Partial<MarketRules>; odds: OddsSet; streak?: StreakReward[] },
 ): Promise<TestCollection> {
   const slug = `test-${randomUUID().slice(0, 8)}`;
   const [{ id }] = await db
@@ -60,6 +67,7 @@ export async function createTestCollection(
     { collectionId: id, code: 'packs-1', kind: 'packs_opened', threshold: 1, rewardCoins: 5, position: 1 },
     { collectionId: id, code: 'packs-3', kind: 'packs_opened', threshold: 3, rewardCoins: 20, position: 2 },
   ]);
+  if (streak.length > 0) await db.insert(streakRewards).values(streak.map((reward) => ({ collectionId: id, ...reward })));
   return { id, slug };
 }
 
@@ -83,6 +91,7 @@ export async function deleteTestData(collectionIds: number[], userIds: string[])
   await db.delete(marketPrices).where(inArray(marketPrices.collectionId, collectionIds));
   await db.delete(marketRules).where(inArray(marketRules.collectionId, collectionIds));
   await db.delete(achievements).where(inArray(achievements.collectionId, collectionIds));
+  await db.delete(streakRewards).where(inArray(streakRewards.collectionId, collectionIds));
   await db.delete(rarityOdds).where(inArray(rarityOdds.collectionId, collectionIds));
   await db.delete(resaleValues).where(inArray(resaleValues.collectionId, collectionIds));
   await db.delete(gameRules).where(inArray(gameRules.collectionId, collectionIds));

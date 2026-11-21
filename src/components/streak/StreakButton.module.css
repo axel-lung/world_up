@@ -1,0 +1,43 @@
+/* The streak's pill on the home's head (MobileB.dc.html): the flame and the days */
+.button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+  padding: 0 12px 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.button svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-accent);
+}
+
+/* No streak going: the flame is out */
+.button[data-off] {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.button[data-off] svg {
+  color: var(--color-text-muted);
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}

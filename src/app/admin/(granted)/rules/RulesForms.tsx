@@ -7,8 +7,17 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { Notice } from '@/components/ui/Notice';
 import { TextField } from '@/components/ui/TextField';
 import type { GameRules, MarketRules, PriceRange } from '@/lib/game/rules';
+import type { StreakReward } from '@/lib/game/streak';
 import { RARITIES, type Rarity } from '@/lib/rarity';
-import { type RulesState, saveGameRules, saveMarketPrices, saveMarketRules, saveOdds, saveResaleValues } from './actions';
+import {
+  type RulesState,
+  saveGameRules,
+  saveMarketPrices,
+  saveMarketRules,
+  saveOdds,
+  saveResaleValues,
+  saveStreakRewards,
+} from './actions';
 import styles from '../../admin.module.css';
 
 function Result({ state }: { state: RulesState }) {
@@ -48,6 +57,25 @@ export function GameRulesForm({ rules }: { rules: GameRules }) {
       </div>
       <SubmitButton variant="primary" pending={pending}>
         {t('saveRules')}
+      </SubmitButton>
+      <Result state={state} />
+    </form>
+  );
+}
+
+export function StreakRewardsForm({ rewards }: { rewards: StreakReward[] }) {
+  const t = useTranslations('Admin.rules');
+  const [state, action, pending] = useActionState(saveStreakRewards, null);
+  return (
+    <form action={action} className={styles.form}>
+      <TextField
+        label={t('fields.streakRewards')}
+        name="milestones"
+        defaultValue={rewards.map((reward) => `${reward.days}:${reward.packs}`).join(', ')}
+        hint={t('streakHint')}
+      />
+      <SubmitButton variant="primary" pending={pending}>
+        {t('saveStreak')}
       </SubmitButton>
       <Result state={state} />
     </form>

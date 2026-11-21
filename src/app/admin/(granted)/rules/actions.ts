@@ -5,7 +5,15 @@ import { z } from 'zod';
 import { db } from '@/db';
 import { requireAdmin } from '@/lib/admin';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
-import { publishOdds, RulesError, updateGameRules, updateMarketPrices, updateMarketRules, updateResaleValues } from '@/lib/game/admin';
+import {
+  publishOdds,
+  RulesError,
+  updateGameRules,
+  updateMarketPrices,
+  updateMarketRules,
+  updateResaleValues,
+  updateStreakRewards,
+} from '@/lib/game/admin';
 import type { OddsSet } from '@/lib/game/draw';
 import { getActiveCollection } from '@/lib/game/rules';
 import { fromParisDateTime } from '@/lib/paris-time';
@@ -44,6 +52,28 @@ export async function saveGameRules(_: RulesState, form: FormData): Promise<Rule
   const input = rulesSchema.safeParse(Object.fromEntries(form));
   if (!input.success) return { error: 'invalid' };
   return run((collectionId, adminId) => updateGameRules(db, adminId, collectionId, input.data));
+}
+
+// "3:1, 7, 30:2" -> 3 days for 1 pack, 7 for 1, 30 for 2: up to 50 milestones,
+// each a different number of days. Empty: no bonus pack.
+const milestones = z.string().transform((value, context) => {
+  const entries = value.replace(/\s*:\s*/g, ':').split(/[\s,;]+/).filter(Boolean);
+  const rewards = entries.flatMap((entry) => {
+    const match = /^(\d{1,4})(?::(\d{1,3}))?$/.exec(entry);
+    return match ? [{ days: Number(match[1]), packs: Number(match[2] ?? 1) }] : [];
+  });
+  const valid = rewards.filter((reward) => reward.days >= 1 && reward.days <= 3650 && reward.packs >= 1 && reward.packs <= 100);
+  if (entries.length > 50 || valid.length !== entries.length || new Set(valid.map((reward) => reward.days)).size !== valid.length) {
+    context.addIssue({ code: 'custom', message: 'milestones' });
+  }
+  return valid;
+});
+
+export async function saveStreakRewards(_: RulesState, form: FormData): Promise<RulesState> {
+  await requireAdmin();
+  const input = z.object({ milestones }).safeParse(Object.fromEntries(form));
+  if (!input.success) return { error: 'invalid' };
+  return run((collectionId, adminId) => updateStreakRewards(db, adminId, collectionId, input.data.milestones));
 }
 
 const resaleSchema = z.object(

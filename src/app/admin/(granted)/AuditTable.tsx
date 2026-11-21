@@ -19,6 +19,7 @@ const ACTION_LABELS = {
   'odds.publish': 'oddsPublish',
   'market.update': 'marketUpdate',
   'prices.update': 'pricesUpdate',
+  'streak.update': 'streakUpdate',
   'auction.cancel': 'auctionCancel',
   'user.ban': 'userBan',
   'user.unban': 'userUnban',
@@ -83,6 +84,14 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
           ? (key: string) => (RULE_FIELDS.includes(key as 'maxReserve') ? t(`rules.fields.${key as 'maxReserve'}`) : key)
           : rarity;
       return changes((details.from ?? {}) as Record<string, unknown>, (details.to ?? {}) as Record<string, unknown>, label);
+    }
+    if (row.action === 'streak.update') {
+      // "3:1, 7:1 → 3:1, 7:2"
+      const milestones = (value: unknown) =>
+        Array.isArray(value) && value.length > 0
+          ? (value as { days: number; packs: number }[]).map((reward) => `${reward.days}:${reward.packs}`).join(', ')
+          : t('card.none');
+      return `${milestones(details.from)} → ${milestones(details.to)}`;
     }
     if (row.action === 'odds.publish' && details.odds && details.validFrom) {
       const odds = RARITIES.map(
