@@ -51,6 +51,7 @@ const marketSchema = gridSchema.extend({
   page: pagesShown(MARKET_MAX_PAGES),
   card: z.string().max(200).nullable().catch(null),
   missing: z.boolean().catch(false),
+  wished: z.boolean().catch(false),
   sort: z.enum(MARKET_SORTS).catch(MARKET_SORTS[0]),
 });
 
@@ -61,6 +62,7 @@ export function parseMarketParams(params: SearchParams) {
     series: one(params.series) || null,
     card: one(params.card) || null,
     missing: one(params.missing) === '1',
+    wished: one(params.wished) === '1',
     sort: one(params.sort) ?? MARKET_SORTS[0],
     page: one(params.page) ?? 1,
   });

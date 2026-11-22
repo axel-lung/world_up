@@ -49,8 +49,9 @@ export default async function NewTradePage({ params, searchParams }: Props) {
   const [t, rules, mine, theirs] = await Promise.all([
     getTranslations('Trades'),
     getMarketRules(db, collection.id),
-    tradeableCards(user.id, collection.id, now),
-    tradeableCards(friend.id, collection.id, now, user.id),
+    // Each side's cards the other side wishes for come first
+    tradeableCards(user.id, collection.id, now, undefined, friend.id),
+    tradeableCards(friend.id, collection.id, now, user.id, user.id),
   ]);
 
   return (

@@ -17,6 +17,7 @@ import {
   streakRewards,
   trades,
   users,
+  wishlistItems,
 } from '@/db/schema';
 import type { CatalogCard } from '@/lib/catalog/export-format';
 import { importCatalog } from '@/lib/catalog/import';
@@ -89,6 +90,7 @@ export async function deleteTestData(collectionIds: number[], userIds: string[])
   await db.delete(trades).where(inArray(trades.collectionId, collectionIds));
   await db.delete(auctions).where(inArray(auctions.collectionId, collectionIds));
   await db.delete(notifications).where(inArray(notifications.collectionId, collectionIds));
+  await db.delete(wishlistItems).where(inArray(wishlistItems.collectionId, collectionIds));
   await db.delete(marketPrices).where(inArray(marketPrices.collectionId, collectionIds));
   await db.delete(marketRules).where(inArray(marketRules.collectionId, collectionIds));
   await db.delete(featuredBadges).where(inArray(featuredBadges.collectionId, collectionIds));

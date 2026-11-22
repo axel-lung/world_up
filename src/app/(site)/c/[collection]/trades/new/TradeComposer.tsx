@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeftRight, Minus, Plus } from 'lucide-react';
+import { ArrowLeftRight, Heart, Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId, useMemo, useState } from 'react';
 import { displayName } from '@/components/card/card-format';
@@ -17,6 +17,8 @@ export interface ComposerCard {
   available: number;
   quantity: number;
   viewerOwns: boolean;
+  /** On the other side's wishlist: the player's cards their friend wishes for, the friend's cards the player does. */
+  wished: boolean;
 }
 
 type Selection = Record<number, number>;
@@ -41,9 +43,11 @@ function Side({
   max,
   toggleLabel,
   toggle,
+  wishLabel,
 }: {
   side: 'give' | 'want';
   title: string;
+  /** Those on the other side's wishlist first. */
   cards: ComposerCard[];
   selection: Selection;
   onChange: (selection: Selection) => void;
@@ -51,6 +55,8 @@ function Side({
   toggleLabel: string;
   /** The checkbox's filter: duplicates on the player's side, cards they lack on the friend's. */
   toggle: (card: ComposerCard) => boolean;
+  /** Said of a card on the other side's wishlist. */
+  wishLabel: string;
 }) {
   const t = useTranslations('Trades.compose');
   const tRarity = useTranslations('Rarity');
@@ -150,10 +156,12 @@ function Side({
                 <span className={styles.name}>
                   <span>
                     {name} <span className="sr-only">({tRarity(card.rarity)})</span>
+                    {card.wished && <Heart aria-hidden className={styles.wished} />}
                   </span>
                   <span className={styles.muted}>
                     {[card.region, t('copies', { count: card.available })].filter(Boolean).join(' · ')}
                     {side === 'give' && card.quantity === 1 && ` · ${t('lastCopy')}`}
+                    {card.wished && ` · ${wishLabel}`}
                   </span>
                 </span>
                 <Button
@@ -227,6 +235,7 @@ export function TradeComposer({
           max={max}
           toggleLabel={t('compose.onlyDuplicates')}
           toggle={isDuplicate}
+          wishLabel={t('compose.theyWish', { pseudo })}
         />
         <Side
           side="want"
@@ -237,6 +246,7 @@ export function TradeComposer({
           max={max}
           toggleLabel={t('compose.onlyMissing')}
           toggle={isMissing}
+          wishLabel={t('compose.youWish')}
         />
       </div>
 

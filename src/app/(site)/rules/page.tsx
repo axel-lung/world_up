@@ -16,6 +16,7 @@ import {
   getResaleValues,
   getStreakRewards,
 } from '@/lib/game/rules';
+import { WISHLIST_MAX } from '@/lib/game/wishlist';
 import { RARITIES } from '@/lib/rarity';
 import styles from '../info.module.css';
 
@@ -98,6 +99,7 @@ export default async function RulesPage() {
           <li>{t('collectionSeries')}</li>
           <li>{t('collectionMissing')}</li>
           <li>{t('collectionDuplicates')}</li>
+          <li>{t('collectionWishlist', { max: WISHLIST_MAX })}</li>
         </ul>
       </section>
 

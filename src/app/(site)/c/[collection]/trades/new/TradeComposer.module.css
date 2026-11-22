@@ -187,3 +187,13 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+
+/* A card on the other side's wishlist */
+.wished {
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  vertical-align: -2px;
+  color: var(--color-accent);
+  fill: currentColor;
+}

@@ -1,13 +1,16 @@
-import { ChevronRight, Gavel } from 'lucide-react';
+import { ChevronRight, Gavel, Heart } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import type { CSSProperties } from 'react';
+import { ButtonLink } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
+import { db } from '@/db';
 import { collectionCounts, getSeries, type SeriesProgress, seriesProgress } from '@/lib/game/collection';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
+import { wishCount } from '@/lib/game/wishlist';
 import { requireSession } from '@/lib/session';
 import phone from '../../../phone.module.css';
 import { CollectionGrid } from '../CollectionGrid';
@@ -26,6 +29,7 @@ const SERIES_GROUPS: SeriesProgress['type'][] = ['region', 'family', 'unesco', '
  * The player's cards, with the filters in the address. A phone chooses
  * between the cards ("Toutes les cartes") and the series, one row each with
  * its progress ("Par série", ?by=series), and reaches the market from here.
+ * Both lead to the wishlist.
  */
 export default async function CollectionPage({ params, searchParams }: PageProps<'/c/[collection]/collection'>) {
   const collection = await getActiveCollection((await params).collection);
@@ -36,13 +40,15 @@ export default async function CollectionPage({ params, searchParams }: PageProps
   const filters = parseGridParams(query);
   const bySeries = query.by === 'series';
 
-  const [t, tGame, format, allSeries, counts, series] = await Promise.all([
+  const [t, tGame, tWishlist, format, allSeries, counts, series, wishes] = await Promise.all([
     getTranslations('Collection'),
     getTranslations('Game'),
+    getTranslations('Wishlist'),
     getFormatter(),
     seriesProgress(user.id, collection.id),
     collectionCounts({ userId: user.id, collectionId: collection.id }),
     filters.series ? getSeries(collection.id, filters.series) : null,
+    wishCount(db, user.id, collection.id),
   ]);
   const number = (value: number) => format.number(value);
 
@@ -86,6 +92,11 @@ export default async function CollectionPage({ params, searchParams }: PageProps
         </p>
         <h1>{t('title')}</h1>
       </header>
+      <div className={`${styles.actions} wide-only`}>
+        <ButtonLink href={paths.wishlist} icon={<Heart aria-hidden />}>
+          {tWishlist('link', { count: wishes })}
+        </ButtonLink>
+      </div>
       <div className="wide-only">
         <Gauge
           label={t('progress')}
@@ -111,6 +122,21 @@ export default async function CollectionPage({ params, searchParams }: PageProps
           </li>
         </ul>
       </nav>
+
+      <ul className={`${phone.rows} phone-only`}>
+        <li>
+          <Link href={paths.wishlist} className={phone.row}>
+            <span className={phone.disc} data-tone="accent" aria-hidden="true">
+              <Heart />
+            </span>
+            <span className={phone.rowText}>
+              <span className={phone.rowTitle}>{tWishlist('title')}</span>
+              <span className={phone.rowMeta}>{tWishlist('cards', { count: wishes })}</span>
+            </span>
+            <ChevronRight aria-hidden className={phone.chevron} />
+          </Link>
+        </li>
+      </ul>
 
       <ResaleNotice outcome={parseResaleParams(query)} />
       {bySeries ? (

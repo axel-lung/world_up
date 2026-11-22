@@ -1,4 +1,4 @@
-import { Check, Coins, Gavel } from 'lucide-react';
+import { Check, Coins, Gavel, Heart } from 'lucide-react';
 import type { Metadata } from 'next';
 import Form from 'next/form';
 import Link from 'next/link';
@@ -36,9 +36,9 @@ const pageStart = (index: number) => `${LIST_ID}-${index}`;
 
 /**
  * The collection's running auctions, with filters (rarity, series, the cards
- * the player lacks, one card) and a sort, which apply at once, then "Voir
- * plus". Links keep them in the address, so every view works without
- * JavaScript.
+ * the player lacks or wishes for, one card) and a sort, which apply at once,
+ * then "Voir plus". Links keep them in the address, so every view works
+ * without JavaScript.
  */
 export default async function MarketPage({ params, searchParams }: PageProps<'/c/[collection]/market'>) {
   const collection = await getActiveCollection((await params).collection);
@@ -67,6 +67,7 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
     rarity: filters.rarity,
     seriesId: series?.id ?? null,
     missing: filters.missing,
+    wished: filters.wished,
     cardId: card?.id ?? null,
     sort: filters.sort,
     pages: filters.page,
@@ -87,6 +88,7 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
     if (series) search.set('series', series.slug);
     if (card && next.card) search.set('card', card.slug);
     if (next.missing) search.set('missing', '1');
+    if (next.wished) search.set('wished', '1');
     if (next.sort !== MARKET_SORTS[0]) search.set('sort', next.sort);
     if (next.page > 1) search.set('page', String(next.page));
     const value = search.toString();
@@ -130,6 +132,7 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
         {card && <input type="hidden" name="card" value={card.slug} />}
         {filters.rarity && <input type="hidden" name="rarity" value={filters.rarity} />}
         {filters.missing && <input type="hidden" name="missing" value="1" />}
+        {filters.wished && <input type="hidden" name="wished" value="1" />}
         <label htmlFor="series" className="sr-only">
           {tCollection('series')}
         </label>
@@ -179,6 +182,16 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
               >
                 {filters.missing && <Check aria-hidden />}
                 {t('missingOnly')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={link({ wished: !filters.wished })}
+                className={styles.chip}
+                aria-current={filters.wished ? 'true' : undefined}
+              >
+                {filters.wished ? <Check aria-hidden /> : <Heart aria-hidden />}
+                {t('wishedOnly')}
               </Link>
             </li>
             <li>

@@ -477,6 +477,8 @@ export const packCards = pgTable(
       .references(() => cards.id),
     // The player's first copy of the card
     isNew: boolean('is_new').notNull(),
+    // The card was on the player's wishlist, which it left: the reveal says so
+    wished: boolean('wished').notNull().default(false),
     // The shiny variant is a version 2 option: always false for now
     shiny: boolean('shiny').notNull().default(false),
   },
@@ -501,6 +503,31 @@ export const userCards = pgTable(
   (table) => [
     primaryKey({ columns: [table.userId, table.cardId] }),
     index('user_cards_collection_user_idx').on(table.collectionId, table.userId),
+  ],
+);
+
+// The cards a player lacks and wants (src/lib/game/wishlist.ts, decided on
+// 2026-11-22). A card obtained leaves the list, in the transaction that brings
+// it; an auction of it tells the player; their friends see the list.
+export const wishlistItems = pgTable(
+  'wishlist_items',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.cardId] }),
+    index('wishlist_items_collection_user_idx').on(table.collectionId, table.userId),
+    // The players to tell when the card goes up for auction
+    index('wishlist_items_card_id_idx').on(table.cardId),
   ],
 );
 
@@ -796,6 +823,8 @@ export const notificationKind = pgEnum('notification_kind', [
   'auction_cancelled',
   'packs_full',
   'streak_reminder',
+  // A card of the player's wishlist goes up for auction
+  'auction_wished',
 ]);
 
 // What happened to the player (/activity, the header's bell, Web Push). `data`

@@ -1,6 +1,7 @@
 import { ChevronRight, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import type { ReactNode } from 'react';
 import { EmblemIcon } from '@/components/collection/Emblem';
 import { RarityPips } from '@/components/rarity/Rarity';
 import type { Emblem } from '@/lib/collection-theme';
@@ -22,6 +23,7 @@ export function CardRow({
   copies = 1,
   href,
   emblem,
+  action,
 }: {
   card: CardData;
   state?: 'owned' | 'missing';
@@ -29,6 +31,8 @@ export function CardRow({
   href?: string;
   /** The collection's emblem, on a missing card's empty thumbnail. */
   emblem?: Emblem;
+  /** A control at the row's end, above its link: the wishlist's heart. */
+  action?: ReactNode;
 }) {
   const t = useTranslations('Card');
   const tRarity = useTranslations('Rarity');
@@ -91,6 +95,7 @@ export function CardRow({
           <span className="sr-only">{t('copiesBadge', { count: copies })}</span>
         </span>
       )}
+      {action && <div className={styles.action}>{action}</div>}
       {link && <ChevronRight aria-hidden className={styles.chevron} />}
     </article>
   );

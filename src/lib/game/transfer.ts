@@ -1,6 +1,7 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { Transaction } from '@/db';
 import { userCards } from '@/db/schema';
+import { fulfilWishes } from './wishlist';
 
 // Cards changing hands (trades, auctions). The caller holds the locks and has
 // checked that the giver can spare the copies.
@@ -36,7 +37,7 @@ export const ownerKey = ({ userId, cardId }: CardOwner) => `${userId}:${cardId}`
 /**
  * Moves `quantity` copies of a card from one player to another. The giver's
  * row goes when its last copy does; the receiver's is created with today as
- * its first obtention, or grows.
+ * its first obtention, or grows, and the card leaves their wishlist.
  */
 export async function moveCard(
   tx: Transaction,
@@ -59,4 +60,5 @@ export async function moveCard(
       target: [userCards.userId, userCards.cardId],
       set: { quantity: sql.raw('"user_cards"."quantity" + excluded."quantity"') },
     });
+  await fulfilWishes(tx, to, [cardId]);
 }

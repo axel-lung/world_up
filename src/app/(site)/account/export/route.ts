@@ -8,6 +8,7 @@ import { playerCards } from '@/lib/game/collection';
 import { playerAuctions } from '@/lib/game/market';
 import { playerOpenings } from '@/lib/game/packs';
 import { playerTrades } from '@/lib/game/trades';
+import { playerWishlist } from '@/lib/game/wishlist';
 import { playerNotifications } from '@/lib/notifications/notifications';
 import { playerPushDevices } from '@/lib/notifications/push';
 import { playerSignInMethods } from '@/lib/sign-in-methods';
@@ -37,7 +38,21 @@ export async function GET(request: Request) {
     .where(eq(consents.userId, userId))
     .orderBy(asc(consents.acceptedAt));
 
-  const [reports, packReserve, openings, collection, coins, ledger, obtained, friends, trades, auctions, notifications, pushDevices] = await Promise.all([
+  const [
+    reports,
+    packReserve,
+    openings,
+    collection,
+    wishlist,
+    coins,
+    ledger,
+    obtained,
+    friends,
+    trades,
+    auctions,
+    notifications,
+    pushDevices,
+  ] = await Promise.all([
     playerReports(userId),
     db
       .select({
@@ -51,6 +66,7 @@ export async function GET(request: Request) {
       .where(eq(packState.userId, userId)),
     playerOpenings(userId),
     playerCards(userId),
+    playerWishlist(userId),
     coinBalance(db, userId),
     playerLedger(userId),
     db
@@ -72,7 +88,7 @@ export async function GET(request: Request) {
       account: { ...account, signIn },
       consents: acceptedDocuments,
       reports,
-      game: { packReserve, openings, collection, coins: { balance: coins, ledger }, achievements: obtained },
+      game: { packReserve, openings, collection, wishlist, coins: { balance: coins, ledger }, achievements: obtained },
       social: { friends, trades, auctions },
       notifications,
       pushDevices,

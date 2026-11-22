@@ -931,7 +931,7 @@
     },
     "collected": {
       "title": "Les données collectées",
-      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Sur le site, nous ne demandons à Google ni votre nom ni votre photo ; dans l'application Android, Google les joint d'office à sa réponse, et nous ne les gardons pas. Nous ne gardons aucun des jetons de Google.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès, votre série de jours et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous activez les notifications sur un appareil : l'adresse que le service de notifications de votre navigateur donne à cet appareil, et les clés qui chiffrent nos messages ; dans l'application Android, l'identifiant que Firebase Cloud Messaging, le service de notifications de Google, donne à votre téléphone. Ni votre adresse IP, ni votre navigateur.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Sur le site, nous ne demandons à Google ni votre nom ni votre photo ; dans l'application Android, Google les joint d'office à sa réponse, et nous ne les gardons pas. Nous ne gardons aucun des jetons de Google.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès, votre série de jours, votre liste de souhaits et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous activez les notifications sur un appareil : l'adresse que le service de notifications de votre navigateur donne à cet appareil, et les clés qui chiffrent nos messages ; dans l'application Android, l'identifiant que Firebase Cloud Messaging, le service de notifications de Google, donne à votre téléphone. Ni votre adresse IP, ni votre navigateur.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
     },
     "purposes": {
       "title": "Pourquoi, et sur quelle base",
@@ -939,7 +939,7 @@
     },
     "public": {
       "title": "Ce qui est public",
-      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Vos amis voient aussi votre collection. Au marché, votre pseudo s'affiche sur vos ventes ; vos mises restent anonymes. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
+      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Vos amis voient aussi votre collection et votre liste de souhaits. Au marché, votre pseudo s'affiche sur vos ventes ; vos mises restent anonymes. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
     },
     "recipients": {
       "title": "Qui reçoit vos données",
@@ -1062,6 +1062,9 @@
       "bidTooLow": "Votre mise est trop basse : proposez au moins le minimum indiqué.",
       "bidTooHigh": "Votre mise dépasse le prix maximum de cette rareté.",
       "bidOverCoins": "Vous n'avez pas assez de pièces disponibles : celles de vos enchères en tête sont retenues.",
+      "wishOwned": "Vous avez déjà cette carte : elle ne va pas dans votre liste de souhaits.",
+      "wishFull": "Votre liste de souhaits est pleine : retirez-en une carte pour en ajouter une autre.",
+      "wishUnavailable": "Cette carte n'est plus disponible.",
       "server": "L'ouverture n'a pas abouti. Réessayez dans un instant."
     },
     "stats": {
@@ -1074,6 +1077,8 @@
     "todoOffer": "{pseudo} vous propose un échange",
     "todoDuplicates": "{copies, plural, one {# doublon} other {# doublons}} à revendre",
     "todoDuplicatesFor": "pour {coins, plural, one {# pièce} other {# pièces}}",
+    "todoWished": "{count, plural, one {# carte de votre liste est en vente} other {# cartes de votre liste sont en vente}}",
+    "todoWishedWhere": "Au marché, aux enchères",
     "resellTitle": "Revendre",
     "resellAllQuestion": "Revendre {copies, plural, one {votre doublon} other {vos # doublons}} pour {coins, plural, one {# pièce} other {# pièces}} ?",
     "resellHint": "Vous gardez un exemplaire de chaque carte.",
@@ -1103,13 +1108,14 @@
     "lastHint": "Touchez pour voir tout le paquet",
     "legendaryHint": "Celle-ci n'est pas comme les autres…",
     "newCard": "Nouvelle carte !",
+    "wishedCard": "Souhait exaucé !",
     "duplicate": "{copies, plural, =1 {Doublon} other {Doublon · ×#}}",
     "turnCard": "Retourner la carte",
     "nextCard": "Carte suivante",
     "lastCard": "Voir tout le paquet",
     "revealAll": "Tout révéler",
     "rarityBanner": "{rarity} !",
-    "revealed": "{rarity} : {name}{isNew, select, yes {, nouvelle carte} other {}}",
+    "revealed": "{rarity} : {name}{isNew, select, wished {, nouvelle carte, de votre liste de souhaits} yes {, nouvelle carte} other {}}",
     "doneHeading": "Paquet ouvert !",
     "doneSummary": "{new, plural, =0 {Aucune nouvelle carte} one {# nouvelle carte} other {# nouvelles cartes}} · {duplicates, plural, =0 {aucun doublon} one {# doublon} other {# doublons}}{coins, plural, =0 {} one { · +# pièce} other { · +# pièces}}",
     "openNext": "Ouvrir le suivant · {count}",
@@ -1178,9 +1184,35 @@
     "ownedCount": "{count, plural, =0 {aucune possédée} one {# possédée} other {# possédées}}",
     "clear": "Effacer"
   },
+  "Wishlist": {
+    "title": "Ma liste de souhaits",
+    "link": "{count, plural, =0 {Ma liste de souhaits} other {Ma liste de souhaits · #}}",
+    "cards": "{count, plural, =0 {Aucune carte pour l'instant} one {# carte} other {# cartes}}",
+    "count": "{count, plural, =0 {Aucune carte} one {# carte} other {# cartes}} sur {max} au plus",
+    "marketLink": "{count, plural, one {Voir la carte en vente} other {Voir les # cartes en vente}}",
+    "howItWorks": "Comment marche la liste de souhaits ?",
+    "intro": "Touchez le cœur d'une carte qui vous manque, dans votre collection ou sur sa fiche, pour l'ajouter ici ({max} cartes au plus). Quand quelqu'un la met en vente, vous êtes prévenu ; dès que vous l'obtenez, elle quitte la liste.",
+    "introFriends": "Vos amis voient votre liste : quand ils vous proposent un échange, vos souhaits passent en premier.",
+    "empty": "Votre liste est vide. Touchez le cœur d'une carte qui vous manque pour l'ajouter.",
+    "browseMissing": "Voir les cartes qui me manquent",
+    "onSale": "{count, plural, one {En vente} other {# ventes}} dès {price, plural, one {# pièce} other {# pièces}}",
+    "friends": "{count, plural, one {Un ami l'a :} other {# amis l'ont :}}",
+    "askFriend": "Proposer un échange à {pseudo} pour {name}",
+    "otherFriends": "{count, plural, one {et # autre} other {et # autres}}",
+    "nowhere": "Ni en vente ni chez vos amis pour l'instant.",
+    "button": {
+      "tile": "{name} dans ma liste de souhaits",
+      "add": "Ajouter à ma liste de souhaits",
+      "remove": "Retirer de ma liste de souhaits",
+      "dock": "Souhaiter",
+      "added": "Ajoutée à votre liste de souhaits.",
+      "removed": "Retirée de votre liste de souhaits.",
+      "failed": "La liste de souhaits n'a pas pu changer. Réessayez dans un instant."
+    }
+  },
   "Friends": {
     "title": "Amis",
-    "intro": "Vos amis voient votre collection, et vous la leur.",
+    "intro": "Vos amis voient votre collection et votre liste de souhaits, et vous les leurs.",
     "addHeading": "Ajouter un ami",
     "pseudo": "Pseudo",
     "pseudoHint": "Le pseudo exact du joueur, tel qu'il apparaît au classement.",
@@ -1245,6 +1277,7 @@
     "title": "Collection de {pseudo}",
     "back": "Mes amis",
     "proposeTrade": "Proposer un échange",
+    "wishes": "{count, plural, one {Une carte de la liste de souhaits de {pseudo} est dans votre collection : <link>proposez-la-lui</link>.} other {# cartes de la liste de souhaits de {pseudo} sont dans votre collection : <link>proposez-les-lui</link>.}}",
     "progress": "Cartes différentes",
     "badges": "{count, plural, one {Le badge de {pseudo}} other {Les # badges de {pseudo}}}",
     "tabs": {
@@ -1309,6 +1342,8 @@
       "onlyMissing": "Celles qui me manquent seulement",
       "copies": "{count, plural, one {# exemplaire} other {# exemplaires}}",
       "lastCopy": "votre dernier exemplaire",
+      "theyWish": "{pseudo} la souhaite",
+      "youWish": "dans votre liste de souhaits",
       "add": "Ajouter : {name}",
       "remove": "Retirer : {name}",
       "selected": "{count, plural, =0 {Aucune carte choisie} one {# carte choisie} other {# cartes choisies}} sur {max}",
@@ -1387,6 +1422,7 @@
     "auction_sold": "Votre vente de {card} est conclue.",
     "auction_unsold": "Votre vente de {card} s'est terminée sans enchère.",
     "auction_cancelled": "La vente de {card} a été annulée.",
+    "auction_wished": "{card}, de votre liste de souhaits, est en vente au marché.",
     "packs_full": "Votre réserve est pleine : vos paquets gratuits vous attendent. Ouvrez-en un pour relancer le minuteur.",
     "streak_reminder": "Votre série de {days, plural, one {# jour} other {# jours}} s'arrête à minuit : ouvrez un paquet pour la garder."
   },
@@ -1448,6 +1484,7 @@
     "collectionSeries": "Chaque carte appartient à une ou plusieurs séries : sa région, sa famille de monuments, le patrimoine mondial ou le patrimoine en péril.",
     "collectionMissing": "Les cartes qui vous manquent restent visibles, grisées : leur nom et leur rareté seulement, la photo se découvre en l'obtenant.",
     "collectionDuplicates": "Une carte obtenue plusieurs fois compte autant d'exemplaires : ce sont vos doublons.",
+    "collectionWishlist": "Touchez le cœur d'une carte qui vous manque pour l'ajouter à votre liste de souhaits, {max} cartes au plus. Vous êtes prévenu quand l'une d'elles est mise en vente, et elle quitte la liste dès que vous l'obtenez. Vos amis voient votre liste, pour vous proposer le bon échange.",
     "coinsHeading": "Les pièces",
     "coinsIntro": "{opening, plural, =0 {Vous gagnez des pièces} one {Chaque paquet ouvert vous rapporte # pièce. Vous en gagnez aussi} other {Chaque paquet ouvert vous rapporte # pièces. Vous en gagnez aussi}} en revendant vos doublons (vous gardez toujours un exemplaire de chaque carte) et en obtenant des succès. Un doublon rapporte selon sa rareté :",
     "resaleCaption": "Pièces par doublon revendu",
@@ -1459,7 +1496,7 @@
     "achievement": "Succès",
     "reward": "Récompense",
     "tradesHeading": "Amis et échanges",
-    "tradesFriends": "Ajoutez des amis par leur pseudo, sur la page <friends>Amis</friends> : vos amis voient votre collection, et vous la leur.",
+    "tradesFriends": "Ajoutez des amis par leur pseudo, sur la page <friends>Amis</friends> : vos amis voient votre collection et votre liste de souhaits, et vous les leurs.",
     "tradesHow": "Entre amis, vous échangez des cartes gratuitement, jusqu'à {max} cartes de chaque côté. Toute carte s'échange, même votre dernier exemplaire.",
     "tradesReserved": "Les cartes que vous proposez sont réservées jusqu'à la réponse de votre ami, {hours} heures au plus : vous ne pouvez ni les revendre, ni les proposer ailleurs. Un échange accepté est définitif.",
     "auctionsHeading": "Les enchères",
@@ -1502,6 +1539,7 @@
       "price": "Prix le plus bas"
     },
     "missingOnly": "Il me manque",
+    "wishedOnly": "Ma liste de souhaits",
     "filtersLabel": "Filtres",
     "cardFilter": "Les ventes de {name}",
     "allCards": "Voir toutes les ventes",

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ArrowLeftRight, Check, ChevronDown, ChevronRight, Coins, Layers, PackageOpen, Trophy } from 'lucide-react';
+import { ArrowLeftRight, Check, ChevronDown, ChevronRight, Coins, Heart, Layers, PackageOpen, Trophy } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -17,6 +17,7 @@ import { listAchievements } from '@/lib/game/achievements';
 import { coinBalance, duplicatesValue } from '@/lib/game/coins';
 import { collectionCounts, seriesProgress, type SeriesProgress } from '@/lib/game/collection';
 import { playerRank } from '@/lib/game/leaderboard';
+import { wishesOnSale } from '@/lib/game/market';
 import { getReserve } from '@/lib/game/packs';
 import { getStreak } from '@/lib/game/streaks';
 import { gamePath } from '@/lib/game/paths';
@@ -74,6 +75,7 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
     rank,
     offer,
     unread,
+    wishedOnSale,
   ] = await Promise.all([
       getTranslations('Game'),
       getTranslations('Nav'),
@@ -92,6 +94,7 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       playerRank(collection.id, user.id),
       nextReceivedOffer(user.id, collection.id, now),
       unreadCount(user.id),
+      wishesOnSale(user.id, collection.id, now),
     ]);
   const number = (value: number) => format.number(value);
   const percent = (owned: number, total: number) =>
@@ -200,7 +203,7 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
         </li>
       </ul>
 
-      {(offer || duplicates.copies > 0 || nearest) && (
+      {(offer || wishedOnSale > 0 || duplicates.copies > 0 || nearest) && (
         <section className={`${phone.section} phone-only`} aria-labelledby="todo-heading">
           <h2 id="todo-heading">{t('todo')}</h2>
           <ul className={phone.rows}>
@@ -216,6 +219,20 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
                       {tTrades('summary', { give: cardsCount(offer.gives), get: cardsCount(offer.gets) })} ·{' '}
                       {tTrades('expiresIn', { when: format.relativeTime(offer.expiresAt, now) })}
                     </span>
+                  </span>
+                  <ChevronRight aria-hidden className={phone.chevron} />
+                </Link>
+              </li>
+            )}
+            {wishedOnSale > 0 && (
+              <li>
+                <Link href={paths.marketWished} className={phone.row}>
+                  <span className={phone.disc} data-tone="accent" aria-hidden="true">
+                    <Heart />
+                  </span>
+                  <span className={phone.rowText}>
+                    <span className={phone.rowTitle}>{t('todoWished', { count: wishedOnSale })}</span>
+                    <span className={phone.rowMeta}>{t('todoWishedWhere')}</span>
                   </span>
                   <ChevronRight aria-hidden className={phone.chevron} />
                 </Link>

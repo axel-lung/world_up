@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, isNull, ne, or, sql, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, isNull, ne, or, sql, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { db } from '@/db';
 import { auctions, bids, cards, userCards, users } from '@/db/schema';
@@ -104,6 +104,8 @@ export interface MarketFilters {
   seriesId?: number | null;
   /** Only the cards the viewer doesn't own. */
   missing?: boolean;
+  /** Only the cards on the viewer's wishlist. */
+  wished?: boolean;
   cardId?: number | null;
   sort: MarketSort;
   /** How many pages, from the first. */
@@ -123,6 +125,9 @@ function marketConditions(filters: MarketFilters): (SQL | undefined)[] {
       : undefined,
     filters.missing
       ? sql`NOT EXISTS (SELECT 1 FROM user_cards AS mine WHERE mine.card_id = ${auctions.cardId} AND mine.user_id = ${filters.viewerId})`
+      : undefined,
+    filters.wished
+      ? sql`EXISTS (SELECT 1 FROM wishlist_items AS wish WHERE wish.card_id = ${auctions.cardId} AND wish.user_id = ${filters.viewerId})`
       : undefined,
   ];
 }
@@ -209,6 +214,44 @@ export async function liveAuctionsOfCard(cardId: number, now: Date): Promise<num
     .select({ total: count() })
     .from(auctions)
     .where(and(eq(auctions.cardId, cardId), isLive(now)));
+  return total;
+}
+
+/** Others' running auctions of each of these cards: how many, and the lowest current price (the wishlist). */
+export async function auctionsOfCards(
+  cardIds: number[],
+  viewerId: string,
+  now: Date,
+): Promise<Map<number, { count: number; lowestPrice: number }>> {
+  if (cardIds.length === 0) return new Map();
+  const rows = await db
+    .select({
+      cardId: auctions.cardId,
+      count: sql<number>`count(*)::int`,
+      lowestPrice: sql<number>`min(${auctions.currentPrice})::int`,
+    })
+    .from(auctions)
+    .where(and(inArray(auctions.cardId, cardIds), isLive(now), ne(auctions.sellerId, viewerId)))
+    .groupBy(auctions.cardId);
+  return new Map(rows.map(({ cardId, ...sale }) => [cardId, sale]));
+}
+
+/** How many cards of the player's wishlist others have up for auction (the home's "À faire"). */
+export async function wishesOnSale(userId: string, collectionId: number, now: Date): Promise<number> {
+  const [{ total }] = await db
+    .select({ total: sql<number>`count(DISTINCT ${auctions.cardId})::int` })
+    .from(auctions)
+    .innerJoin(cards, eq(cards.id, auctions.cardId))
+    .where(
+      and(
+        eq(auctions.collectionId, collectionId),
+        isLive(now),
+        isNull(cards.hiddenReason),
+        ne(auctions.sellerId, userId),
+        sql`EXISTS (SELECT 1 FROM wishlist_items AS wish WHERE wish.card_id = ${auctions.cardId} AND wish.user_id = ${userId})`,
+        sql`NOT EXISTS (SELECT 1 FROM user_cards AS mine WHERE mine.card_id = ${auctions.cardId} AND mine.user_id = ${userId})`,
+      ),
+    );
   return total;
 }
 

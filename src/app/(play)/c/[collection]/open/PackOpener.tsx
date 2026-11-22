@@ -1,6 +1,6 @@
 'use client';
 
-import { Layers, Package, PackageOpen, Scissors, Trophy, X } from 'lucide-react';
+import { Heart, Layers, Package, PackageOpen, Scissors, Trophy, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/card/Card';
@@ -312,9 +312,11 @@ export function PackOpener({
     ? ''
     : !revealed
       ? t('counter', { current: index + 1, count })
-      : top.isNew
-        ? t('newCard')
-        : t('duplicate', { copies: top.card.copies });
+      : top.wished
+        ? t('wishedCard')
+        : top.isNew
+          ? t('newCard')
+          : t('duplicate', { copies: top.card.copies });
   const hint = !top
     ? ''
     : !revealed
@@ -545,7 +547,11 @@ export function PackOpener({
 
           {(phase === 'burst' || phase === 'reveal') && (
             <>
-              <p className={styles.status}>{status}</p>
+              <p className={styles.status}>
+                {/* A card that was on the wishlist */}
+                {shown?.wished && <Heart aria-hidden className={styles.wishedHeart} />}
+                {status}
+              </p>
               <div className={styles.dots} aria-hidden="true">
                 {Array.from({ length: count }, (_, i) => (
                   <span key={i} data-current={(phase === 'reveal' && i === index) || undefined} data-seen={(phase === 'reveal' && i <= index) || undefined} />
@@ -608,7 +614,7 @@ export function PackOpener({
             ? t('revealed', {
                 rarity: tRarity(shown.card.data.rarity),
                 name: displayName(shown.card.data.name),
-                isNew: shown.isNew ? 'yes' : 'no',
+                isNew: shown.wished ? 'wished' : shown.isNew ? 'yes' : 'no',
               })
             : ''}
         </p>

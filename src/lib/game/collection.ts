@@ -146,11 +146,27 @@ export async function ownedNeighbours(
   return { position: card.n, total: card.total, previous: slugAt(before), next: slugAt(after) };
 }
 
-/** A tab's first `pages` pages: by rank, or by number within the series when filtering on one. */
+/**
+ * A tab's first `pages` pages: by rank, or by number within the series when
+ * filtering on one. Each card says whether the player looking (the viewer on a
+ * friend's collection) wishes for it, and on a friend's whether the viewer owns it.
+ */
 export async function listCollectionCards(filters: CollectionFilters & { tab: CollectionTab; pages: number }) {
   const where = and(...filterConditions(filters), tabCondition(filters.tab, filters.viewerId));
+  const looking = filters.viewerId ?? filters.userId;
   const query = db
-    .select({ ...cardColumns, quantity: userCards.quantity })
+    .select({
+      ...cardColumns,
+      quantity: userCards.quantity,
+      wished: sql<boolean>`EXISTS (
+        SELECT 1 FROM wishlist_items AS wish WHERE wish.card_id = "cards"."id" AND wish.user_id = ${looking}
+      )`,
+      viewerOwns: filters.viewerId
+        ? sql<boolean | null>`EXISTS (
+            SELECT 1 FROM user_cards AS mine WHERE mine.card_id = "cards"."id" AND mine.user_id = ${filters.viewerId}
+          )`
+        : sql<boolean | null>`NULL::boolean`,
+    })
     .from(cards)
     .leftJoin(userCards, owned(filters.userId));
   const ordered = filters.seriesId
@@ -171,6 +187,11 @@ export interface CollectionCard {
   state: 'owned' | 'missing';
   copies: number;
   data: CardData;
+  /**
+   * The wishlist's heart: whether the player looking wishes for the card; null
+   * when they own it (their own owned cards, a friend's card they have too).
+   */
+  wish: boolean | null;
 }
 
 export interface LicenseLabels {
@@ -196,6 +217,7 @@ export function toCollectionCard(
       href: null,
       state: 'missing',
       copies,
+      wish: null,
       data: {
         name: row.name,
         rarity: row.rarity,
@@ -213,14 +235,20 @@ export function toCollectionCard(
     href: cardPath(collectionSlug, row.slug),
     state: 'owned',
     copies,
+    wish: null,
     data: toCardData({ ...row, photoImage: row.photoImage! }, printed, photoLicenseLabel(row.photoLicense, labels)),
   };
 }
 
-/** The rows as grid cards, with the series printed on each. */
+/** The rows as grid cards, with the series printed on each and the wishlist's heart where it belongs. */
 export async function toCollectionCards(rows: CollectionRow[], collectionSlug: string, labels: LicenseLabels) {
   const printed = await printedSeries(rows.map((row) => row.id));
-  return rows.map((row) => toCollectionCard(row, printed.get(row.id) ?? null, collectionSlug, labels));
+  return rows.map((row): CollectionCard => {
+    const card = toCollectionCard(row, printed.get(row.id) ?? null, collectionSlug, labels);
+    // The player's own collection: on the cards they lack; a friend's: on the cards the viewer lacks
+    const lacking = row.viewerOwns === null ? card.state === 'missing' : !row.viewerOwns;
+    return { ...card, wish: lacking ? row.wished : null };
+  });
 }
 
 export interface SeriesProgress {
@@ -273,9 +301,11 @@ export async function openingCards(userId: string, openingId: number, collection
     .where(inArray(cards.id, drawn.map((card) => card.cardId)));
   const byId = new Map(rows.map((row) => [row.id, row]));
   const printed = await printedSeries(rows.map((row) => row.id));
-  return drawn.map(({ position, isNew, cardId, quantity }) => ({
+  return drawn.map(({ position, isNew, wished, cardId, quantity }) => ({
     position,
     isNew,
+    /** The card was on the player's wishlist. */
+    wished,
     card: toCollectionCard({ ...byId.get(cardId)!, quantity: quantity ?? 1 }, printed.get(cardId) ?? null, collectionSlug, labels),
   }));
 }

@@ -7,3 +7,21 @@
   padding: 0;
   list-style: none;
 }
+
+/* The cards they wish for that the viewer owns, leading to an offer */
+.wishes {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.wishes svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  color: var(--color-accent);
+  fill: currentColor;
+}

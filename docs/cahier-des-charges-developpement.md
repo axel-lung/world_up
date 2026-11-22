@@ -197,8 +197,9 @@ Les tables de jeu portent un `collection_id` dès la version 1, pour accueillir 
 | `cards` | identifiant Wikidata, nom, rareté, rang, région, département, famille, protection, UNESCO, extrait, URL de l'article, image, auteur, licence, URL de la licence, URL du fichier Commons, masquée, motif | La rareté est figée au lancement |
 | `series`, `card_series` | type (région, famille, UNESCO, péril), nom ; numéro de la carte dans la série | Une carte appartient à plusieurs séries |
 | `pack_state` | joueur, collection, paquets en réserve, dernière recharge ; série de jours (jours, dernier jour, jour pardonné, jours réparés, série remplacée le jour de sa rupture), rappel du soir (activé, dernier jour examiné) | Recharge et série calculées à la lecture |
-| `pack_openings`, `pack_cards` | joueur, origine (gratuit, abonnement, bonus, achat), date, achat lié ; carte, position, nouvelle, brillante | Historique complet des tirages |
+| `pack_openings`, `pack_cards` | joueur, origine (gratuit, abonnement, bonus, achat), date, achat lié ; carte, position, nouvelle, souhaitée, brillante | Historique complet des tirages |
 | `user_cards` | joueur, carte, quantité, première obtention | Une ligne par carte possédée |
+| `wishlist_items` | joueur, collection, carte, date d'ajout | La liste de souhaits ; une carte obtenue en sort |
 | `coin_ledger` | joueur, montant (+/-), motif, référence, date | Registre jamais modifié ; solde = somme |
 | `rarity_odds` | collection, rareté, probabilité, valable à partir du | Historique publié sur la page Probabilités |
 | `subscriptions` | joueur, identifiant Stripe, statut, fin de période, résiliation demandée | Mise à jour par les webhooks Stripe |
@@ -279,6 +280,14 @@ Toute la logique de jeu s'exécute sur le serveur : le navigateur affiche, il ne
 - Badges (décidés le 22/11/2026) : chaque succès obtenu donne un badge, un autocollant à l'icône de son type et à la couleur de son palier (son rang parmi les succès de son type, posé sur l'échelle des raretés). Le profil les montre tous, la collection d'un ami montre les siens, et le joueur en choisit un qui s'affiche à côté de son pseudo (classement, amis).
 - Historique des ouvertures (décidé le 22/11/2026) : la page Paquets mène à la liste des paquets ouverts par le joueur, par jour, les plus récents d'abord, avec leurs cartes dans l'ordre de révélation et les nouvelles marquées. L'export des données du compte les contient tous.
 
+**Liste de souhaits** (décidée le 22/11/2026)
+
+- Le joueur ajoute à sa liste une carte visible qu'il n'a pas, d'un cœur posé sur la carte (sa collection, la collection d'un ami, la fiche de la carte) ; 100 cartes au plus par collection, une limite anti-abus du code comme celles des amis.
+- Une carte obtenue quitte la liste, dans la transaction qui l'apporte (paquet, échange, enchère) ; l'ouverture d'un paquet annonce « Souhait exaucé ! ».
+- La page de la liste (`/c/heritage/wishlist`) dit où trouver chaque carte : les ventes en cours et leur prix le plus bas, les amis qui l'ont (un lien propose l'échange). Le marché a un filtre « Ma liste de souhaits », l'accueil compte les cartes de la liste en vente.
+- La mise en vente d'une carte prévient les joueurs qui la souhaitent (ni le vendeur, ni un joueur banni), une fois par jour et par carte au plus.
+- Les amis voient la liste l'un de l'autre : la collection d'un ami compte ses souhaits que l'on possède, et la composition d'un échange place en premier, d'un cœur, les cartes que l'autre côté souhaite. La politique de confidentialité le dit ; l'export du compte contient la liste.
+
 **Anti-abus**
 
 - Limite de débit sur l'inscription, la connexion et l'ouverture de paquets.
@@ -320,7 +329,7 @@ Avancé de la version 2 le 22 octobre 2026, avant les paiements. Les règles chi
 
 **Notifications**
 
-- Demande d'ami, ami accepté, offre reçue, acceptée, refusée ou expirée, mise dépassée, vente gagnée, conclue, invendue ou annulée ; réserve de paquets gratuits de nouveau pleine (ajoutée le 17 novembre 2026), une fois par remplissage après une ouverture.
+- Demande d'ami, ami accepté, offre reçue, acceptée, refusée ou expirée, mise dépassée, vente gagnée, conclue, invendue ou annulée ; réserve de paquets gratuits de nouveau pleine (ajoutée le 17 novembre 2026), une fois par remplissage après une ouverture ; carte de la liste de souhaits mise en vente (ajoutée le 22 novembre 2026).
 - Écrites dans la transaction de l'événement ; une cloche dans l'en-tête compte les non-lues, `/activity` montre les 50 dernières. Effacées au bout de 90 jours.
 - En push web dans un second temps, sur l'appareil où le joueur l'active (page Activité) ; se déconnecter les y coupe. Dans l'application Android, elles passent par Firebase Cloud Messaging, qui en voit le texte : la politique de confidentialité le dit. Depuis le 19 novembre 2026, elles n'arrivent que dans l'application (le push web reste dans le code, éteint), et l'application propose de les activer au joueur qui ne les reçoit pas, une fois après chaque connexion et après chaque mise à jour de l'application.
 
@@ -391,6 +400,7 @@ La première version (`Design system World Up.dc.html`, socle Nocturne) est remp
 | `/c/heritage/open` | Ouverture de paquet | Connecté |
 | `/c/heritage/packs`, `/c/heritage/packs/history` | Réserve et probabilités, historique des ouvertures | Connecté |
 | `/c/heritage/collection` | Collection et filtres | Connecté |
+| `/c/heritage/wishlist` | Liste de souhaits | Connecté |
 | `/c/heritage/series/[slug]` | Série | Connecté |
 | `/c/heritage/cards/[slug]` | Fiche carte | Public, référencée par Google |
 | `/c/heritage/friends/[pseudo]` | Collection d'un ami | Amis seulement |

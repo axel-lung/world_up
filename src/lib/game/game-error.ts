@@ -23,7 +23,10 @@ export type GameErrorCode =
   | 'ownAuction'
   | 'bidTooLow'
   | 'bidTooHigh'
-  | 'bidOverCoins';
+  | 'bidOverCoins'
+  | 'wishOwned'
+  | 'wishFull'
+  | 'wishUnavailable';
 
 export class GameError extends Error {
   constructor(readonly code: GameErrorCode) {

@@ -72,6 +72,8 @@ export interface CardProps {
    * the card leans in under the pointer. Never on a missing card.
    */
   href?: string;
+  /** A control over the photo's top-left corner, above the card's link: the wishlist's heart. */
+  action?: ReactNode;
 }
 
 /**
@@ -109,6 +111,7 @@ export function Card({
   sizes,
   priority = false,
   href: hrefProp,
+  action,
 }: CardProps) {
   const t = useTranslations('Card');
   const tRarity = useTranslations('Rarity');
@@ -238,6 +241,7 @@ export function Card({
                   </span>
                 </button>
               )}
+              {action && <div className={styles.action}>{action}</div>}
               {showCredit && !large && (
                 <div className={styles.creditOverlay}>
                   {t.rich('photoOverlay', { author, license: card.photo.license, licenseLink, link: commonsLink })}

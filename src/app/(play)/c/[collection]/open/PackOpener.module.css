@@ -839,6 +839,15 @@
   font-weight: 600;
 }
 
+.wishedHeart {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: -3px;
+  color: var(--color-accent-400);
+  fill: currentColor;
+}
+
 /* One dot a card: the one on top is long, those seen are lit */
 .dots {
   display: flex;

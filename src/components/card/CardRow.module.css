@@ -192,6 +192,14 @@
 }
 
 /* The row's link, as a chevron: on a phone only */
+/* Above the row's link, which covers it */
+.action {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  margin: -8px -4px;
+}
+
 .chevron {
   flex: none;
   width: 18px;

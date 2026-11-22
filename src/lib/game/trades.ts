@@ -449,20 +449,27 @@ export interface TradeableCard {
   quantity: number;
   /** Whether the viewer already owns the card (the friend's side). */
   viewerOwns: boolean;
+  /** Whether the other side of the offer has the card on their wishlist. */
+  wished: boolean;
 }
 
 /**
- * The visible cards a player can put in an offer, rarest first, with the
- * copies they can still promise. With `viewerId`, whether the viewer owns each.
+ * The visible cards a player can put in an offer, with the copies they can
+ * still promise: those `wisherId` (the other side) wishes for first, then the
+ * rarest. With `viewerId`, whether the viewer owns each.
  */
 export async function tradeableCards(
   ownerId: string,
   collectionId: number,
   now: Date,
   viewerId?: string,
+  wisherId?: string,
 ): Promise<TradeableCard[]> {
   const viewerOwns = viewerId
     ? sql<boolean>`EXISTS (SELECT 1 FROM user_cards AS mine WHERE mine.card_id = ${cards.id} AND mine.user_id = ${viewerId})`
+    : sql<boolean>`false`;
+  const wished = wisherId
+    ? sql<boolean>`EXISTS (SELECT 1 FROM wishlist_items AS wish WHERE wish.card_id = ${cards.id} AND wish.user_id = ${wisherId})`
     : sql<boolean>`false`;
   const [rows, reserved] = await Promise.all([
     db
@@ -473,6 +480,7 @@ export async function tradeableCards(
         region: cards.region,
         quantity: userCards.quantity,
         viewerOwns,
+        wished,
       })
       .from(userCards)
       .innerJoin(cards, eq(cards.id, userCards.cardId))
@@ -482,7 +490,8 @@ export async function tradeableCards(
   ]);
   return rows
     .map((row) => ({ ...row, available: row.quantity - (reserved.get(row.id) ?? 0) }))
-    .filter((row) => row.available > 0);
+    .filter((row) => row.available > 0)
+    .sort((a, b) => Number(b.wished) - Number(a.wished));
 }
 
 /** The player's trades, for the account export. */

@@ -141,6 +141,13 @@
       "when": 1795307441388,
       "tag": "0019_streak_repair_badges_announcements",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1795350246731,
+      "tag": "0020_wishlist",
+      "breakpoints": true
     }
   ]
 }

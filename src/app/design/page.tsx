@@ -43,6 +43,7 @@ import { EffectsSwitch, EffectsToggle } from '@/components/ui/EffectsSwitch';
 import { Gauge } from '@/components/ui/Gauge';
 import { Sheet } from '@/components/ui/Sheet';
 import { Tag } from '@/components/ui/Tag';
+import { WishButton } from '@/components/wishlist/WishButton';
 import { parisDay, streakView } from '@/lib/game/streak';
 import { RARITIES } from '@/lib/rarity';
 import { InteractiveDemo } from './InteractiveDemo';
@@ -841,6 +842,24 @@ export default function DesignPage() {
                   <Card card={samples.chambord} collection={heritage} state="missing" />
                   <figcaption>Manquante, Légendaire</figcaption>
                 </figure>
+                <figure>
+                  <Card
+                    card={samples.horloge}
+                    collection={heritage}
+                    state="missing"
+                    action={<WishButton collection="design" cardId={1} name={samples.horloge.name} wished={false} />}
+                  />
+                  <figcaption>Manquante, à souhaiter</figcaption>
+                </figure>
+                <figure>
+                  <Card
+                    card={samples.chambord}
+                    collection={heritage}
+                    state="missing"
+                    action={<WishButton collection="design" cardId={2} name={samples.chambord.name} wished />}
+                  />
+                  <figcaption>Manquante, souhaitée</figcaption>
+                </figure>
               </div>
             </div>
           ))}
@@ -851,6 +870,8 @@ export default function DesignPage() {
           La vue dense de la collection, au choix du joueur (Grille ou Liste) : vignette encadrée à la couleur de la
           rareté, nom, étiquette de rareté, lieu, crédit photo sur une ligne (un auteur trop long est abrégé, jamais la
           licence) et exemplaires. Toute la ligne ouvre la fiche ; une carte manquante n&apos;a que son nom et sa rareté.
+          Une carte manquante porte le cœur de la liste de souhaits (sur la grille aussi), et la fiche d&apos;une carte
+          manquante en fait un bouton. Ici, sans collection, le cœur montre le message d&apos;un refus.
         </p>
         <div className={styles.themes}>
           {THEMES.map(({ theme, label }) => (
@@ -874,7 +895,18 @@ export default function DesignPage() {
                 <li>
                   <CardRow card={samples.chambord} state="missing" />
                 </li>
+                <li>
+                  <CardRow
+                    card={samples.chambord}
+                    state="missing"
+                    action={<WishButton collection="design" cardId={2} name={samples.chambord.name} wished />}
+                  />
+                </li>
               </ul>
+              <div className={styles.row}>
+                <WishButton collection="design" cardId={1} name={samples.horloge.name} wished={false} variant="button" />
+                <WishButton collection="design" cardId={2} name={samples.chambord.name} wished variant="button" />
+              </div>
             </div>
           ))}
         </div>

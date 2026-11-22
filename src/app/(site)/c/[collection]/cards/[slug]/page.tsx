@@ -11,6 +11,7 @@ import { RarityBadge } from '@/components/rarity/Rarity';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
 import { Tag } from '@/components/ui/Tag';
+import { WishButton } from '@/components/wishlist/WishButton';
 import { db } from '@/db';
 import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { articleUrl, cardImageUrl, cardPath, commonsFileUrl, getVisibleCard, type VisibleCard } from '@/lib/catalog/cards';
@@ -19,6 +20,7 @@ import { type CardNeighbours, getSeries, ownedCopies, ownedNeighbours } from '@/
 import { liveAuctionsOfCard, sellableCopies } from '@/lib/game/market';
 import { gamePath } from '@/lib/game/paths';
 import { getResaleValues } from '@/lib/game/rules';
+import { isWished } from '@/lib/game/wishlist';
 import { getSession } from '@/lib/session';
 import { listFriends } from '@/lib/social/friends';
 import phone from '../../../../phone.module.css';
@@ -100,7 +102,7 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
   // The signed-in player's copies, what one duplicate resells for, the copies
   // they can put up for auction and the auctions running for the card
   const now = new Date();
-  const [copies, resale, sellable, auctions, from, friends] = session
+  const [copies, resale, sellable, auctions, from, friends, wished] = session
     ? await Promise.all([
         ownedCopies(session.user.id, card.id),
         getResaleValues(db, card.collectionId),
@@ -108,8 +110,9 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
         liveAuctionsOfCard(card.id, now),
         origin(query.from, card, collection, session.user.id),
         listFriends(session.user.id),
+        isWished(session.user.id, card.id),
       ])
-    : [0, null, 0, 0, null, []];
+    : [0, null, 0, 0, null, [], false];
   const paths = gamePath(collection);
   // The page with the list it was opened from, which the arrows and the resale keep
   const page = cardPath(collection, card.slug);
@@ -214,6 +217,11 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
             <h2 id="owned-heading">{t('ownedHeading')}</h2>
             <ResaleNotice outcome={parseResaleParams(query)} />
             <p>{copies > 0 ? t('owned', { count: copies }) : t('notOwned')}</p>
+            {copies === 0 && (
+              <div className={styles.actions}>
+                <WishButton collection={collection} cardId={card.id} name={card.name} wished={wished} variant="button" />
+              </div>
+            )}
             {copies > 1 && resale && (
               <form action={resellAction} className={styles.actions}>
                 <input type="hidden" name="collection" value={collection} />
@@ -304,35 +312,47 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
 
       {session && (
         <div className={`${styles.dock} phone-only`}>
-          <Sheet
-            title={t('resellTitle')}
-            closeOnSubmit
-            trigger={{
-              className: styles.action,
-              disabled: copies < 2 || !resale,
-              content: (
-                <>
-                  <Coins aria-hidden />
-                  {t('dockResell', { coins: resale ? resale[card.rarity] : 0 })}
-                </>
-              ),
-            }}
-          >
-            {copies > 1 && resale && (
-              <form action={resellAction} className={styles.sheetForm}>
-                <p>{t('resellQuestion', { name, coins: resale[card.rarity] })}</p>
-                <p className={phone.muted}>{t('resellKeep')}</p>
-                <input type="hidden" name="collection" value={collection} />
-                <input type="hidden" name="cardId" value={card.id} />
-                {/* A new key each time the page renders: sending the form twice sells once */}
-                <input type="hidden" name="key" value={randomUUID()} />
-                <input type="hidden" name="back" value={within(card.slug)} />
-                <Button type="submit" variant="primary" size="large" block icon={<Coins aria-hidden />}>
-                  {t('resellOne', { coins: resale[card.rarity] })}
-                </Button>
-              </form>
-            )}
-          </Sheet>
+          {copies === 0 ? (
+            // Nothing to resell: the card goes on the wishlist instead
+            <WishButton
+              collection={collection}
+              cardId={card.id}
+              name={card.name}
+              wished={wished}
+              variant="dock"
+              className={styles.action}
+            />
+          ) : (
+            <Sheet
+              title={t('resellTitle')}
+              closeOnSubmit
+              trigger={{
+                className: styles.action,
+                disabled: copies < 2 || !resale,
+                content: (
+                  <>
+                    <Coins aria-hidden />
+                    {t('dockResell', { coins: resale ? resale[card.rarity] : 0 })}
+                  </>
+                ),
+              }}
+            >
+              {copies > 1 && resale && (
+                <form action={resellAction} className={styles.sheetForm}>
+                  <p>{t('resellQuestion', { name, coins: resale[card.rarity] })}</p>
+                  <p className={phone.muted}>{t('resellKeep')}</p>
+                  <input type="hidden" name="collection" value={collection} />
+                  <input type="hidden" name="cardId" value={card.id} />
+                  {/* A new key each time the page renders: sending the form twice sells once */}
+                  <input type="hidden" name="key" value={randomUUID()} />
+                  <input type="hidden" name="back" value={within(card.slug)} />
+                  <Button type="submit" variant="primary" size="large" block icon={<Coins aria-hidden />}>
+                    {t('resellOne', { coins: resale[card.rarity] })}
+                  </Button>
+                </form>
+              )}
+            </Sheet>
+          )}
           <Link href={sellable > 0 ? paths.sell(card.slug) : paths.marketOfCard(card.slug)} className={styles.action}>
             <Gavel aria-hidden />
             {t('dockAuctions')}

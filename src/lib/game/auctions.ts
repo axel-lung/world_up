@@ -9,6 +9,7 @@ import { GameError } from './game-error';
 import { heldCoins, reservedCopies } from './holds';
 import { getMarketPrices, getMarketRules } from './rules';
 import { lockCopies, moveCard, ownerKey } from './transfer';
+import { notifyWishers } from './wishlist';
 
 // The auction house: any player sells a card for coins, any other bids on it
 // (src/lib/game/bidding.ts has the mechanism). The card stays the seller's but
@@ -64,7 +65,7 @@ export function sellerShare(price: number, feePercent: number): { fee: number; s
 /**
  * Puts one copy of a card up for auction. The copy is reserved at once: it
  * can't be resold, offered or sold twice. The same form sent twice (same key)
- * creates one auction.
+ * creates one auction. The players who wish for the card are told.
  */
 export async function createAuction(
   database: Database,
@@ -123,6 +124,7 @@ export async function createAuction(
         endsAt: new Date(now.getTime() + durationHours * 60 * 60 * 1000),
       })
       .returning({ id: auctions.id });
+    await notifyWishers(tx, { id: auction.id, collectionId, cardId, sellerId: userId }, now);
     return { auctionId: auction.id, repeated: false };
   });
 }

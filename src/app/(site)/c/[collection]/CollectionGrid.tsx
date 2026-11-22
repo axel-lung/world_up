@@ -10,6 +10,7 @@ import { CardRow } from '@/components/card/CardRow';
 import { RarityDot } from '@/components/rarity/Rarity';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
+import { WishButton } from '@/components/wishlist/WishButton';
 import type { Emblem } from '@/lib/collection-theme';
 import { collectionView, isPhoneRequest } from '@/lib/collection-view';
 import { duplicatesValue } from '@/lib/game/coins';
@@ -62,7 +63,8 @@ interface FilterOption {
  * player's choice, ViewSwitch), then "Voir plus". Links keep the filters in
  * the address, so every view can be bookmarked and works without JavaScript.
  * A phone gets the tabs, the rarity and the series as three menus instead,
- * each opening a sheet of choices, so that nothing scrolls sideways.
+ * each opening a sheet of choices, so that nothing scrolls sideways. A card the
+ * player looking lacks wears the wishlist's heart.
  */
 export async function CollectionGrid({
   collection,
@@ -136,6 +138,11 @@ export async function CollectionGrid({
   // the card's page goes from card to card of it, and back to it
   const list = link({ page: filters.page });
   const cardHref = (href: string | null) => (href && !viewerId ? `${href}?from=${encodeURIComponent(list)}` : (href ?? undefined));
+  // The wishlist's heart, on the cards the player looking lacks
+  const wishButton = (card: (typeof cards)[number]) =>
+    card.wish === null ? undefined : (
+      <WishButton collection={collection.slug} cardId={card.id} name={card.data.name} wished={card.wish} />
+    );
 
   // A phone's filter: a menu showing its choice, opening a sheet of choices
   const menu = (title: string, choice: string | null, options: FilterOption[]) => (
@@ -325,6 +332,7 @@ export async function CollectionGrid({
                   copies={card.copies}
                   href={cardHref(card.href)}
                   emblem={collection.emblem}
+                  action={wishButton(card)}
                 />
               ) : (
                 <Card
@@ -334,6 +342,7 @@ export async function CollectionGrid({
                   copies={card.copies}
                   href={cardHref(card.href)}
                   sizes="(max-width: 520px) calc(50vw - 20px), 200px"
+                  action={wishButton(card)}
                 />
               )}
             </li>

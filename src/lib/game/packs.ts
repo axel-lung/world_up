@@ -11,6 +11,7 @@ import { type Reserve, refill, takePack } from './refill';
 import { currentOdds, type GameRules, getGameRules, getStreakRewards } from './rules';
 import { parisDay, playDay, rewardFor } from './streak';
 import { streakColumns, streakOf, streakValues } from './streaks';
+import { fulfilWishes } from './wishlist';
 
 // Free packs: the reserve and the opening. The server decides everything; the
 // clock is a parameter so the tests can move it.
@@ -101,8 +102,8 @@ export interface OpenedPack {
 /**
  * Opens one free pack, in one transaction holding the player's reserve row:
  * takes a pack, draws the cards, records the opening, adds the cards to the
- * collection, moves the daily streak on (with its bonus packs at a
- * milestone), credits the opening's coins and grants the achievements reached.
+ * collection (taking them off the wishlist), moves the daily streak on (with
+ * its bonus packs at a milestone), credits the opening's coins and grants the achievements reached.
  * A second request with the same idempotency key (a double click) gets the
  * first one's opening.
  */
@@ -156,12 +157,14 @@ export async function openPack(
       .insert(packOpenings)
       .values({ userId, collectionId, origin: 'free', idempotencyKey, createdAt: now })
       .returning({ id: packOpenings.id });
+    // The cards drawn leave the player's wishlist; the reveal says which were on it
+    const wished = await fulfilWishes(tx, userId, [...new Set(drawn)]);
     await tx.insert(packCards).values(
       drawn.map((cardId, index) => {
         // The same card twice in a pack is new only the first time
         const isNew = !owned.has(cardId);
         owned.add(cardId);
-        return { openingId: opening.id, position: index + 1, cardId, isNew };
+        return { openingId: opening.id, position: index + 1, cardId, isNew, wished: isNew && wished.has(cardId) };
       }),
     );
 
@@ -251,6 +254,7 @@ export async function getOpeningCards(userId: string, openingId: number) {
     .select({
       position: packCards.position,
       isNew: packCards.isNew,
+      wished: packCards.wished,
       cardId: packCards.cardId,
       quantity: userCards.quantity,
     })
@@ -270,7 +274,13 @@ export async function playerOpenings(userId: string) {
     .orderBy(asc(packOpenings.createdAt));
   if (openings.length === 0) return [];
   const drawn = await db
-    .select({ openingId: packCards.openingId, card: cards.wikidataId, name: cards.name, isNew: packCards.isNew })
+    .select({
+      openingId: packCards.openingId,
+      card: cards.wikidataId,
+      name: cards.name,
+      isNew: packCards.isNew,
+      wished: packCards.wished,
+    })
     .from(packCards)
     .innerJoin(cards, eq(cards.id, packCards.cardId))
     .innerJoin(packOpenings, eq(packOpenings.id, packCards.openingId))
@@ -280,6 +290,6 @@ export async function playerOpenings(userId: string) {
     ...opening,
     cards: drawn
       .filter((card) => card.openingId === id)
-      .map((card) => ({ card: card.card, name: card.name, isNew: card.isNew })),
+      .map((card) => ({ card: card.card, name: card.name, isNew: card.isNew, wished: card.wished })),
   }));
 }
