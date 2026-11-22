@@ -1,4 +1,4 @@
-import { ChevronDown, Percent } from 'lucide-react';
+import { ChevronDown, ChevronRight, History, Percent } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * The packs of a collection: the reserve with its timer and the way to the
- * opening, then the odds of each rarity. The phone's tab bar leads here; the
+ * opening, the history of the player's openings, then the odds of each rarity. The phone's tab bar leads here; the
  * opening's close button comes back here. The shop joins it in lot 4.
  */
 export default async function PacksPage({ params }: PageProps<'/c/[collection]/packs'>) {
@@ -61,6 +61,12 @@ export default async function PacksPage({ params }: PageProps<'/c/[collection]/p
           openHref={paths.open}
         />
       </section>
+
+      <Link href={paths.history} className={own.historyLink}>
+        <History aria-hidden className={own.oddsIcon} />
+        <span>{t('history')}</span>
+        <ChevronRight aria-hidden className={own.oddsChevron} />
+      </Link>
 
       {odds && (
         <details className={own.odds}>

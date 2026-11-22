@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The launcher icon's long press (AndroidManifest.xml). The address is the
+    site's opening page, built by app/build.gradle from capacitor.config.ts;
+    MainActivity.openSiteLink opens it in the app.
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_open"
+        android:shortcutId="open_pack"
+        android:shortcutLongLabel="@string/shortcut_open_long"
+        android:shortcutShortLabel="@string/shortcut_open_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="@string/shortcut_open_url"
+            android:targetClass="fr.alng.worldup.MainActivity"
+            android:targetPackage="fr.alng.worldup" />
+    </shortcut>
+</shortcuts>

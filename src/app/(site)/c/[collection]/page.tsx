@@ -17,7 +17,8 @@ import { listAchievements } from '@/lib/game/achievements';
 import { coinBalance, duplicatesValue } from '@/lib/game/coins';
 import { collectionCounts, seriesProgress, type SeriesProgress } from '@/lib/game/collection';
 import { playerRank } from '@/lib/game/leaderboard';
-import { getReserve, getStreak } from '@/lib/game/packs';
+import { getReserve } from '@/lib/game/packs';
+import { getStreak } from '@/lib/game/streaks';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
 import { nextReceivedOffer } from '@/lib/game/trades';
@@ -157,7 +158,7 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
         {/* eslint-disable-next-line @next/next/no-img-element -- a WebP already sized, like the cards */}
         <img src="/logo/world-up-96.webp" width={96} height={96} alt={tNav('brand')} className={home.logo} />
         <h1>{t('welcome', { pseudo: user.name })}</h1>
-        <StreakButton view={streak} />
+        <StreakButton view={streak} collection={collection.slug} />
         <NotificationBell unread={unread} label={tNav('activity', { count: unread })} className={home.bell} />
       </header>
 
@@ -322,7 +323,7 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
         <p className={styles.eyebrow}>{collection.name}</p>
         <div className={home.wideTitle}>
           <h1>{t('welcome', { pseudo: user.name })}</h1>
-          <StreakButton view={streak} />
+          <StreakButton view={streak} collection={collection.slug} />
         </div>
       </header>
 

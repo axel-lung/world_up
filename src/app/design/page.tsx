@@ -24,8 +24,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import type { CSSProperties, ReactNode } from 'react';
 import { GoogleLogo } from '@/components/account/GoogleButton';
+import { BadgeSticker } from '@/components/badge/Badge';
 import { Card, type CardCollection } from '@/components/card/Card';
 import { CardRow } from '@/components/card/CardRow';
+import { AnnouncementBanner } from '@/components/layout/AnnouncementBanner';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { TabBar, type TabBarItem } from '@/components/layout/TabBar';
 import { AuctionTile } from '@/components/market/AuctionTile';
@@ -37,6 +39,7 @@ import { StreakButton } from '@/components/streak/StreakButton';
 import { PushPromptPanel } from '@/components/social/PushPrompt';
 import { TradeSummary } from '@/components/trade/TradeSummary';
 import { Button } from '@/components/ui/Button';
+import { EffectsSwitch, EffectsToggle } from '@/components/ui/EffectsSwitch';
 import { Gauge } from '@/components/ui/Gauge';
 import { Sheet } from '@/components/ui/Sheet';
 import { Tag } from '@/components/ui/Tag';
@@ -100,7 +103,13 @@ const STREAK_REWARDS = [3, 7, 14, 30, 50, 100, 200, 365, 500, 1000].map((days) =
 function streakSample(now: Date, days: number, { graced = false, counted = false } = {}) {
   const today = parisDay(now);
   const daysAgo = (n: number) => parisDay(new Date(now.getTime() - n * 86_400_000));
-  const stored = days === 0 ? { days: 0, lastDay: null, graceDay: null } : { days, lastDay: today, graceDay: graced ? daysAgo(2) : null };
+  const stored = {
+    days,
+    lastDay: days === 0 ? null : today,
+    graceDay: days > 0 && graced ? daysAgo(2) : null,
+    frozen: [],
+    lost: null,
+  };
   const bonusPacks = STREAK_REWARDS.some((reward) => reward.days === days) ? 1 : 0;
   return streakView(stored, today, STREAK_REWARDS, counted ? { counted, before: days - 1, bonusPacks } : undefined);
 }
@@ -493,11 +502,65 @@ export default function DesignPage() {
                   <StreakButton view={streakSample(now, 12, { graced: true, counted: true })} />
                   <StreakButton view={streakSample(now, 3, { counted: true })} />
                   <StreakButton view={streakSample(now, 0)} />
+                  <StreakButton
+                    view={{ ...streakSample(now, 0), repair: { days: 12, coins: 120, affordable: true } }}
+                    collection="heritage"
+                  />
+                  <StreakButton
+                    view={{ ...streakSample(now, 0), repair: { days: 40, coins: 400, affordable: false } }}
+                    collection="heritage"
+                  />
                 </div>
                 <span className={styles.muted}>
                   La flamme de l&apos;accueil ouvre l&apos;écran de la série : 12 jours comme après le premier paquet du
                   jour (un jour de grâce), 3 jours avec le paquet bonus d&apos;un palier, puis aucune série.
                 </span>
+              </div>
+
+              <div className={styles.group}>
+                <h3>Badges</h3>
+                <div className={styles.row}>
+                  {RARITIES.toReversed().map((tier, index) => (
+                    <BadgeSticker
+                      key={tier}
+                      badge={{ kind: (['packs_opened', 'distinct_cards', 'series_completed'] as const)[index % 3], threshold: 10 ** index, tier }}
+                      label={tier}
+                      size="large"
+                    />
+                  ))}
+                  <BadgeSticker badge={{ kind: 'rarity_owned', threshold: 1, tier: 'legendary' }} label="Légendaire" size="large" />
+                  <BadgeSticker badge={{ kind: 'packs_opened', threshold: 500, tier: 'ultra' }} label="Verrouillé" size="large" locked />
+                </div>
+                <div className={styles.row}>
+                  {RARITIES.map((tier) => (
+                    <BadgeSticker key={tier} badge={{ kind: 'distinct_cards', threshold: 100, tier }} label={tier} />
+                  ))}
+                </div>
+                <span className={styles.muted}>
+                  Grands : la vitrine du profil (couleur du palier, seuil en pastille, grisé tant qu&apos;il manque). Petits : à
+                  côté du pseudo.
+                </span>
+              </div>
+
+              <div className={styles.group}>
+                <h3>Annonce</h3>
+                <AnnouncementBanner
+                  announcement={{ id: 0, message: 'Le marché ferme ce soir à 22 h pour une mise à jour.', linkUrl: '/rules', linkLabel: null, tone: 'info' }}
+                  preview
+                />
+                <AnnouncementBanner
+                  announcement={{ id: 0, message: 'Maintenance en cours : les ouvertures reprennent dans une heure.', linkUrl: null, linkLabel: null, tone: 'important' }}
+                />
+                <span className={styles.muted}>Information ou important, avec ou sans lien ; fermée, elle ne revient pas sur l&apos;appareil.</span>
+              </div>
+
+              <div className={styles.group}>
+                <h3>Sons et vibrations</h3>
+                <div className={styles.row}>
+                  <EffectsToggle />
+                  <EffectsSwitch name="effects-design" />
+                </div>
+                <span className={styles.muted}>Le bouton de l&apos;ouverture de paquet et le choix du profil, sur cet appareil.</span>
               </div>
 
               <div className={styles.group}>

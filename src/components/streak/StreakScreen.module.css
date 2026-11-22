@@ -320,6 +320,13 @@
   color: var(--color-accent-2-800);
 }
 
+/* A missed day a repair covered */
+.week li[data-state="frozen"] .dayMark {
+  border: 2px solid var(--color-accent-strong);
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+}
+
 .week li[data-state="pending"] .dayMark {
   border-color: var(--color-accent-strong);
 }
@@ -375,6 +382,57 @@
 .gift svg {
   width: 17px;
   height: 17px;
+}
+
+/* The streak broke today: it can be repaired until midnight */
+.repair {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-divider);
+  text-align: left;
+}
+
+.repairIcon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--sticker-line);
+  border-radius: 50%;
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+}
+
+.repairIcon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.repairText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+
+.repairText p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.repairTitle {
+  font-weight: 700;
+}
+
+.repairNote {
+  color: var(--color-text-muted);
+  font-size: 12.5px;
 }
 
 /* A milestone reached by this opening */

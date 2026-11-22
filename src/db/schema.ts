@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   date,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -343,6 +344,10 @@ export const gameRules = pgTable('game_rules', {
   maxReserve: integer('max_reserve').notNull().default(10),
   // Coins credited by each free pack opened
   coinsPerOpening: integer('coins_per_opening').notNull().default(5),
+  // Repairing a daily streak on the day it broke costs so many coins per day
+  // of the streak, up to the ceiling (src/lib/game/streak.ts)
+  streakRepairCoinsPerDay: integer('streak_repair_coins_per_day').notNull().default(10),
+  streakRepairMaxCoins: integer('streak_repair_max_coins').notNull().default(1000),
   updatedAt: updatedAt(),
 });
 
@@ -399,6 +404,19 @@ export const packState = pgTable(
     streakDays: integer('streak_days').notNull().default(0),
     streakLastDay: date('streak_last_day', { mode: 'string' }),
     streakGraceDay: date('streak_grace_day', { mode: 'string' }),
+    // The missed days a repair covered (recent ones only), and the streak an
+    // opening replaced on the day it broke, which a repair brings back that day
+    streakFrozenDays: date('streak_frozen_days', { mode: 'string' })
+      .array()
+      .notNull()
+      .default(sql`'{}'::date[]`),
+    streakLostDays: integer('streak_lost_days'),
+    streakLostLastDay: date('streak_lost_last_day', { mode: 'string' }),
+    // The evening reminder of a streak about to break (the worker's
+    // streak-reminder job): the player's switch, and the last Paris day the
+    // job looked at this row
+    streakReminder: boolean('streak_reminder').notNull().default(true),
+    streakRemindedOn: date('streak_reminded_on', { mode: 'string' }),
   },
   (table) => [
     primaryKey({ columns: [table.userId, table.collectionId] }),
@@ -487,8 +505,16 @@ export const userCards = pgTable(
 );
 
 // auction_purchase and auction_sale reference the auction's ID: an auction is
-// settled once. pack_opening references the opening's ID.
-export const coinReason = pgEnum('coin_reason', ['resale', 'achievement', 'auction_purchase', 'auction_sale', 'pack_opening']);
+// settled once. pack_opening references the opening's ID, streak_repair
+// "<collection ID>:<the day the streak broke>".
+export const coinReason = pgEnum('coin_reason', [
+  'resale',
+  'achievement',
+  'auction_purchase',
+  'auction_sale',
+  'pack_opening',
+  'streak_repair',
+]);
 
 // Append-only: the balance is the sum of the player's entries and never goes
 // below zero (src/lib/game/coins.ts).
@@ -553,6 +579,30 @@ export const userAchievements = pgTable(
     obtainedAt: timestamp('obtained_at', { withTimezone: true }).notNull(),
   },
   (table) => [primaryKey({ columns: [table.userId, table.achievementId] })],
+);
+
+// The badge a player shows beside their pseudo: one of their achievements,
+// one per collection (src/lib/game/badges.ts).
+export const featuredBadges = pgTable(
+  'featured_badges',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    achievementId: integer('achievement_id').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.collectionId] }),
+    // Only an achievement the player has
+    foreignKey({
+      name: 'featured_badges_achievement_fk',
+      columns: [table.userId, table.achievementId],
+      foreignColumns: [userAchievements.userId, userAchievements.achievementId],
+    }).onDelete('cascade'),
+  ],
 );
 
 // Social (decided on 2026-10-22, ahead of payments): friends, trades between
@@ -745,6 +795,7 @@ export const notificationKind = pgEnum('notification_kind', [
   'auction_unsold',
   'auction_cancelled',
   'packs_full',
+  'streak_reminder',
 ]);
 
 // What happened to the player (/activity, the header's bell, Web Push). `data`
@@ -796,5 +847,29 @@ export const pushSubscriptions = pgTable(
       'push_subscriptions_web_keys',
       sql`${table.kind} <> 'web' or (${table.p256dh} is not null and ${table.auth} is not null)`,
     ),
+  ],
+);
+
+// The banner over the site's pages (src/lib/announcements.ts), written at
+// /admin/announcements. Each publication is a row; the one shown is the latest
+// already started and not ended. Site-wide, hence no collection.
+export const announcementTone = pgEnum('announcement_tone', ['info', 'important']);
+
+export const announcements = pgTable(
+  'announcements',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    message: text('message').notNull(),
+    // A page of the site ("/rules") or an https address, with its words
+    linkUrl: text('link_url'),
+    linkLabel: text('link_label'),
+    tone: announcementTone('tone').notNull().default('info'),
+    startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
+    endsAt: timestamp('ends_at', { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index('announcements_starts_at_idx').on(table.startsAt),
+    check('announcements_ends_after_start', sql`${table.endsAt} IS NULL OR ${table.endsAt} >= ${table.startsAt}`),
   ],
 );

@@ -62,6 +62,8 @@ export default async function RulesPage() {
       <section className={styles.section} aria-labelledby="streak-heading">
         <h2 id="streak-heading">{t('streakHeading')}</h2>
         <p>{t('streakRule')}</p>
+        <p>{t('streakRepair', { perDay: rules.streakRepairCoinsPerDay, max: rules.streakRepairMaxCoins })}</p>
+        <p>{t('streakReminder')}</p>
         {streak.length > 0 && (
           <>
             <p>{t('streakRewards')}</p>

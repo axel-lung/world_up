@@ -1,7 +1,10 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import { RedirectType, redirect } from 'next/navigation';
 import { z } from 'zod';
+import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
+import { getActiveCollection } from '@/lib/game/rules';
+import { setStreakReminder } from '@/lib/game/streaks';
 import { markRead } from '@/lib/notifications/notifications';
 import { requireSession } from '@/lib/session';
 
@@ -21,4 +24,12 @@ export async function markReadFormAction(form: FormData): Promise<void> {
   const { user } = await requireSession('/activity');
   if (id.success) await markRead(user.id, id.data, new Date());
   redirect('/activity');
+}
+
+/** The evening reminder of a streak about to break: on or off, for the player. */
+export async function streakReminderAction(form: FormData): Promise<void> {
+  const { user } = await requireSession('/activity');
+  const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
+  if (collection) await setStreakReminder(user.id, collection.id, form.get('on') === 'on');
+  redirect('/activity', RedirectType.replace);
 }

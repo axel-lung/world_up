@@ -2,6 +2,7 @@ import type { PgBoss, WorkHandler, WorkOptions } from 'pg-boss';
 import { queues } from '@/lib/queues';
 import { createRetentionJob } from './account-retention';
 import { createPacksFullJob } from './notify-full-reserves';
+import { createStreakReminderJob } from './remind-streaks';
 import { createMarketJob } from './settle-market';
 import { createEmailJob } from './send-email';
 import { createPushJob } from './send-push';
@@ -24,6 +25,7 @@ export function createJobs(boss: PgBoss): JobDefinition[] {
     }),
     createMarketJob(),
     createPacksFullJob(),
+    createStreakReminderJob(),
     createPushJob(),
   ];
 }

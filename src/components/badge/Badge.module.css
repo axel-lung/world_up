@@ -1,0 +1,67 @@
+/* --rar-fill, --rar-line and --rar-ink come from the data-rarity attribute (theme.css). */
+.badge {
+  flex: none;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--sticker-line);
+  border-radius: 50%;
+  background: var(--rar-fill);
+  color: var(--rar-ink);
+  vertical-align: middle;
+}
+
+.badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.badge[data-size="large"] {
+  width: 60px;
+  height: 60px;
+  border-width: 2.5px;
+  box-shadow: 0 3px 0 var(--sticker-shadow);
+  transform: rotate(-3deg);
+}
+
+.badge[data-size="large"] svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* The threshold, on a pill across the foot of the sticker */
+.count {
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 26px;
+  padding: 1px 6px;
+  border: 2px solid var(--sticker-line);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Not reached yet */
+.badge[data-locked] {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--color-text) 35%, transparent);
+  background: var(--color-track);
+  color: var(--color-text-muted);
+  box-shadow: none;
+  transform: none;
+}
+
+.badge[data-locked] .count {
+  border-color: color-mix(in srgb, var(--color-text) 35%, transparent);
+  color: var(--color-text-muted);
+}

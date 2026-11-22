@@ -23,6 +23,8 @@ const ACTION_LABELS = {
   'auction.cancel': 'auctionCancel',
   'user.ban': 'userBan',
   'user.unban': 'userUnban',
+  'announcement.publish': 'announcementPublish',
+  'announcement.end': 'announcementEnd',
 } as const;
 
 const RULE_FIELDS = [
@@ -31,6 +33,8 @@ const RULE_FIELDS = [
   'refillMinutes',
   'maxReserve',
   'coinsPerOpening',
+  'streakRepairCoinsPerDay',
+  'streakRepairMaxCoins',
   'tradesEnabled',
   'auctionsEnabled',
   'tradeExpiryHours',
@@ -105,6 +109,8 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
       return details.note ? `${details.note} · ${cancelled}` : cancelled;
     }
     if (row.action === 'user.unban') return details.note ?? '';
+    if (row.action === 'announcement.publish') return String(details.to ?? '');
+    if (row.action === 'announcement.end') return String(details.from ?? '');
     if (row.action === 'auction.cancel') {
       const sale = t('audit.auctionDetails', { price: details.price ?? 0, bids: details.bids ?? 0 });
       return details.note ? `${sale} · ${details.note}` : sale;
@@ -146,6 +152,8 @@ export async function AuditTable({ rows, showTarget = true }: { rows: AuditRow[]
                     <Link href="/admin/reports">#{row.targetId}</Link>
                   ) : row.targetType === 'collection' ? (
                     <Link href="/admin/rules">{t('audit.collectionTarget')}</Link>
+                  ) : row.targetType === 'announcement' ? (
+                    <Link href="/admin/announcements">{t('audit.announcementTarget', { id: row.targetId })}</Link>
                   ) : row.targetType === 'auction' ? (
                     <Link href="/admin/market">{t('audit.auctionTarget', { id: row.targetId })}</Link>
                   ) : row.targetType === 'user' ? (

@@ -29,6 +29,13 @@ export const queues = {
     name: 'packs-full',
     options: { retryLimit: 0, expireInSeconds: 50, deleteAfterSeconds: 3_600 },
   },
+  // Tells the players whose daily streak would break tomorrow (remindStreaks
+  // in src/lib/game/streaks.ts). At 20:00 in Paris; a run that fails is tried
+  // again within the evening.
+  streakReminder: {
+    name: 'streak-reminder',
+    options: { retryLimit: 3, retryDelay: 300, expireInSeconds: 600, deleteAfterSeconds: 7 * 86_400 },
+  },
   // A notification for one device (src/worker/send-push.ts), sent by notify()
   // in the event's transaction. A push still unsent after an hour is dropped:
   // the notification stays on /activity.
@@ -51,6 +58,7 @@ const schedules = [
   { queue: queues.accountRetention.name, cron: '30 4 * * *' },
   { queue: queues.marketSettle.name, cron: '* * * * *' },
   { queue: queues.packsFull.name, cron: '* * * * *' },
+  { queue: queues.streakReminder.name, cron: '0 20 * * *' },
 ];
 
 export async function createQueues(boss: PgBoss): Promise<void> {

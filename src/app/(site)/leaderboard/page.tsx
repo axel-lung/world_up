@@ -4,10 +4,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import type { CSSProperties } from 'react';
+import { BadgeSticker } from '@/components/badge/Badge';
 import { SocialTabs } from '@/components/social/SocialTabs';
 import { Button } from '@/components/ui/Button';
 import { MoreInfo } from '@/components/ui/MoreInfo';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
+import { achievementTitle } from '@/lib/game/achievement-title';
+import { featuredBadgesOf } from '@/lib/game/badges';
 import { leaderboard, type LeaderboardRow } from '@/lib/game/leaderboard';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
@@ -39,15 +42,28 @@ const PODIUM = [
 export default async function LeaderboardPage({ searchParams }: PageProps<'/leaderboard'>) {
   const collection = await getActiveCollection(DEFAULT_COLLECTION_SLUG);
   if (!collection) notFound();
-  const [t, tFriends, tSocial, format, session, query] = await Promise.all([
+  const [t, tFriends, tSocial, tAchievement, tRarity, format, session, query] = await Promise.all([
     getTranslations('Leaderboard'),
     getTranslations('Friends'),
     getTranslations('Social'),
+    getTranslations('Achievements'),
+    getTranslations('Rarity'),
     getFormatter(),
     getSession(),
     searchParams,
   ]);
   const { rows, player } = await leaderboard(collection.id, session?.user.id);
+  // The badge each player shows beside their pseudo
+  const badges = await featuredBadgesOf(collection.id, [...rows, ...(player ? [player] : [])].map((entry) => entry.userId));
+  const badgeOf = (entry: LeaderboardRow) => {
+    const badge = badges.get(entry.userId);
+    return badge ? (
+      <>
+        {' '}
+        <BadgeSticker badge={badge} label={achievementTitle(tAchievement, tRarity, badge)} />
+      </>
+    ) : null;
+  };
   const playerInTop = player && rows.some((row) => row.userId === player.userId);
   // A signed-in player can ask the others to be friends from here
   const states = session ? await friendStates(session.user.id, rows.map((row) => row.userId)) : null;
@@ -84,6 +100,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps<'/lead
         <span className={board.who}>
           <span className={board.pseudo}>
             {entry.pseudo}
+            {badgeOf(entry)}
             {me && <span className={styles.me}> {t('you')}</span>}
           </span>
           <span className={board.rares}>{t('rares', { legendary: entry.legendary, ultra: entry.ultra })}</span>
@@ -138,6 +155,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps<'/lead
       <span className={board.lineWho}>
         <span className={board.linePseudo}>
           {entry.pseudo}
+          {badgeOf(entry)}
           {isMe(entry) && <span className={board.you}> {t('you')}</span>}
         </span>
         <span className={board.lineRares}>{t('rares', { legendary: entry.legendary, ultra: entry.ultra })}</span>
@@ -198,6 +216,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps<'/lead
                         {t('rank')} {format.number(entry.rank)} :{' '}
                       </span>
                       {entry.pseudo}
+                      {badgeOf(entry)}
                       {isMe(entry) && <span className="sr-only"> {t('you')}</span>}
                     </span>
                     <span className={board.step}>
@@ -221,6 +240,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps<'/lead
                   <span className={board.lineWho}>
                     <span className={board.linePseudo}>
                       {player.pseudo}
+                      {badgeOf(player)}
                       <span className={board.you}> {t('you')}</span>
                     </span>
                     <span className={board.lineRares}>{t('rares', { legendary: player.legendary, ultra: player.ultra })}</span>

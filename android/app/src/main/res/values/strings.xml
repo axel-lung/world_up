@@ -10,4 +10,7 @@
     <string name="notification_channel_description">Demandes d\'ami, offres d\'échange, enchères dépassées ou remportées</string>
     <!-- A file the site sends, such as the player's data (MainActivity.java) -->
     <string name="download_started">Téléchargement de %1$s…</string>
+    <!-- The launcher icon's long press (xml/shortcuts.xml) -->
+    <string name="shortcut_open_short">Un paquet</string>
+    <string name="shortcut_open_long">Ouvrir un paquet</string>
 </resources>

@@ -54,6 +54,19 @@ export async function saveGameRules(_: RulesState, form: FormData): Promise<Rule
   return run((collectionId, adminId) => updateGameRules(db, adminId, collectionId, input.data));
 }
 
+const repairSchema = z.object({
+  streakRepairCoinsPerDay: count(1, 100_000),
+  streakRepairMaxCoins: count(1, 10_000_000),
+});
+
+/** What repairing a broken streak costs: so many coins per day, up to the ceiling. */
+export async function saveStreakRepair(_: RulesState, form: FormData): Promise<RulesState> {
+  await requireAdmin();
+  const input = repairSchema.safeParse(Object.fromEntries(form));
+  if (!input.success) return { error: 'invalid' };
+  return run((collectionId, adminId) => updateGameRules(db, adminId, collectionId, input.data));
+}
+
 // "3:1, 7, 30:2" -> 3 days for 1 pack, 7 for 1, 30 for 2: up to 50 milestones,
 // each a different number of days. Empty: no bonus pack.
 const milestones = z.string().transform((value, context) => {

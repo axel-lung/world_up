@@ -20,7 +20,15 @@ import {
 import { toParisDateTime } from '@/lib/paris-time';
 import { RARITIES } from '@/lib/rarity';
 import { AuditTable } from '../AuditTable';
-import { GameRulesForm, MarketPricesForm, MarketRulesForm, OddsForm, ResaleForm, StreakRewardsForm } from './RulesForms';
+import {
+  GameRulesForm,
+  MarketPricesForm,
+  MarketRulesForm,
+  OddsForm,
+  ResaleForm,
+  StreakRepairForm,
+  StreakRewardsForm,
+} from './RulesForms';
 import styles from '../../admin.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -64,6 +72,8 @@ export default async function AdminRulesPage() {
         <h2 id="streak-heading">{t('streakHeading')}</h2>
         <p className={styles.muted}>{t('streakIntro')}</p>
         <StreakRewardsForm rewards={streak} />
+        <p className={styles.muted}>{t('repairIntro')}</p>
+        <StreakRepairForm rules={rules} />
       </section>
 
       <section className={styles.section} aria-labelledby="resale-heading">

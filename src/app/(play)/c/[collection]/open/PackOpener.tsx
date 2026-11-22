@@ -9,8 +9,10 @@ import { EmblemIcon } from '@/components/collection/Emblem';
 import { formatCountdown, useCountdown, useRefreshWhenDue } from '@/components/pack/useCountdown';
 import { StreakScreen } from '@/components/streak/StreakScreen';
 import { Button, ButtonLink } from '@/components/ui/Button';
+import { EffectsToggle } from '@/components/ui/EffectsSwitch';
 import { Notice } from '@/components/ui/Notice';
 import type { Emblem } from '@/lib/collection-theme';
+import { playEffect } from '@/lib/effects';
 import { achievementTitle } from '@/lib/game/achievement-title';
 import type { StreakView } from '@/lib/game/streak';
 import { RARITY_PIPS } from '@/lib/rarity';
@@ -198,6 +200,7 @@ export function PackOpener({
   }, [phase, streak]);
 
   const finish = () => {
+    if (phase !== 'done') playEffect('done');
     clearTimers();
     setBurstFx(false);
     setBuilding(false);
@@ -218,6 +221,7 @@ export function PackOpener({
     setBuilding(false);
     setBurstFx(false);
     setPhase('charge');
+    playEffect('charge');
     const charged = new Promise((resolve) => later(() => resolve(null), reduced ? 0 : CHARGE_MS));
     const result = await openPackAction({ collection, key });
     if (result.reserve) setReserve(result.reserve);
@@ -235,6 +239,7 @@ export function PackOpener({
     if (result.streak.counted) setStreak({ view: result.streak, open: false, shown: false });
     await charged;
     setOpened({ ...result, cards: revealOrder(result.cards) });
+    playEffect('burst');
     if (reduced) {
       setPhase('reveal');
       return;
@@ -248,13 +253,18 @@ export function PackOpener({
   const tap = () => {
     if (phase !== 'reveal' || building || !opened || index >= opened.cards.length) return;
     if (!revealed) {
-      const legendary = RARITY_PIPS[opened.cards[index].card.data.rarity] >= 6;
+      const rarity = opened.cards[index].card.data.rarity;
+      const legendary = RARITY_PIPS[rarity] >= 6;
       if (!legendary || reducedMotion()) {
+        playEffect('flip');
+        playEffect('reveal', rarity);
         setRevealed(true);
         return;
       }
       setBuilding(true);
+      playEffect('suspense');
       later(() => {
+        playEffect('reveal', rarity);
         setBuilding(false);
         setRevealed(true);
         setFlashes((count) => count + 1);
@@ -277,6 +287,7 @@ export function PackOpener({
       finish();
       return;
     }
+    playEffect('flip');
     setIndex(index + 1);
     setRevealed(false);
   };
@@ -318,6 +329,7 @@ export function PackOpener({
         <header className={styles.bar}>
           <ButtonLink href={closeHref} iconOnly aria-label={t('close')} icon={<X aria-hidden />} className={styles.close} />
           <h1 className={styles.title}>{t('stageTitle', { collection: collectionName })}</h1>
+          <EffectsToggle className={styles.close} />
           <span className={styles.packs}>
             <Package aria-hidden />
             <span aria-hidden="true">{reserve.available}</span>
@@ -602,6 +614,7 @@ export function PackOpener({
       {streak && (
         <StreakScreen
           view={streak.view}
+          collection={collection}
           open={streak.open}
           onClose={() => setStreak((current) => current && { ...current, open: false })}
         />

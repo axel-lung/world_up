@@ -2,12 +2,15 @@ import { ArrowLeftRight, Check, Layers, UserPlus, X } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import { BadgeSticker } from '@/components/badge/Badge';
 import { FriendList, FriendRow } from '@/components/social/FriendRow';
 import { SocialTabs } from '@/components/social/SocialTabs';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
+import { achievementTitle } from '@/lib/game/achievement-title';
+import { featuredBadgesOf } from '@/lib/game/badges';
 import { distinctCards } from '@/lib/game/leaderboard';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
@@ -31,16 +34,26 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function FriendsPage({ searchParams }: PageProps<'/friends'>) {
   const { user } = await requireSession('/friends');
-  const [t, tSocial, format, query, friends, requests, collection] = await Promise.all([
+  const [t, tSocial, tAchievement, tRarity, format, query, friends, requests, collection] = await Promise.all([
     getTranslations('Friends'),
     getTranslations('Social'),
+    getTranslations('Achievements'),
+    getTranslations('Rarity'),
     getFormatter(),
     searchParams,
     listFriends(user.id),
     listFriendRequests(user.id),
     getActiveCollection(DEFAULT_COLLECTION_SLUG),
   ]);
-  const cards = collection ? await distinctCards(collection.id, friends.map((friend) => friend.id)) : new Map<string, number>();
+  const friendIds = friends.map((friend) => friend.id);
+  const [cards, badges] = collection
+    ? await Promise.all([distinctCards(collection.id, friendIds), featuredBadgesOf(collection.id, friendIds)])
+    : [new Map<string, number>(), new Map()];
+  // The badge a friend shows beside their pseudo
+  const badgeOf = (id: string) => {
+    const badge = badges.get(id);
+    return badge ? <BadgeSticker badge={badge} label={achievementTitle(tAchievement, tRarity, badge)} /> : null;
+  };
   const game = gamePath(DEFAULT_COLLECTION_SLUG);
   const date = (value: Date) => format.dateTime(value, { dateStyle: 'long', timeZone: 'Europe/Paris' });
   const initial = (pseudo: string) => pseudo.charAt(0).toLocaleUpperCase('fr');
@@ -144,7 +157,9 @@ export default async function FriendsPage({ searchParams }: PageProps<'/friends'
                           {initial(friend.pseudo)}
                         </span>
                         <span className={phone.rowText}>
-                          <span className={phone.rowTitle}>{friend.pseudo}</span>
+                          <span className={phone.rowTitle}>
+                            {friend.pseudo} {badgeOf(friend.id)}
+                          </span>
                           <span className={phone.rowMeta}>{t('cards', { count: cards.get(friend.id) ?? 0 })}</span>
                         </span>
                       </>
@@ -296,6 +311,7 @@ export default async function FriendsPage({ searchParams }: PageProps<'/friends'
               <FriendRow
                 key={friend.id}
                 pseudo={friend.pseudo}
+                badge={badgeOf(friend.id)}
                 meta={friend.since ? t('since', { date: date(friend.since) }) : undefined}
               >
                 <ButtonLink href={game.friend(friend.pseudo)}>{t('seeCollection')}</ButtonLink>

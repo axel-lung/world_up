@@ -20,14 +20,18 @@ export interface NotificationView {
 export function notificationHref({ kind, data, collection }: NotificationView): string {
   if (collection && data.tradeId && kind.startsWith('trade_')) return gamePath(collection).trade(data.tradeId);
   if (collection && data.auctionId && kind.startsWith('auction_')) return gamePath(collection).auction(data.auctionId);
-  if (collection && kind === 'packs_full') return gamePath(collection).open;
+  if (collection && (kind === 'packs_full' || kind === 'streak_reminder')) return gamePath(collection).open;
   return kind.startsWith('friend_') ? '/friends' : '/activity';
 }
 
-/** The values of the notification's message: the pseudo and the card's name. */
+/** The values of the notification's message: the pseudo, the card's name, the streak's days. */
 export function notificationValues(
-  { pseudo, card }: Pick<NotificationView, 'pseudo' | 'card'>,
+  { pseudo, card, data }: Pick<NotificationView, 'pseudo' | 'card'> & { data?: NotificationData },
   fallback: { formerPlayer: string; aCard: string },
-): { pseudo: string; card: string } {
-  return { pseudo: pseudo ?? fallback.formerPlayer, card: card ? displayName(card) : fallback.aCard };
+): { pseudo: string; card: string; days: number } {
+  return {
+    pseudo: pseudo ?? fallback.formerPlayer,
+    card: card ? displayName(card) : fallback.aCard,
+    days: data?.days ?? 0,
+  };
 }

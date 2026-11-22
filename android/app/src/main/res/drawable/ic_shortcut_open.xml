@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Before Android 8, which has no adaptive icon: the glyph on a terracotta disc -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/notification_color" />
+            <size
+                android:width="48dp"
+                android:height="48dp" />
+        </shape>
+    </item>
+    <item
+        android:bottom="-7dp"
+        android:drawable="@drawable/ic_shortcut_open_glyph"
+        android:left="-7dp"
+        android:right="-7dp"
+        android:top="-7dp" />
+</layer-list>

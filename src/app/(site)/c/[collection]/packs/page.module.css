@@ -7,6 +7,33 @@ main.page {
   padding: 22px 16px 16px;
 }
 
+/* The way to the player's openings, a row like the odds' */
+.historyLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 16px;
+  border-radius: 24px;
+  background: var(--color-surface);
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.historyLink span {
+  flex: 1;
+}
+
+.historyLink:active {
+  background: color-mix(in srgb, var(--color-text) 6%, var(--color-surface));
+}
+
+.historyLink:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 /* The odds of each rarity, folded */
 .odds {
   border-radius: 24px;

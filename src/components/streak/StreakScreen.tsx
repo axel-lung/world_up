@@ -1,10 +1,22 @@
 'use client';
 
-import { Check, Flame, Gift, Snowflake } from 'lucide-react';
+import { Bandage, Check, Flame, Gift, Snowflake } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
-import { type CSSProperties, type SyntheticEvent, useCallback, useEffect, useId, useRef } from 'react';
+import {
+  type CSSProperties,
+  type SyntheticEvent,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useTransition,
+} from 'react';
 import { Button } from '@/components/ui/Button';
+import { playEffect } from '@/lib/effects';
+import type { GameErrorCode } from '@/lib/game/game-error';
 import type { StreakView } from '@/lib/game/streak';
+import { repairStreakAction } from '@/lib/game/streak-actions';
 import styles from './StreakScreen.module.css';
 
 // The history entry the open screen adds, so that Back closes it
@@ -17,26 +29,61 @@ const noon = (day: string) => new Date(`${day}T12:00:00Z`);
  * The daily streak over the whole screen (MobileB.dc.html, "B · Série"): the
  * flame, the days in a row, this week from Monday to Sunday and the next
  * milestone. After the opening that counted today (`view.counted`), the number
- * rolls on from the day before. A native modal <dialog>: the focus stays
- * inside and goes back where it was; Continue, Escape and Back (opening adds a
- * history entry, for the phone's button) close it.
+ * rolls on from the day before. On the day the streak broke, it offers the
+ * repair (given `collection`), after which the number rolls on to the
+ * repaired streak. A native modal <dialog>: the focus stays inside and goes
+ * back where it was; Continue, Escape and Back (opening adds a history entry,
+ * for the phone's button) close it.
  */
-export function StreakScreen({ view, open, onClose }: { view: StreakView; open: boolean; onClose: () => void }) {
+export function StreakScreen({
+  view: given,
+  open,
+  onClose,
+  collection,
+}: {
+  view: StreakView;
+  open: boolean;
+  onClose: () => void;
+  /** The collection's slug, for the repair; without it, none is offered. */
+  collection?: string;
+}) {
   const t = useTranslations('Streak');
+  const tGame = useTranslations('Game');
   const format = useFormatter();
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const isMarked = useCallback(() => window.history.state?.[MARK] === id, [id]);
+  // The streak once repaired here, until the page gives a newer one
+  const [repaired, setRepaired] = useState<{ from: StreakView; view: StreakView } | null>(null);
+  const [repairError, setRepairError] = useState<GameErrorCode | 'server' | null>(null);
+  const [repairing, startRepair] = useTransition();
+  const isRepaired = repaired?.from === given;
+  const view = isRepaired ? repaired.view : given;
+
+  const repair = () => {
+    if (!collection || repairing) return;
+    setRepairError(null);
+    startRepair(async () => {
+      const result = await repairStreakAction({ collection });
+      if (!result.ok) {
+        setRepairError(result.error);
+        return;
+      }
+      setRepaired({ from: given, view: result.streak });
+      playEffect('streak');
+    });
+  };
 
   useEffect(() => {
     const element = dialog.current;
     if (!element) return;
     if (open && !element.open) {
       element.showModal();
+      if (given.counted && given.before !== given.days) playEffect('streak');
       window.history.pushState({ ...window.history.state, [MARK]: id }, '');
     }
     if (!open && element.open) element.close();
-  }, [open, id]);
+  }, [open, id, given]);
 
   // Back, from the phone's button, the browser's or Continue
   useEffect(() => {
@@ -59,11 +106,13 @@ export function StreakScreen({ view, open, onClose }: { view: StreakView; open: 
 
   const celebrate = view.counted && view.before !== view.days;
   const today = view.week.find((day) => day.today)?.day ?? '';
-  const lead = view.days === 0 ? 'start' : view.playedToday ? 'tomorrow' : 'today';
+  const offer = collection ? view.repair : null;
+  const lead = view.days === 0 ? (offer ? 'broken' : 'start') : view.playedToday ? 'tomorrow' : 'today';
 
   return (
     <dialog
       ref={dialog}
+      data-repaired={isRepaired || undefined}
       className={styles.screen}
       aria-labelledby={`${id}-title`}
       data-celebrate={celebrate || undefined}
@@ -91,7 +140,8 @@ export function StreakScreen({ view, open, onClose }: { view: StreakView; open: 
           ))}
         </div>
 
-        <div className={styles.heading}>
+        {/* A new key once repaired: the number rolls on again */}
+        <div className={styles.heading} key={isRepaired ? 'repaired' : 'given'}>
           <h2 id={`${id}-title`} className={styles.title}>
             <span className={styles.count}>
               {celebrate && (
@@ -126,6 +176,7 @@ export function StreakScreen({ view, open, onClose }: { view: StreakView; open: 
                   <span className={styles.dayMark} aria-hidden="true">
                     {state === 'played' && <Check />}
                     {state === 'graced' && <Snowflake />}
+                    {state === 'frozen' && <Bandage />}
                     {state === 'today' && (
                       <span className={styles.flame}>
                         <Flame />
@@ -140,6 +191,36 @@ export function StreakScreen({ view, open, onClose }: { view: StreakView; open: 
             })}
           </ol>
           <p className={styles.grace}>{t(view.graceUsed ? 'graceUsed' : 'graceLeft')}</p>
+          {offer && (
+            <div className={styles.repair}>
+              <span className={styles.repairIcon} aria-hidden="true">
+                <Bandage />
+              </span>
+              <div className={styles.repairText}>
+                <p className={styles.repairTitle}>{t('repair.title', { days: offer.days })}</p>
+                <p>{t('repair.body')}</p>
+                <Button
+                  variant="primary"
+                  block
+                  onClick={repair}
+                  disabled={!offer.affordable || repairing}
+                  aria-describedby={offer.affordable ? undefined : `${id}-short`}
+                >
+                  {t('repair.button', { coins: offer.coins })}
+                </Button>
+                {!offer.affordable && (
+                  <p id={`${id}-short`} className={styles.repairNote}>
+                    {t('repair.notEnough', { coins: offer.coins })}
+                  </p>
+                )}
+                {repairError && (
+                  <p className={styles.repairNote} role="alert">
+                    {repairError === 'server' ? t('repair.failed') : tGame(`errors.${repairError}`)}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
           {view.bonusPacks > 0 && (
             <p className={styles.reward} data-won>
               <span className={styles.gift} aria-hidden="true">

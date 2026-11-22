@@ -5,6 +5,7 @@ export type GameErrorCode =
   | 'tooFast'
   | 'noDuplicate'
   | 'notEnoughCoins'
+  | 'nothingToRepair'
   | 'tradesClosed'
   | 'notFriends'
   | 'tradeEmpty'

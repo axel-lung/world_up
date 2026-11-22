@@ -33,6 +33,23 @@
   color: var(--color-text-muted);
 }
 
+/* A streak broken today, still repairable: a dot draws the eye */
+.button[data-repair] {
+  position: relative;
+}
+
+.button[data-repair]::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-bg);
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
 .button:active {
   transform: scale(0.95);
 }

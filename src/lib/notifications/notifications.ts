@@ -24,6 +24,8 @@ export interface NotificationData {
   tradeId?: number;
   auctionId?: number;
   cardId?: number;
+  /** The daily streak's days, when the reminder was sent. */
+  days?: number;
 }
 
 export async function notify(

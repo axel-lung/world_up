@@ -181,6 +181,7 @@ Décidée le 2026-10-22. L'application du Play Store a d'abord été une Trusted
   - les téléchargements (l'export des données du compte) : une vue web ne télécharge pas d'elle-même, l'application passe donc par le gestionnaire de téléchargements du téléphone, et le fichier arrive dans Téléchargements ;
   - les autres sites (Wikipédia, Commons, les licences) s'ouvrent dans un onglet par-dessus l'application, aux couleurs du jeu, qui se referme sur la partie, plutôt que dans le navigateur.
 - Rien ne doit trahir la vue web (demandé le 16 novembre 2026) : ni zoom, ni surlignage au toucher, ni état « survolé » qui reste après un tap, ni sélection de texte avec sa barre Copier/Partager à l'appui long (les champs de saisie gardent la leur, pour coller), ni barre de défilement. Les commandes montrent leur propre état appuyé, et une barre court en haut de l'écran pendant qu'une page se charge. Le texte suit la taille de police choisie dans les réglages du téléphone, comme une application native. Les barres du téléphone (heure, navigation) prennent le fond de la page affichée : le thème choisi dans le jeu, la scène sombre de l'ouverture des paquets. L'écran de lancement montre le logo jusqu'à ce que le site soit affiché, plutôt qu'un écran vide sur une connexion lente.
+- L'appui long sur l'icône de l'application propose « Ouvrir un paquet » (décidé le 22/11/2026), qui ouvre la page d'ouverture ; le site installé depuis un navigateur offre le même raccourci. Les vibrations passent par le module natif de l'application. Les deux demandent une nouvelle version de l'application.
 - Une application iOS serait la même coquille : elle demanderait « Se connecter avec Apple » à côté de Google (règle de l'App Store).
 - Avant de vendre dans l'application (lot 4) : Google Play impose sa facturation pour les biens numériques. Dans l'Espace économique européen, son programme de facturation alternative autorise un autre prestataire comme Stripe, contre une commission. À trancher avec l'avocat.
 - Règles du Play Store : probabilités publiées avant l'achat, suppression du compte depuis l'application et depuis le web, questionnaire de classification (public de 18 ans et plus), fiche « Sécurité des données ».
@@ -195,7 +196,7 @@ Les tables de jeu portent un `collection_id` dès la version 1, pour accueillir 
 | `collections` | slug, nom, thème (tokens), active | Une ligne « patrimoine » au lancement |
 | `cards` | identifiant Wikidata, nom, rareté, rang, région, département, famille, protection, UNESCO, extrait, URL de l'article, image, auteur, licence, URL de la licence, URL du fichier Commons, masquée, motif | La rareté est figée au lancement |
 | `series`, `card_series` | type (région, famille, UNESCO, péril), nom ; numéro de la carte dans la série | Une carte appartient à plusieurs séries |
-| `pack_state` | joueur, collection, paquets en réserve, dernière recharge | Recharge calculée à la lecture |
+| `pack_state` | joueur, collection, paquets en réserve, dernière recharge ; série de jours (jours, dernier jour, jour pardonné, jours réparés, série remplacée le jour de sa rupture), rappel du soir (activé, dernier jour examiné) | Recharge et série calculées à la lecture |
 | `pack_openings`, `pack_cards` | joueur, origine (gratuit, abonnement, bonus, achat), date, achat lié ; carte, position, nouvelle, brillante | Historique complet des tirages |
 | `user_cards` | joueur, carte, quantité, première obtention | Une ligne par carte possédée |
 | `coin_ledger` | joueur, montant (+/-), motif, référence, date | Registre jamais modifié ; solde = somme |
@@ -203,7 +204,9 @@ Les tables de jeu portent un `collection_id` dès la version 1, pour accueillir 
 | `subscriptions` | joueur, identifiant Stripe, statut, fin de période, résiliation demandée | Mise à jour par les webhooks Stripe |
 | `purchases` | joueur, produit, montant, identifiant de paiement Stripe, statut, renonciation à la rétractation (date et version du texte), remboursé le | Preuve de la renonciation |
 | `consents` | joueur, document (CGU, CGV), version, date | Preuve des acceptations |
-| `achievements`, `user_achievements` | succès, récompense ; date d'obtention | Source de monnaie virtuelle |
+| `achievements`, `user_achievements` | succès, récompense ; date d'obtention | Source de monnaie virtuelle ; chaque succès obtenu est un badge |
+| `featured_badges` | joueur, collection, succès | Le badge affiché à côté du pseudo, choisi parmi les siens |
+| `announcements` | message, lien, ton, début, fin | Bandeau du site, écrit dans le back-office ; chaque publication est gardée |
 | `reports` | joueur, carte, type, message, statut | Signalements de photo ou de texte |
 | `audit_log` | administrateur, action, cible, date | Toute action du back-office |
 
@@ -256,14 +259,16 @@ Toute la logique de jeu s'exécute sur le serveur : le navigateur affiche, il ne
 
 **Série de jours** (décidée le 21/11/2026)
 
-- Chaque jour (heure de Paris) où le joueur ouvre au moins un paquet allonge sa série d'un jour. Un jour manqué par semaine, du lundi au dimanche, ne la casse pas : il ne compte pas, mais la série continue. Un deuxième jour manqué dans la même semaine la fait repartir de un au paquet suivant.
+- Chaque jour (heure de Paris) où le joueur ouvre au moins un paquet allonge sa série d'un jour. Un jour manqué par semaine, du lundi au dimanche, ne la casse pas : il ne compte pas, mais la série continue. Un deuxième jour manqué dans la même semaine l'arrête : elle repart de un au paquet suivant.
+- Réparation (décidée le 22/11/2026) : le jour où sa série s'arrête, et ce jour-là seulement, le joueur peut la réparer avec des pièces, tant par jour de série jusqu'à un prix maximum (10 et 1 000 par défaut, réglables dans le back-office et publiés sur `/rules`). Les jours manqués que la grâce de la semaine ne couvre pas sont alors « réparés » : ils ne comptent pas et ne cassent rien. Si un paquet a déjà été ouvert ce jour-là, la série qu'il a commencée rejoint la série réparée (et peut atteindre un palier). Les pièces de la réparation sortent du jeu ; une double demande ne les débite qu'une fois.
+- Rappel du soir (décidé le 22/11/2026) : à 20 h, heure de Paris, une notification prévient le joueur dont la série d'au moins 2 jours s'arrête à minuit s'il n'ouvre pas de paquet. Il peut la couper depuis la page Activité.
 - La série avance dans la transaction de l'ouverture, sous le même verrou. À un palier, des paquets bonus s'ajoutent à la réserve, même au-delà de son maximum (le minuteur attend alors, comme pour une réserve pleine). Paliers par défaut : 3, 7, 14, 30, 50, 100, 200, 365, 500 et 1000 jours, un paquet chacun ; ce sont des lignes en base, modifiables dans le back-office et publiées sur `/rules`.
-- L'écran de la série (flamme, jours, semaine en cours, prochain palier) s'affiche à la fin de la première ouverture du jour ; la flamme de l'accueil le rouvre.
+- L'écran de la série (flamme, jours, semaine en cours, prochain palier, réparation le jour d'une rupture) s'affiche à la fin de la première ouverture du jour ; la flamme de l'accueil le rouvre.
 
 **Monnaie virtuelle**
 
 - Gains : ouverture d'un paquet gratuit (paramétrable), revente rapide d'un doublon (montant par rareté, paramétrable), succès, ventes aux enchères. Qu'un paquet payant rapporte aussi des pièces reviendrait à vendre de la monnaie virtuelle : à trancher avec l'avocat avant le lot 4.
-- Dépenses : les enchères seulement.
+- Dépenses : les enchères (leur commission sort du jeu) et la réparation de la série de jours (ses pièces sortent du jeu).
 - Chaque mouvement est une ligne du registre ; le solde ne peut pas devenir négatif.
 - Aucun achat, aucun retrait, aucun transfert hors du jeu : les pièces ne passent d'un joueur à un autre que par les enchères.
 
@@ -271,6 +276,8 @@ Toute la logique de jeu s'exécute sur le serveur : le navigateur affiche, il ne
 
 - Progression par série = cartes différentes possédées / cartes visibles de la série, recalculée à chaque ouverture.
 - Classement : nombre de cartes différentes ; à égalité, le plus de Légendaires passe devant, puis le plus d'Ultra rares, et ainsi de suite.
+- Badges (décidés le 22/11/2026) : chaque succès obtenu donne un badge, un autocollant à l'icône de son type et à la couleur de son palier (son rang parmi les succès de son type, posé sur l'échelle des raretés). Le profil les montre tous, la collection d'un ami montre les siens, et le joueur en choisit un qui s'affiche à côté de son pseudo (classement, amis).
+- Historique des ouvertures (décidé le 22/11/2026) : la page Paquets mène à la liste des paquets ouverts par le joueur, par jour, les plus récents d'abord, avec leurs cartes dans l'ordre de révélation et les nouvelles marquées. L'export des données du compte les contient tous.
 
 **Anti-abus**
 
@@ -371,6 +378,8 @@ La première version (`Design system World Up.dc.html`, socle Nocturne) est remp
 - Chaque composant (carte, bouton, badge, jauge, minuteur, fenêtre d'achat) devient un composant React, avec les mêmes variantes et états que dans Claude Design.
 - L'habillage d'une collection (sa couleur et son emblème, sur le paquet et en pied de carte) est lu dans `collections.theme` : ajouter une collection ne demande pas de nouveau code d'interface.
 - L'ouverture de paquet et l'écran de la série de jours suivent `MobileB.dc.html` (écrans « B · Ouverture » et « B · Série ») du projet Claude Design « World Up Mobile UX » (`04a53348-44c8-4c9f-a3fb-f3a2faf6a706`).
+- Sons et vibrations (décidés le 22/11/2026) : l'ouverture de paquet et l'écran de la série ont des sons, produits par le navigateur sans fichier, et des vibrations (celles du téléphone dans l'application). Un bouton de la scène d'ouverture et un choix du profil les coupent, sur l'appareil.
+- Annonces (décidées le 22/11/2026) : le back-office publie un bandeau sous l'en-tête de toutes les pages du site (un message, un lien facultatif, un ton « information » ou « important », un début et une fin facultative). Un visiteur qui le ferme ne le revoit plus sur cet appareil.
 
 **Pages et adresses**
 
@@ -380,6 +389,7 @@ La première version (`Design system World Up.dc.html`, socle Nocturne) est remp
 | `/signup`, `/login` | Comptes | Public |
 | `/c/heritage` | Accueil joueur | Connecté |
 | `/c/heritage/open` | Ouverture de paquet | Connecté |
+| `/c/heritage/packs`, `/c/heritage/packs/history` | Réserve et probabilités, historique des ouvertures | Connecté |
 | `/c/heritage/collection` | Collection et filtres | Connecté |
 | `/c/heritage/series/[slug]` | Série | Connecté |
 | `/c/heritage/cards/[slug]` | Fiche carte | Public, référencée par Google |

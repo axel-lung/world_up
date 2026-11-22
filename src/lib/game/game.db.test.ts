@@ -21,8 +21,9 @@ import { publishOdds, RulesError, updateGameRules, updateStreakRewards } from '.
 import { addCoins, coinBalance, duplicatesValue, resellDuplicates } from './coins';
 import { GameError } from './game-error';
 import { reservedCopies } from './holds';
-import { getReserve, getStreak, notifyFullReserves, OPENINGS_PER_MINUTE, openPack } from './packs';
+import { getReserve, notifyFullReserves, OPENINGS_PER_MINUTE, openPack } from './packs';
 import { currentOdds, getStreakRewards } from './rules';
+import { getStreak } from './streaks';
 import { createTestCollection, createTestPlayer, deleteTestData, type TestCollection, TEST_RESALE } from './testing';
 
 // Visible commons Q1 to Q4 and rare Q7; the hidden cards have higher IDs than

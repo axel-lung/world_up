@@ -2,6 +2,8 @@
   "Metadata": {
     "title": "World Up",
     "description": "Ouvrez des paquets et collectionnez les monuments du patrimoine français.",
+    "shortcutOpen": "Ouvrir un paquet",
+    "shortcutOpenShort": "Un paquet",
     "creditsDescription": "D'où viennent les monuments, les textes et les photos des cartes de World Up, et sous quelles licences.",
     "legalNoticeDescription": "Éditeur et hébergeur de World Up.",
     "termsDescription": "Les conditions générales d'utilisation de World Up.",
@@ -138,6 +140,16 @@
       "methodGoogle": "Google",
       "memberSince": "Membre depuis"
     },
+    "badges": {
+      "title": "Badges",
+      "count": "{obtained} sur {total}",
+      "toWin": "{count, plural, one {# badge à gagner} other {# badges à gagner}}",
+      "choose": "Badge affiché",
+      "chooseHint": "Il s'affiche à côté de votre pseudo : au classement et chez vos amis.",
+      "none": "Aucun",
+      "noneYet": "Gagnez un succès pour obtenir votre premier badge.",
+      "save": "Enregistrer"
+    },
     "password": {
       "title": "Mot de passe",
       "current": "Mot de passe actuel",
@@ -149,7 +161,8 @@
     "more": {
       "title": "Réglages et informations",
       "theme": "Thème",
-      "help": "Aide et informations"
+      "help": "Aide et informations",
+      "effects": "Sons et vibrations"
     },
     "data": {
       "title": "Mes données",
@@ -329,7 +342,24 @@
     "title": "Paquets",
     "reserveHeading": "Votre réserve",
     "odds": "Probabilités de chaque rareté",
-    "oddsHistory": "Tout savoir sur les probabilités"
+    "oddsHistory": "Tout savoir sur les probabilités",
+    "history": "Historique de mes ouvertures"
+  },
+  "History": {
+    "title": "Mes ouvertures",
+    "intro": "{count, plural, =0 {Aucun paquet ouvert pour l'instant.} one {# paquet ouvert, le plus récent en premier.} other {# paquets ouverts, les plus récents en premier.}}",
+    "empty": "Vos paquets ouverts s'afficheront ici. <link>Ouvrir un paquet</link>",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "packs": "{count, plural, one {# paquet} other {# paquets}}",
+    "best": "Meilleure carte : {name} ({rarity})",
+    "fresh": "{count, plural, =0 {aucune nouvelle} one {# nouvelle} other {# nouvelles}}",
+    "new": "nouvelle carte",
+    "newShort": "Nouv.",
+    "cardsOf": "Cartes du paquet de {time}",
+    "more": "Voir plus",
+    "shown": "{shown} paquets sur {total}",
+    "exportHint": "Seules les ouvertures les plus récentes s'affichent ici. L'export de vos données, depuis votre compte, les contient toutes."
   },
   "Purchase": {
     "packTitle": "Acheter un paquet",
@@ -361,6 +391,7 @@
       "reports": "Signalements",
       "players": "Joueurs",
       "rules": "Règles du jeu",
+      "announcements": "Annonces",
       "market": "Marché"
     },
     "twoFactor": {
@@ -531,7 +562,9 @@
         "streakUpdate": "Paliers de série changés",
         "auctionCancel": "Vente annulée",
         "userBan": "Joueur banni",
-        "userUnban": "Bannissement levé"
+        "userUnban": "Bannissement levé",
+        "announcementPublish": "Annonce publiée",
+        "announcementEnd": "Annonce retirée"
       },
       "empty": "Aucune action pour l'instant.",
       "deletedAdmin": "compte supprimé",
@@ -539,6 +572,7 @@
       "next": "Plus anciennes",
       "collectionTarget": "Règles du jeu",
       "auctionTarget": "Vente n° {id}",
+      "announcementTarget": "Annonce n° {id}",
       "on": "oui",
       "off": "non",
       "auctionDetails": "{price, number} {price, plural, one {pièce} other {pièces}}, {bids, plural, =0 {aucune mise} one {# mise} other {# mises}}",
@@ -592,13 +626,17 @@
         "bidIncrementPercent": "Pas d'enchère (%)",
         "auctionExtensionMinutes": "Prolongation (minutes)",
         "maxActiveAuctions": "Ventes en cours par joueur",
-        "streakRewards": "Paliers (jours:paquets)"
+        "streakRewards": "Paliers (jours:paquets)",
+        "streakRepairCoinsPerDay": "Réparation : pièces par jour de série",
+        "streakRepairMaxCoins": "Réparation : prix maximum"
       },
       "saveRules": "Enregistrer les règles",
       "streakHeading": "Série de jours",
       "streakIntro": "Chaque jour où un joueur ouvre un paquet allonge sa série ; un jour manqué par semaine ne la casse pas. Quand elle atteint un palier, ses paquets bonus s'ajoutent à sa réserve, même au-delà du maximum.",
       "streakHint": "Séparés par des virgules : 3:1, 7:1, 30:2. Un nombre seul donne un paquet ; vide, aucun paquet bonus.",
       "saveStreak": "Enregistrer les paliers",
+      "repairIntro": "Le jour où sa série s'arrête, un joueur peut la réparer avec des pièces : tant par jour de la série, jusqu'au prix maximum. Ces pièces sont détruites.",
+      "saveRepair": "Enregistrer le prix de réparation",
       "resaleHeading": "Revente des doublons",
       "resaleIntro": "Pièces gagnées pour un doublon revendu, selon sa rareté.",
       "saveResale": "Enregistrer les valeurs",
@@ -630,6 +668,51 @@
         "oddsNoCards": "Une rareté sans carte en jeu ne peut pas avoir de probabilité.",
         "oddsInPast": "La date de début ne peut pas être dans le passé.",
         "pricesOrder": "Pour chaque rareté, le minimum ne peut pas dépasser le maximum."
+      }
+    },
+    "announcements": {
+      "title": "Annonces",
+      "intro": "Le bandeau en haut des pages du site, pour tous les visiteurs. Un seul s'affiche : le plus récent déjà commencé. Un visiteur qui le ferme ne le revoit plus sur cet appareil.",
+      "currentHeading": "Affichée maintenant",
+      "noneShown": "Aucune annonce ne s'affiche en ce moment.",
+      "newHeading": "Nouvelle annonce",
+      "newIntro": "Elle remplace celle qui s'affiche, dès son début.",
+      "message": "Message",
+      "messageHint": "Texte simple, {max} caractères au plus.",
+      "linkUrl": "Lien (facultatif)",
+      "linkUrlHint": "Une page du site (/rules) ou une adresse en https.",
+      "linkLabel": "Texte du lien",
+      "linkLabelHint": "« En savoir plus » si vide.",
+      "tone": "Ton",
+      "tones": {
+        "info": "Information",
+        "important": "Important"
+      },
+      "startsAt": "Début (heure de Paris)",
+      "startsAtHint": "Maintenant par défaut.",
+      "endsAt": "Fin (facultative)",
+      "endsAtHint": "Sans fin, elle reste jusqu'à ce que vous la retiriez.",
+      "publish": "Publier l'annonce",
+      "saved": "Annonce publiée.",
+      "listHeading": "Annonces récentes",
+      "empty": "Aucune annonce pour l'instant.",
+      "state": "État",
+      "states": {
+        "live": "En cours",
+        "upcoming": "Programmée",
+        "over": "Terminée"
+      },
+      "dates": "Dates",
+      "fromTo": "Du {from} au {to}",
+      "fromOn": "À partir du {from}",
+      "actions": "Actions",
+      "end": "Retirer",
+      "historyHeading": "Historique",
+      "errors": {
+        "invalid": "Vérifiez les champs : un message, un ton et des dates valides.",
+        "link": "Le lien doit mener à une page du site (commençant par /) ou à une adresse en https.",
+        "dates": "La fin doit venir après le début.",
+        "over": "Cette annonce est déjà terminée."
       }
     },
     "market": {
@@ -872,7 +955,7 @@
     },
     "cookies": {
       "title": "Cookies",
-      "body": "<p>Le site dépose ces cookies, tous exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « theme », qui retient le thème d'affichage que vous avez choisi (Auto, Clair ou Sombre) ;</li><li>pendant une connexion avec Google, un cookie de quelques minutes qui la protège contre une tentative de détournement.</li></ul><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères sont servies par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
+      "body": "<p>Le site dépose ces cookies, tous exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « theme », qui retient le thème d'affichage que vous avez choisi (Auto, Clair ou Sombre) ;</li><li>le cookie « announcement », qui retient la dernière annonce que vous avez fermée, pour qu'elle ne s'affiche plus (un an) ;</li><li>pendant une connexion avec Google, un cookie de quelques minutes qui la protège contre une tentative de détournement.</li></ul><p>Votre choix de couper les sons et les vibrations est gardé par votre navigateur, sur cet appareil seulement ; il ne nous est pas transmis.</p><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères sont servies par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
     },
     "security": {
       "title": "Sécurité",
@@ -910,6 +993,11 @@
     "trades": "Échanges",
     "profile": "Profil"
   },
+  "Announcement": {
+    "label": "Annonce",
+    "more": "En savoir plus",
+    "close": "Fermer l'annonce"
+  },
   "Sheet": {
     "close": "Fermer"
   },
@@ -918,6 +1006,11 @@
     "system": "Auto",
     "light": "Clair",
     "dark": "Sombre"
+  },
+  "Effects": {
+    "label": "Sons et vibrations",
+    "on": "Activés",
+    "off": "Coupés"
   },
   "Game": {
     "welcome": "Bonjour {pseudo}",
@@ -950,6 +1043,7 @@
       "tooFast": "Vous ouvrez des paquets très vite : attendez une minute avant le suivant.",
       "noDuplicate": "Vous n'avez pas de doublon à revendre.",
       "notEnoughCoins": "Vous n'avez pas assez de pièces.",
+      "nothingToRepair": "Il n'y a pas de série à réparer aujourd'hui : une série se répare le jour où elle s'arrête.",
       "tradesClosed": "Les échanges sont fermés pour le moment.",
       "notFriends": "Les échanges se font entre amis : vous n'êtes pas amis avec ce joueur.",
       "tradeEmpty": "Choisissez au moins une carte de chaque côté.",
@@ -1152,6 +1246,7 @@
     "back": "Mes amis",
     "proposeTrade": "Proposer un échange",
     "progress": "Cartes différentes",
+    "badges": "{count, plural, one {Le badge de {pseudo}} other {Les # badges de {pseudo}}}",
     "tabs": {
       "owned": "Ses cartes",
       "duplicates": "Ses doublons",
@@ -1255,6 +1350,13 @@
       "unsupported": "Ce navigateur ne peut pas recevoir de notifications. Sur iPhone et iPad, ajoutez d'abord World Up à l'écran d'accueil.",
       "failed": "Les notifications n'ont pas pu être activées. Réessayez dans un instant."
     },
+    "reminder": {
+      "title": "Rappel de série",
+      "on": "À 20 h, si votre série de jours s'arrête à minuit faute de paquet ouvert, vous recevez un rappel.",
+      "off": "Le rappel du soir est coupé : votre série de jours peut s'arrêter sans prévenir.",
+      "turnOn": "Activer le rappel",
+      "turnOff": "Couper le rappel"
+    },
     "prompt": {
       "title": "Activer les notifications ?",
       "body": "Recevez une notification quand votre réserve de paquets est pleine, pour une demande d'ami, une offre d'échange ou une enchère dépassée.",
@@ -1271,7 +1373,8 @@
       "friend": "Amis",
       "trade": "Échanges",
       "auction": "Enchères",
-      "packs": "Paquets"
+      "packs": "Paquets",
+      "streak": "Série de jours"
     },
     "friend_request": "{pseudo} vous demande en ami.",
     "friend_accepted": "{pseudo} a accepté votre demande d'ami.",
@@ -1284,7 +1387,8 @@
     "auction_sold": "Votre vente de {card} est conclue.",
     "auction_unsold": "Votre vente de {card} s'est terminée sans enchère.",
     "auction_cancelled": "La vente de {card} a été annulée.",
-    "packs_full": "Votre réserve est pleine : vos paquets gratuits vous attendent. Ouvrez-en un pour relancer le minuteur."
+    "packs_full": "Votre réserve est pleine : vos paquets gratuits vous attendent. Ouvrez-en un pour relancer le minuteur.",
+    "streak_reminder": "Votre série de {days, plural, one {# jour} other {# jours}} s'arrête à minuit : ouvrez un paquet pour la garder."
   },
   "Leaderboard": {
     "title": "Classement",
@@ -1331,7 +1435,9 @@
     "packsFull": "Quand la réserve est pleine, le minuteur s'arrête ; il repart à l'ouverture suivante.",
     "packsDraw": "Le contenu d'un paquet est tiré par le serveur à l'ouverture, selon les <odds>probabilités publiées</odds>.",
     "streakHeading": "La série de jours",
-    "streakRule": "Chaque jour où vous ouvrez au moins un paquet (à l'heure de Paris) allonge votre série d'un jour. Un jour manqué par semaine, du lundi au dimanche, ne la casse pas : il ne compte pas, mais la série continue. Un deuxième jour manqué dans la même semaine la fait repartir de zéro.",
+    "streakRule": "Chaque jour où vous ouvrez au moins un paquet (à l'heure de Paris) allonge votre série d'un jour. Un jour manqué par semaine, du lundi au dimanche, ne la casse pas : il ne compte pas, mais la série continue. Un deuxième jour manqué dans la même semaine l'arrête.",
+    "streakRepair": "Le jour où votre série s'arrête, vous pouvez la réparer jusqu'à minuit : elle reprend comme si vous n'aviez rien manqué. La réparation coûte {perDay, plural, one {# pièce} other {# pièces}} par jour de série, {max, plural, one {# pièce} other {# pièces}} au plus ; ces pièces sortent du jeu.",
+    "streakReminder": "Si votre série s'arrête à minuit faute de paquet ouvert, un rappel vous prévient à 20 h. Vous pouvez le couper depuis la page Activité.",
     "streakRewards": "Quand votre série atteint un palier, ses paquets bonus s'ajoutent à votre réserve, même au-delà de son maximum :",
     "streakCaption": "Paquets bonus de la série de jours",
     "streakDays": "Série",
@@ -1477,15 +1583,22 @@
     }
   },
   "Streak": {
-    "button": "Série de jours : {days, plural, =0 {aucune en cours} one {# jour} other {# jours}}",
+    "button": "Série de jours : {days, plural, =0 {aucune en cours} one {# jour} other {# jours}}{repair, select, yes {, réparable aujourd'hui} other {}}",
     "unit": "{days, plural, =0 {jour de série} one {jour de série !} other {jours de série !}}",
-    "lead": "{state, select, tomorrow {Revenez demain pour passer à {next} jours.} today {Ouvrez un paquet aujourd'hui pour passer à {next} jours.} other {Ouvrez un paquet pour commencer une série.}}",
+    "lead": "{state, select, tomorrow {Revenez demain pour passer à {next} jours.} today {Ouvrez un paquet aujourd'hui pour passer à {next} jours.} broken {Réparez votre série ci-dessous, ou ouvrez un paquet pour en commencer une nouvelle.} other {Ouvrez un paquet pour commencer une série.}}",
     "week": "Cette semaine",
-    "day": "{day} : {state, select, played {paquet ouvert} graced {jour de grâce, la série continue} today {aujourd'hui, paquet ouvert} pending {aujourd'hui, pas encore de paquet} future {à venir} other {pas de paquet}}",
+    "day": "{day} : {state, select, played {paquet ouvert} graced {jour de grâce, la série continue} frozen {jour réparé, la série continue} today {aujourd'hui, paquet ouvert} pending {aujourd'hui, pas encore de paquet} future {à venir} other {pas de paquet}}",
     "graceLeft": "Un jour manqué par semaine ne casse pas la série.",
     "graceUsed": "Le jour de grâce de cette semaine est déjà pris.",
     "next": "Encore {left, plural, one {# jour} other {# jours}} pour gagner {packs, plural, one {un paquet bonus} other {# paquets bonus}}",
     "bonus": "{packs, plural, one {Un paquet bonus vous attend} other {# paquets bonus vous attendent}} dans la réserve !",
+    "repair": {
+      "title": "Votre série de {days, plural, one {# jour} other {# jours}} s'est arrêtée.",
+      "body": "Réparez-la avant minuit : elle reprend comme si vous n'aviez rien manqué.",
+      "button": "Réparer pour {coins, plural, one {# pièce} other {# pièces}}",
+      "notEnough": "Il vous faut {coins, plural, one {# pièce disponible} other {# pièces disponibles}}.",
+      "failed": "La réparation n'a pas abouti. Réessayez dans un instant."
+    },
     "continue": "Continuer"
   }
 }

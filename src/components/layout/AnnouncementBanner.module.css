@@ -1,0 +1,96 @@
+/* The announcement over the site's pages: a sticker strip, sage or terracotta */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 1040px;
+  margin: 10px auto 0;
+  padding: 8px 8px 8px 12px;
+  border: 2px solid var(--sticker-line);
+  border-radius: 18px;
+  background: var(--color-sage-tint);
+  color: var(--color-text);
+  box-shadow: 0 2px 0 var(--sticker-shadow);
+}
+
+/* Inside the page's gutters */
+@media (max-width: 1071px) {
+  .banner {
+    margin-inline: 16px;
+  }
+}
+
+.banner[data-tone="important"] {
+  background: var(--color-accent-tint);
+}
+
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--sticker-line);
+  border-radius: 50%;
+  background: var(--color-sage);
+  color: var(--sticker-line);
+}
+
+.banner[data-tone="important"] .icon {
+  background: var(--color-accent);
+}
+
+.icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.link {
+  color: var(--color-accent-strong);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -4px 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.close:active {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+@media (hover: hover) {
+  .close:hover {
+    color: var(--color-text);
+  }
+}
+
+.close:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: -3px;
+}

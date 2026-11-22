@@ -16,6 +16,7 @@ import {
   saveMarketRules,
   saveOdds,
   saveResaleValues,
+  saveStreakRepair,
   saveStreakRewards,
 } from './actions';
 import styles from '../../admin.module.css';
@@ -76,6 +77,35 @@ export function StreakRewardsForm({ rewards }: { rewards: StreakReward[] }) {
       />
       <SubmitButton variant="primary" pending={pending}>
         {t('saveStreak')}
+      </SubmitButton>
+      <Result state={state} />
+    </form>
+  );
+}
+
+const REPAIR_FIELDS = ['streakRepairCoinsPerDay', 'streakRepairMaxCoins'] as const;
+
+export function StreakRepairForm({ rules }: { rules: GameRules }) {
+  const t = useTranslations('Admin.rules');
+  const [state, action, pending] = useActionState(saveStreakRepair, null);
+  return (
+    <form action={action} className={styles.form}>
+      <div className={styles.filters}>
+        {REPAIR_FIELDS.map((field) => (
+          <TextField
+            key={field}
+            label={t(`fields.${field}`)}
+            name={field}
+            type="number"
+            inputMode="numeric"
+            min={1}
+            required
+            defaultValue={rules[field]}
+          />
+        ))}
+      </div>
+      <SubmitButton variant="primary" pending={pending}>
+        {t('saveRepair')}
       </SubmitButton>
       <Result state={state} />
     </form>

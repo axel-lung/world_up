@@ -9,7 +9,8 @@ import { drawRarity, type RandomInt, secureRandom } from './draw';
 import { GameError } from './game-error';
 import { type Reserve, refill, takePack } from './refill';
 import { currentOdds, type GameRules, getGameRules, getStreakRewards } from './rules';
-import { NO_STREAK, parisDay, playDay, rewardFor, type StoredStreak, streakView, type StreakView } from './streak';
+import { parisDay, playDay, rewardFor } from './streak';
+import { streakColumns, streakOf, streakValues } from './streaks';
 
 // Free packs: the reserve and the opening. The server decides everything; the
 // clock is a parameter so the tests can move it.
@@ -114,13 +115,7 @@ export async function openPack(
     const rules = await getGameRules(tx, collectionId);
     await ensureReserve(tx, userId, collectionId, rules, now);
     const [stored] = await tx
-      .select({
-        packs: packState.packs,
-        lastRefill: packState.lastRefill,
-        streakDays: packState.streakDays,
-        streakLastDay: packState.streakLastDay,
-        streakGraceDay: packState.streakGraceDay,
-      })
+      .select({ packs: packState.packs, lastRefill: packState.lastRefill, ...streakColumns })
       .from(packState)
       .where(and(eq(packState.userId, userId), eq(packState.collectionId, collectionId)))
       .for('update');
@@ -194,9 +189,7 @@ export async function openPack(
         lastRefill: taken.lastRefill,
         // Below its maximum now, the reserve will be worth a notice once full again
         notifyWhenFull: packs < rules.maxReserve,
-        streakDays: played.streak.days,
-        streakLastDay: played.streak.lastDay,
-        streakGraceDay: played.streak.graceDay,
+        ...streakValues(played.streak),
       })
       .where(and(eq(packState.userId, userId), eq(packState.collectionId, collectionId)));
 
@@ -220,34 +213,6 @@ export async function openPack(
       streak: { counted: played.counted, before: played.before, bonusPacks },
     };
   });
-}
-
-function streakOf(row: { streakDays: number; streakLastDay: string | null; streakGraceDay: string | null }): StoredStreak {
-  return { days: row.streakDays, lastDay: row.streakLastDay, graceDay: row.streakGraceDay };
-}
-
-/**
- * The player's daily streak as it stands, for its screen; after an opening,
- * with what that opening did to it.
- */
-export async function getStreak(
-  userId: string,
-  collectionId: number,
-  now: Date,
-  opening?: OpenedPack['streak'],
-): Promise<StreakView> {
-  const [[row], rewards] = await Promise.all([
-    db
-      .select({
-        streakDays: packState.streakDays,
-        streakLastDay: packState.streakLastDay,
-        streakGraceDay: packState.streakGraceDay,
-      })
-      .from(packState)
-      .where(and(eq(packState.userId, userId), eq(packState.collectionId, collectionId))),
-    getStreakRewards(db, collectionId),
-  ]);
-  return streakView(row ? streakOf(row) : NO_STREAK, parisDay(now), rewards, opening);
 }
 
 /**

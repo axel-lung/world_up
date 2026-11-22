@@ -7,10 +7,11 @@ import { db } from '@/db';
 import type { AwardedAchievement } from '@/lib/game/achievements';
 import { type OpenedCard, openingCards } from '@/lib/game/collection';
 import { GameError, type GameErrorCode } from '@/lib/game/game-error';
-import { getReserve, getStreak, openPack } from '@/lib/game/packs';
+import { getReserve, openPack } from '@/lib/game/packs';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
 import type { StreakView } from '@/lib/game/streak';
+import { getStreak } from '@/lib/game/streaks';
 import { requireSession } from '@/lib/session';
 
 /** PackReserve's props, as plain values the browser can receive. */

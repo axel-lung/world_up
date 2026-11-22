@@ -21,6 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- The launcher icon's long press: "Ouvrir un paquet" -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+
             <!--
                 The site's links open in the app (MainActivity.openSiteLink), verified by the
                 site's /.well-known/assetlinks.json: the e-mails' links (address confirmation,

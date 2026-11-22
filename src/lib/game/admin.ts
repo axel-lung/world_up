@@ -25,6 +25,7 @@ import {
   getResaleValues,
   getStreakRewards,
   type MarketRules,
+  type PackRules,
   type PriceRange,
   visibleCardsByRarity,
 } from './rules';
@@ -44,23 +45,24 @@ function audit(tx: Transaction, adminId: string, action: string, collectionId: n
   return tx.insert(auditLog).values({ adminId, action, targetType: 'collection', targetId: String(collectionId), details });
 }
 
+/** Some of the rows' game rules: the pack rules, or the streak's repair price. */
 export async function updateGameRules(
   database: Database,
   adminId: string,
   collectionId: number,
-  rules: GameRules,
+  rules: PackRules | Pick<GameRules, 'streakRepairCoinsPerDay' | 'streakRepairMaxCoins'>,
 ): Promise<void> {
   await database.transaction(async (tx) => {
     await tx.execute(sql`SELECT 1 FROM ${gameRules} WHERE ${gameRules.collectionId} = ${collectionId} FOR UPDATE`);
     const before = await getGameRules(tx, collectionId);
-    if (Object.entries(rules).every(([key, value]) => before[key as keyof GameRules] === value)) {
-      throw new RulesError('unchanged');
-    }
+    const keys = Object.keys(rules) as (keyof GameRules)[];
+    if (keys.every((key) => before[key] === rules[key as keyof typeof rules])) throw new RulesError('unchanged');
     await tx
       .update(gameRules)
       .set({ ...rules, updatedAt: sql`now()` })
       .where(eq(gameRules.collectionId, collectionId));
-    await audit(tx, adminId, 'rules.update', collectionId, { from: before, to: rules });
+    const from = Object.fromEntries(keys.map((key) => [key, before[key]]));
+    await audit(tx, adminId, 'rules.update', collectionId, { from, to: rules });
   });
 }
 

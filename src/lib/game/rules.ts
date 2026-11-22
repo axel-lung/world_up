@@ -13,6 +13,9 @@ type Executor = Database | Transaction;
 
 export type GameRules = Omit<typeof gameRules.$inferSelect, 'collectionId' | 'updatedAt'>;
 
+/** The pack rules, which /admin/rules edits together; the streak's repair price has its own form. */
+export type PackRules = Omit<GameRules, 'streakRepairCoinsPerDay' | 'streakRepairMaxCoins'>;
+
 /**
  * An active collection by its slug (the [collection] segment of the game's
  * URLs) with the emblem of its theme, or null. Cached for the request: the
@@ -36,6 +39,8 @@ export async function getGameRules(executor: Executor, collectionId: number): Pr
       refillMinutes: gameRules.refillMinutes,
       maxReserve: gameRules.maxReserve,
       coinsPerOpening: gameRules.coinsPerOpening,
+      streakRepairCoinsPerDay: gameRules.streakRepairCoinsPerDay,
+      streakRepairMaxCoins: gameRules.streakRepairMaxCoins,
     })
     .from(gameRules)
     .where(eq(gameRules.collectionId, collectionId));

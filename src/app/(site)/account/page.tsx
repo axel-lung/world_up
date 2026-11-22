@@ -1,15 +1,20 @@
-import { AtSign, ChevronDown, ChevronRight, CircleHelp, Download, KeyRound, LogIn, Mail } from 'lucide-react';
+import { AtSign, Award, ChevronDown, ChevronRight, CircleHelp, Download, KeyRound, LockKeyhole, LogIn, Mail } from 'lucide-react';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { ChangePasswordForm, DeleteAccountForm, PseudoForm, SignOutButton } from '@/components/account/AccountForms';
+import { BadgeSticker } from '@/components/badge/Badge';
 import { FooterLinks } from '@/components/layout/SiteHeader';
 import { ThemeSwitch } from '@/components/layout/ThemeSwitch';
+import { Button } from '@/components/ui/Button';
+import { EffectsSwitch } from '@/components/ui/EffectsSwitch';
 import { Sheet, type SheetTrigger } from '@/components/ui/Sheet';
 import { db } from '@/db';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
+import { achievementTitle } from '@/lib/game/achievement-title';
+import { playerBadges } from '@/lib/game/badges';
 import { coinBalance } from '@/lib/game/coins';
 import { collectionCounts } from '@/lib/game/collection';
 import { playerRank } from '@/lib/game/leaderboard';
@@ -19,6 +24,7 @@ import { requireSession } from '@/lib/session';
 import { signInMethods } from '@/lib/sign-in-methods';
 import { themePreference } from '@/lib/theme-preference';
 import phone from '../phone.module.css';
+import { featureBadgeAction } from './actions';
 import styles from './page.module.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -35,23 +41,43 @@ export async function generateMetadata(): Promise<Metadata> {
 // Subscription, spending cap and purchase history join this page in lot 4.
 export default async function AccountPage() {
   const { user } = await requireSession('/account', { terms: false });
-  const [t, tNav, tGame, format, methods, cookieStore, collection] = await Promise.all([
+  const [t, tNav, tGame, tAchievement, tRarity, format, methods, cookieStore, collection] = await Promise.all([
     getTranslations('Account'),
     getTranslations('Nav'),
     getTranslations('Game'),
+    getTranslations('Achievements'),
+    getTranslations('Rarity'),
     getFormatter(),
     signInMethods(user.id),
     cookies(),
     getActiveCollection(DEFAULT_COLLECTION_SLUG),
   ]);
-  // The player's figures in the game, for the phone's profile
-  const [counts, balance, rank] = collection
+  // The player's figures in the game, for the phone's profile, and their badges
+  const [counts, balance, rank, badges] = collection
     ? await Promise.all([
         collectionCounts({ userId: user.id, collectionId: collection.id }),
         coinBalance(db, user.id),
         playerRank(collection.id, user.id),
+        playerBadges(user.id, collection.id),
       ])
-    : [null, null, null];
+    : [null, null, null, []];
+  const badgeTitle = (badge: (typeof badges)[number]) => achievementTitle(tAchievement, tRarity, badge);
+  const obtained = badges.filter((badge) => badge.obtainedAt);
+  const locked = badges.filter((badge) => !badge.obtainedAt);
+  const featured = badges.find((badge) => badge.featured);
+  // A badge large, with its title under it
+  const showcase = (list: typeof badges) => (
+    <ul className={styles.showcase}>
+      {list.map((badge) => (
+        <li key={badge.id} data-locked={!badge.obtainedAt || undefined}>
+          <BadgeSticker badge={badge} label={badgeTitle(badge)} size="large" locked={!badge.obtainedAt} />
+          <span className={styles.badgeName} aria-hidden="true">
+            {badgeTitle(badge)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
   // birthDate is a calendar date: format it in UTC so it never shifts by a day.
   const birthDate = format.dateTime(new Date(`${user.birthDate}T00:00:00Z`), { dateStyle: 'long', timeZone: 'UTC' });
   const memberSince = format.dateTime(user.createdAt, { dateStyle: 'long', timeZone: 'Europe/Paris' });
@@ -90,6 +116,12 @@ export default async function AccountPage() {
           <span className={styles.whoText}>
             <h2 id="identity-heading" className={styles.pseudo}>
               {user.name}
+              {featured && (
+                <>
+                  {' '}
+                  <BadgeSticker badge={featured} label={badgeTitle(featured)} />
+                </>
+              )}
             </h2>
             <span className={styles.since}>{t('memberSinceOn', { date: memberSince })}</span>
           </span>
@@ -117,6 +149,56 @@ export default async function AccountPage() {
           </ul>
         )}
       </section>
+
+      {badges.length > 0 && (
+        <section className={styles.badges} aria-labelledby="badges-heading">
+          <div className={styles.badgesHead}>
+            <h2 id="badges-heading">{t('badges.title')}</h2>
+            <span className={styles.muted}>{t('badges.count', { obtained: obtained.length, total: badges.length })}</span>
+          </div>
+          {obtained.length > 0 ? showcase(obtained) : <p className={styles.muted}>{t('badges.noneYet')}</p>}
+          {/* The ones still to win, folded: twenty greyed stickers would bury the settings */}
+          {locked.length > 0 && (
+            <details className={styles.help}>
+              <summary>
+                <LockKeyhole aria-hidden className={styles.helpIcon} />
+                <span>{t('badges.toWin', { count: locked.length })}</span>
+                <ChevronDown aria-hidden className={styles.helpChevron} />
+              </summary>
+              {showcase(locked)}
+            </details>
+          )}
+          {obtained.length > 0 && (
+            <div className={styles.badgeChoice}>
+              <Sheet
+                inline
+                title={t('badges.choose')}
+                trigger={row(<Award aria-hidden />, t('badges.choose'), featured ? badgeTitle(featured) : t('badges.none'))}
+              >
+                <form action={featureBadgeAction} className={styles.badgeForm}>
+                  <fieldset>
+                    <legend className={styles.muted}>{t('badges.chooseHint')}</legend>
+                    <label className={styles.badgeOption}>
+                      <input type="radio" name="badge" value="none" defaultChecked={!featured} />
+                      <span>{t('badges.none')}</span>
+                    </label>
+                    {obtained.map((badge) => (
+                      <label key={badge.id} className={styles.badgeOption}>
+                        <input type="radio" name="badge" value={badge.id} defaultChecked={badge.featured} />
+                        <BadgeSticker badge={badge} label="" />
+                        <span>{badgeTitle(badge)}</span>
+                      </label>
+                    ))}
+                  </fieldset>
+                  <Button type="submit" variant="primary">
+                    {t('badges.save')}
+                  </Button>
+                </form>
+              </Sheet>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* The settings: sections on a wider screen, rows of one list on a phone */}
       <div className={styles.settings}>
@@ -187,6 +269,12 @@ export default async function AccountPage() {
             </a>
           </Sheet>
         </section>
+      </div>
+
+      {/* Sounds and vibrations of the pack opening, on this device */}
+      <div className={styles.theme}>
+        <span aria-hidden="true">{t('more.effects')}</span>
+        <EffectsSwitch name="effects-account" />
       </div>
 
       {/* A phone hides a player's footer: its theme and links are here instead */}

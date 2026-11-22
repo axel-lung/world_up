@@ -15,6 +15,8 @@ What the app does natively, where a WebView can't do what a browser does:
 - **Other sites** (Wikipedia, Commons, the licences) open in a tab over the app (Custom Tabs, `androidx.browser`), in the site's colors, which closes back to the game; Capacitor would send them to the browser.
 - **System bars**: the strips behind the status and navigation bars take the ground of the page at the top of the screen, with icons that stand out on it: the theme forced in the game, the pack opening's dark stage. The site tells the app with the app's own `SiteGround` plugin (`SiteGroundPlugin.java`, `src/lib/app-system-bars.ts`); an older app ignores it and keeps the phone's theme.
 - **No scrollbar**: the WebView shows none while it scrolls, like a native screen.
+- **Vibrations**: the pack opening's and the streak screen's go through `@capacitor/haptics` (`src/lib/effects.ts`); an app built before it has none.
+- **Shortcut**: a long press on the launcher icon offers "Ouvrir un paquet" (`res/xml/shortcuts.xml`, its icon `ic_shortcut_open`), which opens the default collection's opening page; `app/build.gradle` builds that address from the server URL (`shortcut_open_url`).
 
 The site finds out it runs in the app with `isNativeApp()` (`src/lib/native-app.ts`). In a browser nothing changes.
 
@@ -66,6 +68,7 @@ Both are signed with the upload key. The `versionCode` is the run number, so eac
 ## Changing the app
 
 - Name: `appName` in `capacitor.config.ts` and `app_name` in `app/src/main/res/values/strings.xml`. Colors: `res/values/colors.xml` (and `values-night/`), `capacitor.config.ts`. A new launcher icon or splash needs a new release.
+- The launcher shortcuts: `res/xml/shortcuts.xml`, their labels in `strings.xml`, their address in `app/build.gradle`. A shortcut needs a new release.
 - The site's paths that open in the app: the intent filter in `AndroidManifest.xml`. Never `/api/auth/callback/`: a Google sign-in started in the phone's browser must come back to the browser.
 - Every year Google Play requires a recent target Android version (August 31 for new releases): raise `targetSdkVersion` and `compileSdkVersion` in `variables.gradle`, usually with a Capacitor update.
 - Capacitor packages (`@capacitor/*`, `@capgo/capacitor-social-login`) move together: Dependabot groups them. After an update, `npx cap sync android`, and commit what it changed in `android/`.

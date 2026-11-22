@@ -7,12 +7,15 @@ import { PushPrompt } from '@/components/social/PushPrompt';
 import { ButtonLink } from '@/components/ui/Button';
 import { receivedOffers } from '@/lib/game/trades';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
+import { ANNOUNCEMENT_COOKIE } from '@/lib/announcement-shared';
+import { currentAnnouncement } from '@/lib/announcements';
 import { getActiveCollection } from '@/lib/game/rules';
 import { appPushEnabled } from '@/lib/notifications/push';
 import { receivedRequestCount } from '@/lib/social/friends';
 import { themePreference } from '@/lib/theme-preference';
 import { NavLinks } from './NavLinks';
 import { NotificationBell } from './NotificationBell';
+import { AnnouncementBanner } from './AnnouncementBanner';
 import { getPlayerStatus } from './player-status';
 import styles from './SiteHeader.module.css';
 import { TabBar } from './TabBar';
@@ -94,6 +97,17 @@ export async function SiteHeader() {
       <NavLinks items={items} label={t('label')} />
     </header>
   );
+}
+
+/**
+ * The back-office's announcement over every page, unless this visitor closed
+ * it (its ID in the cookie).
+ */
+export async function SiteAnnouncement() {
+  const [announcement, cookieStore] = await Promise.all([currentAnnouncement(), cookies()]);
+  if (!announcement || cookieStore.get(ANNOUNCEMENT_COOKIE)?.value === String(announcement.id)) return null;
+  const { id, message, linkUrl, linkLabel, tone } = announcement;
+  return <AnnouncementBanner announcement={{ id, message, linkUrl, linkLabel, tone }} />;
 }
 
 /**
