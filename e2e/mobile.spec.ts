@@ -21,9 +21,26 @@ test('on a phone, a player moves around with the tab bar', async ({ page }) => {
 
   // The home has the bell, the reserve and its button
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Bonjour ${player.pseudo}`);
-  await expect(page.getByRole('link', { name: /^Activité/ })).toBeVisible();
+  await expect(page.locator('main > header').getByRole('link', { name: /^Activité/ })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Vos paquets' })).toContainText('10 paquets');
   await expect(page.getByRole('region', { name: 'Vos paquets' }).getByRole('link', { name: 'Ouvrir un paquet' })).toBeVisible();
+
+  // Then a mosaic of tiles to every part of the game: links, and two that open
+  // their screen in place (the achievements, the streak), which Back closes
+  const menu = page.getByRole('navigation', { name: 'Menu du jeu' });
+  await expect(menu.getByRole('listitem')).toHaveCount(16);
+  await menu.getByRole('button', { name: 'Succès' }).click();
+  await expect(page.getByRole('dialog', { name: 'Succès' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('dialog', { name: 'Succès' })).toBeHidden();
+  await menu.getByRole('button', { name: /^Série de jours/ }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await menu.getByRole('link', { name: 'Chances' }).click();
+  await expect(page).toHaveURL(/\/odds$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/c\/heritage$/);
 
   // The collection's filters are menus opening a sheet: a choice applies and closes it
   await tabs.getByRole('link', { name: 'Collection' }).click();

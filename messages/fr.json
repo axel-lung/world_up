@@ -1083,8 +1083,28 @@
     "resellAllQuestion": "Revendre {copies, plural, one {votre doublon} other {vos # doublons}} pour {coins, plural, one {# pièce} other {# pièces}} ?",
     "resellHint": "Vous gardez un exemplaire de chaque carte.",
     "resellAllSubmit": "{copies, plural, one {Revendre le doublon} other {Revendre les # doublons}}",
-    "seriesInProgress": "Séries en cours",
-    "seeAll": "Tout voir"
+    "menu": {
+      "label": "Menu du jeu",
+      "collection": "Collection",
+      "series": "Séries",
+      "duplicates": "Doublons",
+      "achievements": "Succès",
+      "market": "Marché",
+      "trades": "Échanges",
+      "friends": "Amis",
+      "leaderboard": "Classement",
+      "history": "Historique",
+      "streak": "Série",
+      "mySales": "Mes ventes",
+      "activity": "Activité",
+      "account": "Compte",
+      "rules": "Règles",
+      "odds": "Chances",
+      "credits": "Crédits",
+      "toResell": "{count, plural, one {# à revendre} other {# à revendre}}",
+      "waiting": "{count, plural, one {# en attente de votre réponse} other {# en attente de votre réponse}}",
+      "unread": "{count, plural, one {# non lue} other {# non lues}}"
+    }
   },
   "Achievements": {
     "packs_opened": "{count, plural, one {Ouvrir votre premier paquet} other {Ouvrir # paquets}}",

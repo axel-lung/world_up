@@ -1,6 +1,6 @@
 /* The game's home on a phone (page.tsx): the greeting with the streak and the
-   bell, then the reserve, the figures, what waits for the player and the
-   series in progress. */
+   bell, then the reserve, the figures, the menu's mosaic and what waits for
+   the player. */
 .head h1 {
   font-size: 24px;
 }
@@ -47,47 +47,139 @@
   height: 100%;
 }
 
-/* The series furthest along, two by two */
-.series {
+/* The menu (Accueil - Menu global.dc.html, 2b): square tiles, four a row, to
+   every part of the game. Each <li> gives its tile a family's colors
+   (data-tone): the collection on sand, trading on sage, playing on
+   terracotta, the rest outlined. */
+.menu {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.seriesTile {
+.menu > li {
+  --tile-bg: var(--color-surface);
+  --tile-ink: var(--color-text);
+  --tile-icon: var(--color-accent);
+  --tile-line: transparent;
+
   display: flex;
+}
+
+.menu > li[data-tone="trade"] {
+  --tile-bg: var(--color-sage-tint);
+  --tile-ink: var(--color-accent-2-800);
+  --tile-icon: var(--color-accent-2-800);
+}
+
+.menu > li[data-tone="play"] {
+  --tile-bg: var(--color-accent-tint);
+  --tile-ink: var(--color-accent-800);
+  --tile-icon: var(--color-accent-strong);
+}
+
+.menu > li[data-tone="info"] {
+  --tile-bg: transparent;
+  --tile-icon: var(--color-text-muted);
+  --tile-line: var(--color-divider);
+}
+
+/* A link or a button (the achievements' sheet, the streak's screen) */
+.menuTile {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  height: 100%;
-  padding: 12px;
-  border-radius: 20px;
-  background: var(--color-surface);
-  color: var(--color-text);
+  justify-content: center;
+  gap: 7px;
+  padding: 4px;
+  border: 1px solid var(--tile-line);
+  border-radius: 22px;
+  background: var(--tile-bg);
+  color: var(--tile-ink);
+  font: inherit;
   text-decoration: none;
+  cursor: pointer;
 }
 
-.seriesTile:hover {
-  color: var(--color-text);
+.menuTile:hover {
+  color: var(--tile-ink);
 }
 
-.seriesTile:active {
-  background: var(--color-track);
+.menuTile:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-.seriesName {
-  font-size: 13.5px;
-  font-weight: 600;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
+/* Pressed: darker, and a little smaller where motion is welcome */
+.menuTile:active {
+  box-shadow: inset 0 0 0 100px color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
-.seriesCount {
+@media (prefers-reduced-motion: no-preference) {
+  .menuTile {
+    transition: transform 120ms ease;
+  }
+
+  .menuTile:active {
+    transform: scale(0.95);
+  }
+}
+
+.menuIcon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--tile-icon);
+}
+
+.menuIcon svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* On one line: a long name may spill into the tile's padding */
+.menuLabel {
   font-size: 12px;
-  color: var(--color-text-muted);
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* What waits there, an inked sticker in the corner like the bell's */
+.menuCount {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1.5px solid var(--sticker-line);
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
   font-variant-numeric: tabular-nums;
+}
+
+/* The narrowest phones: "Classement" still fits on one line */
+@media (max-width: 359px) {
+  .menuLabel {
+    font-size: 11px;
+  }
 }
 
 /* The resale's sheet */

@@ -1,16 +1,39 @@
 import { randomUUID } from 'node:crypto';
-import { ArrowLeftRight, Check, ChevronDown, ChevronRight, Coins, Heart, Layers, PackageOpen, Trophy } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  Bell,
+  BookOpen,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  CircleUser,
+  Coins,
+  Copy,
+  Flame,
+  Heart,
+  History,
+  Info,
+  Layers,
+  LayoutGrid,
+  Medal,
+  PackageOpen,
+  Percent,
+  Store,
+  Tag,
+  Trophy,
+  Users,
+} from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations } from 'next-intl/server';
-import type { CSSProperties } from 'react';
+import type { ReactNode } from 'react';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { PackReserve, PackReserveHero } from '@/components/pack/PackReserve';
 import { StreakButton } from '@/components/streak/StreakButton';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
-import { Sheet } from '@/components/ui/Sheet';
+import { Sheet, type SheetTrigger } from '@/components/ui/Sheet';
 import { db } from '@/db';
 import { achievementTitle } from '@/lib/game/achievement-title';
 import { listAchievements } from '@/lib/game/achievements';
@@ -22,9 +45,10 @@ import { getReserve } from '@/lib/game/packs';
 import { getStreak } from '@/lib/game/streaks';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
-import { nextReceivedOffer } from '@/lib/game/trades';
+import { nextReceivedOffer, receivedOffers } from '@/lib/game/trades';
 import { unreadCount } from '@/lib/notifications/notifications';
 import { requireSession } from '@/lib/session';
+import { receivedRequestCount } from '@/lib/social/friends';
 import phone from '../../phone.module.css';
 import { resellAction } from './collection/actions';
 import { parseResaleParams } from './filters';
@@ -43,12 +67,16 @@ const TOP_SERIES = 4;
 type AchievementProgress = Awaited<ReturnType<typeof listAchievements>>[number];
 const NEXT_ACHIEVEMENTS = 3;
 
+/** A tile's family, which gives its colors: the collection, trading, playing, the rest. */
+type MenuTone = 'collection' | 'trade' | 'play' | 'info';
+
 /**
  * The player's home in a collection: packs, progress, coins, then the series
  * furthest along and the achievements closest to hand, each with the full list
  * folded under "Voir tout". A phone gets it at a glance instead: the reserve
- * and its button, three figures, what waits for the player ("À faire"), then
- * the series furthest along.
+ * and its button, three figures, a mosaic of tiles to every part of the game
+ * (Claude Design's "Accueil - Menu global.dc.html", option 2b), then what
+ * waits for the player ("À faire").
  */
 export default async function GameHomePage({ params, searchParams }: PageProps<'/c/[collection]'>) {
   const collection = await getActiveCollection((await params).collection);
@@ -74,6 +102,8 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
     duplicates,
     rank,
     offer,
+    offers,
+    requests,
     unread,
     wishedOnSale,
   ] = await Promise.all([
@@ -93,6 +123,8 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       duplicatesValue(user.id, collection.id, now),
       playerRank(collection.id, user.id),
       nextReceivedOffer(user.id, collection.id, now),
+      receivedOffers(user.id, collection.id, now),
+      receivedRequestCount(user.id),
       unreadCount(user.id),
       wishesOnSale(user.id, collection.id, now),
     ]);
@@ -138,19 +170,47 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       <span className={styles.reward}>{t('reward', { coins: achievement.rewardCoins })}</span>
     </li>
   );
-  // A series' share as a ring, a sliver at least once a card is in
-  const seriesRing = (s: SeriesProgress) => {
-    const part = share(s.owned, s.total);
-    const style = {
-      '--ring-fill': `${s.owned > 0 ? Math.max(10, Math.round(part * 360)) : 0}deg`,
-      '--ring-color': s.type === 'unesco' ? 'var(--color-sage)' : undefined,
-    } as CSSProperties;
-    return (
-      <span className={phone.ring} style={style} aria-hidden="true">
-        <span>{format.number(s.owned > 0 ? Math.max(0.01, part) : 0, { style: 'percent', maximumFractionDigits: 0 })}</span>
+  // Every achievement in a sheet, the nearest first: from "À faire" and from the menu
+  const achievementsSheet = (trigger: SheetTrigger) => (
+    <Sheet title={t('achievementsHeading')} trigger={trigger}>
+      <p className={phone.muted}>{t('achievementsCount', { obtained, total: achievements.length })}</p>
+      <ul className={`${styles.achievements} ${home.achievements}`}>
+        {[...nextAchievements, ...achievements.filter((a) => !nextAchievements.includes(a))].map(achievementRow)}
+      </ul>
+    </Sheet>
+  );
+
+  // A menu tile's face: its icon on a disc, its name, and what waits there as a
+  // sticker, read out after the name (", 3 non lues")
+  const menuFace = (icon: ReactNode, label: string, waiting?: { count: number; label: string }) => (
+    <>
+      <span className={home.menuIcon} aria-hidden="true">
+        {icon}
       </span>
-    );
-  };
+      <span className={home.menuLabel}>{label}</span>
+      {waiting && waiting.count > 0 && (
+        <>
+          <span className={home.menuCount} aria-hidden="true">
+            {waiting.count > 99 ? '99+' : number(waiting.count)}
+          </span>
+          <span className="sr-only">, {waiting.label}</span>
+        </>
+      )}
+    </>
+  );
+  const menuLink = (
+    href: string,
+    tone: MenuTone,
+    icon: ReactNode,
+    label: string,
+    waiting?: { count: number; label: string },
+  ) => (
+    <li data-tone={tone}>
+      <Link href={href} className={home.menuTile}>
+        {menuFace(icon, label, waiting)}
+      </Link>
+    </li>
+  );
 
   return (
     <main className={`${styles.page} ${phone.page}`}>
@@ -202,6 +262,50 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
           </Link>
         </li>
       </ul>
+
+      {/* Four tiles a row, colored by family: the collection (sand), trading
+          (sage), playing (terracotta), the rest (outlined) */}
+      <nav className="phone-only" aria-label={t('menu.label')}>
+        <ul className={home.menu}>
+          {menuLink(paths.collection, 'collection', <Layers />, t('menu.collection'))}
+          {menuLink(`${paths.collection}?by=series`, 'collection', <LayoutGrid />, t('menu.series'))}
+          {menuLink(`${paths.collection}?tab=duplicates`, 'collection', <Copy />, t('menu.duplicates'), {
+            count: duplicates.copies,
+            label: t('menu.toResell', { count: duplicates.copies }),
+          })}
+          <li data-tone="collection">
+            {achievementsSheet({
+              className: home.menuTile,
+              content: menuFace(<Trophy />, t('menu.achievements')),
+            })}
+          </li>
+          {menuLink(paths.market, 'trade', <Store />, t('menu.market'))}
+          {menuLink(paths.trades, 'trade', <ArrowLeftRight />, t('menu.trades'), {
+            count: offers,
+            label: t('menu.waiting', { count: offers }),
+          })}
+          {menuLink('/friends', 'trade', <Users />, t('menu.friends'), {
+            count: requests,
+            label: t('menu.waiting', { count: requests }),
+          })}
+          {menuLink('/leaderboard', 'trade', <Medal />, t('menu.leaderboard'))}
+          {menuLink(paths.history, 'play', <History />, t('menu.history'))}
+          <li data-tone="play">
+            <StreakButton view={streak} collection={collection.slug} className={home.menuTile}>
+              {menuFace(<Flame />, t('menu.streak'))}
+            </StreakButton>
+          </li>
+          {menuLink(paths.myAuctions, 'trade', <Tag />, t('menu.mySales'))}
+          {menuLink('/activity', 'play', <Bell />, t('menu.activity'), {
+            count: unread,
+            label: t('menu.unread', { count: unread }),
+          })}
+          {menuLink('/account', 'info', <CircleUser />, t('menu.account'))}
+          {menuLink('/rules', 'info', <BookOpen />, t('menu.rules'))}
+          {menuLink('/odds', 'info', <Percent />, t('menu.odds'))}
+          {menuLink('/credits', 'info', <Info />, t('menu.credits'))}
+        </ul>
+      </nav>
 
       {(offer || wishedOnSale > 0 || duplicates.copies > 0 || nearest) && (
         <section className={`${phone.section} phone-only`} aria-labelledby="todo-heading">
@@ -275,65 +379,29 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
             )}
             {nearest && (
               <li>
-                <Sheet
-                  title={t('achievementsHeading')}
-                  trigger={{
-                    className: phone.row,
-                    content: (
-                      <>
-                        <span className={phone.disc} aria-hidden="true">
-                          <Trophy />
+                {achievementsSheet({
+                  className: phone.row,
+                  content: (
+                    <>
+                      <span className={phone.disc} aria-hidden="true">
+                        <Trophy />
+                      </span>
+                      <span className={phone.rowText}>
+                        <span className={phone.rowTitle}>{achievementTitle(tAchievement, tRarity, nearest)}</span>
+                        <span className={phone.rowMeta}>
+                          {t('progress', { progress: number(nearest.progress), threshold: number(nearest.threshold) })} ·{' '}
+                          {t('reward', { coins: nearest.rewardCoins })}
                         </span>
-                        <span className={phone.rowText}>
-                          <span className={phone.rowTitle}>{achievementTitle(tAchievement, tRarity, nearest)}</span>
-                          <span className={phone.rowMeta}>
-                            {t('progress', { progress: number(nearest.progress), threshold: number(nearest.threshold) })} ·{' '}
-                            {t('reward', { coins: nearest.rewardCoins })}
-                          </span>
-                        </span>
-                        <ChevronRight aria-hidden className={phone.chevron} />
-                      </>
-                    ),
-                  }}
-                >
-                  <p className={phone.muted}>{t('achievementsCount', { obtained, total: achievements.length })}</p>
-                  <ul className={`${styles.achievements} ${home.achievements}`}>
-                    {[...nextAchievements, ...achievements.filter((a) => !nextAchievements.includes(a))].map(achievementRow)}
-                  </ul>
-                </Sheet>
+                      </span>
+                      <ChevronRight aria-hidden className={phone.chevron} />
+                    </>
+                  ),
+                })}
               </li>
             )}
           </ul>
         </section>
       )}
-
-      <section className={`${phone.section} phone-only`} aria-labelledby="progress-heading">
-        <div className={phone.sectionHead}>
-          <h2 id="progress-heading">{t('seriesInProgress')}</h2>
-          <Link href={`${paths.collection}?by=series`} className={phone.ghost}>
-            {t('seeAll')}
-          </Link>
-        </div>
-        {topSeries.length > 0 ? (
-          <ul className={home.series}>
-            {topSeries.map((s) => (
-              <li key={s.id}>
-                <Link href={`${paths.collection}?series=${s.slug}`} className={home.seriesTile}>
-                  {seriesRing(s)}
-                  <span className={phone.rowText}>
-                    <span className={home.seriesName}>{s.name}</span>
-                    <span className={home.seriesCount}>
-                      {number(s.owned)} / {number(s.total)}
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className={phone.muted}>{t('noSeriesYet')}</p>
-        )}
-      </section>
 
       {/* A wider screen */}
       <header className={`${styles.header} wide-only`}>
