@@ -158,6 +158,10 @@ export function PackOpener({
   // The server decides: once the timer is up, a pack has come (the page sent
   // again then gives the reserve's new count)
   const canOpen = reserve.available > 0 || (reserve.nextPackAt !== null && remaining === 0);
+  // The pack shown is empty only while it waits for a touch: once its opening
+  // has started, the reserve the server sends back (0 after the last pack)
+  // must not fade it, nor its button, before it bursts
+  const emptyPack = phase === 'pack' && !canOpen;
 
   const later = (run: () => void, ms: number) => {
     timers.current.push(window.setTimeout(run, ms));
@@ -355,7 +359,7 @@ export function PackOpener({
                   </span>
                 )}
                 {/* The button below opens it too, for the keyboard */}
-                <div className={styles.pack} data-empty={!canOpen || undefined} onClick={open}>
+                <div className={styles.pack} data-empty={emptyPack || undefined} onClick={open}>
                   <div className={styles.strip}>
                     <Scissors />
                     {t('tearHere')}
@@ -528,14 +532,14 @@ export function PackOpener({
                 block
                 className={styles.main}
                 onClick={open}
-                disabled={!canOpen}
+                disabled={emptyPack}
                 aria-disabled={phase === 'charge' || undefined}
                 data-busy={phase === 'charge' || undefined}
                 icon={<PackageOpen aria-hidden />}
               >
                 {t('open')}
               </Button>
-              <p className={styles.hint}>{canOpen ? t('touchPack') : nextPackIn}</p>
+              <p className={styles.hint}>{emptyPack ? nextPackIn : t('touchPack')}</p>
             </>
           )}
 
