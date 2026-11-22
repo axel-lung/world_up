@@ -1,0 +1,5 @@
+/* The map fills the page, edge to edge (src/components/map/MapExplorer.tsx) */
+.page {
+  margin: 0;
+  padding: 0;
+}

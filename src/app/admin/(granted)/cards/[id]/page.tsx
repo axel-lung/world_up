@@ -8,7 +8,7 @@ import { requireAdmin } from '@/lib/admin';
 import { getAdminCard, listAudit } from '@/lib/catalog/admin';
 import { themeEmblem } from '@/lib/collection-theme';
 import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
-import { articleUrl, cardPath, commonsFileUrl } from '@/lib/catalog/cards';
+import { articleUrl, cardPath, commonsFileUrl, openStreetMapUrl } from '@/lib/catalog/cards';
 import { AuditTable } from '../../AuditTable';
 import { PhotoForm, RarityForm, VisibilityForm } from './CardForms';
 import styles from '../../../admin.module.css';
@@ -46,6 +46,13 @@ export default async function AdminCardPage({ params }: PageProps<'/admin/cards/
     publicDomain: tCard('publicDomain'),
     unknownLicense: tCard('unknownLicense'),
   });
+  // Wikidata's point, checked on OpenStreetMap; as strings, with dots like the map's address
+  const point = card.latitude !== null && card.longitude !== null ? `${card.latitude}, ${card.longitude}` : null;
+  const location =
+    point &&
+    (card.locationPrecision !== null
+      ? t('locationValue', { point, precision: String(card.locationPrecision) })
+      : t('locationNoPrecision', { point }));
   const flags = [
     card.memorial && t('flag.memorial'),
     card.commercial && t('flag.commercial'),
@@ -110,6 +117,18 @@ export default async function AdminCardPage({ params }: PageProps<'/admin/cards/
               <div>
                 <dt>{t('family')}</dt>
                 <dd>{card.family ?? t('none')}</dd>
+              </div>
+              <div>
+                <dt>{t('location')}</dt>
+                <dd>
+                  {location ? (
+                    <a href={openStreetMapUrl(card.latitude!, card.longitude!)} target="_blank" rel="noopener">
+                      {location}
+                    </a>
+                  ) : (
+                    t('unknown')
+                  )}
+                </dd>
               </div>
               <div>
                 <dt>{t('article')}</dt>

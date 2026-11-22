@@ -4,12 +4,17 @@ import { testCard, testCatalog } from './testing';
 
 describe('parseCatalog', () => {
   it('accepts an export from the pipeline', () => {
-    const catalog = parseCatalog(testCatalog([testCard(1), testCard(2, { photo: null, hidden_reason: 'photo' })]));
-    expect(catalog.cards).toHaveLength(2);
+    const catalog = parseCatalog(
+      testCatalog([testCard(1), testCard(2, { photo: null, hidden_reason: 'photo' }), testCard(3, { coordinates: null })]),
+    );
+    expect(catalog.cards).toHaveLength(3);
   });
 
   it.each([
-    ['another format', { ...testCatalog([testCard(1)]), format: 2 }],
+    ['an export from before the coordinates', { ...testCatalog([testCard(1)]), format: 1 }],
+    ['a card without its coordinates field', testCatalog([{ ...testCard(1), coordinates: undefined as never }])],
+    ['a latitude out of range', testCatalog([testCard(1, { coordinates: { lat: 91, lon: 2, precision: null } })])],
+    ['a negative precision', testCatalog([testCard(1, { coordinates: { lat: 48, lon: 2, precision: -1 } })])],
     ['no cards', testCatalog([])],
     ['a visible card without a photo', testCatalog([testCard(1, { photo: null })])],
     ['a duplicate Wikidata ID', testCatalog([testCard(1), testCard(1, { slug: 'other' })])],

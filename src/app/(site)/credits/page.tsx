@@ -31,6 +31,16 @@ export default async function CreditsPage() {
     },
     { id: 'photos', title: t('photosTitle'), text: t.rich('photos', { link: link('https://commons.wikimedia.org/') }) },
     { id: 'rarity', title: t('rarityTitle'), text: t('rarity') },
+    {
+      id: 'map',
+      title: t('mapTitle'),
+      text: t.rich('map', {
+        osm: link('https://www.openstreetmap.org/copyright'),
+        omt: link('https://openmaptiles.org/'),
+        ign: link('https://geoservices.ign.fr/adminexpress'),
+        noto: link('https://fonts.google.com/noto/specimen/Noto+Sans'),
+      }),
+    },
     { id: 'report', title: t('reportTitle'), text: t('report') },
   ];
   return (

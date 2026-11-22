@@ -30,6 +30,7 @@ export interface SheetTrigger {
  *   from the start; closing it goes to `closeHref`.
  * - `inline` with a trigger: from 720 px, the content shows in the page as it
  *   is, without the sheet or its button (the account's forms).
+ * A button inside with a `data-sheet-close` attribute closes it like the close button.
  */
 export function Sheet({
   title,
@@ -106,8 +107,9 @@ export function Sheet({
   const onClick = (event: MouseEvent<HTMLDialogElement>) => {
     const dialog = dialogRef.current;
     if (!dialog?.open) return;
-    // The shade around the panel is the dialog itself
-    if (event.target === dialog) {
+    // The shade around the panel is the dialog itself; a button inside marked
+    // data-sheet-close closes it too (the map's "Voir 12 monuments")
+    if (event.target === dialog || (event.target as Element).closest('[data-sheet-close]')) {
       close();
       return;
     }

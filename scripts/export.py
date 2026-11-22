@@ -12,13 +12,14 @@ from pathlib import Path
 
 from fetch_images import WIDTHS, done, image_name
 
-FORMAT = 1
+# 2: each card has its coordinates
+FORMAT = 2
 COLLECTION = "heritage"
 # What the game stores of each card; the rest of data/cards.json only serves the pipeline
 CARD_FIELDS = ("wikidata_id", "slug", "name", "rank", "rarity", "protection", "unesco", "endangered", "family",
-               "department_code", "department", "region", "inception", "architect_death", "excerpt", "article",
-               "photo_problem", "memorial", "commercial", "national_domain", "twentieth_century", "hidden_reason",
-               "series")
+               "department_code", "department", "region", "coordinates", "inception", "architect_death", "excerpt",
+               "article", "photo_problem", "memorial", "commercial", "national_domain", "twentieth_century",
+               "hidden_reason", "series")
 PHOTO_FIELDS = ("commons_file", "width", "height", "author", "license", "license_url")
 
 

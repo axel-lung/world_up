@@ -4,7 +4,8 @@ import { RARITIES } from '@/lib/rarity';
 // import/catalog.json, written by scripts/export.py (format described in
 // scripts/README.md). Checked in full before the import touches anything.
 
-export const CATALOG_FORMAT = 1;
+// 2: each card has its coordinates
+export const CATALOG_FORMAT = 2;
 export const IMAGE_WIDTHS = ['400', '800'] as const;
 
 const slug = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/);
@@ -20,6 +21,13 @@ const photoSchema = z.object({
   files: z.object({ '400': imageFile, '800': imageFile }),
 });
 
+// Wikidata's point; precision in metres, null when unknown
+const coordinatesSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+  precision: z.number().int().nonnegative().nullable(),
+});
+
 const cardSchema = z.object({
   wikidata_id: z.string().regex(/^Q[1-9]\d*$/),
   slug,
@@ -33,6 +41,7 @@ const cardSchema = z.object({
   department_code: z.string().nullable(),
   department: z.string().nullable(),
   region: z.string().nullable(),
+  coordinates: coordinatesSchema.nullable(),
   // Year of construction and the last architect's death: the review of the
   // 20th-century cards depends on them
   inception: z.number().int().nullable(),

@@ -64,7 +64,19 @@ describe('importCatalog', () => {
       hiddenReason: null,
       inceptionYear: 1519,
       architectDeathYear: null,
+      latitude: 47.616111,
+      longitude: 1.517222,
+      locationPrecision: 31,
     });
+  });
+
+  it('takes the coordinates of every export, a point gone included', async () => {
+    await load([testCard(1), testCard(2, { coordinates: null })]);
+    expect((await cardRows()).get('Q2')).toMatchObject({ latitude: null, longitude: null, locationPrecision: null });
+    await load([testCard(1, { coordinates: null }), testCard(2, { coordinates: { lat: 48.858296, lon: 2.294479, precision: null } })]);
+    const rows = await cardRows();
+    expect(rows.get('Q1')).toMatchObject({ latitude: null, longitude: null, locationPrecision: null });
+    expect(rows.get('Q2')).toMatchObject({ latitude: 48.858296, longitude: 2.294479, locationPrecision: null });
   });
 
   it('changes nothing when run again with the same export', async () => {

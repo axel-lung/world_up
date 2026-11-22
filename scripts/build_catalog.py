@@ -26,6 +26,26 @@ def year(value):
         return None
 
 
+def point(row):
+    """(lat, lon, preferred, precision in degrees) of a coordinates row, None for an unknown
+    value or a point on another globe ("<globe> Point(…)")."""
+    value = row["coord"]["value"]
+    if not value.startswith("Point("):
+        return None
+    lon, lat = (float(x) for x in value[len("Point("):-1].split())
+    precision = row.get("precision", {}).get("value")
+    return lat, lon, row["rank"]["value"].endswith("#PreferredRank"), float(precision) if precision else None
+
+
+def best_point(points):
+    """The coordinates of an entity with several: the preferred rank, then the finest
+    precision, then the smallest latitude so that the choice never varies."""
+    if not points:
+        return None
+    lat, lon, _, precision = min(points, key=lambda p: (not p[2], p[3] if p[3] is not None else float("inf"), p[0], p[1]))
+    return {"lat": lat, "lon": lon, "precision": precision}
+
+
 def load(raw, name):
     return json.loads((raw / f"wd_{name}.json").read_text(encoding="utf-8"))
 
@@ -52,6 +72,11 @@ def main(raw, out):
         multi[qid(row["item"])]["loc"].add(qid(row["loc"]))
     for row in load(raw, "partof"):
         multi[qid(row["item"])]["whs"].add(qid(row["parent"]))
+    points = defaultdict(list)
+    for row in load(raw, "coords"):
+        p = point(row)
+        if p:
+            points[qid(row["item"])].append(p)
 
     insee = {}
     for row in load(raw, "communes"):
@@ -90,6 +115,7 @@ def main(raw, out):
         it["types"] = sorted(m["types"])
         codes = sorted({insee[l] for l in m["loc"] if l in insee})
         it["insee"] = codes[0] if codes else None
+        it["coord"] = best_point(points[q])
         it["unesco_parents"] = sorted(m["whs"])
         it["is_whs_item"] = q in whs_sites
         it["unesco"] = bool(UNESCO in m["designations"] or UNESCO_PART in m["designations"] or m["whs"] or q in whs_sites)
@@ -103,6 +129,7 @@ def main(raw, out):
     print(f"entities: {len(items)} | with a French article: {sum(1 for i in items.values() if i['article'])} "
           f"| with a photo: {sum(1 for i in items.values() if i['image'])} | both: {len(eligible)}")
     print(f"World Heritage entries: {len(whs_sites)} | departments: {len(depts)}")
+    print(f"with coordinates: {sum(1 for i in eligible if i['coord'])} of {len(eligible)}")
 
 
 if __name__ == "__main__":

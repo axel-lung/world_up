@@ -1,4 +1,4 @@
-import type { Catalog, CatalogCard } from './export-format';
+import { type Catalog, CATALOG_FORMAT, type CatalogCard } from './export-format';
 
 // Small exports for the catalogue tests.
 
@@ -21,6 +21,7 @@ export function testCard(id: number, overrides: Partial<CatalogCard> & { image?:
     department_code: '41',
     department: 'Loir-et-Cher',
     region: 'Centre-Val de Loire',
+    coordinates: { lat: 47.616111, lon: 1.517222, precision: 31 },
     inception: 1519,
     architect_death: null,
     excerpt: `Le monument ${id}.`,
@@ -47,7 +48,7 @@ export function testCard(id: number, overrides: Partial<CatalogCard> & { image?:
 
 export function testCatalog(cards: CatalogCard[], collection = 'heritage'): Catalog {
   return {
-    format: 1,
+    format: CATALOG_FORMAT,
     collection,
     generated_at: '2026-10-20T12:00:00+00:00',
     rarity_shares: { legendary: 0.0025, ultra: 0.025, super: 0.07, rare: 0.2, uncommon: 0.2, common: 0.5025 },

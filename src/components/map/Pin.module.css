@@ -1,0 +1,169 @@
+/* The map's stickers (Pin.tsx). Game objects: the same inked look in both
+   themes. --rar-fill and --rar-line come from data-rarity (theme.css). */
+
+.pin {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 46px;
+  height: 54px;
+  padding-top: 4px;
+}
+
+.pin[data-size="row"] {
+  width: 40px;
+  height: auto;
+  padding-top: 0;
+}
+
+.disc {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--miss-bg);
+  border: 2px dashed var(--rar-line);
+  color: var(--miss-ink);
+}
+
+.pin[data-size="row"] .disc {
+  width: 32px;
+  height: 32px;
+}
+
+.disc svg {
+  width: 17px;
+  height: 17px;
+}
+
+.pin[data-size="row"] .disc svg {
+  width: 15px;
+  height: 15px;
+}
+
+.pin[data-owned] .disc {
+  background: var(--rar-fill);
+  border: 2px solid var(--sticker-line);
+  box-shadow: 0 2px 0 var(--sticker-shadow);
+  color: var(--rar-ink);
+}
+
+/* The monument whose sheet is open */
+.pin[data-chosen] .disc {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.pill {
+  display: flex;
+  margin-top: -4px;
+  padding: 2.5px 4px;
+  border-radius: 999px;
+  background: var(--miss-bg);
+  border: 1.5px dashed var(--rar-line);
+}
+
+.pin[data-owned] .pill {
+  background: var(--sticker-paper);
+  border: 1.5px solid var(--sticker-line);
+}
+
+/* A group: a cream disc with its number, in a ring that fills with terracotta
+   as the share owned grows */
+.cluster {
+  display: block;
+  width: 46px;
+  height: 46px;
+  padding: 4px;
+  border-radius: 50%;
+  border: 2px solid var(--sticker-line);
+  background: conic-gradient(#c67139 var(--owned), #ebddc5 0);
+  box-shadow: 0 2px 0 var(--sticker-shadow);
+}
+
+.cluster[data-size="medium"] {
+  width: 52px;
+  height: 52px;
+}
+
+.cluster[data-size="large"] {
+  width: 60px;
+  height: 60px;
+}
+
+.count {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--sticker-paper);
+  border: 1.5px solid var(--sticker-line);
+  color: var(--card-ink);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.cluster[data-size="large"] .count {
+  font-size: 17px;
+}
+
+/* The player: a dot of ink with no icon, in the circle of its precision */
+.position {
+  position: relative;
+  display: block;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.halo,
+.ping,
+.dot {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.halo {
+  width: var(--halo);
+  height: var(--halo);
+  background: var(--map-me-halo);
+  border: 1.5px solid var(--map-me);
+}
+
+.ping {
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--map-me);
+  opacity: 0;
+}
+
+.dot {
+  width: 20px;
+  height: 20px;
+  background: var(--map-me);
+  border: 3px solid #f9f4ed;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ping {
+    animation: ping 2.4s ease-out infinite;
+  }
+}
+
+@keyframes ping {
+  from {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.6);
+  }
+}

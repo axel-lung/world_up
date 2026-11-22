@@ -52,6 +52,15 @@ SELECT DISTINCT ?item ?inception ?architect ?archDeath WHERE {{
   OPTIONAL {{ ?item wdt:P571 ?inception }}
   OPTIONAL {{ ?item wdt:P84 ?architect . OPTIONAL {{ ?architect wdt:P570 ?archDeath }} }}
 }}""",
+    # Coordinates (P625), with their rank and precision: an entity can have several
+    "coords": f"""
+SELECT DISTINCT ?item ?coord ?rank ?precision WHERE {{
+  {BASE}
+  ?item p:P625 ?st .
+  ?st ps:P625 ?coord ; wikibase:rank ?rank .
+  FILTER(?rank != wikibase:DeprecatedRank)
+  OPTIONAL {{ ?st psv:P625/wikibase:geoPrecision ?precision }}
+}}""",
     "partof": f"""
 SELECT DISTINCT ?item ?parent WHERE {{
   {BASE}

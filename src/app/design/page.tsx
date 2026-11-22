@@ -27,6 +27,8 @@ import { GoogleLogo } from '@/components/account/GoogleButton';
 import { BadgeSticker } from '@/components/badge/Badge';
 import { Card, type CardCollection } from '@/components/card/Card';
 import { CardRow } from '@/components/card/CardRow';
+import { ProgressLegend } from '@/components/map/FranceMap';
+import { ClusterFace, PinFace, PositionFace } from '@/components/map/Pin';
 import { AnnouncementBanner } from '@/components/layout/AnnouncementBanner';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { TabBar, type TabBarItem } from '@/components/layout/TabBar';
@@ -944,6 +946,48 @@ export default function DesignPage() {
           <Card card={samples.horloge} collection={heritage} />
           <Card card={samples.boyard} collection={heritage} />
           <Card card={samples.notreDame} collection={heritage} />
+        </div>
+      </section>
+
+      <section className={styles.section} aria-labelledby="carte-monuments">
+        <SectionTitle id="carte-monuments" number={7} tone="accent" title="La carte des monuments">
+          Les épingles de la carte sont des autocollants encrés de 46 × 54&nbsp;px, la cible du pouce. La rareté se lit
+          trois fois : la couleur, les points (1 à 6, comme sur la carte) et son nom dans la feuille et la liste. Un
+          monument manquant est grisé, sa rareté en pointillé ; celui dont la feuille est ouverte est cerclé de
+          terracotta. Les pastilles regroupent les épingles trop proches, leur anneau terracotta montrant la part déjà
+          possédée. La position du joueur est un point d&apos;encre, entouré de sa précision.
+        </SectionTitle>
+        <div className={styles.themes}>
+          {THEMES.map(({ theme, label }) => (
+            <div key={theme} data-theme={theme} className={styles.themePanel} style={{ background: 'var(--map-land)' }}>
+              <Tag variant="subtle" className={styles.themeLabel}>
+                {label}
+              </Tag>
+              <div className={styles.row}>
+                {RARITIES.map((rarity) => (
+                  <PinFace key={rarity} rarity={rarity} owned />
+                ))}
+              </div>
+              <div className={styles.row}>
+                {RARITIES.map((rarity) => (
+                  <PinFace key={rarity} rarity={rarity} owned={false} />
+                ))}
+              </div>
+              <div className={styles.row}>
+                <PinFace rarity="super" owned chosen />
+                <PinFace rarity="legendary" owned={false} chosen />
+                <ClusterFace count={12} owned={4} />
+                <ClusterFace count={63} owned={11} />
+                <ClusterFace count={184} owned={77} />
+                <span style={{ display: 'inline-block', width: 64, height: 64, position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: 32, top: 32 }}>
+                    <PositionFace halo={56} />
+                  </span>
+                </span>
+              </div>
+              <ProgressLegend />
+            </div>
+          ))}
         </div>
       </section>
     </main>

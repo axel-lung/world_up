@@ -1,4 +1,4 @@
-import { ChevronRight, Gavel, Heart } from 'lucide-react';
+import { ChevronRight, Gavel, Heart, Map as MapIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -77,10 +77,16 @@ export default async function CollectionPage({ params, searchParams }: PageProps
   return (
     <main className={`${styles.page} ${phone.page}`} data-tight>
       <header className={`${phone.head} phone-only`}>
-        <h1>{t('heading')}</h1>
-        <span className={phone.headAside}>
-          {number(counts.owned)} / {number(counts.all)}
-        </span>
+        <div className={phone.headTitles}>
+          <h1>{t('heading')}</h1>
+          <span className={phone.headAside}>
+            {number(counts.owned)} / {number(counts.all)}
+          </span>
+        </div>
+        <Link href={paths.map} className={phone.pill}>
+          <MapIcon aria-hidden />
+          {t('map')}
+        </Link>
         <Link href={paths.market} className={phone.ghost}>
           <Gavel aria-hidden />
           {t('market')}
@@ -95,6 +101,9 @@ export default async function CollectionPage({ params, searchParams }: PageProps
       <div className={`${styles.actions} wide-only`}>
         <ButtonLink href={paths.wishlist} icon={<Heart aria-hidden />}>
           {tWishlist('link', { count: wishes })}
+        </ButtonLink>
+        <ButtonLink href={paths.map} icon={<MapIcon aria-hidden />}>
+          {t('map')}
         </ButtonLink>
       </div>
       <div className="wide-only">

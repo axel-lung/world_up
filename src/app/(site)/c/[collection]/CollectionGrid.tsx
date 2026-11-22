@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { Check, ChevronDown, Coins, PackageOpen } from 'lucide-react';
+import { Check, ChevronDown, Coins, MapPin, PackageOpen, X } from 'lucide-react';
 import Form from 'next/form';
 import { cookies, headers } from 'next/headers';
 import Link from 'next/link';
@@ -25,6 +25,7 @@ import {
   toCollectionCards,
 } from '@/lib/game/collection';
 import { gamePath } from '@/lib/game/paths';
+import { departmentName } from '@/lib/map/departments';
 import { RARITIES, type Rarity } from '@/lib/rarity';
 import phone from '../../phone.module.css';
 import { resellAction } from './collection/actions';
@@ -34,6 +35,8 @@ import { AutoSubmitSelect, FocusBroughtCards, LoadMore, ViewSwitch } from './Gri
 export interface GridFilters {
   tab: CollectionTab;
   rarity: Rarity | null;
+  /** A department's cards, by its code (the map's "Voir les cartes"). */
+  department: string | null;
   /** How many pages are shown, from the first. */
   page: number;
 }
@@ -94,7 +97,14 @@ export async function CollectionGrid({
   /** The collection page's series filter. */
   seriesOptions?: { slug: string; name: string }[];
 }) {
-  const query = { userId, viewerId, collectionId: collection.id, rarity: filters.rarity, seriesId: series?.id ?? null };
+  const query = {
+    userId,
+    viewerId,
+    collectionId: collection.id,
+    rarity: filters.rarity,
+    seriesId: series?.id ?? null,
+    departmentCode: filters.department,
+  };
   const [t, tRarity, tCard, format, counts, rows, byRarity, cookieStore, headerList] = await Promise.all([
     getTranslations('Collection'),
     getTranslations('Rarity'),
@@ -121,7 +131,7 @@ export async function CollectionGrid({
   const shown = cards.length;
   const more = shown < total && filters.page < COLLECTION_MAX_PAGES;
   const seriesFiltered = Boolean(seriesOptions && series);
-  const filtered = filters.tab !== tabs[0] || Boolean(filters.rarity) || seriesFiltered;
+  const filtered = filters.tab !== tabs[0] || Boolean(filters.rarity) || seriesFiltered || Boolean(filters.department);
 
   const link = (changes: Partial<GridFilters> & { series?: string | null }) => {
     const next = { ...filters, page: 1, ...changes };
@@ -130,6 +140,7 @@ export async function CollectionGrid({
     if (next.tab !== tabs[0]) params.set('tab', next.tab);
     if (next.rarity) params.set('rarity', next.rarity);
     if (seriesOptions && seriesSlug) params.set('series', seriesSlug);
+    if (next.department) params.set('dept', next.department);
     if (next.page > 1) params.set('page', String(next.page));
     const search = params.toString();
     return search ? `${path}?${search}` : path;
@@ -236,6 +247,7 @@ export async function CollectionGrid({
           <Form action={path} className={styles.seriesFilter}>
             {filters.tab !== tabs[0] && <input type="hidden" name="tab" value={filters.tab} />}
             {filters.rarity && <input type="hidden" name="rarity" value={filters.rarity} />}
+            {filters.department && <input type="hidden" name="dept" value={filters.department} />}
             <label htmlFor="series" className="sr-only">
               {t('series')}
             </label>
@@ -285,6 +297,20 @@ export async function CollectionGrid({
       <div className={`${styles.menus} phone-only`} role="group" aria-label={t('filters')}>
         {menus}
       </div>
+
+      {filters.department && (
+        <p className={styles.department}>
+          <MapPin aria-hidden />
+          <span>{t('departmentFilter', { name: departmentName(filters.department) ?? filters.department })}</span>
+          <Link
+            href={link({ department: null })}
+            className={styles.departmentClear}
+            aria-label={t('departmentClear', { name: departmentName(filters.department) ?? filters.department })}
+          >
+            <X aria-hidden />
+          </Link>
+        </p>
+      )}
 
       <div className={styles.resultsBar}>
         <p className={styles.resultsCount}>{t('count', { count: total })}</p>

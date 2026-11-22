@@ -1,0 +1,198 @@
+/* The map of France by department (FranceMap.tsx). The fills are the legend's
+   six steps, --map-step-0 to 5 (theme.css). */
+
+.france {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.department,
+.insetShape {
+  fill: var(--map-step-0);
+  stroke: var(--map-border);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+
+.department {
+  cursor: pointer;
+  outline: none;
+}
+
+.department[data-step="1"],
+.insetShape[data-step="1"],
+.swatch[data-step="1"] {
+  fill: var(--map-step-1);
+  background: var(--map-step-1);
+}
+
+.department[data-step="2"],
+.insetShape[data-step="2"],
+.swatch[data-step="2"] {
+  fill: var(--map-step-2);
+  background: var(--map-step-2);
+}
+
+.department[data-step="3"],
+.insetShape[data-step="3"],
+.swatch[data-step="3"] {
+  fill: var(--map-step-3);
+  background: var(--map-step-3);
+}
+
+.department[data-step="4"],
+.insetShape[data-step="4"],
+.swatch[data-step="4"] {
+  fill: var(--map-step-4);
+  background: var(--map-step-4);
+}
+
+.department[data-step="5"],
+.insetShape[data-step="5"],
+.swatch[data-step="5"] {
+  fill: var(--map-step-5);
+  background: var(--map-step-5);
+}
+
+/* From the keyboard, the department in focus is ringed like the one chosen */
+.department:focus-visible {
+  stroke: var(--color-accent);
+  stroke-width: 3;
+}
+
+.department:active {
+  opacity: 0.8;
+}
+
+@media (hover: hover) {
+  .department:hover {
+    opacity: 0.85;
+  }
+}
+
+/* The department whose sheet is open, ringed in ink above its neighbours */
+.ring {
+  fill: none;
+  stroke: var(--map-chosen);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.insets {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  min-height: 64px;
+  padding: 6px 2px 5px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.inset[aria-pressed="true"] {
+  border-color: var(--map-chosen);
+}
+
+.inset:active {
+  background: color-mix(in srgb, var(--color-surface) 80%, var(--color-text));
+}
+
+.inset svg {
+  display: block;
+  width: 100%;
+  height: 34px;
+}
+
+.insetName {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+/* From 720 px, the insets stand in a column beside the map */
+@media (min-width: 720px) {
+  .insets {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .inset {
+    gap: 4px;
+    padding: 8px 4px 7px;
+    border-radius: 16px;
+  }
+
+  .inset svg {
+    height: 56px;
+  }
+
+  .insetName {
+    font-size: 12px;
+  }
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: var(--color-surface);
+}
+
+.legendTitle {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.legend ul {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legend li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.swatch {
+  height: 14px;
+  border-radius: 999px;
+  background: var(--map-step-0);
+  box-shadow: inset 0 0 0 1px var(--color-line);
+}
+
+@media (min-width: 720px) {
+  .legend {
+    padding: 14px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--color-line);
+    background: transparent;
+  }
+}

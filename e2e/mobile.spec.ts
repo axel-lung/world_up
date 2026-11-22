@@ -25,15 +25,17 @@ test('on a phone, a player moves around with the tab bar', async ({ page }) => {
   await expect(page.getByRole('region', { name: 'Vos paquets' })).toContainText('10 paquets');
   await expect(page.getByRole('region', { name: 'Vos paquets' }).getByRole('link', { name: 'Ouvrir un paquet' })).toBeVisible();
 
-  // Then a mosaic of tiles to every part of the game: links, and two that open
-  // their screen in place (the achievements, the streak), which Back closes
+  // Then a mosaic of tiles to every part of the game: links, and one that
+  // opens its sheet in place (the achievements), which Back closes. The
+  // streak's screen opens from the flame in the head.
   const menu = page.getByRole('navigation', { name: 'Menu du jeu' });
   await expect(menu.getByRole('listitem')).toHaveCount(16);
+  await expect(menu.getByRole('link', { name: 'Carte' })).toHaveAttribute('href', '/c/heritage/map');
   await menu.getByRole('button', { name: 'Succès' }).click();
   await expect(page.getByRole('dialog', { name: 'Succès' })).toBeVisible();
   await page.goBack();
   await expect(page.getByRole('dialog', { name: 'Succès' })).toBeHidden();
-  await menu.getByRole('button', { name: /^Série de jours/ }).click();
+  await page.locator('main > header').getByRole('button', { name: /^Série de jours/ }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.goBack();
   await expect(page.getByRole('dialog')).toBeHidden();

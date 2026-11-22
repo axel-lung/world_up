@@ -33,8 +33,10 @@ services:
     image: worldup-app
     restart: unless-stopped
     env_file: .env
+    # The card images, and the map's tiles and glyphs (map/README.md)
     volumes:
       - uploads:/app/uploads
+      - ./map:/app/map:ro
     labels:
       - "traefik.enable=true"
       # worldup-web is on two networks: tell Traefik which one reaches it

@@ -528,3 +528,10 @@
 .sheetForm p {
   margin: 0;
 }
+
+/* "Voir sur la carte": on a player's phone, centered under the card */
+@media (max-width: 719px) {
+  .page[data-player] .mapAction {
+    justify-content: center;
+  }
+}

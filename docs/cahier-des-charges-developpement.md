@@ -54,7 +54,7 @@ Une seule application TypeScript, une base PostgreSQL et Stripe suffisent pour l
 
 ## Déploiement
 
-Le site se déploie avec Docker Compose sur le serveur existant, derrière le Traefik déjà en place. Le fichier reprend la structure fournie ; « worldup » est le nom technique du projet, tiré du nom du jeu. Seul ajout : le worker monte aussi le volume des images et le dossier d'import du catalogue.
+Le site se déploie avec Docker Compose sur le serveur existant, derrière le Traefik déjà en place. Le fichier reprend la structure fournie ; « worldup » est le nom technique du projet, tiré du nom du jeu. Ajouts : le worker monte aussi le volume des images et le dossier d'import du catalogue, et le service web le dossier du fond de carte (`map/`, en lecture seule).
 
 ```yaml
 # Fixed project name: volumes and the internal network are prefixed with
@@ -92,8 +92,10 @@ services:
     image: worldup-app
     restart: unless-stopped
     env_file: .env
+    # The card images, and the map's tiles and glyphs (map/README.md)
     volumes:
       - uploads:/app/uploads
+      - ./map:/app/map:ro
     labels:
       - "traefik.enable=true"
       # worldup-web is on two networks: tell Traefik which one reaches it
@@ -227,7 +229,7 @@ Le volet social ajoute ces tables :
 
 Le catalogue est produit hors ligne, puis importé en base. Le jeu n'appelle jamais Wikimedia pendant qu'on joue. Les scripts Python déjà écrits couvrent les étapes 1 à 3 et sont à reprendre dans le dépôt du projet.
 
-1. **Monuments** : extraction Wikidata des monuments ayant un identifiant Mérimée et un statut classé, inscrit ou UNESCO, avec une photo et un article Wikipédia en français.
+1. **Monuments** : extraction Wikidata des monuments ayant un identifiant Mérimée et un statut classé, inscrit ou UNESCO, avec une photo et un article Wikipédia en français. On garde aussi leurs coordonnées (P625), avec leur précision : un seul point par monument, celui de rang préféré puis le plus précis, écarté s'il tombe hors du territoire du monument (métropole ou outre-mer). Elles sont reprises à chaque import, pour la carte des monuments et le déblocage sur place.
 2. **Popularité et rareté** : visites des articles dans les fichiers « clickstream » de Wikipédia, sur 12 mois (et non 2 mois comme dans l'étude), puis classement et découpage selon les parts de chaque rareté.
 3. **Photos** : taille, licence et auteur de chaque photo via l'API de Wikimedia Commons. Rejeter les photos de moins de 1 000 px, les licences GFDL ou GPL seules (elles exigent leur texte complet avec chaque copie) et les photos sous licence CC ou Art libre dont l'auteur ne peut pas être nommé ; choisir à la main une autre photo pour les cartes rares concernées. Le crédit reprend la ligne imposée par l'auteur s'il en donne une, sinon l'auteur, sinon la personne qui a déposé le fichier (hors robots de transfert).
 4. **Extraits** : résumé de chaque article Wikipédia, stocké avec son numéro de révision et la mention CC BY-SA 4.0.
@@ -388,6 +390,7 @@ La première version (`Design system World Up.dc.html`, socle Nocturne) est remp
 - L'habillage d'une collection (sa couleur et son emblème, sur le paquet et en pied de carte) est lu dans `collections.theme` : ajouter une collection ne demande pas de nouveau code d'interface.
 - L'ouverture de paquet et l'écran de la série de jours suivent `MobileB.dc.html` (écrans « B · Ouverture » et « B · Série ») du projet Claude Design « World Up Mobile UX » (`04a53348-44c8-4c9f-a3fb-f3a2faf6a706`).
 - Sons et vibrations (décidés le 22/11/2026) : l'ouverture de paquet et l'écran de la série ont des sons, produits par le navigateur sans fichier, et des vibrations (celles du téléphone dans l'application). Un bouton de la scène d'ouverture et un choix du profil les coupent, sur l'appareil.
+- Carte des monuments (décidée le 22/11/2026, maquette `Carte - Monuments.dc.html` du projet Claude Design `57936f5d-de5d-4211-aee8-9def1a24e9c9`) : la France par département, chacun coloré selon la part de ses monuments que le joueur possède (six paliers, de « Aucune » à « Complet »), les cinq départements d'outre-mer en encarts ; toucher un département ouvre sa feuille (progression, « Voir les cartes », « Zoomer »). En zoomant, chaque carte visible qui a des coordonnées est une épingle autocollant, possédée ou manquante (grisée, avec son nom et sa rareté, sans photo ni lien), les épingles proches regroupées en pastilles ; un filtre par rareté et « Il me manque », une vue en liste des monuments de la zone, du plus proche au plus loin. Le fond de carte vient d'OpenStreetMap, découpé en tuiles vectorielles servies par le site lui-même (aucun service de cartographie tiers), aux couleurs Organic. « Autour de moi » utilise la position de l'appareil dans le navigateur seulement : elle n'est pas envoyée au serveur. On y accède par une tuile du menu de l'accueil (à la place de « Série », que la flamme ouvre déjà), la tête de la collection et la fiche d'une carte (« Voir sur la carte »).
 - Annonces (décidées le 22/11/2026) : le back-office publie un bandeau sous l'en-tête de toutes les pages du site (un message, un lien facultatif, un ton « information » ou « important », un début et une fin facultative). Un visiteur qui le ferme ne le revoit plus sur cet appareil.
 
 **Pages et adresses**
@@ -400,6 +403,7 @@ La première version (`Design system World Up.dc.html`, socle Nocturne) est remp
 | `/c/heritage/open` | Ouverture de paquet | Connecté |
 | `/c/heritage/packs`, `/c/heritage/packs/history` | Réserve et probabilités, historique des ouvertures | Connecté |
 | `/c/heritage/collection` | Collection et filtres | Connecté |
+| `/c/heritage/map` | Carte des monuments (par département, puis les épingles) | Connecté |
 | `/c/heritage/wishlist` | Liste de souhaits | Connecté |
 | `/c/heritage/series/[slug]` | Série | Connecté |
 | `/c/heritage/cards/[slug]` | Fiche carte | Public, référencée par Google |
@@ -414,6 +418,7 @@ La première version (`Design system World Up.dc.html`, socle Nocturne) est remp
 | `/terms`, `/terms-of-sale`, `/legal-notice`, `/privacy` | CGU, CGV, mentions légales, confidentialité | Public |
 | `/admin` | Back-office | Administrateurs, double authentification |
 | `/api/health`, `/api/webhooks/stripe` | Santé de l'application (pour Traefik), webhooks Stripe | Technique |
+| `/map/tiles/…`, `/map/fonts/…` | Tuiles et glyphes du fond de carte | Public, technique |
 
 Les adresses sont en anglais, les textes de l'interface restent en français. La collection a pour slug `heritage` ; le slug d'une carte vient de son nom (par exemple `chateau-de-chambord`).
 

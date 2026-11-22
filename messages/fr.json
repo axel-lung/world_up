@@ -317,7 +317,8 @@
     "resellKeep": "Vous gardez au moins un exemplaire de la carte.",
     "tradeTitle": "Proposer un échange",
     "tradeWith": "À quel ami proposer {name} ?",
-    "tradeNoFriends": "Les échanges se font entre amis : ajoutez-en depuis la page <friends>Amis</friends>."
+    "tradeNoFriends": "Les échanges se font entre amis : ajoutez-en depuis la page <friends>Amis</friends>.",
+    "seeOnMap": "Voir sur la carte"
   },
   "Pack": {
     "reserve": "{count, plural, one {# paquet} other {# paquets}} en réserve sur {max}",
@@ -470,6 +471,9 @@
       "wikidata": "Wikidata",
       "rank": "Rang de popularité",
       "family": "Famille",
+      "location": "Position",
+      "locationValue": "{point}, à {precision} m près",
+      "locationNoPrecision": "{point}, précision inconnue",
       "article": "Article Wikipédia",
       "commonsFile": "Fichier Commons",
       "none": "aucun",
@@ -832,6 +836,8 @@
     "photos": "Les photos viennent de <link>Wikimedia Commons</link>. Chaque carte indique l'auteur et la licence de sa photo, avec un lien vers le fichier d'origine et vers le texte de la licence. Les photos sont réduites, et recadrées au format de la carte quand il le faut ; le fichier d'origine reste celui de Commons. Les photos sont copiées sur nos serveurs : votre navigateur ne contacte jamais Wikimedia en jouant.",
     "rarityTitle": "La rareté",
     "rarity": "La rareté d'une carte reflète la notoriété du monument : elle vient du nombre de visites de son article sur Wikipédia pendant douze mois, d'après les données « clickstream » publiées par la Wikimedia Foundation.",
+    "mapTitle": "La carte",
+    "map": "Le fond de la carte des monuments est fait des données d’<osm>OpenStreetMap</osm> (© les contributeurs d’OpenStreetMap, licence ODbL), découpées selon le schéma <omt>OpenMapTiles</omt> (© OpenMapTiles, CC BY 4.0) ; les noms de lieux sont écrits en <noto>Noto Sans</noto> (licence SIL Open Font). La carte est servie par nos serveurs : votre navigateur ne contacte aucun service de cartographie. Les contours des départements viennent d’<ign>Admin Express</ign> de l’IGN (édition 2018, Licence Ouverte), et la position de chaque monument de Wikidata.",
     "reportTitle": "Une erreur ?",
     "report": "Un crédit manque, une photo ne convient pas, un texte est faux : connectez-vous et utilisez « Signaler un problème » sur la fiche de la carte.",
     "notAffiliated": "World Up n'est ni affilié à la Wikimedia Foundation ni soutenu par elle. Wikipédia, Wikidata et Wikimedia Commons sont des marques de la Wikimedia Foundation.",
@@ -931,7 +937,7 @@
     },
     "collected": {
       "title": "Les données collectées",
-      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Sur le site, nous ne demandons à Google ni votre nom ni votre photo ; dans l'application Android, Google les joint d'office à sa réponse, et nous ne les gardons pas. Nous ne gardons aucun des jetons de Google.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès, votre série de jours, votre liste de souhaits et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous activez les notifications sur un appareil : l'adresse que le service de notifications de votre navigateur donne à cet appareil, et les clés qui chiffrent nos messages ; dans l'application Android, l'identifiant que Firebase Cloud Messaging, le service de notifications de Google, donne à votre téléphone. Ni votre adresse IP, ni votre navigateur.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Sur le site, nous ne demandons à Google ni votre nom ni votre photo ; dans l'application Android, Google les joint d'office à sa réponse, et nous ne les gardons pas. Nous ne gardons aucun des jetons de Google.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès, votre série de jours, votre liste de souhaits et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous activez les notifications sur un appareil : l'adresse que le service de notifications de votre navigateur donne à cet appareil, et les clés qui chiffrent nos messages ; dans l'application Android, l'identifiant que Firebase Cloud Messaging, le service de notifications de Google, donne à votre téléphone. Ni votre adresse IP, ni votre navigateur.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Sur la carte des monuments, « Autour de moi » demande votre position à votre appareil : elle sert, dans votre navigateur seulement, à centrer la carte et à mesurer les distances, et ne nous est jamais transmise. « Itinéraire » ouvre l'application de cartes de votre appareil, qui reçoit la position du monument, pas la vôtre.</p><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
     },
     "purposes": {
       "title": "Pourquoi, et sur quelle base",
@@ -955,7 +961,7 @@
     },
     "cookies": {
       "title": "Cookies",
-      "body": "<p>Le site dépose ces cookies, tous exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « theme », qui retient le thème d'affichage que vous avez choisi (Auto, Clair ou Sombre) ;</li><li>le cookie « announcement », qui retient la dernière annonce que vous avez fermée, pour qu'elle ne s'affiche plus (un an) ;</li><li>pendant une connexion avec Google, un cookie de quelques minutes qui la protège contre une tentative de détournement.</li></ul><p>Votre choix de couper les sons et les vibrations est gardé par votre navigateur, sur cet appareil seulement ; il ne nous est pas transmis.</p><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères sont servies par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
+      "body": "<p>Le site dépose ces cookies, tous exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « theme », qui retient le thème d'affichage que vous avez choisi (Auto, Clair ou Sombre) ;</li><li>le cookie « announcement », qui retient la dernière annonce que vous avez fermée, pour qu'elle ne s'affiche plus (un an) ;</li><li>pendant une connexion avec Google, un cookie de quelques minutes qui la protège contre une tentative de détournement.</li></ul><p>Votre choix de couper les sons et les vibrations est gardé par votre navigateur, sur cet appareil seulement ; il ne nous est pas transmis.</p><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères et le fond de la carte sont servis par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
     },
     "security": {
       "title": "Sécurité",
@@ -1086,6 +1092,7 @@
     "menu": {
       "label": "Menu du jeu",
       "collection": "Collection",
+      "map": "Carte",
       "series": "Séries",
       "duplicates": "Doublons",
       "achievements": "Succès",
@@ -1094,7 +1101,6 @@
       "friends": "Amis",
       "leaderboard": "Classement",
       "history": "Historique",
-      "streak": "Série",
       "mySales": "Mes ventes",
       "activity": "Activité",
       "account": "Compte",
@@ -1202,7 +1208,84 @@
     "filters": "Filtres",
     "state": "État",
     "ownedCount": "{count, plural, =0 {aucune possédée} one {# possédée} other {# possédées}}",
-    "clear": "Effacer"
+    "clear": "Effacer",
+    "map": "Carte",
+    "departmentFilter": "Département : {name}",
+    "departmentClear": "Retirer le filtre {name}"
+  },
+  "Map": {
+    "metaTitle": "Carte des monuments",
+    "title": "Carte",
+    "back": "Retour à la collection",
+    "owned": "{owned, number} / {total, number} monuments possédés",
+    "france": "France",
+    "zone": "{name} · {count, number}",
+    "thisZone": "Cette zone",
+    "showList": "Liste",
+    "showMap": "Carte",
+    "showListLabel": "Afficher en liste",
+    "showMapLabel": "Afficher la carte",
+    "filters": "Filtres",
+    "activeFilters": "{count, plural, one {# filtre actif} other {# filtres actifs}}",
+    "clearFilters": "Tout effacer",
+    "rarity": "Rareté",
+    "show": "Afficher",
+    "missing": "Il me manque",
+    "missingMeta": "Seulement les monuments à trouver",
+    "results": "{count, plural, =0 {Aucun monument} one {Voir # monument} other {Voir # monuments}}",
+    "aroundMe": "Autour de moi",
+    "locating": "Recherche de votre position…",
+    "locationDenied": "Autorisez la localisation dans les réglages pour voir les monuments autour de vous.",
+    "locationUnavailable": "Votre position n’a pas été trouvée. Réessayez à découvert.",
+    "position": "Votre position",
+    "zoomIn": "Zoomer",
+    "zoomOut": "Dézoomer",
+    "loading": "La carte se charge…",
+    "loadError": "Les monuments n’ont pas pu être chargés.",
+    "offline": "Pas de réseau",
+    "offlineText": "La carte montre ce qui a déjà été chargé.",
+    "retry": "Réessayer",
+    "attribution": "Données de la carte : OpenStreetMap",
+    "legendTitle": "Part des monuments que vous possédez",
+    "legend": {
+      "0": "Aucune",
+      "1": "1–19 %",
+      "2": "20–39 %",
+      "3": "40–69 %",
+      "4": "70–99 %",
+      "5": "Complet"
+    },
+    "franceLabel": "Carte de France par département",
+    "departmentAria": "{name} : {owned, number} sur {total, number}",
+    "overseas": "Outre-mer",
+    "department": {
+      "label": "Département",
+      "place": "{region} · {code}",
+      "progress": "Progression dans le département",
+      "cardsHere": "monuments de ce département dans votre collection",
+      "seeCards": "Voir les cartes",
+      "zoom": "Zoomer"
+    },
+    "monument": {
+      "label": "Monument",
+      "inCollection": "dans votre collection",
+      "lacking": "vous manque",
+      "pin": "{name}, {rarity}, {state}",
+      "distance": "À {distance} de vous",
+      "lackingText": "Cette carte vous manque. Trouvez-la dans un paquet.",
+      "directions": "Itinéraire",
+      "seeCard": "Voir la carte",
+      "copies": "{count, plural, one {# exemplaire} other {# exemplaires}}"
+    },
+    "cluster": "{count, number} monuments, dont {owned, number} dans votre collection. Zoomer",
+    "metres": "{value, number} m",
+    "kilometres": "{value, number} km",
+    "listTitle": "{count, plural, =0 {Aucun monument dans la zone} one {# monument dans la zone} other {# monuments dans la zone}}",
+    "listFromYou": "Du plus proche au plus loin de vous",
+    "listFromCenter": "Du plus proche au plus loin du centre de la carte",
+    "listCapped": "Voici les {shown, number} plus proches : zoomez pour voir les autres.",
+    "listEmpty": "Aucun monument ici avec ces filtres. Déplacez la carte ou changez les filtres.",
+    "close": "Fermer"
   },
   "Wishlist": {
     "title": "Ma liste de souhaits",

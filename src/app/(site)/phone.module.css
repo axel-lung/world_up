@@ -36,6 +36,48 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* A title with a line under it, when the head has links on its right */
+.headTitles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.headTitles h1 {
+  font-size: 26px;
+}
+
+/* A page the head leads to, as a pill in the accent's tint: "Carte" */
+.pill {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 15px 0 12px;
+  border-radius: 999px;
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+  font-size: 14.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pill svg {
+  width: 18px;
+  height: 18px;
+}
+
+.pill:hover {
+  color: var(--color-accent-strong);
+}
+
+.pill:active {
+  background: color-mix(in srgb, var(--color-accent-tint) 80%, var(--color-accent));
+}
+
 /* A link in the accent, with no fill: "Tout voir", "Marché", "Effacer" */
 .ghost {
   flex: none;

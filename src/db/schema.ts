@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   date,
+  doublePrecision,
   foreignKey,
   index,
   integer,
@@ -207,6 +208,11 @@ export const cards = pgTable(
     departmentCode: text('department_code'),
     department: text('department'),
     region: text('region'),
+    // Wikidata's point (P625), updated by every import; both null when it has none.
+    latitude: doublePrecision('latitude'),
+    longitude: doublePrecision('longitude'),
+    // In metres, from Wikidata's precision; null when unknown.
+    locationPrecision: integer('location_precision'),
     // For the review of the 20th-century cards (architect's copyright)
     inceptionYear: integer('inception_year'),
     architectDeathYear: integer('architect_death_year'),
@@ -243,6 +249,14 @@ export const cards = pgTable(
     index('cards_visible_rarity_idx')
       .on(table.collectionId, table.rarity, table.id)
       .where(sql`${table.hiddenReason} IS NULL`),
+    check(
+      'cards_location_complete',
+      sql`(${table.latitude} IS NULL) = (${table.longitude} IS NULL) AND (${table.latitude} IS NOT NULL OR ${table.locationPrecision} IS NULL)`,
+    ),
+    check(
+      'cards_location_range',
+      sql`${table.latitude} BETWEEN -90 AND 90 AND ${table.longitude} BETWEEN -180 AND 180 AND ${table.locationPrecision} >= 0`,
+    ),
   ],
 );
 

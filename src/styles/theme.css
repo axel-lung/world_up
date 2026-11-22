@@ -79,6 +79,21 @@
   --rar-line-rare: #2f6a96;
   --rar-line-uncommon: #56633f;
   --rar-line-common: #645c50;
+
+  /* The map (src/components/map): its ground, the player's position, and the
+     departments filled by the share of their monuments owned, from none (0)
+     to all (5), with their borders and the one chosen. */
+  --map-land: #f5ead8;
+  --map-me: #201e1d;
+  --map-me-halo: rgba(32, 30, 29, 0.12);
+  --map-step-0: #e6d9c2;
+  --map-step-1: #f8dcc8;
+  --map-step-2: #efb68e;
+  --map-step-3: #d98750;
+  --map-step-4: #a95b28;
+  --map-step-5: #7a8a5e;
+  --map-border: #f5ead8;
+  --map-chosen: #201e1d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -119,6 +134,17 @@
     --rar-line-rare: var(--rar-rare);
     --rar-line-uncommon: var(--rar-uncommon);
     --rar-line-common: var(--rar-common);
+    --map-land: #24211e;
+    --map-me: #f5ead8;
+    --map-me-halo: rgba(245, 234, 216, 0.14);
+    --map-step-0: #38342d;
+    --map-step-1: #5b3b27;
+    --map-step-2: #8b4f2a;
+    --map-step-3: #c06a35;
+    --map-step-4: #eb9c66;
+    --map-step-5: #aebf92;
+    --map-border: #201e1d;
+    --map-chosen: #f5ead8;
   }
 }
 
@@ -160,6 +186,17 @@
   --rar-line-rare: var(--rar-rare);
   --rar-line-uncommon: var(--rar-uncommon);
   --rar-line-common: var(--rar-common);
+  --map-land: #24211e;
+  --map-me: #f5ead8;
+  --map-me-halo: rgba(245, 234, 216, 0.14);
+  --map-step-0: #38342d;
+  --map-step-1: #5b3b27;
+  --map-step-2: #8b4f2a;
+  --map-step-3: #c06a35;
+  --map-step-4: #eb9c66;
+  --map-step-5: #aebf92;
+  --map-border: #201e1d;
+  --map-chosen: #f5ead8;
 }
 
 /* data-rarity="<key>" exposes that rarity's fill and stroke to its subtree. */

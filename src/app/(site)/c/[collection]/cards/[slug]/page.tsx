@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ArrowLeftRight, ArrowUpRight, ChevronLeft, ChevronRight, Coins, Gavel, RotateCw, X } from 'lucide-react';
+import { ArrowLeftRight, ArrowUpRight, ChevronLeft, ChevronRight, Coins, Gavel, Map as MapIcon, RotateCw, X } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -57,7 +57,14 @@ async function origin(from: unknown, card: VisibleCard, collection: string, user
   const seriesSlug = match[3] ?? filters.series;
   const series = seriesSlug ? await getSeries(card.collectionId, seriesSlug) : null;
   const neighbours = await ownedNeighbours(
-    { userId, collectionId: card.collectionId, rarity: filters.rarity, seriesId: series?.id ?? null, tab: filters.tab },
+    {
+      userId,
+      collectionId: card.collectionId,
+      rarity: filters.rarity,
+      seriesId: series?.id ?? null,
+      departmentCode: filters.department,
+      tab: filters.tab,
+    },
     card.id,
   );
   return { back: match[0], list: match[0], neighbours };
@@ -249,6 +256,15 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
               </div>
             )}
           </section>
+        )}
+
+        {/* Outside what the player owns, which a phone keeps for the dock */}
+        {session && card.latitude !== null && (
+          <div className={`${styles.actions} ${styles.mapAction}`}>
+            <ButtonLink href={paths.mapOfCard(card.slug)} icon={<MapIcon aria-hidden />}>
+              {t('seeOnMap')}
+            </ButtonLink>
+          </div>
         )}
 
         {card.excerpt && (

@@ -1,0 +1,54 @@
+/* The map of the monuments (MonumentMap.tsx): it fills its parent. */
+.map {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.canvas:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: -3px;
+}
+
+/* MapLibre places each marker by its element: no box of its own. The pin
+   whose sheet is open stands above its neighbours, the position above all. */
+.marker,
+.position {
+  line-height: 0;
+}
+
+.marker:has([aria-pressed="true"]) {
+  z-index: 3;
+}
+
+.position {
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* A pin or a group: the whole sticker is the button */
+.target {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.target:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.target:active {
+  transform: translateY(1px);
+}

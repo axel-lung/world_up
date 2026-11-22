@@ -15,11 +15,11 @@ export WIKIMEDIA_USER_AGENT="WorldUp/1.0 (https://github.com/axel-lung/world_up)
 
 ## Steps
 
-Run from the repository root. Steps 6, 7 and 9 resume where they stopped when run again.
+Run from the repository root. Steps 6, 7 and 9 resume where they stopped when run again. `fetch_wikidata.py data/raw coords` runs one query only (here the coordinates), named as in its `QUERIES`.
 
 | # | Command | Writes |
 | --- | --- | --- |
-| 1 | `python scripts/fetch_wikidata.py data/raw` | `data/raw/wd_*.json`: monuments, designations, types, places, dates, World Heritage sites, departments |
+| 1 | `python scripts/fetch_wikidata.py data/raw` | `data/raw/wd_*.json`: monuments, designations, types, places, coordinates, dates, World Heritage sites, departments |
 | 2 | `python scripts/build_catalog.py data/raw data/catalogue_base.json` | One monument per Wikidata entity |
 | 3 | `python scripts/fetch_type_labels.py data/catalogue_base.json data/raw/type_labels.json` | Labels of the monument types, which give the families |
 | 4 | `python scripts/fetch_clickstream.py data/dumps 2025-10 2026-09` | The last 12 months of French Wikipedia clickstream, about 60 MB each |
@@ -46,6 +46,7 @@ Tests: `python -m unittest discover -s scripts`.
 - **Excerpt**: the start of the article's introduction, whole paragraphs until 300 characters (a first paragraph is often a single sentence saying where the monument is), cut after a sentence past 600, with the article's revision number.
 - **Slug**: from the article title, which is unique on Wikipedia (`chateau-de-chambord`). The import keeps a card's slug once it exists, so its public address never changes.
 - **Series**: region, family (except "Autres"), Patrimoine mondial de l'UNESCO, Patrimoine en péril.
+- **Coordinates**: Wikidata's point (P625), one per monument: the preferred rank, then the finest precision. A point outside the monument's territory (metropolitan France, or its overseas department or collectivity; any of them when the department is unknown) is dropped, so a swapped latitude and longitude never reaches the map. The precision goes into the export in metres, rounded up: a coarse point (73 cards above 200 m, mostly 1 km) shows on the map but can't prove a visit as well. Unlike the rarity, the import takes the coordinates of every export.
 
 ## Reviewing the 20th-century cards
 
@@ -68,7 +69,7 @@ The spec asks for a photo chosen by hand when a rare card's photo is rejected. `
 
 ```jsonc
 {
-  "format": 1,
+  "format": 2,
   "collection": "heritage",
   "generated_at": "2026-10-20T12:00:00+00:00",
   "rarity_shares": { "legendary": 0.0025, "…": 0 },
@@ -77,6 +78,7 @@ The spec asks for a photo chosen by hand when a rare card's photo is rejected. `
     "wikidata_id": "Q243", "slug": "tour-eiffel", "name": "tour Eiffel", "rank": 1, "rarity": "legendary",
     "protection": "inscrit", "unesco": true, "endangered": false, "family": "Autres",
     "department_code": "75", "department": "Paris", "region": "Île-de-France",
+    "coordinates": { "lat": 48.858296, "lon": 2.294479, "precision": 1 },
     "inception": 1887, "architect_death": null,
     "excerpt": "…", "article": { "title": "Tour Eiffel", "revision": 230000000 },
     "photo": {
@@ -90,7 +92,7 @@ The spec asks for a photo chosen by hand when a rare card's photo is rejected. `
 }
 ```
 
-`photo` is `null` when no photo is usable; `photo_problem` then says why (`missing`, `too_small`, `license`, `download`). Names start lowercase, as on Wikidata: the card capitalizes them.
+`photo` is `null` when no photo is usable; `photo_problem` then says why (`missing`, `too_small`, `license`, `download`). `coordinates` is `null` when Wikidata has no usable point; its `precision` is in metres, `null` when unknown. Format 2 added the coordinates: the game refuses an older export. Names start lowercase, as on Wikidata: the card capitalizes them.
 
 ## Loading it into the game
 
@@ -99,3 +101,7 @@ Copy `import/` next to `docker-compose.yml` on the server (the worker mounts it 
 ## Every six months
 
 Run the steps again from step 1, with the latest 12 months at step 4. New monuments and better photos come in; the cards already in the game keep their rarity and slug.
+
+## The map of France
+
+`python scripts/build_france_map.py src/lib/map/france-departments.json` writes the SVG paths of the departments that the game's map draws, with each one's bounding box: the metropolitan ones in place, the five overseas ones as insets. Their contours are IGN's Admin Express COG (2018 edition, Licence Ouverte), as GeoJSON from [france-geojson](https://github.com/gregoiredavid/france-geojson), simplified here and written in relative coordinates to a tenth (about 60 KB). The file is committed: run it again only to change the drawing.

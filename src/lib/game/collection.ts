@@ -28,6 +28,8 @@ export interface CollectionFilters {
   collectionId: number;
   rarity?: Rarity | null;
   seriesId?: number | null;
+  /** A department's cards, by its code. */
+  departmentCode?: string | null;
   /** The player looking at a friend's collection, for the "youLack" tab. */
   viewerId?: string | null;
 }
@@ -36,11 +38,12 @@ function owned(userId: string) {
   return and(eq(userCards.cardId, cards.id), eq(userCards.userId, userId));
 }
 
-function filterConditions({ collectionId, rarity, seriesId }: CollectionFilters): (SQL | undefined)[] {
+function filterConditions({ collectionId, rarity, seriesId, departmentCode }: CollectionFilters): (SQL | undefined)[] {
   return [
     eq(cards.collectionId, collectionId),
     isNull(cards.hiddenReason),
     rarity ? eq(cards.rarity, rarity) : undefined,
+    departmentCode ? eq(cards.departmentCode, departmentCode) : undefined,
     seriesId
       ? sql`EXISTS (SELECT 1 FROM card_series AS cs WHERE cs.card_id = "cards"."id" AND cs.series_id = ${seriesId})`
       : undefined,

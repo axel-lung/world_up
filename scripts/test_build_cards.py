@@ -150,6 +150,31 @@ class SeriesAndSlugTest(unittest.TestCase):
         self.assertEqual(bc.department("2A004"), "2A")
 
 
+class CoordinatesTest(unittest.TestCase):
+    def test_keeps_the_point_with_its_precision_in_metres(self):
+        coord = {"lat": 47.6161111111, "lon": 1.5172222222, "precision": 2.7777777777778e-4}
+        [card], _ = build(item(coord=coord))
+        self.assertEqual(card["coordinates"], {"lat": 47.616111, "lon": 1.517222, "precision": 31})
+        self.assertIsNone(bc.coordinates({**coord, "precision": None}, "41")["precision"])
+
+    def test_a_monument_without_coordinates_has_none(self):
+        [card], _ = build(item())
+        self.assertIsNone(card["coordinates"])
+
+    def test_drops_a_point_outside_the_monuments_territory(self):
+        chambord = {"lat": 47.6161, "lon": 1.5172, "precision": None}
+        swapped = {"lat": 1.5172, "lon": 47.6161, "precision": None}
+        reunion = {"lat": -21.1151, "lon": 55.5364, "precision": None}
+        self.assertIsNone(bc.coordinates(swapped, "41"))
+        self.assertIsNone(bc.coordinates(reunion, "41"))
+        self.assertIsNone(bc.coordinates(chambord, "974"))
+        self.assertIsNotNone(bc.coordinates(reunion, "974"))
+        self.assertIsNotNone(bc.coordinates({"lat": 41.9, "lon": 8.74, "precision": None}, "2A"))
+        # Unknown department: any French territory
+        self.assertIsNotNone(bc.coordinates(reunion, None))
+        self.assertIsNone(bc.coordinates(swapped, None))
+
+
 class ExcerptTest(unittest.TestCase):
     def test_keeps_a_long_enough_first_paragraph(self):
         first = ("Le château de Test est un château de la Renaissance. " * 7).strip()

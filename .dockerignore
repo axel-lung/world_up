@@ -12,6 +12,8 @@ playwright-report
 uploads
 import
 backups
+# The map's tiles (gigabytes): mounted at run time, never built in
+map
 docs
 *.md
 data

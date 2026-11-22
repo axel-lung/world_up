@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { COLLECTION_MAX_PAGES, COLLECTION_TABS, type CollectionTab } from '@/lib/game/collection';
 import { MARKET_MAX_PAGES, MARKET_SORTS } from '@/lib/game/market';
+import { DEPARTMENT_CODE } from '@/lib/map/departments';
 import { RARITIES } from '@/lib/rarity';
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -15,6 +16,8 @@ const pagesShown = (max: number) =>
 const gridSchema = z.object({
   rarity: z.enum(RARITIES).nullable().catch(null),
   series: z.string().max(100).nullable().catch(null),
+  // A department's cards (?dept=21), from the map's "Voir les cartes"
+  department: z.string().regex(DEPARTMENT_CODE).nullable().catch(null),
   // How many pages the grid shows, from the first
   page: pagesShown(COLLECTION_MAX_PAGES),
 });
@@ -28,6 +31,7 @@ export function parseGridParams(
     tab: one(params.tab) ?? tabs[0],
     rarity: one(params.rarity) || null,
     series: one(params.series) || null,
+    department: one(params.dept) || null,
     page: one(params.page) ?? 1,
   });
 }
@@ -47,7 +51,7 @@ export function parseResaleParams(params: SearchParams) {
   });
 }
 
-const marketSchema = gridSchema.extend({
+const marketSchema = gridSchema.omit({ department: true }).extend({
   page: pagesShown(MARKET_MAX_PAGES),
   card: z.string().max(200).nullable().catch(null),
   missing: z.boolean().catch(false),

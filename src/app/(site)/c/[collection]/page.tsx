@@ -9,12 +9,12 @@ import {
   CircleUser,
   Coins,
   Copy,
-  Flame,
   Heart,
   History,
   Info,
   Layers,
   LayoutGrid,
+  Map as MapIcon,
   Medal,
   PackageOpen,
   Percent,
@@ -268,17 +268,12 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       <nav className="phone-only" aria-label={t('menu.label')}>
         <ul className={home.menu}>
           {menuLink(paths.collection, 'collection', <Layers />, t('menu.collection'))}
+          {menuLink(paths.map, 'collection', <MapIcon />, t('menu.map'))}
           {menuLink(`${paths.collection}?by=series`, 'collection', <LayoutGrid />, t('menu.series'))}
           {menuLink(`${paths.collection}?tab=duplicates`, 'collection', <Copy />, t('menu.duplicates'), {
             count: duplicates.copies,
             label: t('menu.toResell', { count: duplicates.copies }),
           })}
-          <li data-tone="collection">
-            {achievementsSheet({
-              className: home.menuTile,
-              content: menuFace(<Trophy />, t('menu.achievements')),
-            })}
-          </li>
           {menuLink(paths.market, 'trade', <Store />, t('menu.market'))}
           {menuLink(paths.trades, 'trade', <ArrowLeftRight />, t('menu.trades'), {
             count: offers,
@@ -290,10 +285,12 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
           })}
           {menuLink('/leaderboard', 'trade', <Medal />, t('menu.leaderboard'))}
           {menuLink(paths.history, 'play', <History />, t('menu.history'))}
+          {/* The streak's screen opens from the flame in the head */}
           <li data-tone="play">
-            <StreakButton view={streak} collection={collection.slug} className={home.menuTile}>
-              {menuFace(<Flame />, t('menu.streak'))}
-            </StreakButton>
+            {achievementsSheet({
+              className: home.menuTile,
+              content: menuFace(<Trophy />, t('menu.achievements')),
+            })}
           </li>
           {menuLink(paths.myAuctions, 'trade', <Tag />, t('menu.mySales'))}
           {menuLink('/activity', 'play', <Bell />, t('menu.activity'), {

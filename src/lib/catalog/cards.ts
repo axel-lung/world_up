@@ -9,6 +9,8 @@ export const cardImageUrl = (image: string, width: 400 | 800) => `/uploads/cards
 export const articleUrl = (title: string) => `https://fr.wikipedia.org/wiki/${encodeURIComponent(title.replaceAll(' ', '_'))}`;
 export const commonsFileUrl = (file: string) =>
   `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replaceAll(' ', '_'))}`;
+export const openStreetMapUrl = (lat: number, lon: number) =>
+  `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=18/${lat}/${lon}`;
 
 // Order of the series on a card page; the first one is printed on the card.
 const SERIES_ORDER = ['region', 'family', 'unesco', 'endangered'];
@@ -44,7 +46,14 @@ export const cardColumns = {
  */
 export const getVisibleCard = cache(async (collectionSlug: string, slug: string) => {
   const [card] = await db
-    .select({ ...cardColumns, collectionName: collections.name, collectionTheme: collections.theme })
+    .select({
+      ...cardColumns,
+      // Where "Voir sur la carte" opens the map
+      latitude: cards.latitude,
+      longitude: cards.longitude,
+      collectionName: collections.name,
+      collectionTheme: collections.theme,
+    })
     .from(cards)
     .innerJoin(collections, eq(collections.id, cards.collectionId))
     .where(

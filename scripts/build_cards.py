@@ -1,4 +1,4 @@
-"""Step 8: builds the game's cards: rarity, editorial flags, photo, excerpt and series.
+"""Step 8: builds the game's cards: rarity, editorial flags, photo, coordinates, excerpt and series.
 
 Usage: python scripts/build_cards.py data
 Reads data/catalogue_base.json, data/raw/{views,commons,extracts,type_labels}.json,
@@ -6,6 +6,7 @@ scripts/photo_overrides.csv and scripts/twentieth_century_cleared.csv, and write
 """
 import csv
 import json
+import math
 import re
 import sys
 import unicodedata
@@ -38,6 +39,26 @@ REGIONS = {
 }
 DEPT_REGION = {d: r for r, ds in REGIONS.items() for d in ds.split()}
 OVERSEAS = "Outre-mer"
+
+# Bounding boxes (south, west, north, east) of the territories, by department code
+# (two characters: metropolitan France): a monument's point must fall in its own,
+# or in any of them when its department is unknown.
+METROPOLE = (41.2, -5.3, 51.2, 9.7)
+TERRITORIES = {
+    "971": (15.8, -61.9, 16.6, -60.9),  # Guadeloupe
+    "972": (14.3, -61.3, 14.95, -60.75),  # Martinique
+    "973": (2.0, -54.7, 5.9, -51.5),  # Guyane
+    "974": (-21.5, 55.1, -20.8, 55.9),  # La Réunion
+    "975": (46.7, -56.5, 47.2, -56.1),  # Saint-Pierre-et-Miquelon
+    "976": (-13.1, 44.9, -12.5, 45.4),  # Mayotte
+    "977": (17.85, -62.95, 17.98, -62.77),  # Saint-Barthélemy
+    "978": (18.0, -63.2, 18.15, -62.95),  # Saint-Martin
+    "986": (-14.4, -178.3, -13.1, -176.1),  # Wallis-et-Futuna
+    "987": (-28.0, -155.0, -7.8, -134.0),  # Polynésie française
+    "988": (-23.0, 163.5, -19.5, 168.2),  # Nouvelle-Calédonie
+}
+# Metres in one degree of latitude, to express Wikidata's precision
+METRES_PER_DEGREE = 111_320
 
 # Monument families, by priority (keywords in the label of the Wikidata type).
 # Cards matching none are in OTHER_FAMILY, which is not a series.
@@ -146,6 +167,27 @@ def department(insee):
     if not insee:
         return None
     return insee[:3] if insee[:2] in ("97", "98") else insee[:2]
+
+
+def in_box(box, lat, lon):
+    south, west, north, east = box
+    return south <= lat <= north and west <= lon <= east
+
+
+def coordinates(coord, dept):
+    """The card's point, rounded to 6 decimals (about 10 cm), with its precision in metres
+    (rounded up, None when unknown). None when Wikidata has none, or when it lies outside
+    the monument's territory (swapped latitude and longitude, another place's point)."""
+    if not coord:
+        return None
+    lat, lon = coord["lat"], coord["lon"]
+    boxes = [METROPOLE] if dept and len(dept) == 2 else [TERRITORIES[dept]] if dept in TERRITORIES \
+        else [METROPOLE, *TERRITORIES.values()]
+    if not any(in_box(box, lat, lon) for box in boxes):
+        return None
+    precision = coord["precision"]
+    return {"lat": round(lat, 6), "lon": round(lon, 6),
+            "precision": math.ceil(precision * METRES_PER_DEGREE) if precision is not None else None}
 
 
 def license_family(name):
@@ -282,6 +324,7 @@ def build(base, views, commons, extracts, labels, overrides, today, cleared=froz
             "family": family(it["types"], labels),
             "department_code": dept, "department": (base["depts"].get(dept) or {}).get("label") if dept else None,
             "region": DEPT_REGION.get(dept, OVERSEAS if dept and dept[:2] in ("97", "98") else None),
+            "coordinates": coordinates(it.get("coord"), dept),
             "inception": it["inception"],
             # The last known death among the architects: what copyright depends on
             "architect_death": max((y for y in it["architect_deaths"] if y is not None), default=None),
@@ -335,6 +378,9 @@ def main(data_dir):
     print("rarities: " + ", ".join(f"{r} {n}" for r, n in Counter(c["rarity"] for c in cards).items()))
     print("hidden: " + ", ".join(f"{r} {n}" for r, n in Counter(c["hidden_reason"] for c in cards if c["hidden_reason"]).items()))
     print("photo problems: " + ", ".join(f"{p} {n}" for p, n in Counter(c["photo_problem"] for c in cards if c["photo_problem"]).items()))
+    located = [c for c in cards if c["coordinates"]]
+    print(f"with coordinates: {len(located)} of {len(cards)}, "
+          f"{sum(1 for c in located if (c['coordinates']['precision'] or 0) > 200)} of them coarser than 200 m")
 
 
 if __name__ == "__main__":

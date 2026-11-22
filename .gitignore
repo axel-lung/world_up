@@ -20,6 +20,9 @@ playwright-report/
 /data/
 __pycache__/
 /backups/
+# The map's tiles and glyphs (map/README.md says how to build them)
+/map/*
+!/map/README.md
 
 # Android app (android/.gitignore has Gradle's output and what `npx cap sync`
 # writes): signing keys and Firebase's configuration never enter the repository
