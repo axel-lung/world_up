@@ -1,12 +1,25 @@
 import { randomUUID } from 'node:crypto';
-import { ArrowLeftRight, ArrowUpRight, ChevronLeft, ChevronRight, Coins, Gavel, Map as MapIcon, RotateCw, X } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  Coins,
+  Gavel,
+  Lock,
+  Map as MapIcon,
+  MapPinCheck,
+  RotateCw,
+  Stamp,
+  X,
+} from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { Card } from '@/components/card/Card';
-import { displayName } from '@/components/card/card-format';
+import { displayName, visitDay } from '@/components/card/card-format';
 import { RarityBadge } from '@/components/rarity/Rarity';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
@@ -20,6 +33,7 @@ import { type CardNeighbours, getSeries, ownedCopies, ownedNeighbours } from '@/
 import { liveAuctionsOfCard, sellableCopies } from '@/lib/game/market';
 import { gamePath } from '@/lib/game/paths';
 import { getResaleValues } from '@/lib/game/rules';
+import { cardVisitedAt } from '@/lib/game/visits';
 import { isWished } from '@/lib/game/wishlist';
 import { getSession } from '@/lib/session';
 import { listFriends } from '@/lib/social/friends';
@@ -109,7 +123,7 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
   // The signed-in player's copies, what one duplicate resells for, the copies
   // they can put up for auction and the auctions running for the card
   const now = new Date();
-  const [copies, resale, sellable, auctions, from, friends, wished] = session
+  const [copies, resale, sellable, auctions, from, friends, wished, visitedAt] = session
     ? await Promise.all([
         ownedCopies(session.user.id, card.id),
         getResaleValues(db, card.collectionId),
@@ -118,8 +132,9 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
         origin(query.from, card, collection, session.user.id),
         listFriends(session.user.id),
         isWished(session.user.id, card.id),
+        cardVisitedAt(session.user.id, card.id),
       ])
-    : [0, null, 0, 0, null, [], false];
+    : [0, null, 0, 0, null, [], false, null];
   const paths = gamePath(collection);
   // The page with the list it was opened from, which the arrows and the resale keep
   const page = cardPath(collection, card.slug);
@@ -198,6 +213,8 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
             priority
             sizes="(max-width: 392px) calc(100vw - 32px), 360px"
             copies={Math.max(copies, 1)}
+            // The player's own copy wears the stamp: nobody else sees it
+            visitedAt={copies > 0 ? visitedAt : null}
           />
         </div>
         {neighbours && (
@@ -258,12 +275,31 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
           </section>
         )}
 
-        {/* Outside what the player owns, which a phone keeps for the dock */}
+        {/* The player's visit, for them only; outside what they own, which a phone keeps for the dock */}
+        {visitedAt && (
+          <p className={styles.visited}>
+            <span className={styles.visitedStamp} aria-hidden="true">
+              <Stamp />
+            </span>
+            <span className={styles.visitedText}>
+              <span className={styles.visitedDay}>{t('visitedOn', { date: visitDay(visitedAt) })}</span>
+              <span className={styles.visitedPrivate}>
+                <Lock aria-hidden />
+                {t('visitedPrivate')}
+              </span>
+            </span>
+          </p>
+        )}
         {session && card.latitude !== null && (
           <div className={`${styles.actions} ${styles.mapAction}`}>
             <ButtonLink href={paths.mapOfCard(card.slug)} icon={<MapIcon aria-hidden />}>
               {t('seeOnMap')}
             </ButtonLink>
+            {!visitedAt && (
+              <ButtonLink href={paths.visitHere(card.slug)} icon={<MapPinCheck aria-hidden />}>
+                {t('here')}
+              </ButtonLink>
+            )}
           </div>
         )}
 

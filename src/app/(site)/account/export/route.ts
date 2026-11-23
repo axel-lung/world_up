@@ -8,6 +8,7 @@ import { playerCards } from '@/lib/game/collection';
 import { playerAuctions } from '@/lib/game/market';
 import { playerOpenings } from '@/lib/game/packs';
 import { playerTrades } from '@/lib/game/trades';
+import { playerVisits } from '@/lib/game/visits';
 import { playerWishlist } from '@/lib/game/wishlist';
 import { playerNotifications } from '@/lib/notifications/notifications';
 import { playerPushDevices } from '@/lib/notifications/push';
@@ -44,6 +45,7 @@ export async function GET(request: Request) {
     openings,
     collection,
     wishlist,
+    visits,
     coins,
     ledger,
     obtained,
@@ -67,6 +69,7 @@ export async function GET(request: Request) {
     playerOpenings(userId),
     playerCards(userId),
     playerWishlist(userId),
+    playerVisits(userId),
     coinBalance(db, userId),
     playerLedger(userId),
     db
@@ -88,7 +91,15 @@ export async function GET(request: Request) {
       account: { ...account, signIn },
       consents: acceptedDocuments,
       reports,
-      game: { packReserve, openings, collection, wishlist, coins: { balance: coins, ledger }, achievements: obtained },
+      game: {
+        packReserve,
+        openings,
+        collection,
+        wishlist,
+        visits,
+        coins: { balance: coins, ledger },
+        achievements: obtained,
+      },
       social: { friends, trades, auctions },
       notifications,
       pushDevices,

@@ -8,8 +8,9 @@ import { EmblemIcon } from '@/components/collection/Emblem';
 import { WIKIPEDIA_TEXT_LICENSE_URL } from '@/lib/catalog/licenses';
 import type { Emblem } from '@/lib/collection-theme';
 import { RARITY_PIPS, type Rarity } from '@/lib/rarity';
-import { displayName, needsLetterbox, photoSizes, seriesNumber } from './card-format';
+import { displayName, needsLetterbox, photoSizes, seriesNumber, visitDay } from './card-format';
 import styles from './Card.module.css';
+import { VisitStamp } from './VisitStamp';
 
 export interface CardPhoto {
   /** Served from /uploads in production, never from Wikimedia. */
@@ -74,6 +75,8 @@ export interface CardProps {
   href?: string;
   /** A control over the photo's top-left corner, above the card's link: the wishlist's heart. */
   action?: ReactNode;
+  /** When the player visited its monument: the "Visité" stamp, on their own card only. */
+  visitedAt?: Date | null;
 }
 
 /**
@@ -112,6 +115,7 @@ export function Card({
   priority = false,
   href: hrefProp,
   action,
+  visitedAt = null,
 }: CardProps) {
   const t = useTranslations('Card');
   const tRarity = useTranslations('Rarity');
@@ -172,7 +176,16 @@ export function Card({
     </span>
   );
 
-  const ariaLabel = [name, rarityLabel, missing && t('ariaMissing'), shiny && t('ariaShiny')].filter(Boolean).join(', ');
+  const visited = missing ? null : visitedAt;
+  const ariaLabel = [
+    name,
+    rarityLabel,
+    missing && t('ariaMissing'),
+    shiny && t('ariaShiny'),
+    visited && t('ariaVisited', { date: visitDay(visited) }),
+  ]
+    .filter(Boolean)
+    .join(', ');
 
   return (
     <article
@@ -242,6 +255,7 @@ export function Card({
                 </button>
               )}
               {action && <div className={styles.action}>{action}</div>}
+              {visited && <VisitStamp visitedAt={visited} size={large ? 'large' : 'grid'} />}
               {showCredit && !large && (
                 <div className={styles.creditOverlay}>
                   {t.rich('photoOverlay', { author, license: card.photo.license, licenseLink, link: commonsLink })}

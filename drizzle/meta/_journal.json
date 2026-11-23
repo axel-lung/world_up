@@ -155,6 +155,20 @@
       "when": 1795365524107,
       "tag": "0021_card_coordinates",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1795454028933,
+      "tag": "0022_onsite_visits",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795454046905,
+      "tag": "0023_seed_visit_achievements",
+      "breakpoints": true
     }
   ]
 }

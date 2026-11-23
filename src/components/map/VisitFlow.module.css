@@ -1,0 +1,843 @@
+/* "Je suis ici" (VisitFlow.tsx), from Claude Design's "Carte - Je suis ici"
+   and "Carte - Refus Je suis ici": a bottom sheet over a shade for the reason,
+   the search and the refusals; the whole screen, like a pack opening, for the
+   card unlocked. Under prefers-reduced-motion nothing moves: the card unlocked
+   shows in its final state. */
+
+.flow {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 92dvh;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 28px 28px 0 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: 0 -12px 32px color-mix(in srgb, var(--color-neutral-900) 22%, transparent);
+}
+
+.flow::backdrop {
+  background: color-mix(in srgb, var(--color-neutral-900) 45%, transparent);
+}
+
+.sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 8px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.handle {
+  align-self: center;
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-neutral-400);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1.12;
+  text-wrap: pretty;
+}
+
+.centered {
+  text-align: center;
+}
+
+.lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kicker {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.round {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.round svg {
+  width: 20px;
+  height: 20px;
+}
+
+.round:active {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.external {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
+
+/* — why the position — */
+
+.whyArt {
+  position: relative;
+  height: 118px;
+  margin: 2px 0 -2px;
+}
+
+.whyDisc {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: var(--color-accent-tint);
+}
+
+.whyPin,
+.whyShield {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--sticker-line);
+}
+
+.whyPin {
+  left: 20px;
+  top: 18px;
+  width: 64px;
+  height: 64px;
+  background: #c67139;
+  box-shadow: 0 3px 0 var(--sticker-shadow);
+  color: var(--sticker-line);
+  transform: rotate(-6deg);
+}
+
+.whyPin svg {
+  width: 28px;
+  height: 28px;
+}
+
+.whyShield {
+  left: 66px;
+  top: 58px;
+  width: 46px;
+  height: 46px;
+  background: #7a8a5e;
+  box-shadow: 0 2px 0 var(--sticker-shadow);
+  color: #f9f4ed;
+  transform: rotate(8deg);
+}
+
+.whyShield svg {
+  width: 20px;
+  height: 20px;
+}
+
+.points {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 2px 14px;
+  list-style: none;
+  border-radius: 22px;
+  background: var(--color-surface);
+}
+
+.points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 0;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+.points li + li {
+  border-top: 1px solid var(--color-line);
+}
+
+.points svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  color: var(--color-accent-strong);
+}
+
+/* — the search — */
+
+.radar {
+  position: relative;
+  align-self: center;
+  width: 150px;
+  height: 150px;
+  /* Room for the rings, which grow half as big again */
+  margin: 30px 0 22px;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  animation: ping 2.2s ease-out infinite;
+}
+
+.ring[data-late] {
+  animation-delay: 1.1s;
+}
+
+.spread {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--color-accent-tint);
+  border: 1.5px dashed var(--color-accent-strong);
+  transition: inset 0.4s ease-out;
+}
+
+.locate {
+  position: absolute;
+  left: 51px;
+  top: 51px;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #c67139;
+  border: 2px solid var(--sticker-line);
+  box-shadow: 0 3px 0 var(--sticker-shadow);
+  color: var(--sticker-line);
+}
+
+.locate svg {
+  width: 22px;
+  height: 22px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: var(--color-surface);
+}
+
+.precision {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.precisionLabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.precisionValue {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--color-track);
+}
+
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--color-warning);
+  transition: width 0.4s ease-out;
+}
+
+.fill[data-good] {
+  background: var(--color-sage);
+}
+
+/* The accuracy the server demands */
+.mark {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--color-text);
+}
+
+.scale {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  min-height: 18px;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.scaleMark {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.status {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* — a refusal — */
+
+.refusalHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.refusalHead .round {
+  margin: -4px -8px 0 0;
+}
+
+.refusalIcon {
+  --tint: var(--color-surface);
+  --ink: var(--color-text);
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--tint);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  transform: rotate(-6deg);
+}
+
+.refusalIcon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.refusalIcon[data-tone="accent"] {
+  --tint: var(--color-accent-tint);
+  --ink: var(--color-accent-strong);
+}
+
+.refusalIcon[data-tone="warning"] {
+  --tint: var(--color-warning-tint);
+  --ink: var(--color-warning);
+}
+
+.refusalIcon[data-tone="sage"] {
+  --tint: var(--color-sage-tint);
+  --ink: var(--color-sage-ink);
+}
+
+.refusalIcon[data-tone="danger"] {
+  --tint: var(--color-danger-tint);
+  --ink: var(--color-danger);
+}
+
+.refusalTitles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.refusalTitles .title {
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+/* Too far: the player, the dashes, the monument's zone */
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: var(--color-surface);
+}
+
+.meterTrack {
+  position: relative;
+  height: 40px;
+}
+
+.meterLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 19px;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--color-text-muted) 0 6px, transparent 6px 11px);
+}
+
+.meterZone {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  width: 36%;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--color-sage-tint);
+  border: 1.5px dashed var(--color-sage);
+}
+
+.meterYou {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-text);
+  border: 3px solid #f9f4ed;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.meterMonument {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--miss-bg);
+  border: 2px dashed var(--miss-line);
+  color: var(--miss-ink);
+}
+
+.meterMonument svg {
+  width: 14px;
+  height: 14px;
+}
+
+.meterLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.meterZoneLabel {
+  color: var(--color-sage-ink);
+  white-space: nowrap;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 6px 14px;
+  list-style: none;
+  border-radius: 22px;
+  background: var(--color-surface);
+}
+
+.steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 9px 0;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+.steps li + li {
+  border-top: 1px solid var(--color-line);
+}
+
+.stepNumber {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-bg);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* — the card unlocked: the whole screen — */
+
+.flow[data-step="done"] {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.flow[data-step="done"]::backdrop {
+  background: var(--color-bg);
+}
+
+.flow[data-step="done"] .sheet {
+  height: 100%;
+  gap: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.rays {
+  position: absolute;
+  left: 50%;
+  top: 300px;
+  width: 900px;
+  height: 900px;
+  margin: -450px 0 0 -450px;
+  pointer-events: none;
+}
+
+.rays span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    color-mix(in srgb, var(--color-accent-400) 30%, transparent) 0 9deg,
+    transparent 9deg 22.5deg
+  );
+  mask: radial-gradient(circle, #000 18%, transparent 62%);
+  animation: rays 40s linear infinite;
+}
+
+.doneHead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 0 6px;
+}
+
+.doneHead .round {
+  color: var(--color-text);
+}
+
+.doneBody {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: 18px;
+  padding: 4px 24px 14px;
+}
+
+.flip {
+  position: relative;
+  /* The card as large as the screen leaves it, its actions in view: about
+     460 px go to the head, the texts and the buttons */
+  width: clamp(170px, min(64vw, calc((100dvh - 460px) * 0.61)), 248px);
+  perspective: 1400px;
+}
+
+.flipInner {
+  position: relative;
+  display: grid;
+  transform-style: preserve-3d;
+  animation: flip 1.5s cubic-bezier(0.34, 1.3, 0.5, 1) 0.2s both;
+}
+
+.cardFront,
+.cardBack {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+}
+
+/* The pack's paper, with the collection's emblem */
+.cardBack {
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  border: 2px solid var(--sticker-line);
+  background:
+    radial-gradient(rgba(32, 30, 29, 0.13) 1.6px, transparent 1.8px) 0 0 / 12px 12px,
+    var(--skin-color, #c67139);
+  box-shadow: 0 5px 0 var(--sticker-shadow);
+  transform: rotateY(180deg);
+}
+
+.cardBack span {
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--sticker-line);
+  background: #f9f4ed;
+  color: var(--sticker-line);
+}
+
+.cardBack svg {
+  width: 42px;
+  height: 42px;
+}
+
+/* The stamp comes down once the card has turned */
+.cardFront :global([data-stamp]) {
+  animation: stamp 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) 1.75s both;
+}
+
+.spark {
+  position: absolute;
+  display: grid;
+  transform: rotate(var(--r, 0deg));
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--sticker-line);
+  color: var(--sticker-line);
+}
+
+.spark[data-spark="1"] {
+  --r: -12deg;
+  left: -24px;
+  top: 48%;
+  width: 34px;
+  height: 34px;
+  background: #e9b949;
+  animation: pop 0.4s ease-out 1.9s both;
+}
+
+.spark[data-spark="2"] {
+  --r: 10deg;
+  right: -20px;
+  bottom: 40px;
+  width: 28px;
+  height: 28px;
+  background: #9db07f;
+  animation: pop 0.4s ease-out 2.05s both;
+}
+
+.spark svg {
+  width: 15px;
+  height: 15px;
+}
+
+.doneText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  animation: rise 0.5s ease-out 2.3s both;
+}
+
+.doneText p {
+  max-width: 420px;
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.doneTitle {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.chips li[data-tone="sage"] {
+  background: var(--color-sage-tint);
+  color: var(--color-sage-ink);
+  font-weight: 700;
+}
+
+.chips li[data-tone="accent"] {
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+}
+
+.chips svg {
+  width: 16px;
+  height: 16px;
+}
+
+.doneActions {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px calc(28px + env(safe-area-inset-bottom, 0px));
+  animation: rise 0.5s ease-out 2.5s both;
+}
+
+@media (min-width: 720px) {
+  .doneActions {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}
+
+@keyframes ping {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes flip {
+  0% {
+    transform: translateY(40px) scale(0.7) rotateY(180deg);
+  }
+  35% {
+    transform: translateY(0) scale(1) rotateY(180deg);
+  }
+  75% {
+    transform: scale(1.04) rotateY(-8deg);
+  }
+  100% {
+    transform: scale(1) rotateY(0);
+  }
+}
+
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(2.6) rotate(-40deg);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(0.9) rotate(-14deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-14deg);
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rays {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(var(--r, 0deg));
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) rotate(var(--r, 0deg));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(var(--r, 0deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring,
+  .rays span,
+  .flipInner,
+  .cardFront :global([data-stamp]),
+  .spark,
+  .doneText,
+  .doneActions {
+    animation: none;
+  }
+
+  .ring {
+    display: none;
+  }
+
+  .spread,
+  .fill {
+    transition: none;
+  }
+}

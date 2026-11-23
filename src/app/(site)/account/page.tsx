@@ -1,4 +1,18 @@
-import { AtSign, Award, ChevronDown, ChevronRight, CircleHelp, Download, KeyRound, LockKeyhole, LogIn, Mail } from 'lucide-react';
+import {
+  AtSign,
+  Award,
+  ChevronDown,
+  ChevronRight,
+  CircleHelp,
+  Download,
+  EyeOff,
+  KeyRound,
+  LockKeyhole,
+  LogIn,
+  Mail,
+  Map as MapIcon,
+  Stamp,
+} from 'lucide-react';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
@@ -14,12 +28,14 @@ import { Sheet, type SheetTrigger } from '@/components/ui/Sheet';
 import { db } from '@/db';
 import { DEFAULT_COLLECTION_SLUG } from '@/lib/collections';
 import { achievementTitle } from '@/lib/game/achievement-title';
+import { visitCounts, visitProgress } from '@/lib/game/achievements';
 import { playerBadges } from '@/lib/game/badges';
 import { coinBalance } from '@/lib/game/coins';
 import { collectionCounts } from '@/lib/game/collection';
 import { playerRank } from '@/lib/game/leaderboard';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
+import { isVisitKind } from '@/lib/game/visit';
 import { requireSession } from '@/lib/session';
 import { signInMethods } from '@/lib/sign-in-methods';
 import { themePreference } from '@/lib/theme-preference';
@@ -52,16 +68,20 @@ export default async function AccountPage() {
     cookies(),
     getActiveCollection(DEFAULT_COLLECTION_SLUG),
   ]);
-  // The player's figures in the game, for the phone's profile, and their badges
-  const [counts, balance, rank, badges] = collection
+  // The player's figures in the game, for the phone's profile, their badges and their visits
+  const [counts, balance, rank, allBadges, visits] = collection
     ? await Promise.all([
         collectionCounts({ userId: user.id, collectionId: collection.id }),
         coinBalance(db, user.id),
         playerRank(collection.id, user.id),
         playerBadges(user.id, collection.id),
+        visitCounts(db, user.id, collection.id),
       ])
-    : [null, null, null, []];
-  const badgeTitle = (badge: (typeof badges)[number]) => achievementTitle(tAchievement, tRarity, badge);
+    : [null, null, null, [], null];
+  const badgeTitle = (badge: (typeof allBadges)[number]) => achievementTitle(tAchievement, tRarity, badge);
+  // The visits' badges have their own section: private, they can't be shown beside the pseudo
+  const badges = allBadges.filter((badge) => !isVisitKind(badge.kind));
+  const visitBadges = allBadges.filter((badge) => isVisitKind(badge.kind));
   const obtained = badges.filter((badge) => badge.obtainedAt);
   const locked = badges.filter((badge) => !badge.obtainedAt);
   const featured = badges.find((badge) => badge.featured);
@@ -197,6 +217,62 @@ export default async function AccountPage() {
               </Sheet>
             </div>
           )}
+        </section>
+      )}
+
+      {visits && visitBadges.length > 0 && (
+        <section className={styles.badges} aria-labelledby="visits-heading">
+          <div className={styles.badgesHead}>
+            <h2 id="visits-heading">{t('visits.title')}</h2>
+          </div>
+          <ul className={styles.visitFigures}>
+            <li data-tone="sage">
+              <Stamp aria-hidden />
+              <span className={styles.visitValue}>{format.number(visits.monuments)}</span>
+              <span className={styles.visitLabel}>{t('visits.monuments', { count: visits.monuments })}</span>
+            </li>
+            <li>
+              <MapIcon aria-hidden />
+              <span className={styles.visitValue}>{format.number(visits.departments)}</span>
+              <span className={styles.visitLabel}>{t('visits.departments', { count: visits.departments })}</span>
+            </li>
+          </ul>
+          <div className={styles.badgesHead}>
+            <h3>{t('visits.badges')}</h3>
+            <span className={styles.muted}>
+              {t('badges.count', {
+                obtained: visitBadges.filter((badge) => badge.obtainedAt).length,
+                total: visitBadges.length,
+              })}
+            </span>
+          </div>
+          <ul className={styles.showcase}>
+            {visitBadges.map((badge) => {
+              const progress = Math.min(badge.threshold, visitProgress(badge.kind, visits));
+              return (
+                <li key={badge.id} data-locked={!badge.obtainedAt || undefined}>
+                  <BadgeSticker badge={badge} label={badgeTitle(badge)} size="large" locked={!badge.obtainedAt} />
+                  <span className={styles.badgeName} aria-hidden="true">
+                    {badgeTitle(badge)}
+                  </span>
+                  {!badge.obtainedAt && (
+                    <span className={styles.badgeProgress}>
+                      <span className={styles.badgeTrack} aria-hidden="true">
+                        <span style={{ width: `${Math.round((progress / badge.threshold) * 100)}%` }} />
+                      </span>
+                      <span className={styles.muted}>
+                        {t('visits.progress', { progress, threshold: badge.threshold })}
+                      </span>
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <p className={`${styles.muted} ${styles.visitsPrivate}`}>
+            <EyeOff aria-hidden />
+            <span>{t('visits.private', { count: visits.monuments })}</span>
+          </p>
         </section>
       )}
 

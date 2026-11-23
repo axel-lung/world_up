@@ -52,6 +52,9 @@ import { InteractiveDemo } from './InteractiveDemo';
 import styles from './page.module.css';
 import { defaultOdds, rarityTable, samples, tokens } from './samples';
 
+// The day of a visit on site, for the stamps
+const VISITED_ON = new Date('2026-11-12T10:00:00Z');
+
 export const metadata: Metadata = { title: 'Design system', robots: { index: false } };
 
 const heritage: CardCollection = { name: 'Patrimoine de France', emblem: 'landmark' };
@@ -535,6 +538,19 @@ export default function DesignPage() {
                   <BadgeSticker badge={{ kind: 'packs_opened', threshold: 500, tier: 'ultra' }} label="Verrouillé" size="large" locked />
                 </div>
                 <div className={styles.row}>
+                  {(['monuments_visited', 'departments_visited', 'visits_in_a_day', 'rarities_visited', 'overseas_visited'] as const).map(
+                    (kind, index) => (
+                      <BadgeSticker
+                        key={kind}
+                        badge={{ kind, threshold: [10, 30, 5, 6, 1][index], tier: (['rare', 'super', 'ultra', 'legendary', 'legendary'] as const)[index] }}
+                        label={kind}
+                        size="large"
+                      />
+                    ),
+                  )}
+                  <BadgeSticker badge={{ kind: 'monuments_visited', threshold: 50, tier: 'super' }} label="Visites, verrouillé" size="large" locked />
+                </div>
+                <div className={styles.row}>
                   {RARITIES.map((tier) => (
                     <BadgeSticker key={tier} badge={{ kind: 'distinct_cards', threshold: 100, tier }} label={tier} />
                   ))}
@@ -829,6 +845,10 @@ export default function DesignPage() {
                   <figcaption>Doublon ×3</figcaption>
                 </figure>
                 <figure>
+                  <Card card={samples.napoleon} collection={heritage} visitedAt={VISITED_ON} />
+                  <figcaption>Visitée sur place</figcaption>
+                </figure>
+                <figure>
                   <Card card={samples.stuarts} collection={heritage} shiny />
                   <figcaption>Brillante</figcaption>
                 </figure>
@@ -887,6 +907,9 @@ export default function DesignPage() {
                 </li>
                 <li>
                   <CardRow card={samples.compiegne} copies={3} href="#" />
+                </li>
+                <li>
+                  <CardRow card={samples.napoleon} href="#" visitedAt={VISITED_ON} />
                 </li>
                 <li>
                   <CardRow card={samples.soissons} href="#" />
@@ -976,6 +999,8 @@ export default function DesignPage() {
               <div className={styles.row}>
                 <PinFace rarity="super" owned chosen />
                 <PinFace rarity="legendary" owned={false} chosen />
+                <PinFace rarity="rare" owned visited />
+                <PinFace rarity="ultra" owned visited chosen />
                 <ClusterFace count={12} owned={4} />
                 <ClusterFace count={63} owned={11} />
                 <ClusterFace count={184} owned={77} />

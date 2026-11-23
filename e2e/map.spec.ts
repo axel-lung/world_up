@@ -94,7 +94,9 @@ test.describe('on a phone', () => {
     await notreDame.click();
     const sheet = page.getByRole('dialog', { name: 'Monument' });
     await expect(sheet.getByRole('heading', { name: 'Cathédrale Notre-Dame de Paris' })).toBeVisible();
-    await expect(sheet.getByText('Cette carte vous manque. Trouvez-la dans un paquet.')).toBeVisible();
+    await expect(
+      sheet.getByText('Cette carte vous manque. Trouvez-la dans un paquet, ou débloquez-la sur place, à moins de 200 m.'),
+    ).toBeVisible();
     await expect(sheet.getByRole('link', { name: 'Itinéraire' })).toBeVisible();
     await expect(sheet.getByRole('link', { name: 'Voir la carte' })).toHaveCount(0);
     await sheet.getByRole('button', { name: 'Fermer' }).click();
@@ -131,6 +133,72 @@ test.describe('on a phone', () => {
     await page.getByRole('link', { name: 'Voir sur la carte' }).click();
     await expect(page).toHaveURL(new RegExp(`/c/${collection.slug}/map\\?card=monument-1$`));
     await expect(page.getByRole('dialog', { name: 'Monument' }).getByRole('heading', { name: 'Château de Chambord' })).toBeVisible();
+  });
+});
+
+// "Je suis ici": the browser's position is Playwright's, granted; its accuracy 30 m
+test.describe('unlocking a monument on site', () => {
+  test.use({
+    viewport: { width: 390, height: 844 },
+    permissions: ['geolocation'],
+    // In front of Notre-Dame, about 15 m from its point
+    geolocation: { latitude: 48.8531, longitude: 2.3498, accuracy: 30 },
+  });
+
+  test('"Je suis ici" unlocks the card once, stamped, private', async ({ page }) => {
+    await playerWithCards(page);
+    await page.goto(`/c/${collection.slug}/map?card=monument-3`);
+    const sheet = page.getByRole('dialog', { name: 'Monument' });
+    await expect(sheet.getByRole('heading', { name: 'Cathédrale Notre-Dame de Paris' })).toBeVisible();
+    await sheet.getByRole('button', { name: 'Je suis ici' }).click();
+
+    // The first time on this device, why the position
+    const why = page.getByRole('dialog', { name: 'Êtes-vous devant le monument ?' });
+    await expect(why.getByText('Elle n’est demandée qu’au moment où vous touchez « Je suis ici ».')).toBeVisible();
+    await why.getByRole('button', { name: 'Continuer' }).click();
+
+    // The card unlocked, over the whole screen
+    const done = page.getByRole('dialog', { name: 'Ajoutée à votre collection' });
+    await expect(done).toBeVisible();
+    await expect(done.getByRole('article', { name: /^Cathédrale Notre-Dame de Paris, Légendaire, visité le / })).toBeVisible();
+    await expect(done.getByText('Une nouvelle carte pour votre collection.', { exact: false })).toBeVisible();
+    await expect(done.getByText('1 monument visité')).toBeVisible();
+    await expect(done.getByText('Plus que 4 visites aujourd’hui')).toBeVisible();
+    await done.getByRole('button', { name: 'Retour à la carte' }).click();
+    await expect(done).toBeHidden();
+
+    // The sheet now says when, and leads to the card
+    await expect(sheet.getByText(/^Visité le \d+ \S+ \d{4}$/)).toBeVisible();
+    await expect(sheet.getByRole('button', { name: 'Je suis ici' })).toHaveCount(0);
+    await expect(sheet.getByRole('link', { name: 'Voir la carte' })).toBeVisible();
+
+    // The collection's "Visitées"
+    await page.goto(`/c/${collection.slug}/collection?tab=visited`);
+    await expect(page.getByText('1 carte', { exact: true })).toBeVisible();
+    await expect(page.getByRole('article', { name: /^Cathédrale Notre-Dame de Paris, Légendaire, visité le / })).toBeVisible();
+
+    // The card's page: the day, for the player only, and no second "Je suis ici"
+    await page.goto(`/c/${collection.slug}/cards/monument-3`);
+    await expect(page.getByText('Visible par vous seul')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Je suis ici' })).toHaveCount(0);
+  });
+
+  test('too far: how far, the way there, and nothing unlocked', async ({ page }) => {
+    await playerWithCards(page);
+    // From its card's page: the map opens on it, "Je suis ici" started
+    await page.goto(`/c/${collection.slug}/cards/monument-4`);
+    await page.getByRole('link', { name: 'Je suis ici' }).click();
+    await expect(page).toHaveURL(new RegExp(`/c/${collection.slug}/map\\?card=monument-4&here=1$`));
+    await page.getByRole('dialog', { name: 'Êtes-vous devant le monument ?' }).getByRole('button', { name: 'Continuer' }).click();
+
+    // Notre-Dame is about 450 m from the Sainte-Chapelle
+    const refusal = page.getByRole('dialog', { name: /^Encore \d+ m$/ });
+    await expect(refusal).toBeVisible();
+    await expect(refusal.getByText('Approchez-vous : il faut être à moins de 200 m du monument pour le débloquer.')).toBeVisible();
+    await expect(refusal.getByRole('link', { name: 'Itinéraire' })).toBeVisible();
+    await refusal.getByRole('button', { name: 'Fermer' }).click();
+    await expect(refusal).toBeHidden();
+    await expect(page.getByRole('dialog', { name: 'Monument' }).getByRole('button', { name: 'Je suis ici' })).toBeVisible();
   });
 });
 

@@ -16,6 +16,7 @@ import {
   getResaleValues,
   getStreakRewards,
 } from '@/lib/game/rules';
+import { MAX_VISIT_RADIUS_METRES } from '@/lib/game/visit';
 import { WISHLIST_MAX } from '@/lib/game/wishlist';
 import { RARITIES } from '@/lib/rarity';
 import styles from '../info.module.css';
@@ -100,6 +101,22 @@ export default async function RulesPage() {
           <li>{t('collectionMissing')}</li>
           <li>{t('collectionDuplicates')}</li>
           <li>{t('collectionWishlist', { max: WISHLIST_MAX })}</li>
+        </ul>
+      </section>
+
+      <section className={styles.section} aria-labelledby="visits-heading">
+        <h2 id="visits-heading">{t('visitsHeading')}</h2>
+        <ul>
+          <li>
+            {t.rich('visitsHow', {
+              radius: rules.visitRadiusMetres,
+              map: (chunks) => <Link href={gamePath(collection.slug).map}>{chunks}</Link>,
+            })}
+          </li>
+          <li>{t('visitsOnce', { perDay: rules.visitsPerDay })}</li>
+          <li>{t('visitsAccuracy', { accuracy: rules.visitMaxAccuracyMetres, max: MAX_VISIT_RADIUS_METRES })}</li>
+          <li>{t('visitsTravel')}</li>
+          <li>{t('visitsPrivate')}</li>
         </ul>
       </section>
 

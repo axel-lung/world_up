@@ -362,6 +362,12 @@ export const gameRules = pgTable('game_rules', {
   // of the streak, up to the ceiling (src/lib/game/streak.ts)
   streakRepairCoinsPerDay: integer('streak_repair_coins_per_day').notNull().default(10),
   streakRepairMaxCoins: integer('streak_repair_max_coins').notNull().default(1000),
+  // Unlocking a card on site (src/lib/game/visits.ts): within so many metres
+  // of its monument (widened for a coarse point), from a position the device
+  // knows to so many metres or better, at most so many a day (in Paris)
+  visitRadiusMetres: integer('visit_radius_metres').notNull().default(200),
+  visitMaxAccuracyMetres: integer('visit_max_accuracy_metres').notNull().default(100),
+  visitsPerDay: integer('visits_per_day').notNull().default(5),
   updatedAt: updatedAt(),
 });
 
@@ -545,6 +551,32 @@ export const wishlistItems = pgTable(
   ],
 );
 
+// The monuments a player went to (src/lib/game/visits.ts, decided on
+// 2026-11-22): "Je suis ici" on the map checks their position on the server
+// and adds a copy of the card, once per monument and player. The position is
+// never kept: only the card and the moment, which the speed check between two
+// visits needs. Private: friends see the count only.
+export const cardVisits = pgTable(
+  'card_visits',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    collectionId: integer('collection_id')
+      .notNull()
+      .references(() => collections.id),
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id),
+    visitedAt: timestamp('visited_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.cardId] }),
+    // The day's visits and the last one
+    index('card_visits_user_visited_at_idx').on(table.userId, table.visitedAt),
+  ],
+);
+
 // auction_purchase and auction_sale reference the auction's ID: an auction is
 // settled once. pack_opening references the opening's ID, streak_repair
 // "<collection ID>:<the day the streak broke>".
@@ -585,11 +617,18 @@ export const achievementKind = pgEnum('achievement_kind', [
   'packs_opened',
   'rarity_owned',
   'series_completed',
+  'monuments_visited',
+  'departments_visited',
+  'visits_in_a_day',
+  'rarities_visited',
+  'overseas_visited',
 ]);
 
 // An achievement is reached when the player's count for its kind (distinct
-// visible cards, packs opened, visible cards of `rarity`, completed series)
-// reaches `threshold`. Its title comes from messages/fr.json (Achievements).
+// visible cards, packs opened, visible cards of `rarity`, completed series,
+// and the on-site visits: monuments, departments, the most in one day,
+// rarities, overseas monuments) reaches `threshold`. Its title comes from
+// messages/fr.json (Achievements).
 export const achievements = pgTable(
   'achievements',
   {

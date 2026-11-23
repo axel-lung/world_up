@@ -27,6 +27,8 @@ import {
   type MarketRules,
   type PackRules,
   type PriceRange,
+  type RepairRules,
+  type VisitRules,
   visibleCardsByRarity,
 } from './rules';
 import type { StreakReward } from './streak';
@@ -45,12 +47,12 @@ function audit(tx: Transaction, adminId: string, action: string, collectionId: n
   return tx.insert(auditLog).values({ adminId, action, targetType: 'collection', targetId: String(collectionId), details });
 }
 
-/** Some of the rows' game rules: the pack rules, or the streak's repair price. */
+/** Some of the rows' game rules: the pack rules, the streak's repair price or the on-site visits. */
 export async function updateGameRules(
   database: Database,
   adminId: string,
   collectionId: number,
-  rules: PackRules | Pick<GameRules, 'streakRepairCoinsPerDay' | 'streakRepairMaxCoins'>,
+  rules: PackRules | RepairRules | VisitRules,
 ): Promise<void> {
   await database.transaction(async (tx) => {
     await tx.execute(sql`SELECT 1 FROM ${gameRules} WHERE ${gameRules.collectionId} = ${collectionId} FOR UPDATE`);

@@ -179,7 +179,15 @@
       "submit": "Supprimer définitivement mon compte"
     },
     "profileTitle": "Profil",
-    "memberSinceOn": "Membre depuis le {date}"
+    "memberSinceOn": "Membre depuis le {date}",
+    "visits": {
+      "title": "Visites sur place",
+      "monuments": "{count, plural, one {monument visité} other {monuments visités}}",
+      "departments": "{count, plural, one {département visité} other {départements visités}}",
+      "badges": "Badges de visite",
+      "progress": "{progress, number} / {threshold, number}",
+      "private": "Vos amis voient « {count, plural, one {# monument visité} other {# monuments visités}} », jamais lesquels."
+    }
   },
   "Email": {
     "signature": "L'équipe World Up",
@@ -257,7 +265,10 @@
     "showBack": "Voir le verso",
     "showFront": "Voir le recto",
     "publicDomain": "domaine public",
-    "unknownLicense": "licence non renseignée"
+    "unknownLicense": "licence non renseignée",
+    "visitedStamp": "Visité",
+    "visitedChip": "Visité",
+    "ariaVisited": "visité le {date}"
   },
   "CardPage": {
     "description": "{name}, {place} : une carte de la collection {collection}.",
@@ -318,7 +329,10 @@
     "tradeTitle": "Proposer un échange",
     "tradeWith": "À quel ami proposer {name} ?",
     "tradeNoFriends": "Les échanges se font entre amis : ajoutez-en depuis la page <friends>Amis</friends>.",
-    "seeOnMap": "Voir sur la carte"
+    "seeOnMap": "Voir sur la carte",
+    "visitedOn": "Visité le {date}",
+    "visitedPrivate": "Visible par vous seul",
+    "here": "Je suis ici"
   },
   "Pack": {
     "reserve": "{count, plural, one {# paquet} other {# paquets}} en réserve sur {max}",
@@ -632,7 +646,10 @@
         "maxActiveAuctions": "Ventes en cours par joueur",
         "streakRewards": "Paliers (jours:paquets)",
         "streakRepairCoinsPerDay": "Réparation : pièces par jour de série",
-        "streakRepairMaxCoins": "Réparation : prix maximum"
+        "streakRepairMaxCoins": "Réparation : prix maximum",
+        "visitRadiusMetres": "Visites : distance de déblocage (m)",
+        "visitMaxAccuracyMetres": "Visites : précision exigée (m)",
+        "visitsPerDay": "Visites : monuments par jour"
       },
       "saveRules": "Enregistrer les règles",
       "streakHeading": "Série de jours",
@@ -672,7 +689,10 @@
         "oddsNoCards": "Une rareté sans carte en jeu ne peut pas avoir de probabilité.",
         "oddsInPast": "La date de début ne peut pas être dans le passé.",
         "pricesOrder": "Pour chaque rareté, le minimum ne peut pas dépasser le maximum."
-      }
+      },
+      "visitsHeading": "Visites sur place",
+      "visitsIntro": "« Je suis ici » débloque la carte d’un monument à moins de cette distance, à partir d’une position connue à cette précision ou mieux, et au plus tant de monuments par jour (à l’heure de Paris). Pour un point approximatif, la distance s’élargit jusqu’à {max, number} m ; une visite qui suivrait la précédente à plus de {speed, number} km/h attend. Ces deux limites sont fixées dans le code.",
+      "saveVisits": "Enregistrer les visites"
     },
     "announcements": {
       "title": "Annonces",
@@ -937,7 +957,7 @@
     },
     "collected": {
       "title": "Les données collectées",
-      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Sur le site, nous ne demandons à Google ni votre nom ni votre photo ; dans l'application Android, Google les joint d'office à sa réponse, et nous ne les gardons pas. Nous ne gardons aucun des jetons de Google.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès, votre série de jours, votre liste de souhaits et les dates de vos ouvertures de paquets.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous activez les notifications sur un appareil : l'adresse que le service de notifications de votre navigateur donne à cet appareil, et les clés qui chiffrent nos messages ; dans l'application Android, l'identifiant que Firebase Cloud Messaging, le service de notifications de Google, donne à votre téléphone. Ni votre adresse IP, ni votre navigateur.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Sur la carte des monuments, « Autour de moi » demande votre position à votre appareil : elle sert, dans votre navigateur seulement, à centrer la carte et à mesurer les distances, et ne nous est jamais transmise. « Itinéraire » ouvre l'application de cartes de votre appareil, qui reçoit la position du monument, pas la vôtre.</p><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
+      "body": "<ul><li>À l'inscription : votre adresse e-mail, votre pseudo, votre date de naissance, votre mot de passe (enregistré sous une forme hachée, jamais en clair), et la version des conditions d'utilisation que vous avez acceptée, avec sa date.</li><li>Si vous vous connectez avec Google : l'adresse e-mail de votre compte Google et l'identifiant que Google lui donne. Sur le site, nous ne demandons à Google ni votre nom ni votre photo ; dans l'application Android, Google les joint d'office à sa réponse, et nous ne les gardons pas. Nous ne gardons aucun des jetons de Google.</li><li>En jouant : vos paquets, vos cartes, vos pièces, vos succès, votre série de jours, votre liste de souhaits et les dates de vos ouvertures de paquets.</li><li>Si vous débloquez une carte sur place : la carte, avec la date et l’heure de la visite. Jamais votre position.</li><li>Si vous ajoutez des amis : la liste de vos amis et des demandes envoyées ou reçues.</li><li>Si vous échangez des cartes : vos offres d'échange, les cartes proposées et les réponses.</li><li>Si vous utilisez le marché : vos ventes, vos mises et leurs montants.</li><li>Les notifications du jeu (une demande d'ami, par exemple), gardées 90 jours.</li><li>Si vous activez les notifications sur un appareil : l'adresse que le service de notifications de votre navigateur donne à cet appareil, et les clés qui chiffrent nos messages ; dans l'application Android, l'identifiant que Firebase Cloud Messaging, le service de notifications de Google, donne à votre téléphone. Ni votre adresse IP, ni votre navigateur.</li><li>Si vous signalez un problème sur une carte : votre message.</li><li>Si votre compte est suspendu : la date et le motif de la suspension.</li><li>Pour la sécurité de votre compte : vos sessions de connexion et la date de votre dernière visite.</li></ul><p>Sur la carte des monuments, « Autour de moi » demande votre position à votre appareil : elle sert, dans votre navigateur seulement, à centrer la carte et à mesurer les distances, et ne nous est pas transmise. « Je suis ici » nous l'envoie une seule fois, quand vous le touchez : le serveur vérifie que vous êtes devant le monument, puis l'oublie. Elle n'est ni enregistrée ni écrite dans nos journaux ; seule la visite l'est. « Itinéraire » ouvre l'application de cartes de votre appareil, qui reçoit la position du monument, pas la vôtre.</p><p>Votre adresse IP sert seulement, en mémoire, à limiter les tentatives de connexion : elle n'est pas enregistrée avec votre compte. Nous ne collectons ni votre nom, ni votre adresse postale, et aucun suivi publicitaire.</p>"
     },
     "purposes": {
       "title": "Pourquoi, et sur quelle base",
@@ -945,7 +965,7 @@
     },
     "public": {
       "title": "Ce qui est public",
-      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Vos amis voient aussi votre collection et votre liste de souhaits. Au marché, votre pseudo s'affiche sur vos ventes ; vos mises restent anonymes. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
+      "body": "<p>Votre pseudo et le nombre de vos cartes apparaissent au <leaderboard>classement</leaderboard>, visible de tous. Vos amis voient aussi votre collection, votre liste de souhaits et le nombre de monuments que vous avez visités sur place, jamais lesquels. Au marché, votre pseudo s'affiche sur vos ventes ; vos mises restent anonymes. Votre adresse e-mail et votre date de naissance ne sont jamais affichées.</p>"
     },
     "recipients": {
       "title": "Qui reçoit vos données",
@@ -1116,7 +1136,12 @@
     "packs_opened": "{count, plural, one {Ouvrir votre premier paquet} other {Ouvrir # paquets}}",
     "distinct_cards": "{count, plural, one {Obtenir votre première carte} other {Collectionner # cartes différentes}}",
     "rarity_owned": "{count, plural, one {Obtenir une carte {rarity}} other {Obtenir # cartes {rarity}}}",
-    "series_completed": "{count, plural, one {Compléter une série} other {Compléter # séries}}"
+    "series_completed": "{count, plural, one {Compléter une série} other {Compléter # séries}}",
+    "monuments_visited": "{count, plural, one {Visiter un monument sur place} other {Visiter # monuments sur place}}",
+    "departments_visited": "{count, plural, one {Visiter un monument dans un département} other {Visiter des monuments dans # départements}}",
+    "visits_in_a_day": "{count, plural, one {Visiter un monument dans la journée} other {Visiter # monuments le même jour}}",
+    "rarities_visited": "{count, plural, one {Visiter un monument d’une rareté} other {Visiter des monuments de # raretés}}",
+    "overseas_visited": "{count, plural, one {Visiter un monument d’outre-mer} other {Visiter # monuments d’outre-mer}}"
   },
   "Open": {
     "title": "Ouvrir un paquet",
@@ -1180,7 +1205,8 @@
       "all": "Toutes",
       "owned": "Possédées",
       "missing": "Manquantes",
-      "duplicates": "Doublons"
+      "duplicates": "Doublons",
+      "visited": "Visitées"
     },
     "resellAll": "Revendre {copies, plural, one {# doublon} other {les # doublons}} pour {coins, plural, one {# pièce} other {# pièces}}",
     "resellHint": "Vous gardez un exemplaire de chaque carte.",
@@ -1189,7 +1215,8 @@
       "all": "Aucune carte ne correspond à ces filtres.",
       "owned": "Vous n'avez encore aucune carte ici : ouvrez un paquet !",
       "missing": "Vous avez toutes les cartes de cette sélection.",
-      "duplicates": "Aucun doublon pour l'instant."
+      "duplicates": "Aucun doublon pour l'instant.",
+      "visited": "Aucun monument visité pour l’instant. Devant un monument, touchez « Je suis ici » sur sa fiche de la carte : sa carte rejoint votre collection."
     },
     "seriesTypes": {
       "region": "Série régionale",
@@ -1232,6 +1259,9 @@
     "show": "Afficher",
     "missing": "Il me manque",
     "missingMeta": "Seulement les monuments à trouver",
+    "visited": "Visités",
+    "visitedMeta": "Seulement ceux que vous avez visités",
+    "visitedChip": "Visité",
     "results": "{count, plural, =0 {Aucun monument} one {Voir # monument} other {Voir # monuments}}",
     "aroundMe": "Autour de moi",
     "locating": "Recherche de votre position…",
@@ -1264,18 +1294,21 @@
       "progress": "Progression dans le département",
       "cardsHere": "monuments de ce département dans votre collection",
       "seeCards": "Voir les cartes",
-      "zoom": "Zoomer"
+      "zoom": "Zoomer",
+      "visited": "{count, plural, =0 {Aucun monument visité ici pour l’instant} one {# monument visité sur place} other {# monuments visités sur place}}"
     },
     "monument": {
       "label": "Monument",
       "inCollection": "dans votre collection",
       "lacking": "vous manque",
-      "pin": "{name}, {rarity}, {state}",
+      "pin": "{name}, {rarity}, {state}{visited, select, yes {, visité} other {}}",
       "distance": "À {distance} de vous",
-      "lackingText": "Cette carte vous manque. Trouvez-la dans un paquet.",
+      "lackingText": "Cette carte vous manque. Trouvez-la dans un paquet, ou débloquez-la sur place, à moins de {radius, number} m.",
       "directions": "Itinéraire",
       "seeCard": "Voir la carte",
-      "copies": "{count, plural, one {# exemplaire} other {# exemplaires}}"
+      "copies": "{count, plural, one {# exemplaire} other {# exemplaires}}",
+      "visited": "Visité le {date}",
+      "here": "Je suis ici"
     },
     "cluster": "{count, number} monuments, dont {owned, number} dans votre collection. Zoomer",
     "metres": "{value, number} m",
@@ -1286,6 +1319,107 @@
     "listCapped": "Voici les {shown, number} plus proches : zoomez pour voir les autres.",
     "listEmpty": "Aucun monument ici avec ces filtres. Déplacez la carte ou changez les filtres.",
     "close": "Fermer"
+  },
+  "Visit": {
+    "label": "Visite sur place",
+    "why": {
+      "title": "Êtes-vous devant le monument ?",
+      "text": "Votre position sert seulement à vérifier que vous êtes devant le monument. Elle n’est pas enregistrée : seule votre visite l’est.",
+      "onTap": "Elle n’est demandée qu’au moment où vous touchez « Je suis ici ».",
+      "kept": "Nous gardons seulement la carte débloquée, avec la date et l’heure de la visite.",
+      "friends": "Vos amis voient combien de monuments vous avez visités, jamais lesquels.",
+      "continue": "Continuer",
+      "permission": "Votre appareil va ensuite vous demander l’autorisation.",
+      "later": "Pas maintenant"
+    },
+    "search": {
+      "title": "Recherche de votre position…",
+      "precision": "Précision",
+      "accuracy": "± {metres, number} m",
+      "none": "–",
+      "barLabel": "Précision de votre position",
+      "far": "± 1 km",
+      "near": "± 5 m",
+      "waiting": "Nous attendons la position de votre appareil.",
+      "good": "Assez précise. Nous vérifions la distance au monument…",
+      "notYet": "Pas encore assez précise. Restez à découvert un instant.",
+      "cancel": "Annuler"
+    },
+    "refusal": {
+      "kicker": "Visite impossible",
+      "retry": "Réessayer",
+      "later": "Plus tard",
+      "close": "Fermer",
+      "understood": "Compris",
+      "directions": "Itinéraire",
+      "tooFar": {
+        "kicker": "{name} · {distance}",
+        "title": "Encore {remaining}",
+        "body": "Approchez-vous : il faut être à moins de {radius} du monument pour le débloquer.",
+        "you": "Vous",
+        "zone": "zone de {radius}"
+      },
+      "imprecise": {
+        "kicker": "Position trop imprécise",
+        "title": "± {accuracy} : sortez à découvert et réessayez",
+        "body": "Il nous faut une précision de ± {required, number} m pour être sûrs que vous êtes devant le monument.",
+        "step1": "Éloignez-vous des grands bâtiments et des arbres.",
+        "step2": "Vérifiez que la position précise est activée pour World Up.",
+        "step3": "Attendez quelques secondes, puis réessayez."
+      },
+      "unavailable": {
+        "kicker": "Position introuvable",
+        "title": "Votre appareil ne trouve pas votre position"
+      },
+      "alreadyVisited": {
+        "title": "Déjà visité le {date}",
+        "body": "Chaque monument ne se débloque sur place qu’une seule fois : celui-ci porte déjà votre tampon « Visité »."
+      },
+      "dailyLimit": {
+        "kicker": "{limit, plural, one {# visite sur # aujourd’hui} other {# visites sur # aujourd’hui}}",
+        "title": "Revenez demain dès minuit",
+        "body": "Vous avez atteint la limite de {limit, plural, one {# visite} other {# visites}} par jour. Vous pourrez débloquer ce monument dans {wait}, et il ne bougera pas d’ici là."
+      },
+      "tooSoon": {
+        "kicker": "Visite trop rapprochée",
+        "title": "Réessayez dans {wait}",
+        "body": "Votre visite précédente est trop récente pour que vous soyez déjà ici : même en avion, le trajet prend plus de temps. Ce délai protège le jeu des positions truquées."
+      },
+      "denied": {
+        "kicker": "Localisation refusée",
+        "title": "World Up n’a pas accès à votre position",
+        "body": "Sans elle, impossible de vérifier que vous êtes devant le monument. Pour la réactiver :",
+        "app1": "Ouvrez Réglages › Applications › World Up › Autorisations.",
+        "app2": "Touchez « Position », puis « Autoriser seulement si l’appli est en cours d’utilisation ».",
+        "app3": "Activez « Utiliser la position exacte ». Si la localisation du téléphone est coupée, rallumez-la depuis le volet rapide.",
+        "app4": "Si « Position » n’apparaît pas, mettez World Up à jour depuis le Play Store.",
+        "web1": "Touchez le cadenas ou l’icône de réglages, à gauche de l’adresse du site.",
+        "web2": "Autorisez la position pour ce site.",
+        "web3": "Si la localisation de l’appareil est coupée, rallumez-la, puis réessayez."
+      },
+      "gone": {
+        "title": "Ce monument ne se débloque pas pour l’instant",
+        "body": "Sa carte n’est plus disponible dans la collection."
+      },
+      "error": {
+        "title": "La visite n’a pas pu être vérifiée",
+        "body": "Vérifiez votre connexion, puis réessayez."
+      }
+    },
+    "waitHours": "{hours} h {minutes}",
+    "waitMinutes": "{minutes, plural, one {# min} other {# min}}",
+    "done": {
+      "close": "Fermer",
+      "status": "{name} débloquée. Tamponnée « Visité » le {date} et ajoutée à votre collection.",
+      "title": "Ajoutée à votre collection",
+      "new": "Une nouvelle carte pour votre collection. Elle compte et s’échange comme une carte de paquet.",
+      "more": "Un exemplaire de plus : vous en avez maintenant {copies, number}. Il compte et s’échange comme une carte de paquet.",
+      "visits": "{count, plural, one {# monument visité} other {# monuments visités}}",
+      "left": "{count, plural, =0 {Plus de visite possible aujourd’hui} one {Plus qu’une visite aujourd’hui} other {Plus que # visites aujourd’hui}}",
+      "achievement": "Succès : {title}",
+      "seeCard": "Voir la carte",
+      "backToMap": "Retour à la carte"
+    }
   },
   "Wishlist": {
     "title": "Ma liste de souhaits",
@@ -1392,7 +1526,8 @@
       "owned": "{pseudo} n'a encore aucune carte ici.",
       "duplicates": "{pseudo} n'a pas de doublon ici.",
       "youLack": "{pseudo} n'a aucune carte qui vous manque ici."
-    }
+    },
+    "visits": "{pseudo} a visité {count, plural, one {# monument} other {# monuments}} sur place"
   },
   "Trades": {
     "title": "Échanges",
@@ -1566,7 +1701,7 @@
   },
   "Rules": {
     "title": "Règles du jeu",
-    "description": "Paquets, collection, pièces, échanges et enchères : les règles de World Up.",
+    "description": "Paquets, collection, visites sur place, pièces, échanges et enchères : les règles de World Up.",
     "intro": "Collectionnez les monuments protégés de France en ouvrant des paquets de cartes {collection}. Les chiffres de cette page sont ceux qu'applique le jeu.",
     "packsHeading": "Les paquets",
     "packsStart": "À votre arrivée, {packs} paquets vous attendent. Chaque paquet contient {cards} cartes.",
@@ -1588,6 +1723,12 @@
     "collectionMissing": "Les cartes qui vous manquent restent visibles, grisées : leur nom et leur rareté seulement, la photo se découvre en l'obtenant.",
     "collectionDuplicates": "Une carte obtenue plusieurs fois compte autant d'exemplaires : ce sont vos doublons.",
     "collectionWishlist": "Touchez le cœur d'une carte qui vous manque pour l'ajouter à votre liste de souhaits, {max} cartes au plus. Vous êtes prévenu quand l'une d'elles est mise en vente, et elle quitte la liste dès que vous l'obtenez. Vos amis voient votre liste, pour vous proposer le bon échange.",
+    "visitsHeading": "Les visites sur place",
+    "visitsHow": "Devant un monument, touchez « Je suis ici » sur sa fiche de la <map>carte</map> : à moins de {radius, number} mètres, vous recevez un exemplaire de sa carte, avec le tampon « Visité ». Il compte et s’échange comme une carte de paquet.",
+    "visitsOnce": "Chaque monument ne se débloque sur place qu’une fois, et au plus {perDay, plural, one {# monument} other {# monuments}} par jour (à l’heure de Paris).",
+    "visitsAccuracy": "Votre position doit être connue à ± {accuracy, number} mètres ou mieux. Pour un monument dont les coordonnées sont approximatives, la distance s’élargit d’autant, jusqu’à {max, number} mètres.",
+    "visitsTravel": "Entre deux visites, il faut le temps du trajet : une visite qui suivrait la précédente plus vite qu’un avion attend un peu.",
+    "visitsPrivate": "Votre position sert seulement à cette vérification : elle n’est pas enregistrée. Vos amis voient combien de monuments vous avez visités, jamais lesquels.",
     "coinsHeading": "Les pièces",
     "coinsIntro": "{opening, plural, =0 {Vous gagnez des pièces} one {Chaque paquet ouvert vous rapporte # pièce. Vous en gagnez aussi} other {Chaque paquet ouvert vous rapporte # pièces. Vous en gagnez aussi}} en revendant vos doublons (vous gardez toujours un exemplaire de chaque carte) et en obtenant des succès. Un doublon rapporte selon sa rareté :",
     "resaleCaption": "Pièces par doublon revendu",

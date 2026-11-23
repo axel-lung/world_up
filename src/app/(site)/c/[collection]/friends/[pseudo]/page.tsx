@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Heart } from 'lucide-react';
+import { ArrowLeftRight, Heart, Stamp } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -6,11 +6,14 @@ import { getFormatter, getTranslations } from 'next-intl/server';
 import { BadgeSticker } from '@/components/badge/Badge';
 import { ButtonLink } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
+import { db } from '@/db';
 import { achievementTitle } from '@/lib/game/achievement-title';
 import { playerBadges } from '@/lib/game/badges';
 import { collectionCounts, FRIEND_TABS, getSeries, seriesProgress } from '@/lib/game/collection';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
+import { isVisitKind } from '@/lib/game/visit';
+import { visitCount } from '@/lib/game/visits';
 import { wishesViewerOwns } from '@/lib/game/wishlist';
 import { getFriend } from '@/lib/social/friends';
 import { requireSession } from '@/lib/session';
@@ -36,8 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * A friend's cards and badges in a collection, and how many of the cards they
- * wish for the viewer could give them: only friends see each other's collection.
+ * A friend's cards and badges in a collection, how many of the cards they
+ * wish for the viewer could give them, and how many monuments they visited
+ * (never which, nor the visits' badges): only friends see each other's collection.
  */
 export default async function FriendCollectionPage({ params, searchParams }: Props) {
   const { collection: slug, pseudo } = await params;
@@ -50,7 +54,7 @@ export default async function FriendCollectionPage({ params, searchParams }: Pro
 
   const query = await searchParams;
   const filters = parseGridParams(query, FRIEND_TABS);
-  const [t, tAchievement, tRarity, format, allSeries, counts, series, badges, wishes] = await Promise.all([
+  const [t, tAchievement, tRarity, format, allSeries, counts, series, badges, wishes, visits] = await Promise.all([
     getTranslations('FriendCollection'),
     getTranslations('Achievements'),
     getTranslations('Rarity'),
@@ -60,8 +64,9 @@ export default async function FriendCollectionPage({ params, searchParams }: Pro
     filters.series ? getSeries(collection.id, filters.series) : null,
     playerBadges(friend.id, collection.id),
     wishesViewerOwns(friend.id, user.id, collection.id),
+    visitCount(db, friend.id, collection.id),
   ]);
-  const obtained = badges.filter((badge) => badge.obtainedAt);
+  const obtained = badges.filter((badge) => badge.obtainedAt && !isVisitKind(badge.kind));
   const featured = badges.find((badge) => badge.featured);
   const title = (badge: (typeof badges)[number]) => achievementTitle(tAchievement, tRarity, badge);
   const path = paths.friend(friend.pseudo);
@@ -107,6 +112,12 @@ export default async function FriendCollectionPage({ params, searchParams }: Pro
                 link: (chunks) => <Link href={paths.newTrade(friend.pseudo)}>{chunks}</Link>,
               })}
             </span>
+          </p>
+        )}
+        {visits > 0 && (
+          <p className={own.visits}>
+            <Stamp aria-hidden />
+            <span>{t('visits', { pseudo: friend.pseudo, count: visits })}</span>
           </p>
         )}
       </header>

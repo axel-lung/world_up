@@ -4,7 +4,7 @@ import type { Achievement } from './achievements';
 // The title of an achievement, from messages/fr.json (Achievements), for
 // server pages (getTranslations) and client components (useTranslations).
 
-type Translate = (key: 'packs_opened' | 'distinct_cards' | 'rarity_owned' | 'series_completed', values: Record<string, string | number>) => string;
+type Translate = (key: Achievement['kind'], values: Record<string, string | number>) => string;
 
 export function achievementTitle(
   t: Translate,

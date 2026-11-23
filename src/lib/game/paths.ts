@@ -10,6 +10,8 @@ export function gamePath(collection: string) {
     wishlist: `${home}/wishlist`,
     map: `${home}/map`,
     mapOfCard: (slug: string) => `${home}/map?card=${encodeURIComponent(slug)}`,
+    /** The map on a card, "Je suis ici" started at once. */
+    visitHere: (slug: string) => `${home}/map?card=${encodeURIComponent(slug)}&here=1`,
     mapMonuments: (version: string) => `${home}/map/monuments?v=${version}`,
     series: (slug: string) => `${home}/series/${slug}`,
     friend: (pseudo: string) => `${home}/friends/${encodeURIComponent(pseudo)}`,

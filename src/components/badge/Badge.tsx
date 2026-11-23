@@ -1,4 +1,4 @@
-import { Gem, Layers, Package, Trophy } from 'lucide-react';
+import { Gem, Layers, Map as MapIcon, Package, Sparkles, Stamp, Sun, TreePalm, Trophy } from 'lucide-react';
 import type { Badge } from '@/lib/game/badges';
 import styles from './Badge.module.css';
 
@@ -7,6 +7,11 @@ const ICONS = {
   distinct_cards: Layers,
   rarity_owned: Gem,
   series_completed: Trophy,
+  monuments_visited: Stamp,
+  departments_visited: MapIcon,
+  visits_in_a_day: Sun,
+  rarities_visited: Sparkles,
+  overseas_visited: TreePalm,
 } as const;
 
 const COMPACT = new Intl.NumberFormat('fr', { notation: 'compact' });

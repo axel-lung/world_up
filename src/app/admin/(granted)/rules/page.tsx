@@ -17,6 +17,7 @@ import {
   getStreakRewards,
   visibleCardsByRarity,
 } from '@/lib/game/rules';
+import { MAX_TRAVEL_KMH, MAX_VISIT_RADIUS_METRES } from '@/lib/game/visit';
 import { toParisDateTime } from '@/lib/paris-time';
 import { RARITIES } from '@/lib/rarity';
 import { AuditTable } from '../AuditTable';
@@ -28,6 +29,7 @@ import {
   ResaleForm,
   StreakRepairForm,
   StreakRewardsForm,
+  VisitRulesForm,
 } from './RulesForms';
 import styles from '../../admin.module.css';
 
@@ -74,6 +76,12 @@ export default async function AdminRulesPage() {
         <StreakRewardsForm rewards={streak} />
         <p className={styles.muted}>{t('repairIntro')}</p>
         <StreakRepairForm rules={rules} />
+      </section>
+
+      <section className={styles.section} aria-labelledby="visits-heading">
+        <h2 id="visits-heading">{t('visitsHeading')}</h2>
+        <p className={styles.muted}>{t('visitsIntro', { max: MAX_VISIT_RADIUS_METRES, speed: MAX_TRAVEL_KMH })}</p>
+        <VisitRulesForm rules={rules} />
       </section>
 
       <section className={styles.section} aria-labelledby="resale-heading">

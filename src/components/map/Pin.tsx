@@ -1,4 +1,4 @@
-import { Landmark } from 'lucide-react';
+import { Check, Landmark } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { RarityPips } from '@/components/rarity/Rarity';
 import type { Rarity } from '@/lib/rarity';
@@ -8,10 +8,14 @@ import styles from './Pin.module.css';
 // pin, a group of monuments, the player's position. The rarity shows three
 // times: its color, its 1 to 6 dots and its name (the sheet and the list).
 
-/** A monument's pin: in its rarity's color when owned, greyed and dashed when lacking. */
-export function PinFace({ rarity, owned, chosen = false, size = 'map' }: {
+/**
+ * A monument's pin: in its rarity's color when owned, greyed and dashed when
+ * lacking; a sage tick once the player visited it.
+ */
+export function PinFace({ rarity, owned, visited = false, chosen = false, size = 'map' }: {
   rarity: Rarity;
   owned: boolean;
+  visited?: boolean;
   chosen?: boolean;
   /** map: 46 × 54 px, the touch target; row: smaller, in a list. */
   size?: 'map' | 'row';
@@ -21,6 +25,11 @@ export function PinFace({ rarity, owned, chosen = false, size = 'map' }: {
       <span className={styles.disc}>
         <Landmark aria-hidden />
       </span>
+      {visited && (
+        <span className={styles.visited}>
+          <Check aria-hidden />
+        </span>
+      )}
       <span className={styles.pill}>
         <RarityPips rarity={rarity} size={size === 'map' ? 4 : 3.5} tone={owned ? 'ink' : 'line'} />
       </span>

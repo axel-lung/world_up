@@ -1,4 +1,4 @@
-import { ChevronRight, MapPin } from 'lucide-react';
+import { ChevronRight, MapPin, Stamp } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
@@ -6,7 +6,7 @@ import { EmblemIcon } from '@/components/collection/Emblem';
 import { RarityPips } from '@/components/rarity/Rarity';
 import type { Emblem } from '@/lib/collection-theme';
 import type { CardData } from './Card';
-import { displayName } from './card-format';
+import { displayName, visitDay } from './card-format';
 import styles from './CardRow.module.css';
 
 /**
@@ -15,7 +15,8 @@ import styles from './CardRow.module.css';
  * rarity sticker, the place, the photo's credit and the copies owned. The whole
  * row leads to the card's page (with a chevron on a phone). Same states and
  * accessible name as the Card: a missing card shows its name and rarity only,
- * the collection's emblem in place of its photo, and leads nowhere.
+ * the collection's emblem in place of its photo, and leads nowhere. A card
+ * whose monument the player visited wears a "Visité" chip.
  */
 export function CardRow({
   card,
@@ -24,6 +25,7 @@ export function CardRow({
   href,
   emblem,
   action,
+  visitedAt = null,
 }: {
   card: CardData;
   state?: 'owned' | 'missing';
@@ -33,6 +35,8 @@ export function CardRow({
   emblem?: Emblem;
   /** A control at the row's end, above its link: the wishlist's heart. */
   action?: ReactNode;
+  /** When the player visited its monument, on their own card only. */
+  visitedAt?: Date | null;
 }) {
   const t = useTranslations('Card');
   const tRarity = useTranslations('Rarity');
@@ -42,7 +46,10 @@ export function CardRow({
   const place = missing ? null : (card.department ?? card.region);
   const photo = !missing && card.photo.src ? card.photo : null;
   const link = missing ? undefined : href;
-  const ariaLabel = [name, rarityLabel, missing && t('ariaMissing')].filter(Boolean).join(', ');
+  const visited = missing ? null : visitedAt;
+  const ariaLabel = [name, rarityLabel, missing && t('ariaMissing'), visited && t('ariaVisited', { date: visitDay(visited) })]
+    .filter(Boolean)
+    .join(', ');
 
   return (
     <article className={styles.row} data-state={state} data-rarity={card.rarity} aria-label={ariaLabel}>
@@ -73,6 +80,12 @@ export function CardRow({
             <span className={styles.place}>
               <MapPin aria-hidden />
               {place}
+            </span>
+          )}
+          {visited && (
+            <span className={styles.visited} aria-hidden="true">
+              <Stamp />
+              {t('visitedChip')}
             </span>
           )}
         </div>

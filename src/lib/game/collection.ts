@@ -1,7 +1,7 @@
 import { and, asc, count, eq, gt, inArray, isNotNull, isNull, sql, type SQL } from 'drizzle-orm';
 import type { CardData } from '@/components/card/Card';
 import { db } from '@/db';
-import { cards, cardSeries, series, userCards } from '@/db/schema';
+import { cards, cardSeries, cardVisits, series, userCards } from '@/db/schema';
 import { photoLicenseLabel, toCardData } from '@/lib/catalog/card-data';
 import { cardColumns, cardPath, type PrintedSeries, printedSeries } from '@/lib/catalog/cards';
 import { RARITIES, type Rarity } from '@/lib/rarity';
@@ -10,11 +10,11 @@ import { getOpeningCards } from './packs';
 // A player's collection: the visible cards of a collection, owned or not.
 // Hidden cards stay out, even the ones the player already has. A card not owned
 // shows its name and rarity only. A friend's collection shows the cards they
-// own, and those the viewer lacks.
+// own, and those the viewer lacks, never the monuments they visited.
 
 // The first tab is the default: the cards a player has, rather than the
-// thousands they lack.
-export const COLLECTION_TABS = ['owned', 'all', 'missing', 'duplicates'] as const;
+// thousands they lack. "visited": the monuments the player unlocked on site.
+export const COLLECTION_TABS = ['owned', 'all', 'missing', 'duplicates', 'visited'] as const;
 export const FRIEND_TABS = ['owned', 'duplicates', 'youLack'] as const;
 export type CollectionTab = (typeof COLLECTION_TABS)[number] | (typeof FRIEND_TABS)[number];
 // The grid shows a page, then one more each time the player asks ("Voir plus"),
@@ -50,6 +50,11 @@ function filterConditions({ collectionId, rarity, seriesId, departmentCode }: Co
   ];
 }
 
+/** The player visited the card's monument. */
+function visitedBy(userId: string): SQL {
+  return sql`EXISTS (SELECT 1 FROM card_visits AS visit WHERE visit.card_id = "cards"."id" AND visit.user_id = ${userId})`;
+}
+
 /** Owned by the friend, not by the viewer. */
 function viewerLacks(viewerId: string | null | undefined): SQL {
   if (!viewerId) return sql`false`;
@@ -58,7 +63,7 @@ function viewerLacks(viewerId: string | null | undefined): SQL {
   )`;
 }
 
-function tabCondition(tab: CollectionTab, viewerId: string | null | undefined): SQL | undefined {
+function tabCondition(tab: CollectionTab, { userId, viewerId }: Pick<CollectionFilters, 'userId' | 'viewerId'>): SQL | undefined {
   switch (tab) {
     case 'all':
       return undefined;
@@ -70,6 +75,9 @@ function tabCondition(tab: CollectionTab, viewerId: string | null | undefined): 
       return gt(userCards.quantity, 1);
     case 'youLack':
       return viewerLacks(viewerId);
+    case 'visited':
+      // The player's own visits only: a friend's stay private
+      return viewerId ? sql`false` : visitedBy(userId);
   }
 }
 
@@ -81,11 +89,19 @@ export async function collectionCounts(filters: CollectionFilters): Promise<Reco
       owned: count(userCards.cardId),
       duplicates: sql<number>`count(*) FILTER (WHERE ${userCards.quantity} > 1)::int`,
       youLack: sql<number>`count(*) FILTER (WHERE ${viewerLacks(filters.viewerId)})::int`,
+      visited: filters.viewerId ? sql<number>`0` : sql<number>`count(*) FILTER (WHERE ${visitedBy(filters.userId)})::int`,
     })
     .from(cards)
     .leftJoin(userCards, owned(filters.userId))
     .where(and(...filterConditions(filters)));
-  return { all: row.all, owned: row.owned, missing: row.all - row.owned, duplicates: row.duplicates, youLack: row.youLack };
+  return {
+    all: row.all,
+    owned: row.owned,
+    missing: row.all - row.owned,
+    duplicates: row.duplicates,
+    youLack: row.youLack,
+    visited: row.visited,
+  };
 }
 
 /** Cards owned of each rarity, under the series filter (the rarity filter's choices). */
@@ -130,7 +146,7 @@ export async function ownedNeighbours(
     })
     .from(cards)
     .innerJoin(userCards, owned(filters.userId));
-  const where = and(...filterConditions(filters), tabCondition(filters.tab, null));
+  const where = and(...filterConditions(filters), tabCondition(filters.tab, { userId: filters.userId }));
   const list = db.$with('list').as(
     filters.seriesId
       ? query.innerJoin(cardSeries, and(eq(cardSeries.cardId, cards.id), eq(cardSeries.seriesId, filters.seriesId))).where(where)
@@ -152,10 +168,11 @@ export async function ownedNeighbours(
 /**
  * A tab's first `pages` pages: by rank, or by number within the series when
  * filtering on one. Each card says whether the player looking (the viewer on a
- * friend's collection) wishes for it, and on a friend's whether the viewer owns it.
+ * friend's collection) wishes for it, on a friend's whether the viewer owns it,
+ * and on the player's own when they visited its monument.
  */
 export async function listCollectionCards(filters: CollectionFilters & { tab: CollectionTab; pages: number }) {
-  const where = and(...filterConditions(filters), tabCondition(filters.tab, filters.viewerId));
+  const where = and(...filterConditions(filters), tabCondition(filters.tab, filters));
   const looking = filters.viewerId ?? filters.userId;
   const query = db
     .select({
@@ -169,6 +186,12 @@ export async function listCollectionCards(filters: CollectionFilters & { tab: Co
             SELECT 1 FROM user_cards AS mine WHERE mine.card_id = "cards"."id" AND mine.user_id = ${filters.viewerId}
           )`
         : sql<boolean | null>`NULL::boolean`,
+      visitedAt: (filters.viewerId
+        ? sql<Date | null>`NULL::timestamptz`
+        : sql<Date | null>`(
+            SELECT visit.visited_at FROM card_visits AS visit WHERE visit.card_id = "cards"."id" AND visit.user_id = ${filters.userId}
+          )`
+      ).mapWith(cardVisits.visitedAt),
     })
     .from(cards)
     .leftJoin(userCards, owned(filters.userId));
@@ -195,6 +218,8 @@ export interface CollectionCard {
    * when they own it (their own owned cards, a friend's card they have too).
    */
   wish: boolean | null;
+  /** When the player visited its monument, for the "Visité" stamp: their own owned cards only. */
+  visitedAt: Date | null;
 }
 
 export interface LicenseLabels {
@@ -208,7 +233,7 @@ export interface LicenseLabels {
  * photo, its place on the map and its address never reach the browser.
  */
 export function toCollectionCard(
-  row: Pick<CollectionRow, keyof typeof cardColumns | 'quantity'>,
+  row: Pick<CollectionRow, keyof typeof cardColumns | 'quantity'> & { visitedAt?: Date | null },
   printed: PrintedSeries | null,
   collectionSlug: string,
   labels: LicenseLabels,
@@ -221,6 +246,7 @@ export function toCollectionCard(
       state: 'missing',
       copies,
       wish: null,
+      visitedAt: null,
       data: {
         name: row.name,
         rarity: row.rarity,
@@ -239,6 +265,7 @@ export function toCollectionCard(
     state: 'owned',
     copies,
     wish: null,
+    visitedAt: row.visitedAt ?? null,
     data: toCardData({ ...row, photoImage: row.photoImage! }, printed, photoLicenseLabel(row.photoLicense, labels)),
   };
 }

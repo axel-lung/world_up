@@ -10,7 +10,7 @@ import type { Rarity } from '@/lib/rarity';
 // plugin, has none). One switch turns both off, per device: the opening's
 // stage and the profile show it. Browser side only.
 
-export type EffectName = 'charge' | 'burst' | 'flip' | 'suspense' | 'reveal' | 'done' | 'streak';
+export type EffectName = 'charge' | 'burst' | 'flip' | 'suspense' | 'reveal' | 'done' | 'streak' | 'stamp';
 
 // A per-device convenience (localStorage): "off" when the player turned them off
 const STORAGE_KEY = 'worldup-effects';
@@ -210,6 +210,14 @@ function playSound(name: EffectName, rarity: Rarity | undefined) {
       );
       shimmer(out, 0.45, 6);
       return;
+    case 'stamp':
+      // A rubber stamp comes down on paper: a dull thud and its slap, then a chime
+      tone(out, { freq: 120, to: 50, duration: 0.22, type: 'sine', gain: 0.5, attack: 0.004 });
+      noise(out, { duration: 0.07, gain: 0.3, filter: 'lowpass', freq: 1200, q: 0.8 });
+      [2, 5].forEach((step, i) =>
+        tone(out, { freq: NOTES[step], at: 0.12 + i * 0.08, duration: 0.45, type: 'triangle', gain: 0.12 }),
+      );
+      return;
   }
 }
 
@@ -222,6 +230,7 @@ const VIBRATIONS: Partial<Record<EffectName, number[]>> = {
   flip: [8],
   suspense: [18, 40, 22, 35, 28, 30, 34, 25, 44],
   streak: [20, 60, 30, 60, 50],
+  stamp: [40],
 };
 
 const REVEAL_VIBRATIONS: Record<Rarity, number[] | null> = {

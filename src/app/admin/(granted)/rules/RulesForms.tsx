@@ -18,6 +18,7 @@ import {
   saveResaleValues,
   saveStreakRepair,
   saveStreakRewards,
+  saveVisitRules,
 } from './actions';
 import styles from '../../admin.module.css';
 
@@ -106,6 +107,35 @@ export function StreakRepairForm({ rules }: { rules: GameRules }) {
       </div>
       <SubmitButton variant="primary" pending={pending}>
         {t('saveRepair')}
+      </SubmitButton>
+      <Result state={state} />
+    </form>
+  );
+}
+
+const VISIT_FIELDS = ['visitRadiusMetres', 'visitMaxAccuracyMetres', 'visitsPerDay'] as const;
+
+export function VisitRulesForm({ rules }: { rules: GameRules }) {
+  const t = useTranslations('Admin.rules');
+  const [state, action, pending] = useActionState(saveVisitRules, null);
+  return (
+    <form action={action} className={styles.form}>
+      <div className={styles.filters}>
+        {VISIT_FIELDS.map((field) => (
+          <TextField
+            key={field}
+            label={t(`fields.${field}`)}
+            name={field}
+            type="number"
+            inputMode="numeric"
+            min={1}
+            required
+            defaultValue={rules[field]}
+          />
+        ))}
+      </div>
+      <SubmitButton variant="primary" pending={pending}>
+        {t('saveVisits')}
       </SubmitButton>
       <Result state={state} />
     </form>

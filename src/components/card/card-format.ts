@@ -38,3 +38,8 @@ export function photoSizes(sizes: string | undefined, width?: number, height?: n
     })
     .join(', ');
 }
+
+const VISIT_DAY = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeZone: 'Europe/Paris' });
+
+/** The day a monument was visited, in Paris, the same on the server and in the browser: "12 novembre 2026". */
+export const visitDay = (date: Date) => VISIT_DAY.format(date);

@@ -59,6 +59,20 @@ const repairSchema = z.object({
   streakRepairMaxCoins: count(1, 10_000_000),
 });
 
+const visitSchema = z.object({
+  visitRadiusMetres: count(10, 5000),
+  visitMaxAccuracyMetres: count(5, 1000),
+  visitsPerDay: count(1, 100),
+});
+
+/** Unlocking a card on site: the distance, the position's accuracy and the visits a day. */
+export async function saveVisitRules(_: RulesState, form: FormData): Promise<RulesState> {
+  await requireAdmin();
+  const input = visitSchema.safeParse(Object.fromEntries(form));
+  if (!input.success) return { error: 'invalid' };
+  return run((collectionId, adminId) => updateGameRules(db, adminId, collectionId, input.data));
+}
+
 /** What repairing a broken streak costs: so many coins per day, up to the ceiling. */
 export async function saveStreakRepair(_: RulesState, form: FormData): Promise<RulesState> {
   await requireAdmin();

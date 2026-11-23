@@ -4,6 +4,7 @@ import { db } from '@/db';
 import { achievements, featuredBadges, userAchievements } from '@/db/schema';
 import { RARITIES, type Rarity } from '@/lib/rarity';
 import type { Achievement } from './achievements';
+import { isVisitKind } from './visit';
 
 // Badges (decided on 2026-11-22): each achievement a player has is a badge,
 // shown on their profile and to their friends; they pick one to show beside
@@ -104,7 +105,8 @@ export async function playerBadges(userId: string, collectionId: number): Promis
 
 /**
  * The badge the player shows beside their pseudo: one of their achievements,
- * or none (null). False when they don't have that achievement.
+ * or none (null). False when they don't have that achievement, or it is one of
+ * the visits, which stay private.
  */
 export async function setFeaturedBadge(userId: string, collectionId: number, achievementId: number | null): Promise<boolean> {
   if (achievementId === null) {
@@ -112,7 +114,7 @@ export async function setFeaturedBadge(userId: string, collectionId: number, ach
     return true;
   }
   const [owned] = await db
-    .select({ id: userAchievements.achievementId })
+    .select({ id: userAchievements.achievementId, kind: achievements.kind })
     .from(userAchievements)
     .innerJoin(achievements, eq(achievements.id, userAchievements.achievementId))
     .where(
@@ -122,7 +124,7 @@ export async function setFeaturedBadge(userId: string, collectionId: number, ach
         eq(achievements.collectionId, collectionId),
       ),
     );
-  if (!owned) return false;
+  if (!owned || isVisitKind(owned.kind)) return false;
   await db
     .insert(featuredBadges)
     .values({ userId, collectionId, achievementId })

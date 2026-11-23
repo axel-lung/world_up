@@ -70,6 +70,7 @@ Both are signed with the upload key. The `versionCode` is the run number, so eac
 - Name: `appName` in `capacitor.config.ts` and `app_name` in `app/src/main/res/values/strings.xml`. Colors: `res/values/colors.xml` (and `values-night/`), `capacitor.config.ts`. A new launcher icon or splash needs a new release.
 - The launcher shortcuts: `res/xml/shortcuts.xml`, their labels in `strings.xml`, their address in `app/build.gradle`. A shortcut needs a new release.
 - The site's paths that open in the app: the intent filter in `AndroidManifest.xml`. Never `/api/auth/callback/`: a Google sign-in started in the phone's browser must come back to the browser.
+- The position, for the map's "Je suis ici" and "Autour de moi": `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION` in `AndroidManifest.xml` (added on 2026-11-23); Capacitor's WebChromeClient asks the player when the site first asks the WebView. An app built before them refuses the position: they need a new release, with the Play Console's data safety form declaring the precise location (sent to the server for "Je suis ici", checked and not kept).
 - Every year Google Play requires a recent target Android version (August 31 for new releases): raise `targetSdkVersion` and `compileSdkVersion` in `variables.gradle`, usually with a Capacitor update.
 - Capacitor packages (`@capacitor/*`, `@capgo/capacitor-social-login`) move together: Dependabot groups them. After an update, `npx cap sync android`, and commit what it changed in `android/`.
 

@@ -552,6 +552,80 @@
   text-wrap: pretty;
 }
 
+/* A monument visited on site: the day, in the stamp's sage */
+.visitedLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 18px;
+  background: var(--color-sage-tint);
+  color: var(--color-sage-ink);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.visitedLine svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+/* A department's monuments visited on site */
+.visitLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: var(--color-sage-tint);
+  color: var(--color-sage-ink);
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.visitStamp {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #7a8a5e;
+  border: 2px solid var(--sticker-line);
+  color: #f9f4ed;
+  transform: rotate(-10deg);
+}
+
+.visitStamp svg {
+  width: 16px;
+  height: 16px;
+}
+
+.visitedChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--color-sage-tint);
+  color: var(--color-sage-ink);
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.visitedChip svg {
+  width: 12px;
+  height: 12px;
+}
+
 /* The list of the monuments in the area: on a phone, in place of the map */
 .list {
   display: none;

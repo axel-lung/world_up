@@ -5,7 +5,8 @@ import { RARITIES, type Rarity } from '@/lib/rarity';
 import { addCoins } from './coins';
 
 // Achievements: each is a threshold on one of the player's counts, rewarded
-// with coins once. They are checked after each pack opening.
+// with coins once. They are checked after each pack opening, trade, auction
+// won and on-site visit.
 
 type Executor = Database | Transaction;
 
@@ -17,6 +18,50 @@ export interface PlayerCounts {
   packs: number;
   completedSeries: number;
   byRarity: Record<Rarity, number>;
+  visits: VisitCounts;
+}
+
+export interface VisitCounts {
+  monuments: number;
+  departments: number;
+  /** The most monuments visited in one day, in Paris. */
+  bestDay: number;
+  rarities: number;
+  /** Monuments overseas (a three-character department code). */
+  overseas: number;
+}
+
+/** What the visit achievements count, and the profile shows. */
+export async function visitCounts(executor: Executor, userId: string, collectionId: number): Promise<VisitCounts> {
+  const result = await executor.execute<{
+    monuments: number;
+    departments: number;
+    best_day: number;
+    rarities: number;
+    overseas: number;
+  }>(sql`
+    SELECT count(*)::int AS monuments,
+      count(DISTINCT c.department_code)::int AS departments,
+      count(DISTINCT c.rarity)::int AS rarities,
+      (count(*) FILTER (WHERE char_length(c.department_code) = 3))::int AS overseas,
+      coalesce((
+        SELECT max(n) FROM (
+          SELECT count(*) AS n FROM card_visits AS d
+          WHERE d.user_id = ${userId} AND d.collection_id = ${collectionId}
+          GROUP BY (d.visited_at AT TIME ZONE 'Europe/Paris')::date
+        ) AS days
+      ), 0)::int AS best_day
+    FROM card_visits AS v
+    JOIN cards AS c ON c.id = v.card_id
+    WHERE v.user_id = ${userId} AND v.collection_id = ${collectionId}`);
+  const row = result.rows[0];
+  return {
+    monuments: row.monuments,
+    departments: row.departments,
+    bestDay: row.best_day,
+    rarities: row.rarities,
+    overseas: row.overseas,
+  };
 }
 
 export async function playerCounts(executor: Executor, userId: string, collectionId: number): Promise<PlayerCounts> {
@@ -47,7 +92,26 @@ export async function playerCounts(executor: Executor, userId: string, collectio
     packs,
     completedSeries: completed.rows[0].completed,
     byRarity,
+    visits: await visitCounts(executor, userId, collectionId),
   };
+}
+
+/** The player's count a visit achievement is measured on; 0 for another kind. */
+export function visitProgress(kind: Achievement['kind'], visits: VisitCounts): number {
+  switch (kind) {
+    case 'monuments_visited':
+      return visits.monuments;
+    case 'departments_visited':
+      return visits.departments;
+    case 'visits_in_a_day':
+      return visits.bestDay;
+    case 'rarities_visited':
+      return visits.rarities;
+    case 'overseas_visited':
+      return visits.overseas;
+    default:
+      return 0;
+  }
 }
 
 /** The player's count an achievement is measured on. */
@@ -61,6 +125,12 @@ export function achievementProgress(achievement: Pick<Achievement, 'kind' | 'rar
       return achievement.rarity ? counts.byRarity[achievement.rarity] : 0;
     case 'series_completed':
       return counts.completedSeries;
+    case 'monuments_visited':
+    case 'departments_visited':
+    case 'visits_in_a_day':
+    case 'rarities_visited':
+    case 'overseas_visited':
+      return visitProgress(achievement.kind, counts.visits);
   }
 }
 

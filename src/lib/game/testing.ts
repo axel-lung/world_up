@@ -5,6 +5,7 @@ import {
   achievements,
   auctions,
   cards,
+  cardVisits,
   collections,
   featuredBadges,
   gameRules,
@@ -91,6 +92,7 @@ export async function deleteTestData(collectionIds: number[], userIds: string[])
   await db.delete(auctions).where(inArray(auctions.collectionId, collectionIds));
   await db.delete(notifications).where(inArray(notifications.collectionId, collectionIds));
   await db.delete(wishlistItems).where(inArray(wishlistItems.collectionId, collectionIds));
+  await db.delete(cardVisits).where(inArray(cardVisits.collectionId, collectionIds));
   await db.delete(marketPrices).where(inArray(marketPrices.collectionId, collectionIds));
   await db.delete(marketRules).where(inArray(marketRules.collectionId, collectionIds));
   await db.delete(featuredBadges).where(inArray(featuredBadges.collectionId, collectionIds));

@@ -359,6 +359,7 @@ export async function CollectionGrid({
                   href={cardHref(card.href)}
                   emblem={collection.emblem}
                   action={wishButton(card)}
+                  visitedAt={card.visitedAt}
                 />
               ) : (
                 <Card
@@ -369,6 +370,7 @@ export async function CollectionGrid({
                   href={cardHref(card.href)}
                   sizes="(max-width: 520px) calc(50vw - 20px), 200px"
                   action={wishButton(card)}
+                  visitedAt={card.visitedAt}
                 />
               )}
             </li>

@@ -51,6 +51,35 @@
   color: var(--rar-ink);
 }
 
+/* Visited on site: a sage tick over the disc's corner, like the stamp's ink */
+.visited {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: #7a8a5e;
+  border: 2px solid var(--sticker-line);
+  color: #f9f4ed;
+  transform: rotate(-12deg);
+}
+
+.visited svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 3.5;
+}
+
+.pin[data-size="row"] .visited {
+  top: -5px;
+  right: -3px;
+  width: 18px;
+  height: 18px;
+}
+
 /* The monument whose sheet is open */
 .pin[data-chosen] .disc {
   outline: 3px solid var(--color-accent);

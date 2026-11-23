@@ -12,11 +12,13 @@ import {
   LocateFixed,
   Map as MapIcon,
   MapPin,
+  MapPinCheck,
   Minus,
   Navigation,
   Plus,
   Route,
   SlidersHorizontal,
+  Stamp,
   WifiOff,
   X,
   ZoomIn,
@@ -24,20 +26,23 @@ import {
 import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { displayName } from '@/components/card/card-format';
+import { displayName, visitDay } from '@/components/card/card-format';
 import { RarityPips } from '@/components/rarity/Rarity';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
 import { departmentName, departmentShape } from '@/lib/map/departments';
 import { distanceMetres, inBounds, type LatLon, rarityAt, roundedDistance } from '@/lib/map/geo';
+import type { Emblem } from '@/lib/collection-theme';
 import type { DepartmentProgress, MonumentDetails, MonumentRow } from '@/lib/map/monuments';
 import type { MapTheme } from '@/lib/map/style';
 import type { Tileset } from '@/lib/map/tiles';
 import { RARITIES, type Rarity } from '@/lib/rarity';
+import { directionsUrl } from './directions';
 import { FranceMap, OverseasInsets, type Progress, ProgressLegend } from './FranceMap';
 import styles from './MapExplorer.module.css';
 import { type MapMonument, type MapPosition, type MapStart, type MapView, MonumentMap, type MonumentMapHandle } from './MonumentMap';
 import { PinFace } from './Pin';
+import { VisitFlow, type VisitTarget } from './VisitFlow';
 
 type View = 'france' | 'map' | 'list';
 type Choice = { kind: 'department'; code: string } | { kind: 'monument'; id: number } | null;
@@ -53,13 +58,21 @@ const LIST_MAX = 100;
 const MARK = 'worldupMapSheet';
 
 export interface MapExplorerProps {
+  collection: { slug: string; name: string; emblem: Emblem };
   paths: { collection: string; monuments: string };
   totals: { owned: number; all: number };
   departments: DepartmentProgress[];
   owned: number[];
+  /** The monuments the player visited on site. */
+  visits: { cardId: number; visitedAt: Date }[];
+  /** "Je suis ici": the distance within which a monument unlocks, the accuracy the server demands, in metres. */
+  visitRules: { radius: number; accuracy: number };
   tileset: Tileset | null;
-  /** A card opened from its page ("Voir sur la carte"). */
-  focus: { id: number; lat: number; lon: number } | null;
+  /**
+   * A card opened from its page ("Voir sur la carte"), with "Je suis ici"
+   * started at once when `visit` (its page's "Je suis ici").
+   */
+  focus: { id: number; lat: number; lon: number; name: string; href: string | null; visit: boolean } | null;
   /** A department opened from the address (?dept=21). */
   department: string | null;
 }
@@ -102,17 +115,6 @@ function useOnline(): boolean {
 }
 
 /**
- * The phone's maps app on its way to a point: Android's geo: address (the
- * app passes it on too), Apple Plans on an iPhone, OpenStreetMap elsewhere.
- */
-function directionsUrl([lat, lon]: LatLon, name: string): string {
-  const agent = typeof navigator === 'undefined' ? '' : navigator.userAgent;
-  if (/Android/i.test(agent)) return `geo:0,0?q=${lat},${lon}(${encodeURIComponent(name)})`;
-  if (/iPhone|iPad|iPod/i.test(agent)) return `https://maps.apple.com/?daddr=${lat},${lon}`;
-  return `https://www.openstreetmap.org/directions?route=%3B${lat}%2C${lon}`;
-}
-
-/**
  * The "Carte" page (Claude Design, "Carte - Monuments"): France by department,
  * then the monuments as pins once zoomed in, with their filters and list. On
  * a phone the map fills the screen under its head, the sheets rise from the
@@ -120,7 +122,18 @@ function directionsUrl([lat, lon]: LatLon, name: string): string {
  * "Liste" swaps the map for the monuments of its area. From 720 px the
  * filters, the sheet and the list stand in a panel on the left.
  */
-export function MapExplorer({ paths, totals, departments, owned, tileset, focus, department }: MapExplorerProps) {
+export function MapExplorer({
+  collection,
+  paths,
+  totals,
+  departments,
+  owned,
+  visits,
+  visitRules,
+  tileset,
+  focus,
+  department,
+}: MapExplorerProps) {
   const t = useTranslations('Map');
   const tRarity = useTranslations('Rarity');
   const theme = useResolvedTheme();
@@ -162,12 +175,18 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
 
   const [rarities, setRarities] = useState<ReadonlySet<Rarity>>(new Set(RARITIES));
   const [missingOnly, setMissingOnly] = useState(false);
+  const [visitedOnly, setVisitedOnly] = useState(false);
+  // "Je suis ici" under way, for this monument
+  const [visiting, setVisiting] = useState<VisitTarget | null>(
+    focus?.visit ? { id: focus.id, name: focus.name, lat: focus.lat, lon: focus.lon, cardHref: focus.href } : null,
+  );
 
   const [position, setPosition] = useState<MapPosition | null>(null);
   const [locating, setLocating] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
   const ownedIds = useMemo(() => new Set(owned), [owned]);
+  const visitedOn = useMemo(() => new Map(visits.map((visit) => [visit.cardId, visit.visitedAt])), [visits]);
   const progress = useMemo(
     () => new Map<string, Progress & { region: string | null }>(departments.map((d) => [d.code, d])),
     [departments],
@@ -200,13 +219,14 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
         name: displayName(name),
         department: departmentCode,
         owned: ownedIds.has(id),
+        visitedAt: visitedOn.get(id) ?? null,
       })),
-    [rows, ownedIds],
+    [rows, ownedIds, visitedOn],
   );
   const byId = useMemo(() => new Map(monuments.map((m) => [m.id, m])), [monuments]);
   const shown = useMemo(
-    () => monuments.filter((m) => rarities.has(m.rarity) && (!missingOnly || !m.owned)),
-    [monuments, rarities, missingOnly],
+    () => monuments.filter((m) => rarities.has(m.rarity) && (!missingOnly || !m.owned) && (!visitedOnly || m.visitedAt)),
+    [monuments, rarities, missingOnly, visitedOnly],
   );
 
   // The monuments in the map's area, nearest first: from the player when
@@ -225,9 +245,11 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
     return unit === 'm' ? t('metres', { value }) : t('kilometres', { value });
   };
 
-  // A sheet adds a history entry, so that Back (the phone's too) closes it
+  // A sheet adds a history entry, so that Back (the phone's too) closes it.
+  // Before any passive effect: "Je suis ici" opened with the sheet (?here=1)
+  // stacks its own entry above this one.
   const sheetOpen = choice !== null;
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!sheetOpen) return;
     if (!window.history.state?.[MARK]) window.history.pushState({ ...window.history.state, [MARK]: true }, '');
     const onPopState = () => {
@@ -310,11 +332,33 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
     return () => clearTimeout(timer);
   }, [notice]);
 
-  const filtersOn = (rarities.size < RARITIES.length ? 1 : 0) + (missingOnly ? 1 : 0);
+  const filtersOn = (rarities.size < RARITIES.length ? 1 : 0) + (missingOnly ? 1 : 0) + (visitedOnly ? 1 : 0);
   const clearFilters = () => {
     setRarities(new Set(RARITIES));
     setMissingOnly(false);
+    setVisitedOnly(false);
   };
+
+  // "Je suis ici" on a monument's sheet
+  const visit = (monument: MapMonument) => {
+    const card = details.get(monument.id);
+    setVisiting({
+      id: monument.id,
+      name: monument.name,
+      lat: monument.lat,
+      lon: monument.lon,
+      cardHref: card?.owned ? card.href : null,
+    });
+  };
+  const endVisit = useCallback(() => setVisiting(null), []);
+  // Unlocked: the sheet asks again for what an owned card shows
+  const visited = useCallback((cardId: number) => {
+    setDetails((known) => {
+      const next = new Map(known);
+      next.delete(cardId);
+      return next;
+    });
+  }, []);
   const toggleRarity = (rarity: Rarity) =>
     setRarities((current) => {
       const next = new Set(current);
@@ -402,6 +446,21 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
               <span>{missingOnly && <Check />}</span>
             </span>
           </button>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={visitedOnly}
+            className={styles.switchRow}
+            onClick={() => setVisitedOnly((on) => !on)}
+          >
+            <span className={styles.switchText}>
+              <span className={styles.switchLabel}>{t('visited')}</span>
+              <span className={styles.switchMeta}>{t('visitedMeta')}</span>
+            </span>
+            <span className={styles.switch} aria-hidden="true">
+              <span>{visitedOnly && <Check />}</span>
+            </span>
+          </button>
         </div>
         <Button variant="sticker" size="large" block data-sheet-close>
           {t('results', { count: mapView ? inArea.length : shown.length })}
@@ -416,6 +475,15 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
         {missingOnly ? <Check aria-hidden /> : <CircleDashed aria-hidden />}
         {t('missing')}
       </button>
+      <button
+        type="button"
+        className={styles.chip}
+        aria-pressed={visitedOnly}
+        onClick={() => setVisitedOnly((on) => !on)}
+      >
+        {visitedOnly ? <Check aria-hidden /> : <Stamp aria-hidden />}
+        {t('visited')}
+      </button>
     </div>
   );
 
@@ -423,6 +491,7 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
     <DepartmentPanel
       code={choice.code}
       progress={progress.get(choice.code)}
+      visited={monuments.filter((m) => m.department === choice.code && m.visitedAt).length}
       cardsHref={`${paths.collection}?tab=all&dept=${encodeURIComponent(choice.code)}`}
       onZoom={() => zoomOnDepartment(choice.code)}
       onClose={closeSheet}
@@ -434,6 +503,8 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
       monument={chosenMonument}
       details={details.get(chosenMonument.id) ?? null}
       distance={position ? distanceText(distanceMetres([position.lat, position.lon], [chosenMonument.lat, chosenMonument.lon])) : null}
+      radius={visitRules.radius}
+      onVisit={() => visit(chosenMonument)}
       onClose={closeSheet}
     />
   );
@@ -456,11 +527,17 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
                 aria-pressed={chosenMonument?.id === monument.id}
                 onClick={() => chooseMonument(monument.id, view === 'map')}
               >
-                <PinFace rarity={monument.rarity} owned={monument.owned} size="row" />
+                <PinFace rarity={monument.rarity} owned={monument.owned} visited={Boolean(monument.visitedAt)} size="row" />
                 <span className={styles.rowText}>
                   <span className={styles.rowTitle}>{monument.name}</span>
                   <span className={styles.rowMeta}>
                     {[tRarity(monument.rarity), departmentName(monument.department)].filter(Boolean).join(' · ')}
+                    {monument.visitedAt && (
+                      <span className={styles.visitedChip}>
+                        <Stamp aria-hidden />
+                        {t('visitedChip')}
+                      </span>
+                    )}
                   </span>
                 </span>
                 {position && <span className={styles.rowDistance}>{distanceText(distance)}</span>}
@@ -605,6 +682,17 @@ export function MapExplorer({ paths, totals, departments, owned, tileset, focus,
           </p>
         )}
       </div>
+
+      {visiting && (
+        <VisitFlow
+          key={visiting.id}
+          collection={collection}
+          target={visiting}
+          required={visitRules.accuracy}
+          onClose={endVisit}
+          onVisited={visited}
+        />
+      )}
     </div>
   );
 }
@@ -619,9 +707,11 @@ function CloseButton({ onClose, floating = false }: { onClose: () => void; float
 }
 
 /** A department's sheet: the player's progress there, its cards, and zooming on it. */
-function DepartmentPanel({ code, progress, cardsHref, onZoom, onClose }: {
+function DepartmentPanel({ code, progress, visited, cardsHref, onZoom, onClose }: {
   code: string;
   progress: (Progress & { region: string | null }) | undefined;
+  /** Monuments of the department the player visited on site. */
+  visited: number;
   cardsHref: string;
   onZoom: () => void;
   onClose: () => void;
@@ -658,6 +748,12 @@ function DepartmentPanel({ code, progress, cardsHref, onZoom, onClose }: {
         </div>
         <span className={styles.muted}>{t('department.cardsHere')}</span>
       </div>
+      <p className={styles.visitLine}>
+        <span className={styles.visitStamp} aria-hidden="true">
+          <Stamp />
+        </span>
+        {t('department.visited', { count: visited })}
+      </p>
       <div className={styles.actions}>
         <ButtonLink href={cardsHref} icon={<Layers aria-hidden />}>
           {t('department.seeCards')}
@@ -672,12 +768,16 @@ function DepartmentPanel({ code, progress, cardsHref, onZoom, onClose }: {
 
 /**
  * A monument's sheet: owned, its card's thumbnail and page; lacking, no photo
- * and how to get it. Either way its rarity, place, distance and directions.
+ * and how to get it. Either way its rarity, place, distance and directions,
+ * and "Je suis ici" until the player visited it, then the day they did.
  */
-function MonumentPanel({ monument, details, distance, onClose }: {
+function MonumentPanel({ monument, details, distance, radius, onVisit, onClose }: {
   monument: MapMonument;
   details: MonumentDetails | null;
   distance: string | null;
+  /** Within how many metres "Je suis ici" unlocks it. */
+  radius: number;
+  onVisit: () => void;
   onClose: () => void;
 }) {
   const t = useTranslations('Map');
@@ -726,7 +826,18 @@ function MonumentPanel({ monument, details, distance, onClose }: {
         </div>
         <CloseButton onClose={onClose} floating />
       </div>
-      {!monument.owned && <p className={styles.lacking}>{t('monument.lackingText')}</p>}
+      {monument.visitedAt && (
+        <p className={styles.visitedLine}>
+          <Stamp aria-hidden />
+          {t('monument.visited', { date: visitDay(monument.visitedAt) })}
+        </p>
+      )}
+      {!monument.owned && <p className={styles.lacking}>{t('monument.lackingText', { radius })}</p>}
+      {!monument.visitedAt && (
+        <Button variant="sticker" size="large" block icon={<MapPinCheck aria-hidden />} onClick={onVisit}>
+          {t('monument.here')}
+        </Button>
+      )}
       <div className={styles.actions} data-single={!card || undefined}>
         <ButtonLink
           href={directionsUrl([monument.lat, monument.lon], monument.name)}

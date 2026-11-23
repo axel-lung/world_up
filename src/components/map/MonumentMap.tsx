@@ -22,6 +22,8 @@ export interface MapMonument {
   name: string;
   department: string | null;
   owned: boolean;
+  /** When the player visited it, on site. */
+  visitedAt: Date | null;
 }
 
 export interface MapPosition {
@@ -313,11 +315,17 @@ export function MonumentMap({
                   name: item.monument.name,
                   rarity: tRarity(item.monument.rarity),
                   state: t(item.monument.owned ? 'monument.inCollection' : 'monument.lacking'),
+                  visited: item.monument.visitedAt ? 'yes' : 'no',
                 })}
                 aria-pressed={chosen === item.monument.id}
                 onClick={() => onChoose(item.monument.id)}
               >
-                <PinFace rarity={item.monument.rarity} owned={item.monument.owned} chosen={chosen === item.monument.id} />
+                <PinFace
+                  rarity={item.monument.rarity}
+                  owned={item.monument.owned}
+                  visited={Boolean(item.monument.visitedAt)}
+                  chosen={chosen === item.monument.id}
+                />
               </button>
             ) : (
               <button

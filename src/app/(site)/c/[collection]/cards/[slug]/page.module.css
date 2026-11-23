@@ -529,6 +529,59 @@
   margin: 0;
 }
 
+/* The monument visited on site: the day, for the player only */
+.visited {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: var(--color-sage-tint);
+  color: var(--color-sage-ink);
+}
+
+.visitedStamp {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #7a8a5e;
+  border: 2px solid var(--sticker-line);
+  color: #f9f4ed;
+  transform: rotate(-10deg);
+}
+
+.visitedStamp svg {
+  width: 17px;
+  height: 17px;
+}
+
+.visitedText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.visitedDay {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.visitedPrivate {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+}
+
+.visitedPrivate svg {
+  width: 13px;
+  height: 13px;
+}
+
 /* "Voir sur la carte": on a player's phone, centered under the card */
 @media (max-width: 719px) {
   .page[data-player] .mapAction {

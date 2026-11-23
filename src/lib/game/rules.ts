@@ -13,8 +13,14 @@ type Executor = Database | Transaction;
 
 export type GameRules = Omit<typeof gameRules.$inferSelect, 'collectionId' | 'updatedAt'>;
 
-/** The pack rules, which /admin/rules edits together; the streak's repair price has its own form. */
-export type PackRules = Omit<GameRules, 'streakRepairCoinsPerDay' | 'streakRepairMaxCoins'>;
+/** The streak's repair price, which /admin/rules edits apart. */
+export type RepairRules = Pick<GameRules, 'streakRepairCoinsPerDay' | 'streakRepairMaxCoins'>;
+
+/** Unlocking a card on site: the distance, the position's accuracy and the visits a day, edited apart. */
+export type VisitRules = Pick<GameRules, 'visitRadiusMetres' | 'visitMaxAccuracyMetres' | 'visitsPerDay'>;
+
+/** The pack rules, which /admin/rules edits together. */
+export type PackRules = Omit<GameRules, keyof RepairRules | keyof VisitRules>;
 
 /**
  * An active collection by its slug (the [collection] segment of the game's
@@ -41,6 +47,9 @@ export async function getGameRules(executor: Executor, collectionId: number): Pr
       coinsPerOpening: gameRules.coinsPerOpening,
       streakRepairCoinsPerDay: gameRules.streakRepairCoinsPerDay,
       streakRepairMaxCoins: gameRules.streakRepairMaxCoins,
+      visitRadiusMetres: gameRules.visitRadiusMetres,
+      visitMaxAccuracyMetres: gameRules.visitMaxAccuracyMetres,
+      visitsPerDay: gameRules.visitsPerDay,
     })
     .from(gameRules)
     .where(eq(gameRules.collectionId, collectionId));

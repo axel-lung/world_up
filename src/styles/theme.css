@@ -51,6 +51,8 @@
   --color-track: #dcd3c4;
   --color-sage: #7a8a5e;
   --color-sage-tint: #e1eecc;
+  /* Text and icons on the sage tint: the visits' stamp, chips and figures */
+  --color-sage-ink: #3d472b;
   --color-success: #56633f;
   --color-warning: #8f5300;
   --color-danger: #a83a2c;
@@ -108,6 +110,7 @@
     --color-track: #474238;
     --color-sage: #aebf92;
     --color-sage-tint: #3d472b;
+    --color-sage-ink: #e1eecc;
     --color-success: #aebf92;
     --color-warning: #f0b860;
     --color-danger: #f28b7d;
@@ -160,6 +163,7 @@
   --color-track: #474238;
   --color-sage: #aebf92;
   --color-sage-tint: #3d472b;
+  --color-sage-ink: #e1eecc;
   --color-success: #aebf92;
   --color-warning: #f0b860;
   --color-danger: #f28b7d;

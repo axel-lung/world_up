@@ -25,3 +25,24 @@
   color: var(--color-accent);
   fill: currentColor;
 }
+
+/* The monuments they visited on site: how many, never which */
+.visits {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 12px 4px 10px;
+  border-radius: 999px;
+  background: var(--color-sage-tint);
+  color: var(--color-sage-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.visits svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
