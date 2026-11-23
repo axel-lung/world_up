@@ -9,6 +9,7 @@ import { deleteOldNotifications, listNotifications, notify, unreadCount } from '
 import {
   acceptFriend,
   areFriends,
+  countFriends,
   endFriendship,
   FriendError,
   friendStates,
@@ -63,11 +64,13 @@ describe('friend requests', () => {
     expect(await kinds(b)).toEqual(['friend_request']);
     expect((await listFriendRequests(b)).received.map((r) => r.id)).toEqual([a]);
     expect((await listFriendRequests(a)).sent.map((r) => r.id)).toEqual([b]);
+    expect(await countFriends(a)).toBe(0);
 
     await acceptFriend(db, { userId: b, requesterId: a, now: at(1) });
     expect(await areFriends(db, b, a)).toBe(true);
     expect(await kinds(a)).toEqual(['friend_accepted']);
     expect((await listFriends(a)).map((f) => f.id)).toEqual([b]);
+    expect(await countFriends(a)).toBe(1);
     expect(await friendStates(a, [b])).toEqual(new Map([[b, 'friends']]));
   });
 

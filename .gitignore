@@ -32,6 +32,11 @@ __pycache__/
 *.jks
 *.keystore
 
+# Claude Code: the dev helper's logs, PIDs, test players and screenshots
+# (.claude/scripts/), and each person's own settings
+/.claude/run/
+/.claude/settings.local.json
+
 .DS_Store
 Thumbs.db
 QUI_SERT_A_QUOI.md

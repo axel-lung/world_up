@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import {
   ArrowLeftRight,
-  Bell,
   BookOpen,
   Check,
   ChevronDown,
@@ -9,6 +8,7 @@ import {
   CircleUser,
   Coins,
   Copy,
+  Flame,
   Heart,
   History,
   Info,
@@ -39,16 +39,18 @@ import { achievementTitle } from '@/lib/game/achievement-title';
 import { listAchievements } from '@/lib/game/achievements';
 import { coinBalance, duplicatesValue } from '@/lib/game/coins';
 import { collectionCounts, seriesProgress, type SeriesProgress } from '@/lib/game/collection';
+import { openingCount } from '@/lib/game/history';
 import { playerRank } from '@/lib/game/leaderboard';
-import { wishesOnSale } from '@/lib/game/market';
+import { marketCounts, wishesOnSale } from '@/lib/game/market';
 import { getReserve } from '@/lib/game/packs';
 import { getStreak } from '@/lib/game/streaks';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
 import { nextReceivedOffer, receivedOffers } from '@/lib/game/trades';
+import { visitCount } from '@/lib/game/visits';
 import { unreadCount } from '@/lib/notifications/notifications';
 import { requireSession } from '@/lib/session';
-import { receivedRequestCount } from '@/lib/social/friends';
+import { countFriends, receivedRequestCount } from '@/lib/social/friends';
 import phone from '../../phone.module.css';
 import { resellAction } from './collection/actions';
 import { parseResaleParams } from './filters';
@@ -67,16 +69,16 @@ const TOP_SERIES = 4;
 type AchievementProgress = Awaited<ReturnType<typeof listAchievements>>[number];
 const NEXT_ACHIEVEMENTS = 3;
 
-/** A tile's family, which gives its colors: the collection, trading, playing, the rest. */
-type MenuTone = 'collection' | 'trade' | 'play' | 'info';
+/** A family of the menu, which gives its tiles their colors: the collection, trading, playing. */
+type MenuFamily = 'collection' | 'trade' | 'play';
 
 /**
  * The player's home in a collection: packs, progress, coins, then the series
  * furthest along and the achievements closest to hand, each with the full list
  * folded under "Voir tout". A phone gets it at a glance instead: the reserve
- * and its button, three figures, a mosaic of tiles to every part of the game
- * (Claude Design's "Accueil - Menu global.dc.html", option 2b), then what
- * waits for the player ("À faire").
+ * and its button, three figures, the menu to every part of the game (Claude
+ * Design's "Accueil - Menu global.dc.html", option 3b), then what waits for
+ * the player ("À faire").
  */
 export default async function GameHomePage({ params, searchParams }: PageProps<'/c/[collection]'>) {
   const collection = await getActiveCollection((await params).collection);
@@ -106,6 +108,10 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
     requests,
     unread,
     wishedOnSale,
+    market,
+    friends,
+    openings,
+    visits,
   ] = await Promise.all([
       getTranslations('Game'),
       getTranslations('Nav'),
@@ -127,6 +133,10 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       receivedRequestCount(user.id),
       unreadCount(user.id),
       wishesOnSale(user.id, collection.id, now),
+      marketCounts(user.id, collection.id, now),
+      countFriends(user.id),
+      openingCount(user.id, collection.id),
+      visitCount(db, user.id, collection.id),
     ]);
   const number = (value: number) => format.number(value);
   const percent = (owned: number, total: number) =>
@@ -180,14 +190,15 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
     </Sheet>
   );
 
-  // A menu tile's face: its icon on a disc, its name, and what waits there as a
-  // sticker, read out after the name (", 3 non lues")
-  const menuFace = (icon: ReactNode, label: string, waiting?: { count: number; label: string }) => (
+  // A menu tile's face: its icon on a disc, its name, its figure, and what
+  // waits there as a sticker, read out last (", 1 en attente de votre réponse")
+  const menuFace = (icon: ReactNode, label: string, figure: string, waiting?: { count: number; label: string }) => (
     <>
       <span className={home.menuIcon} aria-hidden="true">
         {icon}
       </span>
       <span className={home.menuLabel}>{label}</span>
+      <span className={home.menuFigure}>{figure}</span>
       {waiting && waiting.count > 0 && (
         <>
           <span className={home.menuCount} aria-hidden="true">
@@ -200,17 +211,39 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
   );
   const menuLink = (
     href: string,
-    tone: MenuTone,
     icon: ReactNode,
     label: string,
+    figure: string,
     waiting?: { count: number; label: string },
   ) => (
-    <li data-tone={tone}>
+    <li>
       <Link href={href} className={home.menuTile}>
-        {menuFace(icon, label, waiting)}
+        {menuFace(icon, label, figure, waiting)}
       </Link>
     </li>
   );
+  // A family: its name with its icon and its own figure, then its four tiles
+  const menuFamily = (family: MenuFamily, icon: ReactNode, level: string | null, tiles: ReactNode) => (
+    <div className={home.family} data-tone={family}>
+      <div className={home.familyHead}>
+        <span className={home.familyIcon} aria-hidden="true">
+          {icon}
+        </span>
+        <h2>{t(`menu.families.${family}`)}</h2>
+        {level && <span className={home.familyLevel}>{level}</span>}
+      </div>
+      <ul className={home.familyTiles}>{tiles}</ul>
+    </div>
+  );
+  const menuPill = (href: string, icon: ReactNode, label: string) => (
+    <li>
+      <Link href={href} className={home.menuPill}>
+        {icon}
+        {label}
+      </Link>
+    </li>
+  );
+  const completedSeries = series.filter((s) => s.total > 0 && s.owned >= s.total).length;
 
   return (
     <main className={`${styles.page} ${phone.page}`}>
@@ -263,44 +296,86 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
         </li>
       </ul>
 
-      {/* Four tiles a row, colored by family: the collection (sand), trading
-          (sage), playing (terracotta), the rest (outlined) */}
-      <nav className="phone-only" aria-label={t('menu.label')}>
-        <ul className={home.menu}>
-          {menuLink(paths.collection, 'collection', <Layers />, t('menu.collection'))}
-          {menuLink(paths.map, 'collection', <MapIcon />, t('menu.map'))}
-          {menuLink(`${paths.collection}?by=series`, 'collection', <LayoutGrid />, t('menu.series'))}
-          {menuLink(`${paths.collection}?tab=duplicates`, 'collection', <Copy />, t('menu.duplicates'), {
-            count: duplicates.copies,
-            label: t('menu.toResell', { count: duplicates.copies }),
-          })}
-          {menuLink(paths.market, 'trade', <Store />, t('menu.market'))}
-          {menuLink(paths.trades, 'trade', <ArrowLeftRight />, t('menu.trades'), {
-            count: offers,
-            label: t('menu.waiting', { count: offers }),
-          })}
-          {menuLink('/friends', 'trade', <Users />, t('menu.friends'), {
-            count: requests,
-            label: t('menu.waiting', { count: requests }),
-          })}
-          {menuLink('/leaderboard', 'trade', <Medal />, t('menu.leaderboard'))}
-          {menuLink(paths.history, 'play', <History />, t('menu.history'))}
-          {/* The streak's screen opens from the flame in the head */}
-          <li data-tone="play">
-            {achievementsSheet({
-              className: home.menuTile,
-              content: menuFace(<Trophy />, t('menu.achievements')),
-            })}
-          </li>
-          {menuLink(paths.myAuctions, 'trade', <Tag />, t('menu.mySales'))}
-          {menuLink('/activity', 'play', <Bell />, t('menu.activity'), {
-            count: unread,
-            label: t('menu.unread', { count: unread }),
-          })}
-          {menuLink('/account', 'info', <CircleUser />, t('menu.account'))}
-          {menuLink('/rules', 'info', <BookOpen />, t('menu.rules'))}
-          {menuLink('/odds', 'info', <Percent />, t('menu.odds'))}
-          {menuLink('/credits', 'info', <Info />, t('menu.credits'))}
+      {/* Three families of four tiles raised like arcade buttons, each with
+          its figure: the collection (sand), trading (sage), playing
+          (terracotta). The rest as pills. The bell in the head leads to the
+          activity. */}
+      <nav className={`${home.menu} phone-only`} aria-label={t('menu.label')}>
+        {menuFamily(
+          'collection',
+          <Layers />,
+          `${number(counts.owned)} / ${number(counts.all)}`,
+          <>
+            {menuLink(paths.collection, <Layers />, t('menu.collection'), percent(counts.owned, counts.all))}
+            {menuLink(
+              `${paths.collection}?by=series`,
+              <LayoutGrid />,
+              t('menu.series'),
+              t('menu.stats.series', { count: completedSeries }),
+            )}
+            {menuLink(
+              `${paths.collection}?tab=duplicates`,
+              <Copy />,
+              t('menu.duplicates'),
+              t('menu.stats.duplicates', { copies: duplicates.copies, coins: duplicates.coins }),
+              { count: duplicates.copies, label: t('menu.toResell', { count: duplicates.copies }) },
+            )}
+            {menuLink(paths.map, <MapIcon />, t('menu.map'), t('menu.stats.map', { count: visits }))}
+          </>,
+        )}
+        {menuFamily(
+          'trade',
+          <ArrowLeftRight />,
+          rank ? t('menu.levels.trade', { rank }) : null,
+          <>
+            {menuLink(paths.market, <Store />, t('menu.market'), t('menu.stats.market', { count: market.live }))}
+            {menuLink(paths.myAuctions, <Tag />, t('menu.mySales'), t('menu.stats.mySales', { count: market.selling }))}
+            {menuLink(
+              paths.trades,
+              <ArrowLeftRight />,
+              t('menu.trades'),
+              t('menu.stats.trades', { count: offers }),
+              { count: offers, label: t('menu.waiting', { count: offers }) },
+            )}
+            {menuLink(
+              '/friends',
+              <Users />,
+              t('menu.friends'),
+              t('menu.stats.friends', { count: friends }),
+              { count: requests, label: t('menu.waiting', { count: requests }) },
+            )}
+          </>,
+        )}
+        {menuFamily(
+          'play',
+          <Flame />,
+          streak.days > 0 ? t('menu.levels.play', { days: streak.days }) : null,
+          <>
+            {menuLink(paths.history, <History />, t('menu.history'), t('menu.stats.history', { count: openings }))}
+            <li>
+              <StreakButton view={streak} collection={collection.slug} className={home.menuTile}>
+                {menuFace(<Flame />, t('menu.streak'), t('menu.stats.streak', { days: streak.days }))}
+              </StreakButton>
+            </li>
+            <li>
+              {achievementsSheet({
+                className: home.menuTile,
+                content: menuFace(<Trophy />, t('menu.achievements'), `${number(obtained)}/${number(achievements.length)}`),
+              })}
+            </li>
+            {menuLink(
+              '/leaderboard',
+              <Medal />,
+              t('menu.leaderboard'),
+              rank ? t('stats.rankValue', { rank }) : '–',
+            )}
+          </>,
+        )}
+        <ul className={home.menuPills}>
+          {menuPill('/account', <CircleUser aria-hidden />, t('menu.account'))}
+          {menuPill('/rules', <BookOpen aria-hidden />, t('menu.rules'))}
+          {menuPill('/odds', <Percent aria-hidden />, t('menu.odds'))}
+          {menuPill('/credits', <Info aria-hidden />, t('menu.credits'))}
         </ul>
       </nav>
 

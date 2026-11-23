@@ -236,6 +236,23 @@ export async function auctionsOfCards(
   return new Map(rows.map(({ cardId, ...sale }) => [cardId, sale]));
 }
 
+/** The home's menu: the running auctions of the collection, and how many of them the player is selling. */
+export async function marketCounts(
+  userId: string,
+  collectionId: number,
+  now: Date,
+): Promise<{ live: number; selling: number }> {
+  const [row] = await db
+    .select({
+      live: count(),
+      selling: sql<number>`(count(*) FILTER (WHERE ${auctions.sellerId} = ${userId}))::int`,
+    })
+    .from(auctions)
+    .innerJoin(cards, eq(cards.id, auctions.cardId))
+    .where(and(eq(auctions.collectionId, collectionId), isLive(now), isNull(cards.hiddenReason)));
+  return row;
+}
+
 /** How many cards of the player's wishlist others have up for auction (the home's "À faire"). */
 export async function wishesOnSale(userId: string, collectionId: number, now: Date): Promise<number> {
   const [{ total }] = await db

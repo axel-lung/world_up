@@ -13,7 +13,7 @@ import {
 } from './auctions';
 import { availableCoins, coinBalance } from './coins';
 import { GameError } from './game-error';
-import { getAuction, listMarket } from './market';
+import { getAuction, listMarket, marketCounts } from './market';
 import { createTestCollection, createTestPlayer, deleteTestData, type TestCollection } from './testing';
 
 // Commons sell from 2 to 200 coins in the test collection, rares from 10 to
@@ -295,6 +295,11 @@ describe('an auction', () => {
       listMarket({ collectionId: collection.id, viewerId, cardId: ids.get('Q4')!, sort: 'ending', pages: 1, now });
     expect((await market(anna)).auctions.map((a) => [a.id, a.viewer])).toEqual([[auctionId, 'leading']]);
     expect((await market(seller)).auctions[0].viewer).toBe('seller');
+    // The home's menu: the sales running, the seller's among them
+    expect(await marketCounts(seller, collection.id, at(2))).toMatchObject({ selling: 1 });
+    expect(await marketCounts(anna, collection.id, at(2))).toMatchObject({ selling: 0 });
+    expect((await marketCounts(anna, collection.id, at(2))).live).toBeGreaterThanOrEqual(1);
+    expect(await marketCounts(seller, collection.id, at(24))).toMatchObject({ selling: 0 });
     // Missing only: Anna doesn't own Q4, the seller does
     const missing = (viewerId: string) =>
       listMarket({ collectionId: collection.id, viewerId, cardId: ids.get('Q4')!, missing: true, sort: 'ending', pages: 1, now: at(2) });

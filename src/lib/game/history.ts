@@ -25,15 +25,24 @@ export interface HistoryOpening {
   cards: HistoryCard[];
 }
 
+const openingsOf = (userId: string, collectionId: number) =>
+  and(eq(packOpenings.userId, userId), eq(packOpenings.collectionId, collectionId));
+
+/** How many packs the player opened in the collection (the history's total, the home's menu). */
+export async function openingCount(userId: string, collectionId: number): Promise<number> {
+  const [{ total }] = await db.select({ total: count() }).from(packOpenings).where(openingsOf(userId, collectionId));
+  return total;
+}
+
 /** The latest `pages` pages of the player's openings, with their cards, and how many there are. */
 export async function openingHistory(
   userId: string,
   collectionId: number,
   pages: number,
 ): Promise<{ openings: HistoryOpening[]; total: number }> {
-  const mine = and(eq(packOpenings.userId, userId), eq(packOpenings.collectionId, collectionId));
-  const [[{ total }], openings] = await Promise.all([
-    db.select({ total: count() }).from(packOpenings).where(mine),
+  const mine = openingsOf(userId, collectionId);
+  const [total, openings] = await Promise.all([
+    openingCount(userId, collectionId),
     db
       .select({ id: packOpenings.id, openedAt: packOpenings.createdAt })
       .from(packOpenings)

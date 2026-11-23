@@ -194,21 +194,36 @@ export async function endFriendship(database: Database, input: { userId: string;
   });
 }
 
+/** The other side of the player's friendships. */
+const otherSide = (userId: string) =>
+  sql<string>`CASE WHEN ${friendships.requesterId} = ${userId} THEN ${friendships.addresseeId} ELSE ${friendships.requesterId} END`;
+
+/** The player's accepted friendships, banned friends left out while they are. */
+const acceptedFriends = (userId: string) =>
+  and(
+    or(eq(friendships.requesterId, userId), eq(friendships.addresseeId, userId)),
+    eq(friendships.status, 'accepted'),
+    isNull(users.bannedAt),
+  );
+
 /** The player's friends, by pseudo; banned ones are left out while they are. */
 export async function listFriends(userId: string) {
-  const other = sql<string>`CASE WHEN ${friendships.requesterId} = ${userId} THEN ${friendships.addresseeId} ELSE ${friendships.requesterId} END`;
   return db
     .select({ id: users.id, pseudo: users.name, since: friendships.acceptedAt })
     .from(friendships)
-    .innerJoin(users, eq(users.id, other))
-    .where(
-      and(
-        or(eq(friendships.requesterId, userId), eq(friendships.addresseeId, userId)),
-        eq(friendships.status, 'accepted'),
-        isNull(users.bannedAt),
-      ),
-    )
+    .innerJoin(users, eq(users.id, otherSide(userId)))
+    .where(acceptedFriends(userId))
     .orderBy(asc(sql`lower(${users.name})`));
+}
+
+/** How many friends the player has, as `listFriends()` lists them: the home's menu. */
+export async function countFriends(userId: string): Promise<number> {
+  const [row] = await db
+    .select({ count: count() })
+    .from(friendships)
+    .innerJoin(users, eq(users.id, otherSide(userId)))
+    .where(acceptedFriends(userId));
+  return row.count;
 }
 
 /** Requests waiting for an answer: received by the player, and sent by them (banned players left out). */

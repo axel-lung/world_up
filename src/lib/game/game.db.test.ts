@@ -20,6 +20,7 @@ import { RARITIES } from '@/lib/rarity';
 import { publishOdds, RulesError, updateGameRules, updateStreakRewards } from './admin';
 import { addCoins, coinBalance, duplicatesValue, resellDuplicates } from './coins';
 import { GameError } from './game-error';
+import { openingCount } from './history';
 import { reservedCopies } from './holds';
 import { getReserve, notifyFullReserves, OPENINGS_PER_MINUTE, openPack } from './packs';
 import { currentOdds, getStreakRewards } from './rules';
@@ -191,6 +192,7 @@ describe('openPack', () => {
     expect([a.repeated, b.repeated].sort()).toEqual([false, true]);
     expect(await getReserve(player, standard.id, t0)).toMatchObject({ packs: 9 });
     expect(await drawnWikidataIds(player)).toHaveLength(5);
+    expect(await openingCount(player, standard.id)).toBe(1);
   });
 
   it('never draws a hidden card', async () => {

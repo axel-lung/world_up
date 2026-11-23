@@ -1111,6 +1111,15 @@
     "resellAllSubmit": "{copies, plural, one {Revendre le doublon} other {Revendre les # doublons}}",
     "menu": {
       "label": "Menu du jeu",
+      "families": {
+        "collection": "Ma collection",
+        "trade": "Échanger",
+        "play": "Jouer"
+      },
+      "levels": {
+        "trade": "{rank, selectordinal, one {#re place} other {#e place}}",
+        "play": "{days, plural, one {# jour} other {# jours}}"
+      },
       "collection": "Collection",
       "map": "Carte",
       "series": "Séries",
@@ -1121,15 +1130,25 @@
       "friends": "Amis",
       "leaderboard": "Classement",
       "history": "Historique",
+      "streak": "Série",
       "mySales": "Mes ventes",
-      "activity": "Activité",
       "account": "Compte",
       "rules": "Règles",
       "odds": "Chances",
       "credits": "Crédits",
+      "stats": {
+        "series": "{count, plural, one {# finie} other {# finies}}",
+        "duplicates": "{copies, plural, =0 {aucun} other {{coins, plural, one {+# pièce} other {+# pièces}}}}",
+        "map": "{count, plural, =0 {à explorer} one {# visité} other {# visités}}",
+        "market": "{count, plural, one {# vente} other {# ventes}}",
+        "mySales": "{count, plural, one {# active} other {# actives}}",
+        "trades": "{count, plural, one {# offre} other {# offres}}",
+        "friends": "{count, plural, one {# ami} other {# amis}}",
+        "history": "{count, plural, one {# ouvert} other {# ouverts}}",
+        "streak": "{days, plural, other {# j}}"
+      },
       "toResell": "{count, plural, one {# à revendre} other {# à revendre}}",
-      "waiting": "{count, plural, one {# en attente de votre réponse} other {# en attente de votre réponse}}",
-      "unread": "{count, plural, one {# non lue} other {# non lues}}"
+      "waiting": "{count, plural, one {# en attente de votre réponse} other {# en attente de votre réponse}}"
     }
   },
   "Achievements": {
