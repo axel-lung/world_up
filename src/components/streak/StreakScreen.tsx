@@ -18,12 +18,12 @@ import type { GameErrorCode } from '@/lib/game/game-error';
 import type { StreakView } from '@/lib/game/streak';
 import { repairStreakAction } from '@/lib/game/streak-actions';
 import styles from './StreakScreen.module.css';
+import { dayState, noon } from './week';
 
 // The history entry the open screen adds, so that Back closes it
 const MARK = 'worldupStreak';
 
 // A day string ("2026-11-16") as an instant inside that day, wherever the browser is
-const noon = (day: string) => new Date(`${day}T12:00:00Z`);
 
 /**
  * The daily streak over the whole screen (MobileB.dc.html, "B · Série"): the
@@ -159,15 +159,7 @@ export function StreakScreen({
         <div className={styles.card}>
           <ol className={styles.week} aria-label={t('week')}>
             {view.week.map((day) => {
-              const state = day.today
-                ? day.mark === 'played'
-                  ? 'today'
-                  : 'pending'
-                : day.mark === 'open'
-                  ? day.day > today
-                    ? 'future'
-                    : 'missed'
-                  : day.mark;
+              const state = dayState(day, today);
               return (
                 <li key={day.day} data-state={state}>
                   <span className={styles.dayLabel} aria-hidden="true">

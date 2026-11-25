@@ -132,7 +132,7 @@
   background: var(--sticker-paper);
   border: 1.5px solid var(--sticker-line);
   color: var(--card-ink);
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 16px;
   line-height: 1;
 }

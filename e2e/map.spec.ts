@@ -121,7 +121,7 @@ test.describe('on a phone', () => {
   test('the map is one touch away: the home, the collection, a card', async ({ page }) => {
     await playerWithCards(page);
     await page.goto(`/c/${collection.slug}`);
-    await page.getByRole('navigation', { name: 'Menu du jeu' }).getByRole('link', { name: 'Carte' }).click();
+    await page.getByRole('navigation', { name: 'Explorer' }).getByRole('link', { name: 'Carte' }).click();
     await expect(page).toHaveURL(new RegExp(`/c/${collection.slug}/map$`));
 
     await page.goto(`/c/${collection.slug}/collection`);

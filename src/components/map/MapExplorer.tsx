@@ -77,26 +77,9 @@ export interface MapExplorerProps {
   department: string | null;
 }
 
-/** The theme the page is drawn in: the forced one (data-theme), else the device's. */
+/** The site has one theme, the dark vitrail (decided on 2026-11-25): the map's background is the dark one. */
 function useResolvedTheme(): MapTheme {
-  return useSyncExternalStore(
-    (onChange) => {
-      const observer = new MutationObserver(onChange);
-      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-      const media = window.matchMedia('(prefers-color-scheme: dark)');
-      media.addEventListener('change', onChange);
-      return () => {
-        observer.disconnect();
-        media.removeEventListener('change', onChange);
-      };
-    },
-    () => {
-      const forced = document.documentElement.dataset.theme;
-      if (forced === 'light' || forced === 'dark') return forced;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    },
-    () => 'light',
-  );
+  return 'dark';
 }
 
 function useOnline(): boolean {

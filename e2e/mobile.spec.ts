@@ -25,14 +25,14 @@ test('on a phone, a player moves around with the tab bar', async ({ page }) => {
   await expect(page.getByRole('region', { name: 'Vos paquets' })).toContainText('10 paquets');
   await expect(page.getByRole('region', { name: 'Vos paquets' }).getByRole('link', { name: 'Ouvrir un paquet' })).toBeVisible();
 
-  // Then the menu to every part of the game: three families of four tiles,
-  // each with its figure, and four pills. Tiles are links, or open their
-  // sheet or screen in place (the achievements, the streak), which Back closes.
-  const menu = page.getByRole('navigation', { name: 'Menu du jeu' });
-  await expect(menu.getByRole('heading', { level: 2 })).toHaveText(['Ma collection', 'Échanger', 'Jouer']);
+  // Then the menu to every part of the game ("Explorer"): three families of
+  // four tiles, and four pills. Tiles are links, or open their sheet or
+  // screen in place (the achievements, the streak), which Back closes.
+  const menu = page.getByRole('navigation', { name: 'Explorer' });
+  await expect(menu.getByRole('heading', { level: 3 })).toHaveText(['Ma collection', 'Échanger', 'Jouer']);
   await expect(menu.getByRole('listitem')).toHaveCount(16);
   await expect(menu.getByRole('link', { name: 'Carte' })).toHaveAttribute('href', '/c/heritage/map');
-  await expect(menu.getByRole('link', { name: /^Collection/ })).toHaveText(/0\s%/);
+  await expect(menu.getByRole('link', { name: 'Collection', exact: true })).toHaveAttribute('href', '/c/heritage/collection');
   await menu.getByRole('button', { name: /^Succès/ }).click();
   await expect(page.getByRole('dialog', { name: 'Succès' })).toBeVisible();
   await page.goBack();
@@ -50,22 +50,27 @@ test('on a phone, a player moves around with the tab bar', async ({ page }) => {
   await page.goBack();
   await expect(page).toHaveURL(/\/c\/heritage$/);
 
-  // The collection's filters are menus opening a sheet: a choice applies and closes it
+  // The collection's tabs are chips, its rarity and series in the "Filtres"
+  // sheet: a choice applies and closes it
   await tabs.getByRole('link', { name: 'Collection' }).click();
   await expect(page).toHaveURL(/\/c\/heritage\/collection$/);
   await expect(tabs.getByRole('link', { name: 'Collection' })).toHaveAttribute('aria-current', 'page');
-  await page.getByRole('button', { name: 'Rareté' }).click();
-  const rarity = page.getByRole('dialog', { name: 'Rareté' });
-  await expect(rarity).toBeVisible();
-  await rarity.getByRole('link', { name: /^Légendaire/ }).click();
+  await expect(page.getByRole('navigation', { name: 'Cartes affichées' }).getByRole('link', { name: 'Possédées' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await page.getByRole('button', { name: 'Filtres' }).click();
+  const filters = page.getByRole('dialog', { name: 'Filtres' });
+  await expect(filters).toBeVisible();
+  await filters.getByRole('link', { name: /^Légendaire/ }).click();
   await expect(page).toHaveURL(/rarity=legendary/);
-  await expect(rarity).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Rareté : Légendaire' })).toBeVisible();
+  await expect(filters).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Filtres : Légendaire' })).toBeVisible();
   // Back closes a sheet rather than leave the page
-  await page.getByRole('button', { name: 'État' }).click();
-  await expect(page.getByRole('dialog', { name: 'État' })).toBeVisible();
+  await page.getByRole('button', { name: 'Filtres : Légendaire' }).click();
+  await expect(filters).toBeVisible();
   await page.goBack();
-  await expect(page.getByRole('dialog', { name: 'État' })).toBeHidden();
+  await expect(filters).toBeHidden();
   await expect(page).toHaveURL(/rarity=legendary/);
 
   // The packs, then the opening, which fills the screen and comes back to them
@@ -101,11 +106,10 @@ test('on a phone, a player moves around with the tab bar', async ({ page }) => {
   await expect(tabs).toBeVisible();
   await expect(page).toHaveURL(/\/friends$/);
 
-  // The profile has the theme and the footer's links
+  // The profile has the footer's links
   await tabs.getByRole('link', { name: 'Profil' }).click();
   await expect(page).toHaveURL(/\/account$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Profil');
-  await expect(page.getByRole('radiogroup', { name: 'Thème' })).toBeVisible();
   await page.getByText('Aide et informations').click();
   await page.getByRole('link', { name: 'Mentions légales' }).click();
   await expect(page).toHaveURL(/\/legal-notice$/);

@@ -6,8 +6,9 @@
   max-width: 100%;
   padding: 4px;
   overflow-x: auto;
+  border: 2px solid var(--color-line);
   border-radius: 999px;
-  background: var(--color-surface);
+  background: var(--color-bg-deep);
   scrollbar-width: none;
 }
 
@@ -22,15 +23,15 @@
   border-radius: 999px;
   cursor: pointer;
   font: inherit;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   white-space: nowrap;
-  color: var(--color-text);
+  color: var(--color-text-muted);
 }
 
 @media (hover: hover) {
   .tab:hover {
-    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+    color: var(--color-heading);
   }
 }
 
@@ -39,8 +40,10 @@
 }
 
 .tab[aria-selected="true"] {
-  background: var(--color-text);
-  color: var(--color-bg);
+  background: var(--button-copper);
+  box-shadow: var(--button-shine), 0 0 0 2px var(--ink);
+  color: var(--color-on-accent);
+  font-weight: 800;
 }
 
 .count {

@@ -13,8 +13,8 @@ export const SCENE = { width: 390, height: 612 };
 export const PACK = { left: 83, top: 136, width: 224, height: 340 };
 // Every card of the stack rests centered here; a place is an offset from it
 export const CENTER = { x: 195, y: 330 };
-// The Card component's proportions (80 / 131)
-export const CARD = { width: 200, height: (200 * 131) / 80 };
+// The Card's proportions in a grid (5 / 7), as the stage shows it
+export const CARD = { width: 200, height: 280 };
 
 export interface Place {
   x: number;
@@ -67,7 +67,7 @@ export interface DoneLayout {
 
 export function doneLayout(count: number): DoneLayout {
   const room = SCENE.height - 2 * DONE.margin - DONE.heading - DONE.headingGap - DONE.hint;
-  let best = { columns: 1, width: 0 };
+  let best = { columns: 1, width: 0, empty: 0, rows: 0 };
   for (let columns = 1; columns <= Math.min(count, 6); columns++) {
     const rows = Math.ceil(count / columns);
     const width = Math.min(
@@ -75,8 +75,14 @@ export function doneLayout(count: number): DoneLayout {
       (DONE.width - (columns - 1) * DONE.gapX) / columns,
       ((room - (rows - 1) * DONE.gapY) / rows) * (CARD.width / CARD.height),
     );
-    // Fewer columns when it makes no difference: two by two rather than three and one
-    if (width > best.width + 0.01) best = { columns, width };
+    const empty = rows * columns - count;
+    // The widest cards; between equal ones, the fullest rows (two by two rather
+    // than three and one), then the fewest (three and two rather than two by
+    // two and one)
+    const tie = width > best.width - 0.01;
+    if (width > best.width + 0.01 || (tie && (empty < best.empty || (empty === best.empty && rows < best.rows)))) {
+      best = { columns, width, empty, rows };
+    }
   }
   const { columns, width } = best;
   const height = (width * CARD.height) / CARD.width;

@@ -1,4 +1,4 @@
-/* Pills on a surface strip, the current one inked, like the collection's tabs */
+/* Pills in a well of stone, the current one in copper glass, like the collection's tabs */
 .tabs {
   align-self: flex-start;
   max-width: 100%;
@@ -13,53 +13,57 @@
   margin: 0;
   padding: 4px;
   list-style: none;
+  border: 2px solid var(--color-line);
   border-radius: 999px;
-  background: var(--color-surface);
+  background: var(--color-bg-deep);
 }
 
 .tab {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 40px;
   padding: 0 16px;
+  border: 2px solid transparent;
   border-radius: 999px;
-  color: var(--color-text);
-  font-size: 14px;
-  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  font-weight: 700;
   white-space: nowrap;
   text-decoration: none;
 }
 
 @media (hover: hover) {
   .tab:hover {
-    color: var(--color-text);
-    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+    color: var(--color-heading);
   }
 }
 
 .tab:active {
-  color: var(--color-text);
-  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  color: var(--color-heading);
+  background: var(--color-surface);
 }
 
 .tab[aria-current="page"],
 .tab[aria-current="page"]:hover {
-  background: var(--color-text);
-  color: var(--color-bg);
+  border-color: var(--ink);
+  background: var(--button-copper);
+  box-shadow: var(--button-shine);
+  color: var(--color-on-accent);
+  font-weight: 800;
 }
 
-/* What waits for an answer, an inked terracotta sticker like the bell's */
+/* What waits for an answer, an inked copper sticker like the bell's */
 .count {
   min-width: 20px;
   height: 20px;
   padding: 0 5px;
   border-radius: 999px;
-  border: 1.5px solid var(--sticker-line);
+  border: 2px solid var(--ink);
   background: var(--color-accent);
   color: var(--color-on-accent);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 17px;
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -86,7 +90,12 @@
   .tab {
     justify-content: center;
     gap: 6px;
-    min-height: 42px;
+    min-height: 40px;
     padding: 0 6px;
+  }
+
+  /* On the copper, the count turns parchment */
+  .tab[aria-current="page"] .count {
+    background: var(--color-heading);
   }
 }

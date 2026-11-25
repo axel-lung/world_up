@@ -72,14 +72,15 @@
   width: max-content;
   max-width: min(420px, calc(100vw - 32px));
   padding: 10px 16px;
+  border: 2px solid var(--ink);
   border-radius: 999px;
-  background: var(--color-text);
-  color: var(--color-bg);
-  font-size: 14px;
-  font-weight: 600;
+  background: var(--sticker-paper);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
   line-height: 1.35;
   text-align: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 3px 0 var(--ink), 0 12px 30px rgba(0, 0, 0, 0.5);
   pointer-events: none;
   transform: translateX(-50%);
 }

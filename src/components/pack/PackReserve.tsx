@@ -152,7 +152,13 @@ export function PackReserveHero({
   );
 }
 
-/** The packs page's reserve: a large ring filling up to the maximum, the timer, the rule and the opening. */
+/** A reserve of more places than this shows its count alone, without a lozenge per place. */
+const MAX_SLOTS = 30;
+
+/**
+ * The packs page's reserve, under its arch: the count, a lozenge per place in
+ * the reserve, the timer, the opening and the rule.
+ */
 export function PackReserveDial({
   available,
   max,
@@ -162,28 +168,34 @@ export function PackReserveDial({
   openHref,
 }: PhoneReserveProps & { refillMinutes: number }) {
   const t = useTranslations('Pack');
+  const tPacks = useTranslations('Packs');
   const remaining = useCountdown(nextPackAt, serverNow);
   useRefreshWhenDue(nextPackAt, remaining);
   const full = available >= max;
-  const filled = max > 0 ? Math.min(1, available / max) : 0;
 
   return (
     <div className={styles.dial}>
-      <span className={styles.dialRing} style={{ '--filled': `${filled * 360}deg` } as CSSProperties} aria-hidden="true">
-        <span>
-          <span className={styles.dialCount}>{available}</span>
-          <span className={styles.dialMax}>{t('of', { max })}</span>
-        </span>
-      </span>
+      <span className={styles.dialTitle}>{tPacks('reserveHeading')}</span>
       <span className="sr-only">{t('reserve', { count: available, max })}</span>
+      <span className={styles.dialFigure} aria-hidden="true">
+        <span className={styles.dialCount}>{available}</span>
+        <span className={styles.dialMax}>{t('packsOf', { count: available, max })}</span>
+      </span>
+      {max <= MAX_SLOTS && (
+        <ul className={styles.slots} style={{ '--slots': max } as CSSProperties} aria-hidden="true">
+          {Array.from({ length: max }, (_, index) => (
+            <li key={index} data-full={index < available || undefined} />
+          ))}
+        </ul>
+      )}
       <span className={styles.dialNext}>
         {full ? <Pause aria-hidden /> : <Timer aria-hidden />}
         {full ? `${t('full')} · ${t('paused')}` : t('nextPackIn', { time: formatCountdown(remaining) })}
       </span>
+      <OpenButton href={openHref} available={available} />
       <span className={styles.dialHint}>
         {full ? t('fullHint') : available === 0 ? t('emptyHintNoShop') : t('running', { minutes: refillMinutes, max })}
       </span>
-      <OpenButton href={openHref} available={available} />
     </div>
   );
 }

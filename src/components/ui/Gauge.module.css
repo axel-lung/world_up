@@ -1,5 +1,5 @@
 .gauge {
-  --gauge-fill: var(--color-accent);
+  --gauge-fill: linear-gradient(180deg, #f6b877, #c8743c);
   --gauge-height: 12px;
   display: flex;
   flex-direction: column;
@@ -11,7 +11,7 @@
 }
 
 .gauge[data-tone="sage"] {
-  --gauge-fill: var(--color-sage);
+  --gauge-fill: linear-gradient(180deg, #b3ae70, #7d7a45);
 }
 
 .gauge[data-tone="warning"] {
@@ -34,7 +34,7 @@
 }
 
 .label {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .value {
@@ -45,8 +45,10 @@
 
 .track {
   height: var(--gauge-height);
+  padding: 2px;
   border-radius: 999px;
-  background: var(--color-track);
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--color-line);
   overflow: hidden;
 }
 
@@ -57,7 +59,7 @@
 }
 
 .fill[data-started] {
-  min-width: var(--gauge-height);
+  min-width: 8px;
 }
 
 .caption {

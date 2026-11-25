@@ -3,38 +3,64 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
-  padding: 40px 16px 64px;
+  gap: 16px;
+  padding: 12px 20px 40px;
 }
 
-.brand {
-  font-family: var(--font-heading);
-  font-size: 28px;
-  line-height: 1.1;
-  color: var(--color-text);
-  text-decoration: none;
+.top {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
 }
 
-@media (hover: hover) {
-  .brand:hover {
-    color: var(--color-accent-strong);
-  }
+/* Back to the welcome page, a pebble of stone */
+.back {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--color-line);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-heading);
+}
+
+.back:hover {
+  color: var(--color-heading);
+}
+
+.back:active {
+  background: var(--color-surface-2);
+}
+
+.back svg {
+  width: 20px;
+  height: 20px;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
 }
 
 .panel {
   width: 100%;
   max-width: 440px;
-  padding: 28px 24px;
-  border-radius: calc(var(--radius-lg) * 1.15);
-  background: var(--color-surface);
 }
 
-@media (max-width: 480px) {
+/* From 720 px, the form on a block of stone */
+@media (min-width: 720px) {
   .page {
-    padding-top: 24px;
+    padding-top: 40px;
   }
 
   .panel {
-    padding: 24px 16px;
+    padding: 28px 24px;
+    border: 2px solid var(--color-line);
+    border-radius: 28px;
+    background: var(--color-surface);
   }
 }

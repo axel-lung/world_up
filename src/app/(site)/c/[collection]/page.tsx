@@ -34,23 +34,22 @@ import { StreakButton } from '@/components/streak/StreakButton';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Gauge } from '@/components/ui/Gauge';
 import { Sheet, type SheetTrigger } from '@/components/ui/Sheet';
+import { StoneArch } from '@/components/ui/StoneArch';
 import { db } from '@/db';
 import { achievementTitle } from '@/lib/game/achievement-title';
 import { listAchievements } from '@/lib/game/achievements';
 import { coinBalance, duplicatesValue } from '@/lib/game/coins';
 import { collectionCounts, seriesProgress, type SeriesProgress } from '@/lib/game/collection';
-import { openingCount } from '@/lib/game/history';
 import { playerRank } from '@/lib/game/leaderboard';
-import { marketCounts, wishesOnSale } from '@/lib/game/market';
+import { wishesOnSale } from '@/lib/game/market';
 import { getReserve } from '@/lib/game/packs';
 import { getStreak } from '@/lib/game/streaks';
 import { gamePath } from '@/lib/game/paths';
 import { getActiveCollection } from '@/lib/game/rules';
 import { nextReceivedOffer, receivedOffers } from '@/lib/game/trades';
-import { visitCount } from '@/lib/game/visits';
 import { unreadCount } from '@/lib/notifications/notifications';
 import { requireSession } from '@/lib/session';
-import { countFriends, receivedRequestCount } from '@/lib/social/friends';
+import { receivedRequestCount } from '@/lib/social/friends';
 import phone from '../../phone.module.css';
 import { resellAction } from './collection/actions';
 import { parseResaleParams } from './filters';
@@ -75,10 +74,10 @@ type MenuFamily = 'collection' | 'trade' | 'play';
 /**
  * The player's home in a collection: packs, progress, coins, then the series
  * furthest along and the achievements closest to hand, each with the full list
- * folded under "Voir tout". A phone gets it at a glance instead: the reserve
- * and its button, three figures, the menu to every part of the game (Claude
- * Design's "Accueil - Menu global.dc.html", option 3b), then what waits for
- * the player ("À faire").
+ * folded under "Voir tout". A phone gets it at a glance instead (Claude
+ * Design's "Accueil - Refonte World Up.dc.html", the vitrail): the reserve
+ * and its button under a stone arch, three figures, the menu to every part of
+ * the game ("Explorer"), then what waits for the player ("À faire").
  */
 export default async function GameHomePage({ params, searchParams }: PageProps<'/c/[collection]'>) {
   const collection = await getActiveCollection((await params).collection);
@@ -108,10 +107,6 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
     requests,
     unread,
     wishedOnSale,
-    market,
-    friends,
-    openings,
-    visits,
   ] = await Promise.all([
       getTranslations('Game'),
       getTranslations('Nav'),
@@ -133,10 +128,6 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       receivedRequestCount(user.id),
       unreadCount(user.id),
       wishesOnSale(user.id, collection.id, now),
-      marketCounts(user.id, collection.id, now),
-      countFriends(user.id),
-      openingCount(user.id, collection.id),
-      visitCount(db, user.id, collection.id),
     ]);
   const number = (value: number) => format.number(value);
   const percent = (owned: number, total: number) =>
@@ -190,48 +181,32 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
     </Sheet>
   );
 
-  // A menu tile's face: its icon on a disc, its name, its figure, and what
-  // waits there as a sticker, read out last (", 1 en attente de votre réponse")
-  const menuFace = (icon: ReactNode, label: string, figure: string, waiting?: { count: number; label: string }) => (
+  // A menu tile's face: its icon on a lozenge of the family's glass, its
+  // name, and what waits there as a sticker, read out last (", 1 en attente
+  // de votre réponse")
+  const menuFace = (icon: ReactNode, label: string, waiting?: { count: number; label: string }) => (
     <>
-      <span className={home.menuIcon} aria-hidden="true">
+      <span className={home.medal} aria-hidden="true">
         {icon}
+        {waiting && waiting.count > 0 && (
+          <span className={home.menuCount}>{waiting.count > 99 ? '99+' : number(waiting.count)}</span>
+        )}
       </span>
       <span className={home.menuLabel}>{label}</span>
-      <span className={home.menuFigure}>{figure}</span>
-      {waiting && waiting.count > 0 && (
-        <>
-          <span className={home.menuCount} aria-hidden="true">
-            {waiting.count > 99 ? '99+' : number(waiting.count)}
-          </span>
-          <span className="sr-only">, {waiting.label}</span>
-        </>
-      )}
+      {waiting && waiting.count > 0 && <span className="sr-only">, {waiting.label}</span>}
     </>
   );
-  const menuLink = (
-    href: string,
-    icon: ReactNode,
-    label: string,
-    figure: string,
-    waiting?: { count: number; label: string },
-  ) => (
+  const menuLink = (href: string, icon: ReactNode, label: string, waiting?: { count: number; label: string }) => (
     <li>
       <Link href={href} className={home.menuTile}>
-        {menuFace(icon, label, figure, waiting)}
+        {menuFace(icon, label, waiting)}
       </Link>
     </li>
   );
-  // A family: its name with its icon and its own figure, then its four tiles
-  const menuFamily = (family: MenuFamily, icon: ReactNode, level: string | null, tiles: ReactNode) => (
+  // A family: its name after a lozenge of its color, then its four tiles
+  const menuFamily = (family: MenuFamily, tiles: ReactNode) => (
     <div className={home.family} data-tone={family}>
-      <div className={home.familyHead}>
-        <span className={home.familyIcon} aria-hidden="true">
-          {icon}
-        </span>
-        <h2>{t(`menu.families.${family}`)}</h2>
-        {level && <span className={home.familyLevel}>{level}</span>}
-      </div>
+      <h3 className={home.familyHead}>{t(`menu.families.${family}`)}</h3>
       <ul className={home.familyTiles}>{tiles}</ul>
     </div>
   );
@@ -243,7 +218,6 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       </Link>
     </li>
   );
-  const completedSeries = series.filter((s) => s.total > 0 && s.owned >= s.total).length;
 
   return (
     <main className={`${styles.page} ${phone.page}`}>
@@ -253,12 +227,15 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
       <header className={`${phone.head} ${home.head} phone-only`}>
         {/* eslint-disable-next-line @next/next/no-img-element -- a WebP already sized, like the cards */}
         <img src="/logo/world-up-96.webp" width={96} height={96} alt={tNav('brand')} className={home.logo} />
-        <h1>{t('welcome', { pseudo: user.name })}</h1>
+        <h1>
+          <span className="sr-only">{t('hello')} </span>
+          {user.name}
+        </h1>
         <StreakButton view={streak} collection={collection.slug} />
         <NotificationBell unread={unread} label={tNav('activity', { count: unread })} className={home.bell} />
       </header>
 
-      <section className={`${phone.card} phone-only`} aria-labelledby="reserve-heading">
+      <StoneArch as="section" className="phone-only" aria-labelledby="reserve-heading">
         <h2 id="reserve-heading" className="sr-only">
           {t('packsHeading')}
         </h2>
@@ -270,7 +247,7 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
           openHref={paths.open}
           emblem={collection.emblem}
         />
-      </section>
+      </StoneArch>
 
       <ul className={`${phone.tiles} ${home.tiles} phone-only`}>
         <li>
@@ -296,79 +273,54 @@ export default async function GameHomePage({ params, searchParams }: PageProps<'
         </li>
       </ul>
 
-      {/* Three families of four tiles raised like arcade buttons, each with
-          its figure: the collection (sand), trading (sage), playing
-          (terracotta). The rest as pills. The bell in the head leads to the
-          activity. */}
-      <nav className={`${home.menu} phone-only`} aria-label={t('menu.label')}>
+      {/* Three families of four tiles, each a lozenge of glass: the
+          collection (parchment), trading (moss), playing (copper). The rest as
+          pills. The bell in the head leads to the activity. */}
+      <nav className={`${home.menu} phone-only`} aria-labelledby="menu-heading">
+        <h2 id="menu-heading">{t('menu.label')}</h2>
         {menuFamily(
           'collection',
-          <Layers />,
-          `${number(counts.owned)} / ${number(counts.all)}`,
           <>
-            {menuLink(paths.collection, <Layers />, t('menu.collection'), percent(counts.owned, counts.all))}
-            {menuLink(
-              `${paths.collection}?by=series`,
-              <LayoutGrid />,
-              t('menu.series'),
-              t('menu.stats.series', { count: completedSeries }),
-            )}
-            {menuLink(
-              `${paths.collection}?tab=duplicates`,
-              <Copy />,
-              t('menu.duplicates'),
-              t('menu.stats.duplicates', { copies: duplicates.copies, coins: duplicates.coins }),
-              { count: duplicates.copies, label: t('menu.toResell', { count: duplicates.copies }) },
-            )}
-            {menuLink(paths.map, <MapIcon />, t('menu.map'), t('menu.stats.map', { count: visits }))}
+            {menuLink(paths.collection, <Layers />, t('menu.collection'))}
+            {menuLink(`${paths.collection}?by=series`, <LayoutGrid />, t('menu.series'))}
+            {menuLink(`${paths.collection}?tab=duplicates`, <Copy />, t('menu.duplicates'), {
+              count: duplicates.copies,
+              label: t('menu.toResell', { count: duplicates.copies }),
+            })}
+            {menuLink(paths.map, <MapIcon />, t('menu.map'))}
           </>,
         )}
         {menuFamily(
           'trade',
-          <ArrowLeftRight />,
-          rank ? t('menu.levels.trade', { rank }) : null,
           <>
-            {menuLink(paths.market, <Store />, t('menu.market'), t('menu.stats.market', { count: market.live }))}
-            {menuLink(paths.myAuctions, <Tag />, t('menu.mySales'), t('menu.stats.mySales', { count: market.selling }))}
-            {menuLink(
-              paths.trades,
-              <ArrowLeftRight />,
-              t('menu.trades'),
-              t('menu.stats.trades', { count: offers }),
-              { count: offers, label: t('menu.waiting', { count: offers }) },
-            )}
-            {menuLink(
-              '/friends',
-              <Users />,
-              t('menu.friends'),
-              t('menu.stats.friends', { count: friends }),
-              { count: requests, label: t('menu.waiting', { count: requests }) },
-            )}
+            {menuLink(paths.market, <Store />, t('menu.market'))}
+            {menuLink(paths.myAuctions, <Tag />, t('menu.mySales'))}
+            {menuLink(paths.trades, <ArrowLeftRight />, t('menu.trades'), {
+              count: offers,
+              label: t('menu.waiting', { count: offers }),
+            })}
+            {menuLink('/friends', <Users />, t('menu.friends'), {
+              count: requests,
+              label: t('menu.waiting', { count: requests }),
+            })}
           </>,
         )}
         {menuFamily(
           'play',
-          <Flame />,
-          streak.days > 0 ? t('menu.levels.play', { days: streak.days }) : null,
           <>
-            {menuLink(paths.history, <History />, t('menu.history'), t('menu.stats.history', { count: openings }))}
+            {menuLink(paths.history, <History />, t('menu.history'))}
             <li>
               <StreakButton view={streak} collection={collection.slug} className={home.menuTile}>
-                {menuFace(<Flame />, t('menu.streak'), t('menu.stats.streak', { days: streak.days }))}
+                {menuFace(<Flame />, t('menu.streak'))}
               </StreakButton>
             </li>
             <li>
               {achievementsSheet({
                 className: home.menuTile,
-                content: menuFace(<Trophy />, t('menu.achievements'), `${number(obtained)}/${number(achievements.length)}`),
+                content: menuFace(<Trophy />, t('menu.achievements')),
               })}
             </li>
-            {menuLink(
-              '/leaderboard',
-              <Medal />,
-              t('menu.leaderboard'),
-              rank ? t('stats.rankValue', { rank }) : '–',
-            )}
+            {menuLink('/leaderboard', <Medal />, t('menu.leaderboard'))}
           </>,
         )}
         <ul className={home.menuPills}>

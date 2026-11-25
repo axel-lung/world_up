@@ -1,6 +1,9 @@
 import { Coins, Gavel, Timer } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Card, type CardCollection, type CardData } from '@/components/card/Card';
+import { displayName } from '@/components/card/card-format';
+import { CardVignette } from '@/components/card/CardVignette';
 import { Tag } from '@/components/ui/Tag';
 import { AuctionCountdown } from './AuctionCountdown';
 import styles from './AuctionTile.module.css';
@@ -40,8 +43,11 @@ export interface AuctionTileProps {
 
 /**
  * An auction in the market's grid: the card, then the price as an inked
- * sticker, the bids, the time left and the seller. The leader's maximum and
- * the bidders never show.
+ * sticker, the bids, the time left and the seller. On a phone, a row instead
+ * (App Vitrail - Marche.dc.html): the card's vignette, its name and rarity,
+ * the bids, the time left and the viewer's part, the price on the right,
+ * edged in moss while they lead and in red once outbid. The leader's maximum
+ * and the bidders never show.
  */
 export function AuctionTile({
   card,
@@ -58,9 +64,39 @@ export function AuctionTile({
   sizes = '(max-width: 520px) calc(50vw - 20px), 200px',
 }: AuctionTileProps) {
   const t = useTranslations('Market');
+  const tRarity = useTranslations('Rarity');
   const tag = viewerTag(viewer, state);
+  const chip = tag ? t(`viewer.${tag}`) : state !== 'active' ? t(`states.${state}`) : null;
   return (
-    <div className={styles.tile}>
+    <>
+      <Link href={href} className={`${styles.row} phone-only`} data-viewer={tag ?? undefined} data-rarity={card.rarity}>
+        <CardVignette rarity={card.rarity} photo={card.photo.src ? card.photo : null} emblem={collection.emblem} width={54} />
+        <span className={styles.rowText}>
+          <span className={styles.rowName}>{displayName(card.name)}</span>
+          <span className={styles.rowMeta}>
+            <span className={styles.rowRarity}>{tRarity(card.rarity)}</span> · {t('bids', { count: bidCount })}
+          </span>
+          <span className={styles.rowChips}>
+            {state === 'active' && (
+              <span className={styles.rowTime}>
+                <Timer aria-hidden />
+                <span className="sr-only">{t('timeLeftLabel')} </span>
+                <AuctionCountdown endsAt={endsAt} serverNow={serverNow} />
+              </span>
+            )}
+            {chip && (
+              <span className={styles.rowState} data-state={tag ?? state}>
+                {chip}
+              </span>
+            )}
+          </span>
+        </span>
+        <span className={styles.rowPrice}>
+          <span className={styles.rowAmount}>{price}</span>
+          <span className={styles.rowUnit}>{bidCount > 0 ? t('priceUnit', { count: price }) : t('priceStart')}</span>
+        </span>
+      </Link>
+      <div className={`${styles.tile} wide-only`}>
       <Card card={card} collection={collection} href={href} sizes={sizes} />
       <div className={styles.info}>
         <p className={styles.price}>
@@ -92,6 +128,7 @@ export function AuctionTile({
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

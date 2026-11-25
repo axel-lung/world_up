@@ -23,7 +23,7 @@
 }
 
 .row + .row {
-  border-top: 1px solid var(--color-divider);
+  border-top: 2px solid var(--ink);
 }
 
 .row[data-me] {
@@ -52,7 +52,7 @@
 .rank {
   grid-area: rank;
   justify-self: center;
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 20px;
   font-variant-numeric: tabular-nums;
 }
@@ -103,9 +103,8 @@
 }
 
 .score strong {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 22px;
-  font-weight: 400;
 }
 
 .score span {
@@ -169,6 +168,7 @@
   color: var(--card-ink);
   box-shadow: 0 3px 0 var(--sticker-shadow);
   font-family: var(--font-heading);
+  font-weight: 900;
   font-size: 22px;
 }
 
@@ -209,9 +209,8 @@
 }
 
 .step strong {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 18px;
-  font-weight: 400;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
@@ -241,7 +240,7 @@
 }
 
 .line + .line {
-  border-top: 1px solid var(--color-divider);
+  border-top: 2px solid var(--ink);
 }
 
 .lineWho {
@@ -251,7 +250,7 @@
 }
 
 .lineRank {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 17px;
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -273,7 +272,7 @@
 }
 
 .lineScore {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 18px;
   font-variant-numeric: tabular-nums;
 }

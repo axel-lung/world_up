@@ -1,6 +1,8 @@
 /* The pack opening, ported from MobileB.dc.html ("B · Ouverture", Claude
-   Design project World Up Mobile UX): a dark stage in every theme, the pack in
-   the collection's color (--skin-*) floating in its halo, a charge, a burst,
+   Design project World Up Mobile UX) and dressed as the vitrail (App Vitrail -
+   Paquets.dc.html): a stage darker than the stone, rays of stained glass
+   behind, the pack a slab of copper glass with a rose window floating in its
+   halo, a charge, a burst,
    then the cards to turn over one by one, each thrown off to the left for the
    next. The scene keeps the mock-up's layout (stage-layout.ts), in units of
    --unit: 1 px on a 390 px wide phone, less on a smaller screen, a little
@@ -21,13 +23,33 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: radial-gradient(
-    120% 70% at 50% 42%,
-    color-mix(in srgb, var(--skin-color, var(--color-accent)) 18%, var(--color-bg)) 0%,
-    var(--color-bg) 62%
-  );
+  background:
+    radial-gradient(420px 380px at 50% 44%, rgba(246, 184, 119, 0.22), transparent 70%),
+    var(--ink);
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* Rays of copper, blue and red glass, fading out from the middle */
+.stage[data-theme]::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 1000px;
+  height: 1000px;
+  margin: -500px 0 0 -500px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    rgba(246, 184, 119, 0.16) 0 6deg,
+    transparent 6deg 15deg,
+    rgba(111, 163, 204, 0.12) 15deg 21deg,
+    transparent 21deg 30deg,
+    rgba(224, 101, 74, 0.12) 30deg 36deg,
+    transparent 36deg 45deg
+  );
+  mask: radial-gradient(circle, #000 8%, transparent 55%);
+  pointer-events: none;
 }
 
 .bar {
@@ -44,18 +66,18 @@
 
 .close {
   background: var(--color-surface);
-  border-color: transparent;
+  border: 2px solid var(--color-line);
+  color: var(--color-heading);
 }
 
 .title {
   flex: 1;
   margin: 0;
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
   line-height: 1.2;
-  letter-spacing: 0;
+  letter-spacing: 0.01em;
   text-align: center;
+  text-shadow: none;
 }
 
 /* The packs left in the reserve */
@@ -64,12 +86,14 @@
   align-items: center;
   gap: 6px;
   min-width: 44px;
-  height: 32px;
-  padding: 0 10px;
+  height: 36px;
+  padding: 0 12px;
+  border: 2px solid var(--color-line);
   border-radius: 999px;
   background: var(--color-surface);
-  font-size: 14px;
-  font-weight: 700;
+  color: var(--color-heading);
+  font-family: var(--font-figure);
+  font-size: 15px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -242,10 +266,12 @@
   justify-content: center;
   gap: calc(6 * var(--unit));
   border-radius: calc(22 * var(--unit)) calc(22 * var(--unit)) calc(6 * var(--unit)) calc(6 * var(--unit));
-  border: 2px solid var(--sticker-line);
-  background: color-mix(in srgb, var(--skin-color, var(--color-accent)) 88%, var(--sticker-line));
-  font-size: max(9px, calc(11 * var(--unit)));
-  font-weight: 700;
+  border: 3px solid var(--ink);
+  background: repeating-linear-gradient(90deg, #8a4520 0 7px, #a65a2a 7px 14px);
+  color: #f6b877;
+  text-shadow: 0 1px 0 var(--ink);
+  font-size: max(10px, calc(12 * var(--unit)));
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -273,40 +299,54 @@
   gap: calc(14 * var(--unit));
   padding-top: calc(36 * var(--unit));
   border-radius: calc(6 * var(--unit)) calc(6 * var(--unit)) calc(24 * var(--unit)) calc(24 * var(--unit));
-  border: 2px solid var(--sticker-line);
+  border: 3px solid var(--ink);
   border-top-style: dashed;
-  background:
-    radial-gradient(rgba(32, 30, 29, 0.12) 1.6px, transparent 1.8px) 0 0 / 14px 14px,
-    var(--skin-color, var(--color-accent));
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--sticker-shadow) 40%, black);
+  background: linear-gradient(160deg, #f6b877, var(--skin-color, #c8743c) 45%, #8a4520);
+  box-shadow:
+    inset 0 3px 0 rgba(255, 240, 210, 0.5),
+    0 8px 0 var(--ink),
+    0 0 70px rgba(246, 184, 119, 0.4);
 }
 
 .stage[data-phase="burst"] .packBody {
   animation: drop 0.9s cubic-bezier(0.5, 0, 0.9, 0.5) 0.12s both;
 }
 
+/* A rose window of rarity glass, the collection's emblem at its heart */
 .packEmblem,
 .backEmblem {
   display: grid;
   place-items: center;
-  width: calc(76 * var(--unit));
-  height: calc(76 * var(--unit));
+  width: calc(104 * var(--unit));
+  height: calc(104 * var(--unit));
   border-radius: 50%;
-  background: var(--sticker-paper);
-  border: 2px solid var(--sticker-line);
-  box-shadow: 0 3px 0 var(--sticker-line);
-  color: var(--sticker-line);
+  border: 4px solid var(--ink);
+  background:
+    repeating-conic-gradient(var(--ink) 0 3deg, transparent 3deg 45deg),
+    radial-gradient(
+      circle,
+      #f8e6c8 0 30%,
+      var(--ink) 30% 35%,
+      #6fa3cc 35% 52%,
+      var(--ink) 52% 57%,
+      #e0654a 57% 74%,
+      var(--ink) 74% 79%,
+      #e9b949 79%
+    );
+  box-shadow: 0 0 0 4px #f0d2a8, 0 0 0 7px var(--ink);
+  color: var(--ink);
 }
 
 .packEmblem svg,
 .backEmblem svg {
-  width: calc(36 * var(--unit));
-  height: calc(36 * var(--unit));
+  width: calc(26 * var(--unit));
+  height: calc(26 * var(--unit));
 }
 
 .packName {
   max-width: 85%;
   font-family: var(--font-heading);
+  font-weight: 900;
   font-size: calc(27 * var(--unit));
   line-height: 1;
   text-align: center;
@@ -326,7 +366,7 @@
   transform: rotate(6deg);
 }
 
-/* Organic's sage, unless the collection gives its own band color */
+/* The game's name at the pack's foot, cut in the glass */
 .packBand {
   position: absolute;
   left: 0;
@@ -336,13 +376,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--skin-band, #7a8a5e);
-  border-top: 2px solid var(--sticker-line);
-  font-size: max(9px, calc(11 * var(--unit)));
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sticker-line);
+  background: var(--skin-band, rgba(12, 12, 14, 0.18));
+  border-top: 2px solid rgba(12, 12, 14, 0.45);
+  font-family: var(--font-heading);
+  font-size: max(11px, calc(16 * var(--unit)));
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--ink);
 }
 
 /* The light about to burst out along the tear */
@@ -541,7 +581,7 @@
 
 .front {
   position: relative;
-  aspect-ratio: 80 / 131;
+  aspect-ratio: 5 / 7;
 }
 
 /* --card-scale: the scene's card width over the Card's layout width (PackOpener.tsx) */
@@ -554,27 +594,26 @@
   transform-origin: 0 0;
 }
 
-/* The back of a card: the pack's pattern, a frame, two diamonds and the emblem */
+/* The back of a card: the pack's copper glass, a leaded frame, two diamonds
+   and the rose */
 .back {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  border-radius: 16px;
-  border: 2px solid var(--sticker-line);
-  background:
-    radial-gradient(rgba(32, 30, 29, 0.14) 1.4px, transparent 1.6px) 0 0 / 12px 12px,
-    var(--skin-color, var(--color-accent));
-  box-shadow: 0 4px 0 color-mix(in srgb, var(--sticker-shadow) 40%, black);
-  color: var(--skin-ink, var(--sticker-line));
+  border-radius: 18px;
+  border: 3px solid var(--ink);
+  background: linear-gradient(160deg, #f6b877, var(--skin-color, #c8743c) 45%, #8a4520);
+  box-shadow: inset 0 3px 0 rgba(255, 240, 210, 0.45), 0 4px 0 var(--ink);
+  color: var(--ink);
   transform: rotateY(180deg);
 }
 
 .backFrame {
   position: absolute;
   inset: calc(8 * var(--unit));
-  border-radius: 10px;
-  border: 2px solid color-mix(in srgb, var(--sticker-line) 40%, transparent);
+  border-radius: 12px;
+  border: 2px solid rgba(28, 19, 13, 0.45);
 }
 
 .backDiamond {
@@ -668,16 +707,18 @@
   transform: translateX(-50%);
 }
 
+/* The rarity, a slab of its glass leaded in ink */
 .stamp span {
   display: inline-flex;
   align-items: center;
-  padding: 7px 16px;
-  border-radius: 999px;
-  border: 2px solid var(--sticker-line);
-  background: var(--rar-fill);
+  padding: 8px 20px;
+  border-radius: 14px;
+  border: 3px solid var(--ink);
+  background: linear-gradient(180deg, var(--rar-light), var(--rar-fill) 55%, var(--rar-deep));
   color: var(--rar-ink);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--sticker-shadow) 40%, black);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 4px 0 var(--ink);
   font-family: var(--font-heading);
+  font-weight: 900;
   font-size: max(16px, calc(18 * var(--unit)));
   line-height: 1.1;
   white-space: nowrap;
@@ -705,7 +746,7 @@
   left: calc(var(--card-left) * var(--unit));
   top: calc(var(--card-top) * var(--unit));
   width: calc(var(--card-width) * var(--unit));
-  aspect-ratio: 80 / 131;
+  aspect-ratio: 5 / 7;
   padding: 0;
   border: 0;
   border-radius: 16px;
@@ -737,8 +778,9 @@
 
 .done h2 {
   margin: 0;
-  font-size: max(22px, calc(26 * var(--unit)));
-  line-height: 1.05;
+  font-size: max(24px, calc(30 * var(--unit)));
+  line-height: 1.1;
+  text-shadow: 0 3px 0 #000;
 }
 
 .done h2:focus {
@@ -747,8 +789,9 @@
 
 .done p {
   margin: 0;
-  font-size: max(13px, calc(14 * var(--unit)));
-  color: var(--color-text-muted);
+  font-size: max(14px, calc(16 * var(--unit)));
+  font-weight: 700;
+  color: var(--color-text-soft);
 }
 
 /* At the end, each card opens large (CardZoom): a touch on the card itself,
@@ -818,10 +861,8 @@
 }
 
 .controls .outline {
-  min-height: 48px;
-  border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent);
-  color: var(--color-text);
-  font-size: 15px;
+  min-height: 52px;
+  font-size: 16px;
 }
 
 .hint {
@@ -869,6 +910,7 @@
 
 .dots span[data-seen] {
   background: var(--color-accent);
+  box-shadow: 0 0 0 1.5px var(--ink);
 }
 
 .dots span[data-current] {
@@ -880,17 +922,17 @@
   min-height: 44px;
   padding: 0 18px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent);
-  background: transparent;
-  color: var(--color-text);
+  border: 2px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-heading);
   font-family: var(--font-body);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
 }
 
 .revealAll:active {
-  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  background: var(--color-surface-2);
 }
 
 .revealAll:focus-visible {

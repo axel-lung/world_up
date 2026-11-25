@@ -8,17 +8,18 @@
   max-height: 86dvh;
   margin: 0 auto;
   padding: 0;
-  border: 0;
+  border: 3px solid var(--ink);
+  border-bottom: 0;
   border-radius: 28px 28px 0 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: var(--color-bg);
+  background: var(--page-glow) no-repeat, var(--color-bg);
   color: var(--color-text);
-  box-shadow: 0 -12px 32px color-mix(in srgb, var(--color-neutral-900) 22%, transparent);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55);
 }
 
 .sheet::backdrop {
-  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .panel {
@@ -37,9 +38,9 @@
 .handle {
   align-self: center;
   width: 40px;
-  height: 4px;
+  height: 5px;
   border-radius: 999px;
-  background: var(--color-neutral-400);
+  background: var(--color-line);
 }
 
 .head {
@@ -54,6 +55,7 @@
   margin: 0;
   font-size: 20px;
   line-height: 1.15;
+  text-shadow: none;
 }
 
 .close {
@@ -63,10 +65,10 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 0;
+  border: 2px solid var(--color-line);
   border-radius: 50%;
-  background: transparent;
-  color: var(--color-text-muted);
+  background: var(--color-surface);
+  color: var(--color-heading);
   cursor: pointer;
 }
 
@@ -76,13 +78,13 @@
 }
 
 .close:active {
-  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  background: var(--color-bar);
 }
 
 @media (hover: hover) {
   .close:hover {
-    color: var(--color-text);
-    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+    color: var(--color-heading);
+    background: var(--color-surface-2);
   }
 }
 

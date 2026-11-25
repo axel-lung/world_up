@@ -12,7 +12,7 @@
   min-width: 0;
 }
 
-/* The price as an inked sticker, the coin in terracotta */
+/* The price as an inked sticker, the coin in copper */
 .price {
   align-self: flex-start;
   display: inline-flex;
@@ -35,7 +35,7 @@
 }
 
 .amount {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 18px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -76,4 +76,135 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
+}
+
+/* A phone: the auction as a row on a block of stone (App Vitrail - Marche.dc.html) */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 10px;
+  border: 2px solid var(--color-line);
+  border-radius: 20px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.row:hover {
+  color: var(--color-text);
+}
+
+.row:active {
+  background: var(--color-surface-2);
+}
+
+.row[data-viewer="leading"],
+.row[data-viewer="won"] {
+  border-color: #7d7a45;
+}
+
+.row[data-viewer="outbid"] {
+  border-color: #8a3a2c;
+}
+
+.rowText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rowName {
+  font-family: var(--font-figure);
+  font-size: 15.5px;
+  line-height: 1.15;
+  color: var(--color-heading);
+  overflow-wrap: anywhere;
+}
+
+.rowMeta {
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}
+
+.rowRarity {
+  font-weight: 800;
+  color: var(--rar-fill);
+}
+
+.rowChips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.rowTime,
+.rowState {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.rowTime {
+  background: var(--ink);
+  color: var(--color-heading);
+}
+
+.rowTime svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* The viewer's part, an inked chip: moss ahead or won, red outbid, parchment their own sale */
+.rowState {
+  border: 2px solid var(--ink);
+  background: var(--color-heading);
+  color: var(--ink);
+}
+
+.rowState[data-state="leading"],
+.rowState[data-state="won"],
+.rowState[data-state="sold"] {
+  background: #b3ae70;
+}
+
+.rowState[data-state="outbid"] {
+  background: #f28b7d;
+}
+
+.rowState[data-state="lost"],
+.rowState[data-state="unsold"],
+.rowState[data-state="cancelled"] {
+  background: #8f8f96;
+}
+
+.rowPrice {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.rowAmount {
+  font-family: var(--font-figure);
+  font-size: 19px;
+  line-height: 1;
+  color: #f6b877;
+  font-variant-numeric: tabular-nums;
+}
+
+.rowUnit {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
 }

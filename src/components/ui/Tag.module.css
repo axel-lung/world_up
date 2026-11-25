@@ -1,6 +1,8 @@
 .tag {
-  gap: 5px;
-  font-weight: 600;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -10,19 +12,22 @@
   height: 1.1em;
 }
 
+/* A fact on the stone: outlined, in parchment */
 .line {
-  border: 1.5px solid var(--color-line);
+  border: 2px solid var(--color-line);
+  color: var(--color-heading);
 }
 
-/* The game's stickers: inked, the same in both themes */
+/* The game's stickers: inked */
 .new {
   background: var(--sticker-new);
   border: 2px solid var(--sticker-line);
+  box-shadow: 0 2px 0 var(--sticker-line);
   color: var(--sticker-line);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  transform: rotate(4deg);
+  transform: rotate(-6deg);
 }
 
 .count {
@@ -30,11 +35,13 @@
   min-width: 30px;
   height: 30px;
   padding: 0 6px;
-  background: var(--sticker-line);
-  border: 2px solid var(--sticker-paper);
-  color: #f5ead8;
-  font-size: 12px;
-  font-weight: 700;
+  background: #f6b877;
+  border: 2px solid var(--sticker-line);
+  box-shadow: 0 2px 0 var(--sticker-line);
+  color: var(--sticker-line);
+  font-family: var(--font-figure);
+  font-size: 13px;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
 }
 
@@ -42,7 +49,7 @@
   background: var(--sticker-paper);
   border: 2px solid var(--sticker-line);
   color: var(--sticker-line);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .success {

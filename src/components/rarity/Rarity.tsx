@@ -7,8 +7,11 @@ import styles from './Rarity.module.css';
 export function RarityPips({ rarity, size = 6, tone = 'ink' }: {
   rarity: Rarity;
   size?: number;
-  /** ink: on the rarity fill; line: the rarity stroke color, on the page ground. */
-  tone?: 'ink' | 'line';
+  /**
+   * ink: on the rarity fill; line: the rarity stroke color, on the page ground;
+   * fill: the rarity's own color; deep: its deep shade, on the cream of a card.
+   */
+  tone?: 'ink' | 'line' | 'fill' | 'deep';
 }) {
   return (
     <span
@@ -36,7 +39,7 @@ export function RarityBadge({ rarity, tilted = true }: { rarity: Rarity; tilted?
   );
 }
 
-/** The rarity's fill as a small inked dot, before its name (odds tables). */
+/** The rarity's fill as a small inked lozenge of glass, before its name (odds tables). */
 export function RarityDot({ rarity }: { rarity: Rarity }) {
   return <span className={styles.swatch} data-rarity={rarity} aria-hidden="true" />;
 }

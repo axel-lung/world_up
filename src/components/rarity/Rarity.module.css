@@ -16,6 +16,14 @@
   background: var(--rar-line);
 }
 
+.pips[data-tone="fill"] .pip {
+  background: var(--rar-fill);
+}
+
+.pips[data-tone="deep"] .pip {
+  background: var(--rar-deep);
+}
+
 /* A sticker: inked outline and a sharp shadow, like the cards */
 .badge {
   display: inline-flex;
@@ -28,9 +36,9 @@
   box-shadow: 0 2px 0 var(--sticker-shadow);
   color: var(--rar-ink);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -43,7 +51,8 @@
   flex: none;
   width: 12px;
   height: 12px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--rar-fill);
   border: 1.5px solid var(--sticker-line);
+  transform: rotate(45deg);
 }

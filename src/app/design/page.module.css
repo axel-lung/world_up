@@ -584,7 +584,7 @@
 }
 
 .rowList > li + li {
-  border-top: 1px solid var(--color-divider);
+  border-top: 2px solid var(--ink);
 }
 
 /* A phone's reserve, on its surface block */

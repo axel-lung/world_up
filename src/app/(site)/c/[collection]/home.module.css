@@ -1,14 +1,15 @@
-/* The game's home on a phone (page.tsx): the greeting with the streak and the
-   bell, then the reserve, the figures, the menu and what waits for
-   the player. */
+/* The game's home on a phone (page.tsx, Accueil - Refonte World Up.dc.html):
+   the logo, the pseudo, the streak and the bell, then the reserve under its
+   arch, the figures, the menu and what waits for the player. */
 .head h1 {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .logo {
   flex: none;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
 }
 
 /* A wider screen: the streak's pill beside the greeting */
@@ -19,22 +20,24 @@
   gap: 16px;
 }
 
-/* The bell as a round button on the surface */
+/* The bell as a pebble of stone */
 .bell {
   flex: none;
   width: 44px;
   height: 44px;
+  border: 2px solid var(--color-line);
   background: var(--color-surface);
+  color: var(--color-heading);
 }
 
 .bell svg {
-  width: 21px;
-  height: 21px;
+  width: 20px;
+  height: 20px;
 }
 
 .bell > span {
-  top: -2px;
-  right: -2px;
+  top: -5px;
+  right: -5px;
 }
 
 .tiles {
@@ -47,89 +50,77 @@
   height: 100%;
 }
 
-/* The menu (Accueil - Menu global.dc.html, 3b): three families, each with its
-   name, icon and own figure over four tiles raised like arcade buttons (an
-   inked outline, a drop shadow, pressed in under the finger), then the rest
-   as pills. Each family gives its tiles their colors (data-tone): the
-   collection on sand, trading on sage, playing on terracotta. */
+/* The menu ("Explorer", Accueil - Refonte World Up.dc.html): three families
+   on blocks of stone edged in their color, each tile a lozenge of glass with
+   its icon, raised on an ink shadow and pressed in under the finger: the
+   collection in parchment, trading in moss, playing in copper. */
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+}
+
+.menu > h2 {
+  margin: 4px 0 0;
+  font-size: 19px;
+  text-shadow: none;
 }
 
 .family {
-  --tile-bg: var(--color-surface);
-  --tile-disc: var(--color-bg);
-  --tile-icon: var(--color-text);
-  --tile-figure: var(--color-accent-strong);
+  --family-edge: var(--color-parchment-edge);
+  --family-solid: var(--color-heading);
+  --family-title: var(--color-heading);
+  --family-glass: var(--glass-parchment);
 
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  padding: 12px 8px 8px;
+  border: 2px solid var(--family-edge);
+  border-radius: 22px;
+  background: var(--color-surface);
 }
 
 .family[data-tone="trade"] {
-  --tile-bg: var(--color-sage-tint);
-  --tile-disc: var(--color-accent-2-400);
-  --tile-icon: var(--sticker-line);
-  --tile-figure: var(--color-sage-ink);
+  --family-edge: var(--color-moss-edge);
+  --family-solid: var(--color-sage);
+  --family-title: var(--color-moss-text);
+  --family-glass: var(--glass-moss);
 }
 
 .family[data-tone="play"] {
-  --tile-bg: var(--color-accent-tint);
-  --tile-disc: color-mix(in srgb, var(--color-accent) 70%, var(--sticker-paper));
-  --tile-icon: var(--sticker-line);
-  --tile-figure: var(--color-accent-strong);
+  --family-edge: var(--color-copper-edge);
+  --family-solid: var(--color-accent);
+  --family-title: var(--color-link);
+  --family-glass: var(--glass-copper);
 }
 
 .familyHead {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.familyHead h2 {
-  flex: 1;
-  min-width: 0;
   margin: 0;
-  font-size: 18px;
-}
-
-.familyIcon {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--sticker-line);
-  border-radius: 50%;
-  background: var(--tile-disc);
-  color: var(--tile-icon);
-}
-
-.familyIcon svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* The family's own figure: the cards owned, the rank, the streak */
-.familyLevel {
-  flex: none;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--tile-bg);
-  color: var(--tile-figure);
-  font-size: 12px;
+  padding: 0 8px;
+  font-size: 14px;
   font-weight: 700;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
+  color: var(--family-title);
+  text-shadow: none;
+}
+
+.familyHead::before {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--family-solid);
+  transform: rotate(45deg);
 }
 
 .familyTiles {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 4px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -147,12 +138,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 10px 2px 8px;
-  border: 2px solid var(--sticker-line);
-  border-radius: 20px;
-  background: var(--tile-bg);
-  box-shadow: 0 4px 0 var(--sticker-shadow);
+  gap: 9px;
+  padding: 12px 2px 8px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
   color: var(--color-text);
   font: inherit;
   text-decoration: none;
@@ -164,90 +154,80 @@
 }
 
 .menuTile:focus-visible {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 0;
 }
 
-/* Pressed: darker, and pushed in where motion is welcome */
-.menuTile:active {
-  background: color-mix(in srgb, var(--tile-bg) 90%, var(--color-text));
+@media (hover: hover) {
+  .menuTile:hover {
+    background: rgba(240, 210, 168, 0.06);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .menuTile {
-    transition: transform 90ms ease, box-shadow 90ms ease;
+    transition: transform 90ms ease;
   }
 
   .menuTile:active {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 var(--sticker-shadow);
+    transform: scale(0.95);
   }
 }
 
-.menuIcon {
+/* The lozenge of glass, its icon kept upright */
+.medal {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--tile-disc);
-  color: var(--tile-icon);
+  width: 42px;
+  height: 42px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--family-glass);
+  box-shadow: inset 0 2px 0 rgba(255, 240, 210, 0.35), 0 3px 0 var(--ink);
+  color: var(--ink);
+  transform: rotate(45deg);
 }
 
-.menuIcon svg {
-  width: 20px;
-  height: 20px;
+.medal svg {
+  width: 19px;
+  height: 19px;
+  transform: rotate(-45deg);
 }
 
 /* On one line: a long name may spill into the tile's padding */
 .menuLabel {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
   text-align: center;
   white-space: nowrap;
 }
 
-.menuFigure {
-  max-width: 100%;
-  overflow: hidden;
-  font-family: var(--font-heading);
-  font-size: 13px;
-  line-height: 1;
-  color: var(--tile-figure);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-/* What waits there, an inked sticker stuck askew on the corner */
+/* What waits there, a parchment sticker on the lozenge's top corner */
 .menuCount {
   position: absolute;
-  top: -8px;
-  right: -6px;
-  min-width: 22px;
-  height: 22px;
+  top: -9px;
+  left: 50%;
+  min-width: 20px;
+  height: 20px;
   padding: 0 5px;
-  border: 2px solid var(--sticker-line);
+  border: 2px solid var(--ink);
   border-radius: 999px;
-  background: var(--color-accent);
-  color: var(--color-on-accent);
+  background: var(--color-heading);
+  color: var(--ink);
   font-size: 11px;
-  font-weight: 700;
-  line-height: 18px;
+  font-weight: 800;
+  line-height: 16px;
   text-align: center;
   font-variant-numeric: tabular-nums;
-  transform: rotate(8deg);
+  transform: rotate(-45deg);
 }
 
 /* The narrowest phones: "Classement" still fits on one line */
 @media (max-width: 359px) {
   .menuLabel {
-    font-size: 11px;
-  }
-
-  .menuFigure {
-    font-size: 12px;
+    font-size: 11.5px;
   }
 }
 
@@ -267,11 +247,11 @@
   gap: 6px;
   min-height: 44px;
   padding: 0 14px 0 12px;
-  border: 1px solid var(--color-divider);
+  border: 2px solid var(--color-line);
   border-radius: 999px;
   color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -291,6 +271,7 @@
 @media (hover: hover) {
   .menuPill:hover {
     background: var(--color-surface);
+    color: var(--color-heading);
   }
 }
 
@@ -308,6 +289,7 @@
 /* Every achievement, in the sheet */
 .achievements {
   padding: 0 14px;
-  border-radius: 20px;
+  border: 2px solid var(--color-line);
+  border-radius: 22px;
   background: var(--color-surface);
 }

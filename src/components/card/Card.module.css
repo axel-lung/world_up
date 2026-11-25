@@ -1,121 +1,70 @@
-/* Ported from CarteV2.dc.html (Claude Design project): a sticker card, the
-   photo in a rounded window, the name in Caprasimo and the collection's emblem
-   in the footer. Since 2026-11-17 the rarity frames the card: an inked outline,
-   then a frame in the rarity's color that widens at the foot into a band with
-   its name and dots, around the cream panel. The card is cream and inked in
-   both themes (theme.css); only its drop shadow, the missing state and the
-   emblem's color (--skin-color) change. --rar-fill and --rar-line come from
-   data-rarity (theme.css). */
+/* The vitrail card (Claude Design, VitrailCarte.dc.html, 2026-11-25): a cream
+   sticker outlined and shadowed in ink, the photo in an arched window leaded
+   in ink, the rarity as a tilted sticker of its color over the window's foot
+   (its dots, and its name on a large card), the name in Alfa Slab One. A large
+   card adds the place, the protection, the photo's credit and the series. The
+   card is its own size container: its measures are shares of its width (cqw),
+   so it reads the same from a 100 px grid to the card's page. --rar-* come
+   from data-rarity (theme.css). */
 
 .card {
-  /* grid size: readable from 160 px wide */
-  --card-radius: 16px;
-  --frame: 5px;
-  --face-pad: 6px;
-  --face-gap: 6px;
-  --back-gap: 4px;
-  --photo-radius: 8px;
-  --band-pad: 4px 6px 4px;
-  --stk-off: 6px;
-  --stk-pad: 4px 7px;
-  --fs-stk: 9.5px;
-  --dot: 4.5px;
-  --dot-gap: 2.5px;
-  --name-pt: 2px;
-  --text-gap: 4px;
-  --fs-meta: 11px;
-  --fs-tag: 9.5px;
-  --tag-pad: 2px 6px;
-  --fs-num: 10px;
-  --fs-text: 10.5px;
-  --excerpt-lines: 5;
-  --sep: 5px 7px;
-  --emb: 18px;
-  --fs-emb: 10px;
-  --place-wrap: nowrap;
-  --fit: cover;
+  container-type: inline-size;
 
   /* owned */
-  --frame-bg: var(--rar-fill);
   --face-bg: var(--sticker-paper);
   --face-border: 2px solid var(--sticker-line);
   --face-shadow: 0 4px 0 var(--sticker-shadow);
-  --photo-bg: var(--card-photo-bg);
-  --band-ink: var(--rar-ink);
-  --dot-color: var(--rar-ink);
-  --badge-line: rgba(32, 30, 29, 0.35);
-  --unesco-bg: #e1eecc;
-  --unesco-line: #7a8a5e;
+  --window-ratio: 1 / 1;
+  --name-size: max(11px, 9.5cqw);
+  --name-lines: 2;
+  --fs-back: max(10.5px, 5.2cqw);
+  --fs-back-small: max(9.5px, 4.4cqw);
+  --excerpt-lines: 5;
   --emb-bg: var(--skin-color, var(--sticker-new));
   --emb-ink: var(--skin-ink, var(--sticker-line));
+  --fit: cover;
 
   position: relative;
   width: 100%;
-  aspect-ratio: 80 / 131;
   perspective: 1400px;
   font-family: var(--font-body);
-  font-size: 13px;
-  border-radius: var(--card-radius);
+  border-radius: 9cqw;
   outline: 3px solid transparent;
   outline-offset: 4px;
   color: var(--card-ink);
+  line-height: normal;
 }
 
 .card[data-size="large"] {
-  --card-radius: 24px;
-  --frame: 8px;
-  --face-pad: 11px;
-  --face-gap: 10px;
-  --back-gap: 9px;
-  --photo-radius: 12px;
-  --band-pad: 7px 10px 6px;
-  --stk-off: 10px;
-  --stk-pad: 6px 11px;
-  --fs-stk: 13px;
-  --dot: 7px;
-  --dot-gap: 4px;
-  --name-pt: 4px;
-  --text-gap: 8px;
-  --fs-meta: 15px;
-  --fs-tag: 12px;
-  --tag-pad: 4px 9px;
-  --fs-num: 13px;
-  --fs-text: 13.5px;
-  --excerpt-lines: 7;
-  --sep: 10px 12px;
-  --emb: 26px;
-  --fs-emb: 14px;
-  --place-wrap: normal;
-  font-size: 24px;
+  --window-ratio: 6 / 5;
+  --name-size: min(9.5cqw, 32px);
+  --name-lines: 3;
+  --fs-back: min(4.6cqw, 15px);
+  --fs-back-small: min(3.9cqw, 13px);
+  --excerpt-lines: 8;
 }
 
-/* Not owned yet: greyed, a dashed outline and a faint frame in the rarity's
-   color, an empty slot instead of the photo */
+/* Not owned yet: a dashed outline on the stone, striped glass, the rarity as
+   a line of its color */
 .card[data-state="missing"] {
   --card-ink: var(--miss-ink);
-  --card-muted: var(--miss-muted);
-  --frame-bg: color-mix(in srgb, var(--rar-fill) 24%, var(--miss-bg));
   --face-bg: var(--miss-bg);
-  --face-border: 2px dashed var(--rar-line);
+  --face-border: 2px dashed var(--miss-line);
   --face-shadow: none;
-  --photo-bg: var(--miss-photo);
-  --band-ink: var(--miss-ink);
-  --dot-color: var(--rar-line);
-  --emb-bg: transparent;
-  --emb-ink: var(--miss-muted);
 }
 
 .card[data-letterbox] {
   --fit: contain;
 }
 
-.card[data-selected] {
-  outline-color: var(--sticker-selected);
+/* Chosen (a trade's cards): a ring of light copper around it */
+.card[data-selected] .face {
+  box-shadow: 0 0 0 3px var(--sticker-selected), var(--face-shadow);
 }
 
 .card:has(.flipButton:focus-visible),
 .card:has(.nameLink:focus-visible) {
-  outline-color: var(--color-accent);
+  outline-color: var(--color-accent-strong);
 }
 
 .card[data-flippable] {
@@ -160,7 +109,6 @@
 
 .inner {
   position: relative;
-  height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.55s cubic-bezier(0.34, 1.4, 0.5, 1);
 }
@@ -175,33 +123,33 @@
   }
 }
 
-/* The face is the frame, in the rarity's color: the panel inside, the band below */
 .face {
   display: flex;
   flex-direction: column;
-  padding: var(--frame) var(--frame) 0;
-  border-radius: var(--card-radius);
-  background: var(--frame-bg);
+  padding: 5cqw 5cqw 6cqw;
+  border-radius: 9cqw;
+  background: var(--face-bg);
   border: var(--face-border);
   box-shadow: var(--face-shadow);
   backface-visibility: hidden;
 }
 
-.panel {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--face-gap);
-  padding: var(--face-pad);
-  border-radius: calc(var(--card-radius) - var(--frame) - 2px);
-  background: var(--face-bg);
-}
-
+/* 5:7 in a grid (140cqw is 1.4 times the card's width: the pack opening's
+   stage-layout.ts counts on it); a large card is 100:155, for its place,
+   protection, credit and series (CardZoom). Taller when a long name needs it:
+   the back takes the front's size. */
 .front {
   position: relative;
-  height: 100%;
+  min-height: 140cqw;
   isolation: isolate;
+}
+
+.card[data-size="large"] .front {
+  min-height: 155cqw;
+}
+
+.front > * {
+  flex: none;
 }
 
 .back {
@@ -211,55 +159,20 @@
   transform: rotateY(180deg);
 }
 
-.back .panel {
-  gap: var(--back-gap);
-  overflow: hidden;
-}
+/* — the window — */
 
-/* — rarity band — */
-
-.band {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: calc(var(--dot-gap) * 2);
-  min-width: 0;
-  padding: var(--band-pad);
-  color: var(--band-ink);
-  font-size: var(--fs-stk);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.dots {
-  display: flex;
-  gap: var(--dot-gap);
-}
-
-.dot {
-  width: var(--dot);
-  height: var(--dot);
-  border-radius: 50%;
-  background: var(--dot-color);
-}
-
-/* — photo — */
-
-.photoArea {
+.windowArea {
   position: relative;
   flex: none;
 }
 
-.photo {
+.window {
   position: relative;
-  aspect-ratio: 4 / 3;
-  border-radius: var(--photo-radius);
+  aspect-ratio: var(--window-ratio);
+  border-radius: 45cqw 45cqw 5cqw 5cqw / 28cqw 28cqw 5cqw 5cqw;
+  border: 2px solid var(--sticker-line);
   overflow: hidden;
-  background: var(--photo-bg);
+  background: var(--card-photo-bg);
 }
 
 .photoBackdrop,
@@ -281,30 +194,9 @@
   object-position: center;
 }
 
-/* No photo: a flat with the monument's name */
-.photoFallback {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px;
-  text-align: center;
-  font-family: var(--font-heading);
-  font-size: 1em;
-  line-height: 1.15;
-  color: #3d472b;
-  background: var(--photo-bg);
-}
-
-.photoFallback svg {
-  width: 1.4em;
-  height: 1.4em;
-}
-
-/* A missing card: an empty slot with the collection's emblem instead of the photo */
+/* No photo: the window's glass, a rose of the rarity's colors leaded in ink,
+   with the collection's emblem */
+.glass,
 .slot {
   position: absolute;
   inset: 0;
@@ -312,40 +204,101 @@
   place-items: center;
 }
 
-.slot > span {
-  width: 3.4em;
-  height: 3.4em;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 2px dashed var(--card-muted);
-  color: var(--card-muted);
+.glass {
+  --lead: rgba(12, 12, 14, 0.85);
+  background:
+    radial-gradient(circle at 50% 52%, var(--rar-light) 0 27%, var(--lead) 27% 30.5%, transparent 30.5%),
+    linear-gradient(90deg, transparent 48.6%, var(--lead) 48.6% 51.4%, transparent 51.4%),
+    linear-gradient(0deg, transparent 48.6%, var(--lead) 48.6% 51.4%, transparent 51.4%) 0 0 / 100% 104%,
+    radial-gradient(circle at 50% 30%, var(--rar-light), var(--rar-fill) 55%, var(--rar-deep));
+  color: var(--card-ink);
+}
+
+.glass svg {
+  position: relative;
+  width: 22cqw;
+  height: 22cqw;
+  opacity: 0.8;
+}
+
+/* A missing card: striped glass, the emblem greyed */
+.slot {
+  background: var(--miss-photo);
+  color: var(--miss-icon);
+}
+
+.card[data-state="missing"] .window {
+  border-color: #3a3a40;
 }
 
 .slot svg {
-  width: 1.6em;
-  height: 1.6em;
+  width: 22cqw;
+  height: 22cqw;
 }
 
-/* The photo's top-left corner, for a control of the page (the wishlist's heart) */
+/* The rarity, tilted over the window's foot */
+.pill {
+  position: absolute;
+  left: 3cqw;
+  bottom: -4.5cqw;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2.4cqw;
+  padding: max(3px, 1.8cqw) max(7px, 3.6cqw);
+  border-radius: 999px;
+  border: 2px solid var(--sticker-line);
+  background: var(--rar-fill);
+  box-shadow: 0 2px 0 var(--sticker-line);
+  color: var(--rar-ink);
+  font-size: min(4.4cqw, 13px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-3deg);
+}
+
+.dots {
+  display: flex;
+  gap: max(2px, 1.4cqw);
+}
+
+.dot {
+  width: max(4px, 2.4cqw);
+  height: max(4px, 2.4cqw);
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.card[data-state="missing"] .pill {
+  border-color: var(--rar-fill);
+  background: var(--color-bg);
+  box-shadow: none;
+  color: var(--rar-fill);
+  transform: none;
+}
+
+/* The window's top left, for a control of the page (the wishlist's heart) */
 .action {
   position: absolute;
-  top: -3px;
-  left: -3px;
+  top: 1cqw;
+  left: 1cqw;
   /* Above the card's link */
   z-index: 3;
 }
 
-/* Over the photo, whatever the theme: the card's own cream and ink. */
+/* The photo's credit, behind a button at the window's foot, on the right */
 .infoButton {
   position: absolute;
-  top: 0;
   right: 0;
+  bottom: 0;
   width: 44px;
   height: 44px;
-  padding: 5px;
+  padding: 4px;
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: flex-end;
   background: transparent;
   border: 0;
@@ -372,17 +325,17 @@
 
 .creditOverlay {
   position: absolute;
-  left: 4px;
-  right: 4px;
-  top: 40px;
+  left: 2px;
+  right: 2px;
+  bottom: 30px;
   padding: 6px 8px;
   border-radius: 10px;
   background: var(--sticker-paper);
   border: 1.5px solid var(--sticker-line);
-  font-size: 10px;
+  font-size: 10.5px;
   line-height: 1.35;
   color: var(--card-ink);
-  z-index: 3;
+  z-index: 4;
 }
 
 .creditOverlay a,
@@ -392,20 +345,21 @@
 
 .shinySticker {
   position: absolute;
-  top: var(--stk-off);
-  left: var(--stk-off);
+  top: 3cqw;
+  right: 3cqw;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 3px;
-  padding: var(--stk-pad);
+  padding: max(3px, 1.4cqw) max(6px, 3cqw);
   border-radius: 999px;
   background: var(--sticker-paper);
   border: 2px solid var(--sticker-line);
   color: var(--card-ink);
-  font-size: var(--fs-stk);
-  font-weight: 700;
+  font-size: min(4.4cqw, 13px);
+  font-weight: 800;
   line-height: 1;
-  transform: rotate(-4deg);
+  transform: rotate(4deg);
 }
 
 .shinySticker svg {
@@ -413,54 +367,29 @@
   height: 1.1em;
 }
 
-/* Large size: the photo credit right under the photo */
-.credit {
-  display: flex;
-  align-items: flex-start;
-  gap: 5px;
-  margin-top: -4px;
-  font-size: 11.5px;
-  line-height: 1.35;
-  color: var(--card-muted);
-}
-
-.credit svg {
-  flex: none;
-  width: 12px;
-  height: 12px;
-  margin-top: 2px;
-}
-
-.credit > span {
-  min-width: 0;
-}
-
-/* — front text — */
-
-.text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--text-gap);
-  padding-top: var(--name-pt);
-}
+/* — the text — */
 
 .name,
 .backName {
   margin: 0;
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-weight: 400;
   line-height: 1.12;
+  letter-spacing: 0;
   color: var(--card-ink);
+  text-shadow: none;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .name {
-  font-size: 1.06em;
-  letter-spacing: -0.005em;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  margin-top: 9cqw;
+  font-size: var(--name-size);
+  -webkit-line-clamp: var(--name-lines);
+  line-clamp: var(--name-lines);
   text-wrap: pretty;
 }
 
@@ -471,21 +400,26 @@
   outline: none;
 }
 
+.nameLink:hover,
+.nameLink:active {
+  color: inherit;
+}
+
 .nameLink::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 1;
-  border-radius: var(--card-radius);
+  border-radius: 9cqw;
 }
-
 
 .place {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 1.6cqw;
   min-width: 0;
-  font-size: var(--fs-meta);
+  margin-top: 2cqw;
+  font-size: min(5.4cqw, 17px);
   line-height: 1.25;
   color: var(--card-muted);
 }
@@ -497,58 +431,80 @@
 }
 
 .place > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: var(--place-wrap);
+  min-width: 0;
 }
 
 .badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2cqw;
+  margin-top: 3cqw;
 }
 
 .badge {
-  font-size: var(--fs-tag);
-  font-weight: 600;
-  line-height: 1;
-  padding: var(--tag-pad);
+  padding: 0.8cqw 3cqw;
   border-radius: 999px;
-  border: 1.5px solid var(--badge-line);
+  border: 1.5px solid rgba(12, 12, 14, 0.45);
   color: var(--card-ink);
+  font-size: min(4.6cqw, 14px);
+  font-weight: 700;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
-.badge[data-badge="unesco"] {
-  background: var(--unesco-bg);
-  border-color: var(--unesco-line);
+/* Large size: the photo's credit, required by its licence */
+.credit {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.6cqw;
+  margin-top: 3cqw;
+  font-size: min(3.9cqw, 12.5px);
+  line-height: 1.35;
+  color: var(--card-muted);
+}
+
+.credit svg {
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
+  margin-top: 0.1em;
+}
+
+.credit > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .footer {
   margin-top: auto;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--fs-num);
+  gap: 2.6cqw;
+  padding-top: 3cqw;
+  font-size: min(4.8cqw, 15px);
   line-height: 1.25;
   color: var(--card-muted);
   font-variant-numeric: tabular-nums;
 }
 
+/* The collection's emblem, a lozenge of copper glass */
 .emblem {
   flex: none;
-  width: var(--emb);
-  height: var(--emb);
+  width: max(14px, 6cqw);
+  height: max(14px, 6cqw);
   display: grid;
   place-items: center;
-  border-radius: 50%;
+  border-radius: 1.4cqw;
+  border: 1.5px solid var(--sticker-line);
   background: var(--emb-bg);
   color: var(--emb-ink);
+  transform: rotate(45deg);
 }
 
 .emblem svg {
-  width: var(--fs-emb);
-  height: var(--fs-emb);
+  width: 65%;
+  height: 65%;
+  transform: rotate(-45deg);
 }
 
 .seriesName {
@@ -561,7 +517,7 @@
 .number {
   margin-left: auto;
   flex: none;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--card-ink);
 }
 
@@ -583,26 +539,35 @@
   opacity: 0.7;
 }
 
-/* — back — */
+/* — the back: the monument's text and the photo's credit, on the cream — */
+
+.panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3cqw;
+  overflow: hidden;
+}
 
 .backTop {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 3cqw;
   flex: none;
 }
 
 .backName {
   flex: 1;
   min-width: 0;
-  font-size: 0.95em;
+  font-size: min(7.5cqw, 24px);
   -webkit-line-clamp: 2;
   line-clamp: 2;
 }
 
 .excerpt {
   margin: 0;
-  font-size: var(--fs-text);
+  font-size: var(--fs-back);
   line-height: 1.45;
   color: var(--card-ink);
   display: -webkit-box;
@@ -619,7 +584,7 @@
   align-items: center;
   gap: 6px;
   min-height: 44px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--card-link);
   text-underline-offset: 3px;
 }
@@ -639,22 +604,22 @@
 
 .articleLink {
   margin: -10px 0 -12px;
-  font-size: 14px;
+  font-size: min(4.6cqw, 15px);
 }
 
 .commonsLink {
   margin: -8px 0 -12px;
-  font-size: 13px;
+  font-size: min(4.2cqw, 14px);
 }
 
 .textLicense {
-  font-size: var(--fs-tag);
+  font-size: var(--fs-back-small);
   line-height: 1.3;
   color: var(--card-muted);
 }
 
-/* The licence links take the card's link color: the card is cream in both
-   themes, where the site's dark-theme link color would hardly show */
+/* The licence links take the card's link color: the card is cream, where the
+   site's copper links would hardly show */
 .textLicense a,
 .photoAuthor a {
   color: var(--card-link);
@@ -671,23 +636,25 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: var(--sep);
-  border-radius: var(--photo-radius);
+  padding: 2.5cqw 3.5cqw;
+  border-radius: 4cqw;
+  border: 1.5px solid rgba(12, 12, 14, 0.25);
   background: var(--card-photo-soft);
 }
 
 .photoHeading {
-  font-size: var(--fs-tag);
-  font-weight: 700;
+  font-size: var(--fs-back-small);
+  font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--card-muted);
 }
 
 .photoAuthor {
-  font-size: var(--fs-meta);
+  font-size: var(--fs-back-small);
   line-height: 1.3;
   color: var(--card-ink);
+  overflow-wrap: anywhere;
 }
 
 .backFooter {
@@ -697,14 +664,14 @@
   align-items: baseline;
   justify-content: space-between;
   column-gap: 6px;
-  font-size: var(--fs-num);
+  font-size: var(--fs-back-small);
   line-height: 1.3;
   color: var(--card-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .backFooter > span:first-child {
-  font-weight: 600;
+  font-weight: 800;
   color: var(--card-ink);
 }
 
@@ -712,7 +679,7 @@
   margin-left: auto;
 }
 
-/* — corner badges — */
+/* — stickers on the corners — */
 
 .flipButton {
   position: absolute;
@@ -727,53 +694,62 @@
 
 .newBadge {
   position: absolute;
-  top: -10px;
-  right: 14px;
-  padding: 4px 9px;
+  top: -3cqw;
+  left: -3cqw;
+  z-index: 3;
+  padding: max(3px, 1.4cqw) max(7px, 3.6cqw);
   border-radius: 999px;
   background: var(--sticker-new);
   border: 2px solid var(--sticker-line);
+  box-shadow: 0 2px 0 var(--sticker-line);
   color: var(--sticker-line);
-  font-size: 10.5px;
-  font-weight: 700;
+  font-size: max(10px, min(4.8cqw, 14px));
+  font-weight: 800;
   line-height: 1.1;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  transform: rotate(5deg);
+  transform: rotate(-8deg);
 }
 
 .copiesBadge {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 30px;
-  height: 30px;
+  top: -3cqw;
+  right: -3cqw;
+  z-index: 3;
+  min-width: max(26px, 15cqw);
+  height: max(26px, 15cqw);
+  padding: 0 max(4px, 2cqw);
   display: grid;
   place-items: center;
-  border-radius: 50%;
-  background: var(--sticker-line);
-  border: 2px solid var(--sticker-paper);
-  color: #f5ead8;
-  font-size: 12px;
-  font-weight: 700;
+  border-radius: 999px;
+  background: #f6b877;
+  border: 2px solid var(--sticker-line);
+  box-shadow: 0 2px 0 var(--sticker-line);
+  color: var(--sticker-line);
+  font-family: var(--font-figure);
+  font-size: max(11px, 6.6cqw);
+  line-height: 1;
   font-variant-numeric: tabular-nums;
+  transform: rotate(8deg);
 }
 
 .selectedBadge {
   position: absolute;
-  top: -10px;
-  left: -10px;
-  width: 30px;
-  height: 30px;
+  top: -3cqw;
+  left: -3cqw;
+  z-index: 3;
+  width: max(28px, 18cqw);
+  height: max(28px, 18cqw);
   display: grid;
   place-items: center;
   border-radius: 50%;
   background: var(--sticker-selected);
   border: 2px solid var(--sticker-line);
-  color: var(--sticker-paper);
+  box-shadow: 0 2px 0 var(--sticker-line);
+  color: var(--sticker-line);
 }
 
 .selectedBadge svg {
-  width: 15px;
-  height: 15px;
+  width: 55%;
+  height: 55%;
 }

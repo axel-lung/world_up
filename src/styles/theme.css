@@ -1,245 +1,325 @@
-/* World Up base layer over Organic: the light and dark themes, the rarity
-   colors and the game objects (cards, packs, rarity stickers) shared by every
-   collection. Values come from the LIGHT and DARK maps of
-   design/Design system World Up v2.dc.html and design/CarteV2.dc.html. The
-   accent family (--color-accent*, --color-on-accent) and the --skin-* variables
-   belong to each collection: see src/lib/collection-theme.ts.
-
-   Light by default: the dark theme follows the system setting, and
-   data-theme="dark" or "light" forces one, on <html> or on any element. */
+/* World Up base layer over Organic: the "vitrail" redesign (decided on
+   2026-11-25, Claude Design project 57936f5d-de5d-4211-aee8-9def1a24e9c9,
+   .claude/rules/ui.md): a church at dusk, its walls of grey stone, its windows of
+   copper, moss and parchment glass leaded in ink. One theme, dark: the root
+   layout sets data-theme="dark" on <html>, and a data-theme="light" left on an
+   element changes nothing. The accent family (--color-accent*,
+   --color-on-accent) and the --skin-* variables belong to each collection:
+   see src/lib/collection-theme.ts. */
 
 :root {
-  --font-heading: var(--font-caprasimo), system-ui, sans-serif;
-  --font-body: var(--font-figtree), system-ui, sans-serif;
+  color-scheme: dark;
+
+  /* Cinzel for the titles and the buttons, Alegreya Sans for the text, Alfa
+     Slab One for the figures and the monuments' names (src/app/layout.tsx) */
+  --font-heading: var(--font-cinzel), Georgia, serif;
+  --font-heading-weight: 900;
+  --font-body: var(--font-alegreya), system-ui, sans-serif;
+  --font-figure: var(--font-alfa-slab), Georgia, serif;
 
   /* The phone's tab bar (src/components/layout/TabBar.module.css), and how far
      from the bottom of the screen it puts what sticks there: 0 without it. */
-  --tab-bar-height: 64px;
+  --tab-bar-height: 68px;
   --tab-bar-offset: 0px;
 
-  /* Rarity fills and the ink printed on them (over 4.5:1 on all six). */
+  /* The lead of the windows: every game object, button and sticker is outlined
+     in it, and drops a sharp shadow of it. */
+  --ink: #0c0c0e;
+
+  /* Stone, from the deepest to the lightest */
+  --color-bg: #18181b;
+  --color-bg-deep: #0f0f11;
+  --color-surface: #2a2a2f;
+  --color-surface-2: #36363c;
+  --color-bar: #3f3f45;
+  --color-line: #4a4a51;
+  --color-divider: #4a4a51;
+  --color-track: #45454c;
+
+  /* Text: parchment for the titles, cream for the text, grey stone for the
+     rest. Links take the middle copper. */
+  --color-heading: #f0d2a8;
+  --color-text: #f8e6c8;
+  --color-text-soft: #e6dccb;
+  --color-text-muted: #bdb5a8;
+  --color-link: #e0954f;
+
+  /* Moss, the second voice (exchanges, done, visited) */
+  --color-sage: #9c9858;
+  --color-sage-tint: #3f3f20;
+  --color-sage-ink: #e0dcae;
+  --color-moss-edge: #4a4826;
+  --color-moss-text: #c9c58a;
+
+  /* Copper's own edge, for the blocks it colors */
+  --color-copper-edge: #6a3a1c;
+  --color-parchment-edge: #4f3322;
+
+  --color-success: #b3ae70;
+  --color-warning: #f0b860;
+  --color-danger: #f28b7d;
+  --color-success-tint: #3f3f20;
+  --color-warning-tint: #4a3518;
+  --color-danger-tint: #4d2620;
+  --color-accent-2-100: #3f3f20;
+  --color-accent-2-400: #b3ae70;
+  --color-accent-2-800: #e0dcae;
+  --color-neutral-100: #36363c;
+  --color-neutral-400: #6a6a72;
+  --color-neutral-800: #e6dccb;
+  --color-neutral-900: #0c0c0e;
+
+  --shadow-sm: 0 2px 0 var(--ink);
+  --shadow-md: 0 0 0 2px var(--ink), 0 4px 0 var(--ink);
+  --shadow-lg: 0 0 0 3px var(--ink), 0 6px 0 var(--ink), 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  /* The glass: copper, moss and parchment, lit from the top left */
+  --glass-copper: linear-gradient(135deg, #f6b877, #c8743c 50%, #8a4520);
+  --glass-moss: linear-gradient(135deg, #b3ae70, #7d7a45 55%, #4a4826);
+  --glass-parchment: linear-gradient(135deg, #fbecd2, #f0d2a8 50%, #c9a676);
+  --glass-shine: inset 0 2px 0 rgba(255, 240, 210, 0.4);
+
+  /* A raised button: copper (the main action) or moss, lit from above */
+  --button-copper: linear-gradient(180deg, #e9945a, #c8743c 55%, #a65a2a);
+  --button-moss: linear-gradient(180deg, #b3ae70, #7d7a45);
+  --button-shine: inset 0 2px 0 rgba(255, 236, 200, 0.5);
+
+  /* A wall of stone blocks, for the arches (the home's reserve, a card's page) */
+  --stone-wall:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.3) 2px, transparent 2px) 0 0 / 100% 26px,
+    linear-gradient(90deg, rgba(0, 0, 0, 0.24) 2px, transparent 2px) 0 0 / 52px 26px,
+    linear-gradient(180deg, #5a5a61, #36363c);
+  --stone-wall-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.12), 0 5px 0 var(--ink);
+
+  /* The candlelight at the top of every page */
+  --page-glow:
+    radial-gradient(260px 220px at 12% 0%, rgba(224, 149, 79, 0.28), transparent 70%),
+    radial-gradient(260px 220px at 88% 0%, rgba(224, 149, 79, 0.22), transparent 70%);
+
+  /* Rarity fills and the ink printed on them (over 4.5:1 on all six), with a
+     lighter and a deeper shade for the glass of a card without its photo. */
   --rar-legendary: #e0654a;
   --rar-ultra: #e9b949;
   --rar-super: #b48ac8;
   --rar-rare: #6fa3cc;
   --rar-uncommon: #9db07f;
   --rar-common: #cfc5b4;
-  --rar-ink: #201e1d;
+  --rar-ink: #0c0c0e;
 
-  /* Game objects are inked stickers, the same in both themes: a cream card,
-     a 2 px ink outline and a sharp drop shadow (--sticker-shadow, per theme). */
-  --sticker-line: #201e1d;
-  --sticker-paper: #f9f4ed;
-  --sticker-new: #c67139;
-  --sticker-selected: #7a8a5e;
-  --card-ink: #201e1d;
-  --card-muted: #645c50;
-  --card-link: #8c491a;
-  --card-photo-bg: #ccdbb2;
-  --card-photo-soft: #eee7db;
-}
-
-:root,
-[data-theme="light"] {
-  color-scheme: light;
-  --color-bg: #f5ead8;
-  --color-surface: #ebddc5;
-  --color-text: #201e1d;
-  --color-text-muted: #645c50;
-  --color-line: rgba(32, 30, 29, 0.16);
-  --color-divider: rgba(32, 30, 29, 0.16);
-  --color-track: #dcd3c4;
-  --color-sage: #7a8a5e;
-  --color-sage-tint: #e1eecc;
-  /* Text and icons on the sage tint: the visits' stamp, chips and figures */
-  --color-sage-ink: #3d472b;
-  --color-success: #56633f;
-  --color-warning: #8f5300;
-  --color-danger: #a83a2c;
-  --color-success-tint: #e1eecc;
-  --color-warning-tint: #f8e2c0;
-  --color-danger-tint: #fbdcd5;
-  --color-accent-2-100: #f0fae1;
-  --color-accent-2-800: #3d472b;
-  --color-neutral-100: #f9f4ed;
-  --color-neutral-800: #474238;
-  --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
-  --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
-  --shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
-  --sticker-shadow: #201e1d;
-
-  /* Missing cards: a dashed outline, a greyed photo, the rarity as a stroke. */
-  --miss-bg: #efe4d0;
-  --miss-line: #a19786;
-  --miss-ink: #474238;
-  --miss-muted: #645c50;
-  --miss-photo: #dcd3c4;
-  --miss-filter: grayscale(1) contrast(0.7) brightness(1.15);
-  --rar-line-legendary: #a8362a;
-  --rar-line-ultra: #8a6100;
-  --rar-line-super: #7a4a92;
-  --rar-line-rare: #2f6a96;
-  --rar-line-uncommon: #56633f;
-  --rar-line-common: #645c50;
-
-  /* The map (src/components/map): its ground, the player's position, and the
-     departments filled by the share of their monuments owned, from none (0)
-     to all (5), with their borders and the one chosen. */
-  --map-land: #f5ead8;
-  --map-me: #201e1d;
-  --map-me-halo: rgba(32, 30, 29, 0.12);
-  --map-step-0: #e6d9c2;
-  --map-step-1: #f8dcc8;
-  --map-step-2: #efb68e;
-  --map-step-3: #d98750;
-  --map-step-4: #a95b28;
-  --map-step-5: #7a8a5e;
-  --map-border: #f5ead8;
-  --map-chosen: #201e1d;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --color-bg: #201e1d;
-    --color-surface: #2e2b25;
-    --color-text: #f5ead8;
-    --color-text-muted: #c0b6a5;
-    --color-line: rgba(245, 234, 216, 0.16);
-    --color-divider: rgba(245, 234, 216, 0.2);
-    --color-track: #474238;
-    --color-sage: #aebf92;
-    --color-sage-tint: #3d472b;
-    --color-sage-ink: #e1eecc;
-    --color-success: #aebf92;
-    --color-warning: #f0b860;
-    --color-danger: #f28b7d;
-    --color-success-tint: #3d472b;
-    --color-warning-tint: #4a3518;
-    --color-danger-tint: #4d2620;
-    --color-accent-2-100: #3d472b;
-    --color-accent-2-800: #e1eecc;
-    --color-neutral-100: #474238;
-    --color-neutral-800: #eee7db;
-    --shadow-sm: 0 0 0 1px #474238;
-    --shadow-md: 0 0 0 1px #474238, 0 6px 18px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 0 0 1px #645c50, 0 16px 40px rgba(0, 0, 0, 0.55);
-    --sticker-shadow: #0c0b0a;
-    --miss-bg: #2e2b25;
-    --miss-line: #82796a;
-    --miss-ink: #eee7db;
-    --miss-muted: #c0b6a5;
-    --miss-photo: #474238;
-    --miss-filter: grayscale(1) brightness(0.7) contrast(0.9);
-    --rar-line-legendary: var(--rar-legendary);
-    --rar-line-ultra: var(--rar-ultra);
-    --rar-line-super: var(--rar-super);
-    --rar-line-rare: var(--rar-rare);
-    --rar-line-uncommon: var(--rar-uncommon);
-    --rar-line-common: var(--rar-common);
-    --map-land: #24211e;
-    --map-me: #f5ead8;
-    --map-me-halo: rgba(245, 234, 216, 0.14);
-    --map-step-0: #38342d;
-    --map-step-1: #5b3b27;
-    --map-step-2: #8b4f2a;
-    --map-step-3: #c06a35;
-    --map-step-4: #eb9c66;
-    --map-step-5: #aebf92;
-    --map-border: #201e1d;
-    --map-chosen: #f5ead8;
-  }
-}
-
-/* Same values as the media query above, for a forced dark theme. */
-[data-theme="dark"] {
-  color-scheme: dark;
-  --color-bg: #201e1d;
-  --color-surface: #2e2b25;
-  --color-text: #f5ead8;
-  --color-text-muted: #c0b6a5;
-  --color-line: rgba(245, 234, 216, 0.16);
-  --color-divider: rgba(245, 234, 216, 0.2);
-  --color-track: #474238;
-  --color-sage: #aebf92;
-  --color-sage-tint: #3d472b;
-  --color-sage-ink: #e1eecc;
-  --color-success: #aebf92;
-  --color-warning: #f0b860;
-  --color-danger: #f28b7d;
-  --color-success-tint: #3d472b;
-  --color-warning-tint: #4a3518;
-  --color-danger-tint: #4d2620;
-  --color-accent-2-100: #3d472b;
-  --color-accent-2-800: #e1eecc;
-  --color-neutral-100: #474238;
-  --color-neutral-800: #eee7db;
-  --shadow-sm: 0 0 0 1px #474238;
-  --shadow-md: 0 0 0 1px #474238, 0 6px 18px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 0 0 1px #645c50, 0 16px 40px rgba(0, 0, 0, 0.55);
-  --sticker-shadow: #0c0b0a;
-  --miss-bg: #2e2b25;
-  --miss-line: #82796a;
-  --miss-ink: #eee7db;
-  --miss-muted: #c0b6a5;
-  --miss-photo: #474238;
-  --miss-filter: grayscale(1) brightness(0.7) contrast(0.9);
+  /* On the stone, a rarity drawn as a line takes its own fill */
   --rar-line-legendary: var(--rar-legendary);
   --rar-line-ultra: var(--rar-ultra);
   --rar-line-super: var(--rar-super);
   --rar-line-rare: var(--rar-rare);
   --rar-line-uncommon: var(--rar-uncommon);
   --rar-line-common: var(--rar-common);
-  --map-land: #24211e;
-  --map-me: #f5ead8;
-  --map-me-halo: rgba(245, 234, 216, 0.14);
-  --map-step-0: #38342d;
+
+  /* Game objects are inked stickers: a cream card, an ink outline and a
+     sharp drop shadow of ink. */
+  --sticker-line: var(--ink);
+  --sticker-paper: #f8e6c8;
+  --sticker-new: #c8743c;
+  --sticker-selected: #f6b877;
+  --sticker-shadow: var(--ink);
+  --card-ink: #0c0c0e;
+  --card-muted: #5a4e3e;
+  --card-link: #8a4520;
+  --card-photo-bg: #36363c;
+  --card-photo-soft: #efd9b6;
+
+  /* Missing cards: a dashed outline on the stone, the window's glass striped,
+     the rarity as a line. */
+  --miss-bg: #222226;
+  --miss-line: #6a6a72;
+  --miss-ink: #e8e2d6;
+  --miss-muted: #bdb5a8;
+  --miss-photo: repeating-linear-gradient(135deg, #2d2d32 0 5px, #28282c 5px 10px);
+  --miss-icon: #5d5d65;
+  --miss-filter: grayscale(1) brightness(0.6) contrast(0.9);
+
+  /* The visits' stamp: moss ink on a pale green */
+  --stamp-bg: rgba(225, 238, 204, 0.96);
+  --stamp-ink: #3f3f20;
+
+  /* The map (src/components/map): its ground, the player's position, and the
+     departments filled by the share of their monuments owned, from none (0)
+     to all (5), with their borders and the one chosen. */
+  --map-land: #2a2a2f;
+  --map-me: #f6b877;
+  --map-me-halo: rgba(246, 184, 119, 0.2);
+  --map-step-0: #36363c;
   --map-step-1: #5b3b27;
   --map-step-2: #8b4f2a;
   --map-step-3: #c06a35;
   --map-step-4: #eb9c66;
-  --map-step-5: #aebf92;
-  --map-border: #201e1d;
-  --map-chosen: #f5ead8;
+  --map-step-5: #b3ae70;
+  --map-border: #0c0c0e;
+  --map-chosen: #f6b877;
 }
 
-/* data-rarity="<key>" exposes that rarity's fill and stroke to its subtree. */
-[data-rarity="legendary"] { --rar-fill: var(--rar-legendary); --rar-line: var(--rar-line-legendary); }
-[data-rarity="ultra"] { --rar-fill: var(--rar-ultra); --rar-line: var(--rar-line-ultra); }
-[data-rarity="super"] { --rar-fill: var(--rar-super); --rar-line: var(--rar-line-super); }
-[data-rarity="rare"] { --rar-fill: var(--rar-rare); --rar-line: var(--rar-line-rare); }
-[data-rarity="uncommon"] { --rar-fill: var(--rar-uncommon); --rar-line: var(--rar-line-uncommon); }
-[data-rarity="common"] { --rar-fill: var(--rar-common); --rar-line: var(--rar-line-common); }
+/* data-rarity="<key>" exposes that rarity's fill and stroke to its subtree,
+   and the light and deep shades of its glass. */
+[data-rarity="legendary"] { --rar-fill: var(--rar-legendary); --rar-line: var(--rar-line-legendary); --rar-light: #f6a58c; --rar-deep: #a8362a; }
+[data-rarity="ultra"] { --rar-fill: var(--rar-ultra); --rar-line: var(--rar-line-ultra); --rar-light: #f8dc8a; --rar-deep: #8a6100; }
+[data-rarity="super"] { --rar-fill: var(--rar-super); --rar-line: var(--rar-line-super); --rar-light: #dcc0ea; --rar-deep: #7a4a92; }
+[data-rarity="rare"] { --rar-fill: var(--rar-rare); --rar-line: var(--rar-line-rare); --rar-light: #b4d4ec; --rar-deep: #2f6a96; }
+[data-rarity="uncommon"] { --rar-fill: var(--rar-uncommon); --rar-line: var(--rar-line-uncommon); --rar-light: #cfdcb6; --rar-deep: #56633f; }
+[data-rarity="common"] { --rar-fill: var(--rar-common); --rar-line: var(--rar-line-common); --rar-light: #ece4d6; --rar-deep: #645c50; }
 
-/* An element with data-theme paints its own ground. */
+/* The page: stone, lit by candles at the top. An element with data-theme
+   paints its own ground. */
 [data-theme] {
   background: var(--color-bg);
   color: var(--color-text);
 }
 
-/* Terracotta is for fills, icons and large text; running text takes the strong
-   shade. In Organic's layer, so any component class still sets its own color. */
-@layer organic {
-  a { color: var(--color-accent-strong); }
-  a:active { color: var(--color-accent); }
+body {
+  background: var(--page-glow) no-repeat, var(--color-bg);
+}
 
-  @media (hover: hover) {
-    a:hover { color: var(--color-accent); }
+/* In Organic's layer, so any component class still sets its own look. */
+@layer organic {
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: 0.01em;
+    color: var(--color-heading);
   }
 
+  h1 {
+    text-shadow: 0 2px 0 var(--ink);
+  }
+
+  a { color: var(--color-link); }
+  a:active { color: var(--color-heading); }
+
+  @media (hover: hover) {
+    a:hover { color: var(--color-heading); }
+  }
+
+  :focus-visible { outline: 2px solid var(--color-accent-strong); outline-offset: 2px; }
+  ::selection { background: color-mix(in srgb, var(--color-accent) 45%, transparent); }
+
+  /* — buttons: raised and leaded like the game's objects — */
+  .btn {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border-radius: 16px;
+  }
+
+  /* The main action: copper glass, inked, pressed in when touched */
+  .btn-primary {
+    background: var(--button-copper);
+    border: 3px solid var(--ink);
+    box-shadow: var(--button-shine), 0 4px 0 var(--ink);
+    color: var(--color-on-accent);
+    font-weight: 900;
+  }
+
+  .btn-primary:hover,
+  .btn-primary:active { background: var(--button-copper); }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: var(--button-shine), 0 1px 0 var(--ink);
+  }
+
+  /* The others: a block of stone, outlined */
+  .btn-secondary {
+    background: var(--color-surface);
+    border: 2px solid var(--color-line);
+    color: var(--color-heading);
+  }
+
+  .btn-secondary:hover { background: var(--color-surface-2); }
+  .btn-secondary:active { background: var(--color-bar); }
+
+  .btn-ghost { color: var(--color-link); }
+  .btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 14%, transparent); }
+  .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
+
   /* A touch screen keeps a tapped element's hover until the next tap: there,
-     Organic's buttons keep their fill and only darken while pressed. */
+     the buttons keep their fill and only change while pressed. */
   @media (hover: none) {
-    .btn-primary:hover { background: var(--color-accent); }
-    .btn-secondary:hover,
+    .btn-secondary:hover { background: var(--color-surface); }
     .btn-ghost:hover { background: transparent; }
-    .btn-primary:active { background: var(--color-accent-700); }
-    .btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
-    .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+    .btn-secondary:active { background: var(--color-bar); }
+    .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
+  }
+
+  /* — fields: a deep well in the stone, lit copper when focused — */
+  .field > label {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--color-heading);
+  }
+
+  .input {
+    background: var(--color-bg-deep);
+    border: 2px solid var(--color-line);
+    color: var(--color-text);
+    caret-color: var(--color-accent-strong);
+  }
+
+  .input::placeholder { color: #8f887d; }
+  .input:hover { border-color: #6a6a72; }
+
+  .input:focus-visible {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(200, 116, 60, 0.25);
   }
 
   /* A pill suits one line, not a text area */
   textarea.input { border-radius: var(--radius-md); }
+
+  .radio .dot { border: 2px solid var(--color-line); }
+  .radio input:checked + .dot { box-shadow: inset 0 0 0 4px var(--color-bg-deep); }
+
+  /* — a choice of two or three: a well, the chosen one in copper glass — */
+  .seg {
+    gap: 4px;
+    padding: 4px;
+    border: 2px solid var(--color-line);
+    background: var(--color-bg-deep);
+  }
+
+  .seg-opt {
+    border-radius: 999px;
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
+
+  .seg-opt + .seg-opt { border-left: 0; }
+
+  .seg-opt:has(input:checked) {
+    background: var(--button-copper);
+    box-shadow: var(--button-shine), 0 0 0 2px var(--ink);
+    color: var(--color-on-accent);
+    font-weight: 800;
+  }
+
+  /* — blocks and tags — */
+  .card {
+    background: var(--color-surface);
+    border: 2px solid var(--color-line);
+  }
+
+  .tag-accent { background: var(--color-accent-tint); color: var(--color-accent-strong); }
+  .tag-accent-2 { background: var(--color-sage-tint); color: var(--color-sage-ink); }
+  .tag-neutral { background: var(--color-surface-2); color: var(--color-text-soft); }
+  .tag-outline { border: 2px solid var(--color-accent); color: var(--color-accent-strong); }
+
+  .table th { color: var(--color-text-muted); border-bottom: 2px solid var(--ink); }
+  .table td { border-bottom: 1px solid var(--color-line); }
+
+  .dialog-backdrop { background: rgba(0, 0, 0, 0.6); }
+
+  .dialog {
+    border: 3px solid var(--ink);
+    background: var(--color-surface);
+  }
 }
 
 /* A tap draws no browser highlight: the controls show their own pressed state
@@ -272,7 +352,7 @@ html[data-app] :is(img, a) {
 }
 
 /* Lucide icons with a thickened stroke, as in the design system. */
-.lucide { stroke-width: 3px; }
+.lucide { stroke-width: 2.75px; }
 
 /* Read by screen readers, invisible on screen. */
 .sr-only {

@@ -5,7 +5,7 @@
   min-width: 44px;
   min-height: 44px;
   border-radius: 999px;
-  color: var(--color-text);
+  color: var(--color-heading);
 }
 
 .bell svg {
@@ -15,30 +15,30 @@
 
 @media (hover: hover) {
   .bell:hover {
-    color: var(--color-text);
-    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+    color: var(--color-heading);
+    background: var(--color-surface-2);
   }
 }
 
 .bell:active {
-  color: var(--color-text);
-  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  color: var(--color-heading);
+  background: var(--color-surface-2);
 }
 
-/* The count, an inked sticker on the bell's shoulder */
+/* The count, an inked copper sticker on the bell's shoulder */
 .count {
   position: absolute;
   top: 4px;
   right: 2px;
-  min-width: 20px;
-  height: 20px;
+  min-width: 21px;
+  height: 21px;
   padding: 0 5px;
   border-radius: 999px;
-  border: 1.5px solid var(--sticker-line);
+  border: 2px solid var(--ink);
   background: var(--color-accent);
   color: var(--color-on-accent);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 11.5px;
+  font-weight: 800;
   line-height: 17px;
   text-align: center;
   font-variant-numeric: tabular-nums;

@@ -1,17 +1,21 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 7px;
 }
 
 .field > label {
-  margin-bottom: 1px;
-  font-size: 13px;
+  margin-bottom: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-heading);
 }
 
-/* Every touch target is 44 px at least, as for the buttons. */
+/* A deep well in the stone (theme.css), 54 px tall: every touch target is 44
+   px at least. */
 .input {
-  min-height: 44px;
+  min-height: 54px;
+  padding-inline: 18px;
   font-size: 16px;
 }
 
@@ -21,8 +25,8 @@
 
 .hint,
 .error {
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 13.5px;
+  line-height: 1.4;
 }
 
 .hint {

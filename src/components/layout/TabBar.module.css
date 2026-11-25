@@ -1,8 +1,9 @@
-/* The game's navigation on a phone (TabBar.tsx): five tabs at the bottom of
-   the screen, the packs raised in the middle as an inked sticker. */
+/* The game's navigation on a phone (TabBar.tsx, VitrailTabBar.dc.html): five
+   tabs on a ledge of stone at the bottom of the screen, the packs raised in the
+   middle as a lozenge of copper glass. */
 .tabBar {
-  background: var(--color-bg);
-  box-shadow: 0 -1px 0 var(--color-divider);
+  border-top: 3px solid var(--ink);
+  background: var(--color-bar);
   /* Above the gesture bar, when the page is drawn under it */
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -70,8 +71,8 @@
   display: flex;
   justify-content: center;
   min-height: var(--tab-bar-height);
-  padding: 6px 0 8px;
-  color: var(--color-text-muted);
+  padding: 8px 0 8px;
+  color: #c8ad86;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -86,9 +87,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -109,7 +110,7 @@
 
 @media (hover: hover) {
   .tab:hover {
-    color: var(--color-text);
+    color: var(--color-heading);
   }
 }
 
@@ -121,7 +122,7 @@
 
 .tab[aria-current="page"] .icon,
 .face[data-pending] .icon {
-  background: var(--color-accent-tint);
+  background: rgba(200, 116, 60, 0.4);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -130,9 +131,9 @@
   }
 }
 
-/* The packs: a terracotta sticker standing out of the bar */
+/* The packs: a lozenge of copper glass standing out of the bar */
 .tab[data-primary] {
-  color: var(--color-text);
+  color: #c8ad86;
 }
 
 .tab[data-primary][aria-current="page"] {
@@ -141,66 +142,69 @@
 
 .tab[data-primary] .icon,
 .tab[data-primary] .face[data-pending] .icon {
-  width: 56px;
-  height: 56px;
-  margin-top: -26px;
-  border-radius: 50%;
-  border: 2px solid var(--sticker-line);
-  background: var(--color-accent);
+  width: 54px;
+  height: 54px;
+  margin: -34px 0 8px;
+  border-radius: 15px;
+  border: 3px solid var(--ink);
+  background: var(--glass-copper);
   color: var(--color-on-accent);
-  box-shadow: 0 3px 0 var(--sticker-shadow);
+  box-shadow: var(--glass-shine), 0 4px 0 var(--ink);
+  transform: rotate(45deg);
 }
 
 .tab[data-primary] .icon svg {
-  width: 26px;
-  height: 26px;
+  width: 25px;
+  height: 25px;
+  transform: rotate(-45deg);
 }
 
-/* The current page's sticker sits in a terracotta halo */
+/* The current page's lozenge sits in a ring of light copper */
 .tab[data-primary][aria-current="page"] .icon {
   box-shadow:
-    0 0 0 4px var(--color-accent-tint),
-    0 3px 0 var(--sticker-shadow);
+    var(--glass-shine),
+    0 0 0 3px #f6b877,
+    0 4px 0 var(--ink);
 }
 
 .tab[data-primary]:active .icon,
 .tab[data-primary] .face[data-pending] .icon {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--sticker-shadow);
+  transform: rotate(45deg) translate(2px, 2px);
+  box-shadow: var(--glass-shine), 0 1px 0 var(--ink);
 }
 
-/* A count on a plain tab (what waits for an answer): an inked terracotta
-   sticker, like the bell's */
+/* A count on a plain tab (what waits for an answer): an inked copper sticker,
+   like the bell's */
 .badge {
   position: absolute;
-  top: -4px;
-  right: 6px;
-  min-width: 18px;
-  height: 18px;
+  top: -5px;
+  right: 5px;
+  min-width: 19px;
+  height: 19px;
   padding: 0 4px;
   border-radius: 999px;
-  border: 1.5px solid var(--sticker-line);
+  border: 2px solid var(--ink);
   background: var(--color-accent);
   color: var(--color-on-accent);
-  font-size: 10.5px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   line-height: 15px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
-/* The packs waiting, a paper sticker on the packs' shoulder */
+/* The packs waiting, a parchment sticker on the lozenge's top corner, kept
+   upright */
 .tab[data-primary] .badge {
-  position: absolute;
-  top: -6px;
+  top: -10px;
   right: -10px;
   min-width: 22px;
   height: 22px;
   padding: 0 5px;
-  border-radius: 999px;
-  border: 1.5px solid var(--sticker-line);
-  background: var(--sticker-paper);
-  color: var(--card-ink);
+  border: 2px solid var(--ink);
+  background: var(--color-heading);
+  color: var(--ink);
   font-size: 12px;
-  line-height: 19px;
+  line-height: 18px;
+  transform: rotate(-45deg);
 }

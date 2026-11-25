@@ -182,7 +182,7 @@ Décidée le 2026-10-22. L'application du Play Store a d'abord été une Trusted
   - hors connexion, une page fournie avec l'application le dit et propose de réessayer ; le bouton retour revient à la page précédente ;
   - les téléchargements (l'export des données du compte) : une vue web ne télécharge pas d'elle-même, l'application passe donc par le gestionnaire de téléchargements du téléphone, et le fichier arrive dans Téléchargements ;
   - les autres sites (Wikipédia, Commons, les licences) s'ouvrent dans un onglet par-dessus l'application, aux couleurs du jeu, qui se referme sur la partie, plutôt que dans le navigateur.
-- Rien ne doit trahir la vue web (demandé le 16 novembre 2026) : ni zoom, ni surlignage au toucher, ni état « survolé » qui reste après un tap, ni sélection de texte avec sa barre Copier/Partager à l'appui long (les champs de saisie gardent la leur, pour coller), ni barre de défilement. Les commandes montrent leur propre état appuyé, et une barre court en haut de l'écran pendant qu'une page se charge. Le texte suit la taille de police choisie dans les réglages du téléphone, comme une application native. Les barres du téléphone (heure, navigation) prennent le fond de la page affichée : le thème choisi dans le jeu, la scène sombre de l'ouverture des paquets. L'écran de lancement montre le logo jusqu'à ce que le site soit affiché, plutôt qu'un écran vide sur une connexion lente.
+- Rien ne doit trahir la vue web (demandé le 16 novembre 2026) : ni zoom, ni surlignage au toucher, ni état « survolé » qui reste après un tap, ni sélection de texte avec sa barre Copier/Partager à l'appui long (les champs de saisie gardent la leur, pour coller), ni barre de défilement. Les commandes montrent leur propre état appuyé, et une barre court en haut de l'écran pendant qu'une page se charge. Le texte suit la taille de police choisie dans les réglages du téléphone, comme une application native. Les barres du téléphone (heure, navigation) prennent le fond de la page affichée : la pierre du vitrail, la scène plus sombre de l'ouverture des paquets. L'écran de lancement montre le logo jusqu'à ce que le site soit affiché, plutôt qu'un écran vide sur une connexion lente.
 - L'appui long sur l'icône de l'application propose « Ouvrir un paquet » (décidé le 22/11/2026), qui ouvre la page d'ouverture ; le site installé depuis un navigateur offre le même raccourci. Les vibrations passent par le module natif de l'application. Les deux demandent une nouvelle version de l'application.
 - Une application iOS serait la même coquille : elle demanderait « Se connecter avec Apple » à côté de Google (règle de l'App Store).
 - Avant de vendre dans l'application (lot 4) : Google Play impose sa facturation pour les biens numériques. Dans l'Espace économique européen, son programme de facturation alternative autorise un autre prestataire comme Stripe, contre une commission. À trancher avec l'avocat.
@@ -374,19 +374,19 @@ Stripe gère tous les paiements, et ses webhooks font foi : un paquet acheté n'
 
 ## Interface
 
-Le design de référence est le design system « World Up v2 » du [projet Claude Design](https://claude.ai/design/p/8508c819-0ec8-4bd5-86aa-690e24d1c0ad?file=Design+system+World+Up+v2.dc.html) : le socle Organic (crème, terracotta, sauge, Caprasimo et Figtree), avec des cartes traitées comme des autocollants. Thème clair par défaut, thème sombre conservé. Le développeur l'importe avec le serveur MCP de Claude Design (connexion par `/design-login` dans Claude Code), en partant de ces fichiers :
+Le design de référence est la refonte « vitrail » (décidée le 25/11/2026) du [projet Claude Design](https://claude.ai/design/p/57936f5d-de5d-4211-aee8-9def1a24e9c9?file=Accueil+-+Refonte+World+Up.dc.html) : une église au crépuscule, des murs de pierre grise, des vitraux de cuivre, de mousse et de parchemin sertis d'encre, Cinzel pour les titres et les boutons, Alegreya Sans pour le texte, Alfa Slab One pour les chiffres et les noms des monuments. Les cartes, les paquets et les boutons restent des autocollants cernés d'encre. Un seul thème, sombre : le sélecteur Auto, Clair ou Sombre disparaît. Le développeur l'importe avec le serveur MCP de Claude Design (connexion par `/design-login` dans Claude Code), en partant de ces fichiers :
 
-- `Design system World Up v2.dc.html`
-- `CarteV2.dc.html` (la carte, importée par le fichier précédent)
-- `_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/_ds_bundle.js`
-- `_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/styles.css`
-- `support.js`
+- `Accueil - Refonte World Up.dc.html`
+- `VitrailCarte.dc.html` (la carte) et `VitrailTabBar.dc.html` (la barre d'onglets)
+- `App Vitrail - Collection.dc.html`, `Paquets`, `Marche`, `Echanges`, `Profil` et `Connexion`
+- `Carte - Ecran - Vitrail.dc.html` et les autres écrans de la carte en vitrail
+- `_ds/organic-31cdf777-e85b-4a4e-bbaa-571dde5117fd/styles.css` et `support.js`
 
-La première version (`Design system World Up.dc.html`, socle Nocturne) est remplacée.
+Le design system « World Up v2 » (socle Organic, crème et terracotta, Caprasimo et Figtree) est remplacé, comme la première version (socle Nocturne) avant lui.
 
 **Intégration**
 
-- Les tokens du design system deviennent des variables CSS, en thème clair et sombre.
+- Les tokens du design system deviennent des variables CSS, en un seul thème, sombre.
 - Chaque composant (carte, bouton, badge, jauge, minuteur, fenêtre d'achat) devient un composant React, avec les mêmes variantes et états que dans Claude Design.
 - L'habillage d'une collection (sa couleur et son emblème, sur le paquet et en pied de carte) est lu dans `collections.theme` : ajouter une collection ne demande pas de nouveau code d'interface.
 - L'ouverture de paquet et l'écran de la série de jours suivent `MobileB.dc.html` (écrans « B · Ouverture » et « B · Série ») du projet Claude Design « World Up Mobile UX » (`04a53348-44c8-4c9f-a3fb-f3a2faf6a706`).
@@ -502,7 +502,7 @@ La version 1 est acceptée quand tous ces points passent, de préférence sous f
 **Qualité**
 
 - [ ] Score Lighthouse mobile d'au moins 90 en performance et 95 en accessibilité sur une fiche carte.
-- [ ] Thèmes clair et sombre conformes au design system, sur mobile et ordinateur.
+- [ ] Thème vitrail conforme aux maquettes, sur mobile et ordinateur.
 
 **Déploiement**
 

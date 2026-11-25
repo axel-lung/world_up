@@ -1,10 +1,8 @@
-/* A card as a row of the list view (CardRow.tsx): the Card's sticker look,
-   flattened to a line, the thumbnail framed in the rarity's color inside an
-   inked outline. --rar-fill and --rar-line come from data-rarity (theme.css).
-   Missing rows take the Card's dashed, greyed look, with an empty thumbnail. */
+/* A card as a row of the list view (CardRow.tsx): a vignette of the vitrail
+   card (VitrailCarte.dc.html), the name in Alfa Slab One, the rarity sticker.
+   --rar-* come from data-rarity (theme.css). Missing rows take the Card's
+   dashed look on the stone, with striped glass in the window. */
 .row {
-  --thumb-border: 3px solid var(--rar-fill);
-  --thumb-outline: 0 0 0 2px var(--sticker-line);
   --stk-bg: var(--rar-fill);
   --stk-border: 1.5px solid var(--sticker-line);
   --stk-ink: var(--rar-ink);
@@ -20,36 +18,10 @@
 }
 
 .row[data-state="missing"] {
-  --thumb-border: 2px dashed var(--rar-line);
-  --thumb-outline: none;
   --stk-bg: transparent;
   --stk-border: 1.5px dashed var(--rar-line);
   --stk-ink: var(--rar-line);
-  --row-ink: var(--color-text-muted);
-}
-
-.thumb {
-  flex: none;
-  position: relative;
-  width: 64px;
-  height: 64px;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  border: var(--thumb-border);
-  box-shadow: var(--thumb-outline);
-  background: var(--card-photo-bg);
-}
-
-.row[data-state="missing"] .thumb {
-  background: var(--miss-photo);
-}
-
-.thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  --row-ink: var(--miss-ink);
 }
 
 .text {
@@ -62,10 +34,13 @@
 
 .name {
   margin: 0;
-  font-family: var(--font-heading);
-  font-size: 15px;
+  font-family: var(--font-figure);
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.15;
+  letter-spacing: 0;
+  color: inherit;
+  text-shadow: none;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -95,14 +70,14 @@
 }
 
 .row:has(.link:focus-visible) {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-accent-strong);
   outline-offset: -2px;
   border-radius: var(--radius-md);
 }
 
 @media (hover: hover) {
   .row:has(.link):hover {
-    background: color-mix(in srgb, var(--color-text) 5%, transparent);
+    background: rgba(240, 210, 168, 0.06);
   }
 }
 
@@ -123,10 +98,10 @@
   background: var(--stk-bg);
   border: var(--stk-border);
   color: var(--stk-ink);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 10.5px;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -154,10 +129,11 @@
   gap: 4px;
   padding: 2px 8px 2px 6px;
   border-radius: 999px;
-  background: var(--color-sage-tint);
-  color: var(--color-sage-ink);
+  border: 1.5px solid var(--ink);
+  background: var(--stamp-bg);
+  color: var(--stamp-ink);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.3;
 }
 
@@ -187,7 +163,7 @@
   flex: none;
 }
 
-/* The copies owned, an inked sticker like the grid's */
+/* The copies owned, a light copper sticker like the grid's */
 .copies {
   flex: none;
   min-width: 34px;
@@ -196,19 +172,14 @@
   display: grid;
   place-items: center;
   border-radius: 999px;
-  border: 2px solid var(--sticker-paper);
-  background: var(--sticker-line);
-  color: #f5ead8;
+  border: 2px solid var(--sticker-line);
+  background: #f6b877;
+  box-shadow: 0 2px 0 var(--sticker-line);
+  color: var(--sticker-line);
+  font-family: var(--font-figure);
   font-size: 13px;
-  font-weight: 700;
   font-variant-numeric: tabular-nums;
-}
-
-.emblem {
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-muted);
-  opacity: 0.7;
+  transform: rotate(6deg);
 }
 
 /* The row's link, as a chevron: on a phone only */

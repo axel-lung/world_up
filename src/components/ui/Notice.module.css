@@ -2,17 +2,20 @@
   display: flex;
   gap: 10px;
   padding: 14px 16px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  line-height: 1.5;
+  border: 2px solid var(--color-line);
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.45;
   background: var(--color-surface);
 }
 
 .notice[data-tone="success"] {
+  border-color: var(--color-moss-edge);
   background: var(--color-success-tint);
 }
 
 .notice[data-tone="danger"] {
+  border-color: #7a3a30;
   background: var(--color-danger-tint);
 }
 
@@ -61,13 +64,14 @@
     align-items: center;
     gap: 8px;
     padding: 10px 16px;
+    border: 2px solid var(--ink);
     border-radius: 999px;
-    background: var(--color-text);
-    color: var(--color-bg);
-    font-size: 14px;
-    font-weight: 600;
+    background: var(--sticker-paper);
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 800;
     line-height: 1.35;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 3px 0 var(--ink), 0 12px 30px rgba(0, 0, 0, 0.5);
     pointer-events: none;
     transform: translateX(-50%);
     animation: toast-out 0.2s ease 2.2s forwards;
@@ -77,7 +81,7 @@
     width: 17px;
     height: 17px;
     margin: 0;
-    color: var(--color-accent-2-400);
+    color: var(--stamp-ink);
   }
 }
 

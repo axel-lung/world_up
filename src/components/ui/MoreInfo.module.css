@@ -10,8 +10,8 @@
   min-height: 44px;
   cursor: pointer;
   list-style: none;
-  font-weight: 600;
-  color: var(--color-accent-strong);
+  font-weight: 700;
+  color: var(--color-link);
 }
 
 .more summary::-webkit-details-marker {

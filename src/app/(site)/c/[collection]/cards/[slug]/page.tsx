@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import {
+  ArrowLeft,
   ArrowLeftRight,
+  ArrowRight,
   ArrowUpRight,
   ChevronLeft,
   ChevronRight,
@@ -11,7 +13,6 @@ import {
   MapPinCheck,
   RotateCw,
   Stamp,
-  X,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -162,18 +163,21 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
       {from && (
         <div className={`${styles.top} phone-only`}>
           <Link href={from.back} className={styles.round} aria-label={t('close')}>
-            <X aria-hidden />
+            <ChevronLeft aria-hidden />
           </Link>
           <span className={styles.position}>
             {neighbours && t('position', { position: neighbours.position, total: neighbours.total })}
           </span>
-          {copies > 0 ? (
-            <span className={styles.copies}>
-              <span aria-hidden="true">×{copies}</span>
-              <span className="sr-only">{tCard('copiesLarge', { count: copies })}</span>
-            </span>
-          ) : (
-            <span className={styles.spacer} aria-hidden="true" />
+          {/* From owned card to owned card of the list, looping */}
+          {neighbours && (
+            <>
+              <Link href={within(neighbours.previous)} replace className={styles.round} aria-label={t('previous')}>
+                <ArrowLeft aria-hidden />
+              </Link>
+              <Link href={within(neighbours.next)} replace className={styles.round} aria-label={t('next')}>
+                <ArrowRight aria-hidden />
+              </Link>
+            </>
           )}
         </div>
       )}
@@ -199,11 +203,6 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
         <h2 id="card-heading" className="sr-only">
           {t('cardHeading')}
         </h2>
-        {neighbours && (
-          <Link href={within(neighbours.previous)} replace className={`${styles.arrow} phone-only`} aria-label={t('previous')}>
-            <ChevronLeft aria-hidden />
-          </Link>
-        )}
         <div className={styles.face}>
           <Card
             card={toCardData(card, printed ? { name: printed.name, number: printed.number, total: printed.total } : null, license)}
@@ -217,23 +216,13 @@ export default async function CardPage({ params, searchParams }: PageProps<'/c/[
             visitedAt={copies > 0 ? visitedAt : null}
           />
         </div>
-        {neighbours && (
-          <Link
-            href={within(neighbours.next)}
-            replace
-            className={`${styles.arrow} ${styles.next} phone-only`}
-            aria-label={t('next')}
-          >
-            <ChevronRight aria-hidden />
-          </Link>
+        {session && (
+          <p className={`${styles.hint} phone-only`}>
+            <RotateCw aria-hidden />
+            {t('flipHint')}
+          </p>
         )}
       </section>
-      {session && (
-        <p className={`${styles.hint} phone-only`}>
-          <RotateCw aria-hidden />
-          {t('flipHint')}
-        </p>
-      )}
 
       <div className={styles.details}>
         {session && (

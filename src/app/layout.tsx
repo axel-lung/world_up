@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Caprasimo, Figtree } from 'next/font/google';
-import { cookies } from 'next/headers';
+import { Alegreya_Sans, Alfa_Slab_One, Cinzel } from 'next/font/google';
 import { connection } from 'next/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -10,19 +9,26 @@ import { NavigationProgress } from '@/components/layout/NavigationProgress';
 import { ZoomLock } from '@/components/layout/ZoomLock';
 import { getDefaultThemeCss } from '@/lib/collections';
 import { indexingAllowed } from '@/lib/indexing';
-import { themeAttribute, themePreference } from '@/lib/theme-preference';
 import '@/styles/global.css';
 
 // Self-hosted by Next.js: no request to Google from the visitor's browser. Not
 // preloaded either: on a card page they would share the bandwidth with the
-// photo, the pages' largest paint.
-// Figtree carries the text (variable font: one file for every weight)...
-const figtree = Figtree({ subsets: ['latin'], variable: '--font-figtree', display: 'swap', preload: false });
-// ...and Caprasimo is the only display voice: headings, monument names, buttons.
-const caprasimo = Caprasimo({
+// photo, the pages' largest paint. The "vitrail" voices (decided on 2026-11-25):
+// Alegreya Sans carries the text...
+const alegreya = Alegreya_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '700', '800'],
+  variable: '--font-alegreya',
+  display: 'swap',
+  preload: false,
+});
+// ...Cinzel the titles and the buttons (variable font: one file for every weight)...
+const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', display: 'swap', preload: false });
+// ...and Alfa Slab One the figures and the monuments' names.
+const alfaSlab = Alfa_Slab_One({
   subsets: ['latin'],
   weight: '400',
-  variable: '--font-caprasimo',
+  variable: '--font-alfa-slab',
   display: 'swap',
   preload: false,
 });
@@ -52,14 +58,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
   // The collection theme lives in the database: render at request time.
   await connection();
-  const [locale, themeCss, cookieStore] = await Promise.all([getLocale(), getDefaultThemeCss(), cookies()]);
+  const [locale, themeCss] = await Promise.all([getLocale(), getDefaultThemeCss()]);
   return (
-    // The visitor's theme choice (src/components/layout/ThemeSwitch.tsx), if any
-    <html
-      lang={locale}
-      className={`${figtree.variable} ${caprasimo.variable}`}
-      data-theme={themeAttribute(themePreference(cookieStore))}
-    >
+    // One theme, the dark "vitrail" (decided on 2026-11-25): data-theme="dark"
+    // picks the collection's dark accent (collectionThemeCss)
+    <html lang={locale} className={`${alegreya.variable} ${cinzel.variable} ${alfaSlab.variable}`} data-theme="dark">
       <head>
         {/* Validated by parseCollectionTheme: only custom properties, no markup. */}
         {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}

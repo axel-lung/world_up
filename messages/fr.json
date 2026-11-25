@@ -160,7 +160,6 @@
     },
     "more": {
       "title": "Réglages et informations",
-      "theme": "Thème",
       "help": "Aide et informations",
       "effects": "Sons et vibrations"
     },
@@ -349,7 +348,7 @@
     "none": "Aucun paquet",
     "count": "{count, plural, one {# paquet} other {# paquets}}",
     "outOf": "en réserve sur {max}",
-    "of": "sur {max}",
+    "packsOf": "{count, plural, one {paquet} other {paquets}} sur {max}",
     "nextIn": "Prochain dans {time}",
     "nextPackIn": "Prochain paquet dans {time}"
   },
@@ -358,7 +357,11 @@
     "reserveHeading": "Votre réserve",
     "odds": "Probabilités de chaque rareté",
     "oddsHistory": "Tout savoir sur les probabilités",
-    "history": "Historique de mes ouvertures"
+    "history": "Historique de mes ouvertures",
+    "streakTitle": "Série · {days, plural, one {# jour} other {# jours}}",
+    "streakBonus": "Bonus dans {left, plural, one {# jour} other {# jours}}",
+    "today": "Auj.",
+    "balance": "{count, plural, one {# pièce} other {# pièces}}"
   },
   "History": {
     "title": "Mes ouvertures",
@@ -981,7 +984,7 @@
     },
     "cookies": {
       "title": "Cookies",
-      "body": "<p>Le site dépose ces cookies, tous exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « theme », qui retient le thème d'affichage que vous avez choisi (Auto, Clair ou Sombre) ;</li><li>le cookie « announcement », qui retient la dernière annonce que vous avez fermée, pour qu'elle ne s'affiche plus (un an) ;</li><li>pendant une connexion avec Google, un cookie de quelques minutes qui la protège contre une tentative de détournement.</li></ul><p>Votre choix de couper les sons et les vibrations est gardé par votre navigateur, sur cet appareil seulement ; il ne nous est pas transmis.</p><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères et le fond de la carte sont servis par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
+      "body": "<p>Le site dépose ces cookies, tous exemptés de consentement :</p><ul><li>le cookie de session, qui maintient votre connexion (30 jours au plus) ;</li><li>le cookie « announcement », qui retient la dernière annonce que vous avez fermée, pour qu'elle ne s'affiche plus (un an) ;</li><li>pendant une connexion avec Google, un cookie de quelques minutes qui la protège contre une tentative de détournement.</li></ul><p>Votre choix de couper les sons et les vibrations est gardé par votre navigateur, sur cet appareil seulement ; il ne nous est pas transmis.</p><p>Aucun cookie publicitaire, aucune mesure d'audience. Les polices de caractères et le fond de la carte sont servis par le site lui-même : votre navigateur ne contacte aucun service tiers.</p>"
     },
     "security": {
       "title": "Sécurité",
@@ -1027,12 +1030,6 @@
   "Sheet": {
     "close": "Fermer"
   },
-  "Theme": {
-    "label": "Thème",
-    "system": "Auto",
-    "light": "Clair",
-    "dark": "Sombre"
-  },
   "Effects": {
     "label": "Sons et vibrations",
     "on": "Activés",
@@ -1040,6 +1037,7 @@
   },
   "Game": {
     "welcome": "Bonjour {pseudo}",
+    "hello": "Bonjour",
     "packsHeading": "Vos paquets",
     "openPack": "Ouvrir un paquet",
     "collectionHeading": "Votre collection",
@@ -1110,15 +1108,11 @@
     "resellHint": "Vous gardez un exemplaire de chaque carte.",
     "resellAllSubmit": "{copies, plural, one {Revendre le doublon} other {Revendre les # doublons}}",
     "menu": {
-      "label": "Menu du jeu",
+      "label": "Explorer",
       "families": {
         "collection": "Ma collection",
         "trade": "Échanger",
         "play": "Jouer"
-      },
-      "levels": {
-        "trade": "{rank, selectordinal, one {#re place} other {#e place}}",
-        "play": "{days, plural, one {# jour} other {# jours}}"
       },
       "collection": "Collection",
       "map": "Carte",
@@ -1136,17 +1130,6 @@
       "rules": "Règles",
       "odds": "Chances",
       "credits": "Crédits",
-      "stats": {
-        "series": "{count, plural, one {# finie} other {# finies}}",
-        "duplicates": "{copies, plural, =0 {aucun} other {{coins, plural, one {+# pièce} other {+# pièces}}}}",
-        "map": "{count, plural, =0 {à explorer} one {# visité} other {# visités}}",
-        "market": "{count, plural, one {# vente} other {# ventes}}",
-        "mySales": "{count, plural, one {# active} other {# actives}}",
-        "trades": "{count, plural, one {# offre} other {# offres}}",
-        "friends": "{count, plural, one {# ami} other {# amis}}",
-        "history": "{count, plural, one {# ouvert} other {# ouverts}}",
-        "streak": "{days, plural, other {# j}}"
-      },
       "toResell": "{count, plural, one {# à revendre} other {# à revendre}}",
       "waiting": "{count, plural, one {# en attente de votre réponse} other {# en attente de votre réponse}}"
     }
@@ -1229,6 +1212,7 @@
     },
     "resellAll": "Revendre {copies, plural, one {# doublon} other {les # doublons}} pour {coins, plural, one {# pièce} other {# pièces}}",
     "resellHint": "Vous gardez un exemplaire de chaque carte.",
+    "resell": "Revendre",
     "sold": "{copies, plural, one {# doublon revendu} other {# doublons revendus}} : +{coins, plural, one {# pièce} other {# pièces}}.",
     "empty": {
       "all": "Aucune carte ne correspond à ces filtres.",
@@ -1813,6 +1797,8 @@
     "coins": "{count, number} {count, plural, one {pièce} other {pièces}}",
     "currentBid": "Enchère actuelle",
     "startingBid": "Mise de départ",
+    "priceUnit": "{count, plural, one {pièce} other {pièces}}",
+    "priceStart": "départ",
     "bids": "{count, plural, =0 {Aucune mise} one {# mise} other {# mises}}",
     "timeLeftLabel": "Fin dans",
     "timeLeft": {

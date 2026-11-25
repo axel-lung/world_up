@@ -228,7 +228,7 @@ export default async function MarketPage({ params, searchParams }: PageProps<'/c
       {tiles.length === 0 ? (
         <p className={styles.empty}>{t('empty')}</p>
       ) : (
-        <ul id={LIST_ID} className={styles.grid}>
+        <ul id={LIST_ID} className={`${styles.grid} ${styles.auctions}`}>
           {tiles.map((tile, index) => (
             <li key={tile.href} {...(index % MARKET_PAGE_SIZE === 0 ? { id: pageStart(index), tabIndex: -1 } : {})}>
               <AuctionTile {...tile} collection={collection} serverNow={now.toISOString()} />

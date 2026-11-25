@@ -203,6 +203,7 @@
   color: var(--color-text);
   box-shadow: 0 3px 0 var(--sticker-shadow);
   font-family: var(--font-heading);
+  font-weight: 900;
   font-size: 28px;
 }
 
@@ -256,7 +257,7 @@ a.stat:active {
 }
 
 .statValue {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 19px;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
@@ -485,7 +486,7 @@ a.stat:active {
 }
 
 .help .links li {
-  border-top: 1px solid var(--color-divider);
+  border-top: 2px solid var(--ink);
 }
 
 .help .links a {
@@ -584,7 +585,7 @@ a.stat:active {
 
 .visitValue {
   margin-top: 6px;
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 30px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -598,7 +599,7 @@ a.stat:active {
 .badgesHead h3 {
   margin: 0;
   font-family: var(--font-heading);
-  font-weight: 400;
+  font-weight: 900;
   font-size: 18px;
 }
 

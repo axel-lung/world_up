@@ -1,16 +1,17 @@
-/* The streak's pill on the home's head (MobileB.dc.html): the flame and the days */
+/* The streak's pill on the home's head (Accueil - Refonte World Up.dc.html):
+   a pebble of stone, the flame and the days in copper */
 .button {
   flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   height: 44px;
-  padding: 0 12px 0 10px;
-  border: 0;
+  padding: 0 13px 0 10px;
+  border: 2px solid var(--color-line);
   border-radius: 999px;
-  background: var(--color-accent-tint);
-  color: var(--color-accent-strong);
-  font-family: var(--font-heading);
+  background: var(--color-surface);
+  color: var(--color-link);
+  font-family: var(--font-figure);
   font-size: 18px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -45,7 +46,7 @@
   right: 2px;
   width: 12px;
   height: 12px;
-  border: 2px solid var(--color-bg);
+  border: 2px solid var(--ink);
   border-radius: 50%;
   background: var(--color-accent);
 }
@@ -55,6 +56,6 @@
 }
 
 .button:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 2px solid var(--color-accent-strong);
   outline-offset: 2px;
 }

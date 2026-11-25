@@ -1,115 +1,134 @@
+/* The welcome page (App Vitrail - Connexion.dc.html, "Bienvenue"): a church
+   window, the title and the way in. One column on a phone; from 900 px the
+   window on the left and the text on the right. */
 .page {
-  position: relative;
   max-width: 1040px;
   margin: 0 auto;
-  padding: 56px 16px 72px;
+  padding: 28px 20px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+/* The window: the arch's large rose holds the logo, three lancets of
+   legendary, ultra rare and rare glass stand at its foot */
+.window {
+  min-height: 372px;
+  justify-content: flex-end;
+  border-radius: 175px 175px 20px 20px / 150px 150px 20px 20px;
+}
+
+.logo {
+  position: absolute !important;
+  left: 50%;
+  top: 84px;
+  width: 56px;
+  height: 56px;
+  margin-left: -28px;
+}
+
+.lancets {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.lancets > span {
+  --lead: rgba(12, 12, 14, 0.85);
+  width: 62px;
+  height: 120px;
+  border: 3px solid var(--ink);
+  border-radius: 31px 31px 6px 6px / 40px 40px 6px 6px;
+  background:
+    linear-gradient(90deg, transparent 47%, var(--lead) 47% 53%, transparent 53%),
+    linear-gradient(0deg, transparent 0 32%, var(--lead) 32% 35%, transparent 35% 64%, var(--lead) 64% 67%, transparent 67%),
+    radial-gradient(circle at 50% 30%, var(--rar-light), var(--rar-fill) 60%, var(--rar-deep));
+  box-shadow: 0 0 0 3px #5a5a61, 0 0 0 5px var(--ink);
+}
+
+.lancets > span:nth-child(2) {
+  height: 150px;
+}
+
+.text {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  overflow: hidden;
-}
-
-/* Text keeps a readable measure, the decoration takes the right-hand side */
-.page > :not([aria-hidden]) {
-  position: relative;
-  max-width: 640px;
-}
-
-.page h1 {
-  margin: 0;
-  font-size: 48px;
-  line-height: 1.02;
-}
-
-@media (min-width: 720px) {
-  .page h1 {
-    font-size: 64px;
-  }
-}
-
-.page p {
-  margin: 0;
+  gap: 8px;
 }
 
 .collection {
-  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-link);
+}
+
+.collection svg {
+  width: 15px;
+  height: 15px;
+}
+
+.text h1 {
+  margin: 0;
+  font-size: 36px;
+  line-height: 1.05;
+  text-shadow: 0 3px 0 var(--ink);
 }
 
 .lead {
-  font-size: 18px;
-  line-height: 1.55;
-  color: var(--color-text-muted);
+  margin: 0;
+  font-size: 16.5px;
+  line-height: 1.5;
+  color: var(--color-text-soft);
   text-wrap: pretty;
 }
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-top: 6px;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* The logo: above the text, then on the terracotta disc beside it from 1000 px */
-.page > img.logo {
-  align-self: flex-start;
-  width: 160px;
-  height: auto;
+.learnMore {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--color-text-muted);
 }
 
-@media (min-width: 1000px) {
-  .page > img.logo {
-    position: absolute;
-    top: 42px;
-    right: 26px;
-    width: 280px;
-  }
+.learnMore a {
+  font-weight: 700;
 }
 
-.discAccent,
-.discSage,
-.sparkle {
-  position: absolute;
-  pointer-events: none;
-}
-
-.discAccent {
-  top: 32px;
-  right: 16px;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: var(--color-accent-tint);
-}
-
-.discSage {
-  top: 250px;
-  right: 230px;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: var(--color-sage-tint);
-}
-
-.sparkle {
-  top: 56px;
-  right: 340px;
-  width: 44px;
-  height: 44px;
-  color: var(--color-accent);
-}
-
-/* Narrow screens: one disc in the corner, behind the text */
-@media (max-width: 719px) {
-  .discAccent {
-    top: -60px;
-    right: -140px;
-    width: 220px;
-    height: 220px;
+@media (min-width: 900px) {
+  .page {
+    grid-template-columns: 400px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 48px;
+    padding-top: 48px;
   }
 
-  .discSage,
-  .sparkle {
-    display: none;
+  .window {
+    grid-row: 1 / span 4;
+  }
+
+  .text h1 {
+    font-size: 56px;
+  }
+
+  .actions {
+    max-width: 380px;
+  }
+
+  .learnMore {
+    text-align: left;
   }
 }

@@ -14,14 +14,12 @@ import {
   Stamp,
 } from 'lucide-react';
 import type { Metadata } from 'next';
-import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { ChangePasswordForm, DeleteAccountForm, PseudoForm, SignOutButton } from '@/components/account/AccountForms';
 import { BadgeSticker } from '@/components/badge/Badge';
 import { FooterLinks } from '@/components/layout/SiteHeader';
-import { ThemeSwitch } from '@/components/layout/ThemeSwitch';
 import { Button } from '@/components/ui/Button';
 import { EffectsSwitch } from '@/components/ui/EffectsSwitch';
 import { Sheet, type SheetTrigger } from '@/components/ui/Sheet';
@@ -38,7 +36,6 @@ import { getActiveCollection } from '@/lib/game/rules';
 import { isVisitKind } from '@/lib/game/visit';
 import { requireSession } from '@/lib/session';
 import { signInMethods } from '@/lib/sign-in-methods';
-import { themePreference } from '@/lib/theme-preference';
 import phone from '../phone.module.css';
 import { featureBadgeAction } from './actions';
 import styles from './page.module.css';
@@ -57,7 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // Subscription, spending cap and purchase history join this page in lot 4.
 export default async function AccountPage() {
   const { user } = await requireSession('/account', { terms: false });
-  const [t, tNav, tGame, tAchievement, tRarity, format, methods, cookieStore, collection] = await Promise.all([
+  const [t, tNav, tGame, tAchievement, tRarity, format, methods, collection] = await Promise.all([
     getTranslations('Account'),
     getTranslations('Nav'),
     getTranslations('Game'),
@@ -65,7 +62,6 @@ export default async function AccountPage() {
     getTranslations('Rarity'),
     getFormatter(),
     signInMethods(user.id),
-    cookies(),
     getActiveCollection(DEFAULT_COLLECTION_SLUG),
   ]);
   // The player's figures in the game, for the phone's profile, their badges and their visits
@@ -353,11 +349,7 @@ export default async function AccountPage() {
         <EffectsSwitch name="effects-account" />
       </div>
 
-      {/* A phone hides a player's footer: its theme and links are here instead */}
-      <div className={`${styles.theme} phone-only`}>
-        <span aria-hidden="true">{t('more.theme')}</span>
-        <ThemeSwitch initial={themePreference(cookieStore)} name="theme-account" />
-      </div>
+      {/* A phone hides a player's footer: its links are here instead */}
       <details className={`${styles.help} phone-only`}>
         <summary>
           <CircleHelp aria-hidden className={styles.helpIcon} />

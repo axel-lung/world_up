@@ -84,7 +84,7 @@ Version du 25 octobre 2026. Registre tenu par l'éditeur au titre de l'article 3
 
 ## Cookies
 
-Cookie de session (connexion, 30 jours au plus) et cookie `theme` (préférence d'affichage) : tous deux exemptés de consentement. Aucun traceur publicitaire ni mesure d'audience à ce jour (Matomo ou Plausible à choisir, en configuration exemptée).
+Cookie de session (connexion, 30 jours au plus), exempté de consentement ; le cookie `theme` a disparu avec le thème unique (25/11/2026). Aucun traceur publicitaire ni mesure d'audience à ce jour (Matomo ou Plausible à choisir, en configuration exemptée).
 
 ## Contrats de sous-traitance à signer
 

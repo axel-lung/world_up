@@ -1,6 +1,7 @@
 /* The pieces a player's pages share on a phone (under 720 px, the "thumb"
-   layout): the page's own head, lists of rows on the surface, tiles, rings and
-   two- or three-way selectors. Wider screens keep each page's own layout. */
+   layout), as the vitrail draws them (App Vitrail - *.dc.html): the page's own head,
+   lists of rows on blocks of stone, tiles, rings and two- or three-way
+   selectors. Wider screens keep each page's own layout. */
 
 @media (max-width: 719px) {
   main.page {
@@ -18,20 +19,20 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 52px;
+  min-height: 56px;
 }
 
 .head h1 {
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1.1;
 }
 
 .headAside {
   flex: none;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -42,14 +43,38 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 4px;
+}
+
+/* A share under the title: a bar in a well of ink, then the figures */
+.headProgress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headBar {
+  flex: 1;
+  height: 12px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--color-line);
+}
+
+.headBar > span {
+  display: block;
+  min-width: 8px;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f6b877, #c8743c);
 }
 
 .headTitles h1 {
-  font-size: 26px;
+  font-size: 22px;
 }
 
-/* A page the head leads to, as a pill in the accent's tint: "Carte" */
+/* A page the head leads to, as a pill of stone: "Carte" */
 .pill {
   flex: none;
   display: inline-flex;
@@ -57,10 +82,11 @@
   gap: 7px;
   min-height: 44px;
   padding: 0 15px 0 12px;
+  border: 2px solid var(--color-line);
   border-radius: 999px;
-  background: var(--color-accent-tint);
-  color: var(--color-accent-strong);
-  font-size: 14.5px;
+  background: var(--color-surface);
+  color: var(--color-heading);
+  font-size: 15px;
   font-weight: 700;
   text-decoration: none;
 }
@@ -68,14 +94,15 @@
 .pill svg {
   width: 18px;
   height: 18px;
+  color: var(--color-link);
 }
 
 .pill:hover {
-  color: var(--color-accent-strong);
+  color: var(--color-heading);
 }
 
 .pill:active {
-  background: color-mix(in srgb, var(--color-accent-tint) 80%, var(--color-accent));
+  background: var(--color-surface-2);
 }
 
 /* A link in the accent, with no fill: "Tout voir", "Marché", "Effacer" */
@@ -89,10 +116,10 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--color-accent-strong);
+  color: var(--color-link);
   font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   text-decoration: none;
   cursor: pointer;
 }
@@ -108,7 +135,7 @@
 
 @media (hover: hover) {
   .ghost:hover {
-    color: var(--color-accent-strong);
+    color: var(--color-heading);
     background: color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
 }
@@ -130,42 +157,58 @@
 .sectionHead h2 {
   margin: 4px 0 0;
   font-size: 19px;
+  text-shadow: none;
 }
 
 .sectionHead .ghost {
   margin-right: -8px;
 }
 
-/* A group's name above its rows: "À répondre", "Régions" */
+/* A group's name above its rows, after a lozenge: "À répondre", "Régions" */
 .groupTitle {
-  margin: 0 0 0 4px;
-  font-family: var(--font-body);
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 0 4px;
+  font-family: var(--font-heading);
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  letter-spacing: 0.01em;
+  color: var(--color-heading);
+  text-shadow: none;
+}
+
+.groupTitle::before {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--color-accent);
+  transform: rotate(45deg);
 }
 
 .muted {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.45;
   color: var(--color-text-muted);
 }
 
-/* Rows on the surface, one under the other */
+/* Rows on a block of stone, one under the other, leaded in ink */
 .rows {
   display: flex;
   flex-direction: column;
   margin: 0;
   padding: 0 14px;
   list-style: none;
-  border-radius: 24px;
+  border: 2px solid var(--color-line);
+  border-radius: 22px;
   background: var(--color-surface);
 }
 
 .rows > li + li {
-  border-top: 1px solid var(--color-divider);
+  border-top: 2px solid var(--ink);
 }
 
 /* A row: a disc, two lines of text, then a chevron or actions. As a link or a
@@ -176,7 +219,7 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  min-height: 64px;
+  min-height: 66px;
   padding: 8px 0;
   border: 0;
   background: none;
@@ -197,9 +240,10 @@ a.row:hover {
 }
 
 .row:active {
-  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+  background: rgba(240, 210, 168, 0.06);
 }
 
+/* A medallion of glass, leaded in ink: parchment, moss or copper */
 .disc {
   flex: none;
   display: grid;
@@ -207,8 +251,9 @@ a.row:hover {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--color-bg);
-  color: var(--color-text-muted);
+  border: 2px solid var(--ink);
+  background: var(--color-heading);
+  color: var(--ink);
 }
 
 .disc svg {
@@ -217,13 +262,11 @@ a.row:hover {
 }
 
 .disc[data-tone="sage"] {
-  background: var(--color-sage-tint);
-  color: var(--color-accent-2-800);
+  background: var(--color-sage);
 }
 
 .disc[data-tone="accent"] {
-  background: var(--color-accent-tint);
-  color: var(--color-accent-strong);
+  background: var(--color-accent);
 }
 
 .rowText {
@@ -234,14 +277,14 @@ a.row:hover {
 }
 
 .rowTitle {
-  font-size: 14.5px;
-  font-weight: 600;
+  font-size: 15.5px;
+  font-weight: 700;
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
 .rowMeta {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -253,7 +296,7 @@ a.row:hover {
   color: var(--color-text-muted);
 }
 
-/* A player's initial: sage tint, or an inked paper sticker (data-inked) */
+/* A player's initial: a parchment medallion leaded in ink */
 .avatar {
   flex: none;
   position: relative;
@@ -262,9 +305,11 @@ a.row:hover {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: var(--color-sage-tint);
-  color: var(--color-accent-2-800);
+  border: 2px solid var(--ink);
+  background: var(--color-heading);
+  color: var(--color-surface);
   font-family: var(--font-heading);
+  font-weight: 900;
   font-size: 18px;
   line-height: 1;
 }
@@ -283,7 +328,7 @@ a.row:hover {
   color: var(--card-ink);
 }
 
-/* A round action of 44 px, outlined */
+/* A round action of 44 px, a pebble of stone */
 .iconAction {
   flex: none;
   display: grid;
@@ -291,10 +336,10 @@ a.row:hover {
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid var(--color-divider);
+  border: 2px solid var(--color-line);
   border-radius: 50%;
-  background: transparent;
-  color: var(--color-text);
+  background: var(--color-surface);
+  color: var(--color-heading);
   text-decoration: none;
   cursor: pointer;
 }
@@ -305,17 +350,18 @@ a.row:hover {
 }
 
 .iconAction[data-tone="sage"] {
-  color: var(--color-sage);
+  border-color: var(--color-sage);
+  color: var(--color-moss-text);
 }
 
 .iconAction:active {
-  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  background: var(--color-bar);
 }
 
 @media (hover: hover) {
   .iconAction:hover {
-    color: var(--color-text);
-    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+    color: var(--color-heading);
+    background: var(--color-surface-2);
   }
 }
 
@@ -333,7 +379,8 @@ a.row:hover {
   gap: 2px;
   min-width: 0;
   padding: 12px;
-  border-radius: 20px;
+  border: 2px solid var(--color-line);
+  border-radius: 18px;
   background: var(--color-surface);
   color: var(--color-text);
   text-decoration: none;
@@ -344,32 +391,34 @@ a.tile:hover {
 }
 
 a.tile:active {
-  background: var(--color-track);
+  background: var(--color-surface-2);
 }
 
 .tile svg {
   width: 18px;
   height: 18px;
-  color: var(--color-accent);
+  color: var(--color-link);
 }
 
 .tileValue {
   margin-top: 4px;
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 20px;
   line-height: 1.1;
+  color: var(--color-heading);
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 
 .tileLabel {
-  font-size: 12.5px;
+  font-size: 14px;
   color: var(--color-text-muted);
 }
 
-/* A share as a ring: --ring-fill (an angle) in --ring-color, a percentage in the hole */
+/* A share as a ring of glass leaded in ink: --ring-fill (an angle) in
+   --ring-color, a percentage in the hole */
 .ring {
-  --ring-size: 40px;
+  --ring-size: 44px;
   --ring-hole: 30px;
 
   flex: none;
@@ -378,6 +427,7 @@ a.tile:active {
   width: var(--ring-size);
   height: var(--ring-size);
   border-radius: 50%;
+  border: 2px solid var(--ink);
   background: conic-gradient(var(--ring-color, var(--color-accent)) var(--ring-fill, 0deg), var(--color-track) 0);
 }
 
@@ -387,14 +437,16 @@ a.tile:active {
   width: var(--ring-hole);
   height: var(--ring-hole);
   border-radius: 50%;
+  border: 2px solid var(--ink);
   background: var(--color-surface);
+  color: var(--color-accent-strong);
   font-size: 10.5px;
-  font-weight: 700;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
 .ring[data-size="large"] {
-  --ring-size: 44px;
+  --ring-size: 48px;
   --ring-hole: 34px;
 }
 
@@ -411,8 +463,9 @@ a.tile:active {
   margin: 0;
   padding: 4px;
   list-style: none;
+  border: 2px solid var(--color-line);
   border-radius: 999px;
-  background: var(--color-surface);
+  background: var(--color-bg-deep);
 }
 
 .switchOption {
@@ -420,27 +473,31 @@ a.tile:active {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 42px;
+  min-height: 40px;
   padding: 0 6px;
+  border: 2px solid transparent;
   border-radius: 999px;
-  color: var(--color-text);
-  font-size: 14px;
-  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  font-weight: 700;
   text-align: center;
   text-decoration: none;
 }
 
 .switchOption:hover {
-  color: var(--color-text);
+  color: var(--color-heading);
 }
 
 .switchOption:active {
-  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  background: var(--color-surface);
 }
 
 .switchOption[aria-current="page"] {
-  background: var(--color-text);
-  color: var(--color-bg);
+  border-color: var(--ink);
+  background: var(--button-copper);
+  box-shadow: var(--button-shine);
+  color: var(--color-on-accent);
+  font-weight: 800;
 }
 
 /* A big block on the surface, with a decorative disc in a corner (data-disc) */
@@ -450,7 +507,8 @@ a.tile:active {
   flex-direction: column;
   gap: 14px;
   padding: 18px 16px 16px;
-  border-radius: 28px;
+  border: 2px solid var(--color-line);
+  border-radius: 22px;
   background: var(--color-surface);
   overflow: hidden;
 }
@@ -467,7 +525,11 @@ a.tile:active {
   width: 190px;
   height: 190px;
   border-radius: 50%;
-  background: var(--color-accent-tint);
+  background: radial-gradient(circle, rgba(246, 184, 119, 0.16), transparent 70%);
+}
+
+.card[data-disc="sage"] {
+  border-color: var(--color-moss-edge);
 }
 
 .card[data-disc="sage"]::before {
@@ -475,28 +537,29 @@ a.tile:active {
   right: -50px;
   width: 160px;
   height: 160px;
-  background: var(--color-sage-tint);
+  background: radial-gradient(circle, rgba(179, 174, 112, 0.2), transparent 70%);
 }
 
 .card[data-disc="none"]::before {
   content: none;
 }
 
-/* A secondary action as a block of 48 px: "Ajouter un ami", "Se déconnecter" */
+/* A secondary action as a block of stone: "Voir plus", "Se déconnecter" */
 .block {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  min-height: 48px;
+  min-height: 52px;
   padding: 0 18px;
-  border: 1px solid var(--color-divider);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--color-text);
+  border: 2px solid var(--color-line);
+  border-radius: 16px;
+  background: var(--color-surface);
+  color: var(--color-heading);
   font-family: var(--font-heading);
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 16px;
   text-decoration: none;
   cursor: pointer;
 }
@@ -506,6 +569,10 @@ a.tile:active {
   height: 18px;
 }
 
+.block:hover {
+  color: var(--color-heading);
+}
+
 .block:active {
-  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  background: var(--color-surface-2);
 }

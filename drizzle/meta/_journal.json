@@ -169,6 +169,13 @@
       "when": 1795454046905,
       "tag": "0023_seed_visit_achievements",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795618463071,
+      "tag": "0024_vitrail_theme",
+      "breakpoints": true
     }
   ]
 }

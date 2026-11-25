@@ -12,14 +12,12 @@ import { currentAnnouncement } from '@/lib/announcements';
 import { getActiveCollection } from '@/lib/game/rules';
 import { appPushEnabled } from '@/lib/notifications/push';
 import { receivedRequestCount } from '@/lib/social/friends';
-import { themePreference } from '@/lib/theme-preference';
 import { NavLinks } from './NavLinks';
 import { NotificationBell } from './NotificationBell';
 import { AnnouncementBanner } from './AnnouncementBanner';
 import { getPlayerStatus } from './player-status';
 import styles from './SiteHeader.module.css';
 import { TabBar } from './TabBar';
-import { ThemeSwitch } from './ThemeSwitch';
 
 /**
  * The site's header: the game's pages, and the player's packs, coins and
@@ -177,11 +175,10 @@ export async function SitePushPrompt() {
 }
 
 export async function SiteFooter() {
-  const [t, cookieStore, { player }] = await Promise.all([getTranslations('Nav'), cookies(), getPlayerStatus()]);
+  const [t, { player }] = await Promise.all([getTranslations('Nav'), getPlayerStatus()]);
   return (
     <footer className={styles.footer} data-player={player ? true : undefined}>
       <FooterLinks />
-      <ThemeSwitch initial={themePreference(cookieStore)} />
       <p>{t('noMoneyValue')}</p>
     </footer>
   );

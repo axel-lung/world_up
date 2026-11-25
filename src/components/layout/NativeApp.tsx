@@ -44,20 +44,13 @@ export function NativeApp() {
       else remove();
     });
     if (firstTimeThisLaunch()) refreshAppPushToken().catch(() => undefined);
-    // The theme forced from the switch (ThemeSwitch), or the phone's changing
-    const forcedTheme = new MutationObserver(repaintSystemBars);
-    forcedTheme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    const phoneTheme = window.matchMedia('(prefers-color-scheme: dark)');
-    phoneTheme.addEventListener('change', repaintSystemBars);
     return () => {
       live = false;
       stop?.();
-      forcedTheme.disconnect();
-      phoneTheme.removeEventListener('change', repaintSystemBars);
     };
   }, []);
 
-  // Each page, once drawn: the pack opening's stage is dark in both themes
+  // Each page, once drawn: the pack opening's stage is darker than the stone
   useEffect(() => {
     if (!isNativeApp()) return;
     const frame = requestAnimationFrame(repaintSystemBars);

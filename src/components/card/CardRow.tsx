@@ -2,17 +2,18 @@ import { ChevronRight, MapPin, Stamp } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
-import { EmblemIcon } from '@/components/collection/Emblem';
 import { RarityPips } from '@/components/rarity/Rarity';
 import type { Emblem } from '@/lib/collection-theme';
 import type { CardData } from './Card';
 import { displayName, visitDay } from './card-format';
+import { CardVignette } from './CardVignette';
 import styles from './CardRow.module.css';
 
 /**
  * A card as a row of the collection's list view, denser than the grid on a
- * phone: a thumbnail of the photo framed in the rarity's color, the name, the
- * rarity sticker, the place, the photo's credit and the copies owned. The whole
+ * phone: a vignette of the card (the photo in its arched window, the rarity's
+ * dots), the name, the rarity sticker, the place, the photo's credit and the
+ * copies owned. The whole
  * row leads to the card's page (with a chevron on a phone). Same states and
  * accessible name as the Card: a missing card shows its name and rarity only,
  * the collection's emblem in place of its photo, and leads nowhere. A card
@@ -53,14 +54,7 @@ export function CardRow({
 
   return (
     <article className={styles.row} data-state={state} data-rarity={card.rarity} aria-label={ariaLabel}>
-      <div className={`washed ${styles.thumb}`}>
-        {photo && (
-          // Plain <img>, like the Card: the import already made 400 and 800 px WebP files
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo.src} srcSet={photo.srcSet} sizes="72px" alt="" loading="lazy" decoding="async" />
-        )}
-        {missing && emblem && <EmblemIcon emblem={emblem} aria-hidden className={styles.emblem} />}
-      </div>
+      <CardVignette rarity={card.rarity} photo={photo} missing={missing} emblem={emblem} width={56} />
       <div className={styles.text}>
         <h3 className={styles.name}>
           {link ? (

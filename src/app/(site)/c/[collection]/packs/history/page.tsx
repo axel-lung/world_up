@@ -112,7 +112,7 @@ export default async function HistoryPage({ params, searchParams }: PageProps<'/
   return (
     <main className={`${styles.page} ${own.page}`}>
       <header className={styles.header}>
-        <p className={own.eyebrow}>
+        <p className={styles.eyebrow}>
           <Link href={paths.packs}>{tPacks('title')}</Link>
         </p>
         <h1>{t('title')}</h1>

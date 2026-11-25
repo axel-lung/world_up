@@ -12,7 +12,7 @@
 }
 
 .list > li + li {
-  border-top: 1px solid var(--color-divider);
+  border-top: 2px solid var(--ink);
 }
 
 .item {

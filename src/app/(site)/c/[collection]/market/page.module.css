@@ -52,7 +52,7 @@
   background: var(--sticker-paper);
   color: var(--sticker-line);
   box-shadow: 3px 3px 0 var(--sticker-shadow);
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 30px;
   font-variant-numeric: tabular-nums;
 }

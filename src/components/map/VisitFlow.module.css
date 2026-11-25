@@ -44,7 +44,7 @@
 .title {
   margin: 0;
   font-family: var(--font-heading);
-  font-weight: 400;
+  font-weight: 900;
   font-size: 25px;
   line-height: 1.12;
   text-wrap: pretty;
@@ -273,7 +273,7 @@
 }
 
 .precisionValue {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 26px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -688,7 +688,7 @@
 .doneTitle {
   margin: 0;
   font-family: var(--font-heading);
-  font-weight: 400;
+  font-weight: 900;
   font-size: 30px;
   line-height: 1.1;
 }

@@ -343,13 +343,13 @@
 }
 
 .scoreOwned {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 40px;
   line-height: 1;
 }
 
 .scoreTotal {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 22px;
   color: var(--color-text-muted);
 }
@@ -444,7 +444,7 @@
 }
 
 .thumbName {
-  font-family: var(--font-heading);
+  font-family: var(--font-figure);
   font-size: 10.5px;
   line-height: 1.1;
 }

@@ -1,4 +1,5 @@
-/* Over Organic's compact .btn: every touch target is 44 px at least. */
+/* Over Organic's .btn, as the vitrail draws it (theme.css): every touch target
+   is 44 px at least, the main action a slab of copper glass leaded in ink. */
 .button {
   min-height: 44px;
   padding: 0 18px;
@@ -12,104 +13,89 @@
 }
 
 .large {
-  min-height: 48px;
+  min-height: 52px;
   padding: 0 22px;
   font-size: 16px;
 }
 
 .large svg {
-  width: 19px;
-  height: 19px;
+  width: 20px;
+  height: 20px;
 }
 
-/* Ink on the terracotta fill (4.5:1 at least, as --color-on-accent promises),
-   in both themes. */
+/* Ink on the copper glass (4.5:1 at least, as --color-on-accent promises) */
 .primary,
 .sticker {
   color: var(--color-on-accent);
 }
 
-/* The terracotta fill as an inked sticker, pressed into the page when touched */
-.sticker {
-  min-height: 52px;
-  border: 2px solid var(--sticker-line);
-  box-shadow: 0 3px 0 var(--sticker-shadow);
-  font-size: 17px;
+/* A page's main action ("Ouvrir un paquet"): taller, in Cinzel's black */
+.sticker,
+.primary.large {
+  min-height: 56px;
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .sticker svg {
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
 }
 
-.sticker:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--sticker-shadow);
-}
-
+.primary:disabled,
 .sticker:disabled {
-  opacity: 0.45;
+  opacity: 0.5;
   transform: none;
-  box-shadow: 0 3px 0 var(--sticker-shadow);
   cursor: not-allowed;
 }
 
-/* Terracotta text takes the strong shade at button size */
 .ghost {
   padding: 0 12px;
-  color: var(--color-accent-strong);
+  color: var(--color-link);
 }
 
+/* Moss glass, the second voice (exchanges, "Revendre") */
 .sage {
-  background: var(--color-sage);
+  background: var(--button-moss);
+  border: 2px solid var(--ink);
+  box-shadow: inset 0 2px 0 rgba(240, 240, 200, 0.35), 0 3px 0 var(--ink);
   color: var(--color-on-accent);
+  font-family: var(--font-figure);
+  font-weight: 400;
+}
+
+.sage:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--ink);
 }
 
 .danger {
-  color: var(--color-danger);
   border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
-/* A lighter fill under a pointer that hovers. Not on a touch screen, which
+/* A lighter glass under a pointer that hovers. Not on a touch screen, which
    would keep it after a tap (Organic's hover too, theme.css). */
 @media (hover: hover) {
-  .primary:hover,
-  .sticker:hover {
+  .primary:hover:not(:disabled),
+  .sticker:hover:not(:disabled),
+  .sage:hover:not(:disabled) {
     color: var(--color-on-accent);
-    background: color-mix(in srgb, var(--color-accent) 75%, white);
-  }
-
-  .sticker:disabled:hover {
-    background: var(--color-accent);
+    filter: brightness(1.08);
   }
 
   .ghost:hover {
-    color: var(--color-accent-strong);
-  }
-
-  .sage:hover {
-    color: var(--color-on-accent);
-    background: color-mix(in srgb, var(--color-sage) 80%, white);
+    color: var(--color-heading);
   }
 
   .secondary:hover {
-    color: var(--color-text);
+    color: var(--color-heading);
   }
 
   .danger:hover {
     color: var(--color-danger);
     background: var(--color-danger-tint);
   }
-}
-
-/* A deeper one while pressed, by a pointer or a finger */
-.primary:active,
-.sticker:active {
-  background: color-mix(in srgb, var(--color-accent) 55%, white);
-}
-
-.sage:active {
-  background: color-mix(in srgb, var(--color-sage) 60%, white);
 }
 
 .danger:active {

@@ -40,7 +40,7 @@
 
 /* The large card reads from 300 px wide; the controls take about 150 px of height */
 .card {
-  width: min(360px, calc(100vw - 48px), calc((100dvh - 190px) * 80 / 131));
+  width: min(360px, calc(100vw - 48px), calc((100dvh - 190px) * 100 / 155));
   min-width: 260px;
 }
 

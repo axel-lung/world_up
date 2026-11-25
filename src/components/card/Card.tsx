@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUpRight, Camera, Check, Image as ImageIcon, Info, MapPin, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Camera, Check, Info, MapPin, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { type MouseEvent, type ReactNode, useState } from 'react';
@@ -80,19 +80,19 @@ export interface CardProps {
 }
 
 /**
- * The band at the foot of each face, in the rarity's color like the frame:
- * its name and 1 to 6 dots, so rarity never relies on color alone.
+ * The rarity's sticker, tilted over the foot of the window: 1 to 6 dots, and
+ * its name on a large card, so rarity never relies on color alone.
  */
-function RarityBand({ rarity, label }: { rarity: Rarity; label: string }) {
+function RarityPill({ rarity, label, showLabel }: { rarity: Rarity; label: string; showLabel: boolean }) {
   return (
-    <div className={styles.band}>
-      <span>{label}</span>
+    <span className={styles.pill}>
+      {showLabel ? <span>{label}</span> : <span className="sr-only">{label}</span>}
       <span className={styles.dots} aria-hidden="true">
         {Array.from({ length: RARITY_PIPS[rarity] }, (_, index) => (
           <span key={index} className={styles.dot} />
         ))}
       </span>
-    </div>
+    </span>
   );
 }
 
@@ -203,73 +203,98 @@ export function Card({
       <div className={styles.inner} data-flipped={showBack || undefined}>
         {/* inert: the links and buttons of the face turned away can't take the focus */}
         <div className={`${styles.face} ${styles.front}`} aria-hidden={showBack || undefined} inert={showBack || undefined}>
-          <div className={styles.panel}>
-            <div className={styles.photoArea}>
-              {/* .washed: the design system's softened photo treatment */}
-              <div className={`washed ${styles.photo}`}>
-                {missing ? (
-                  // Not owned yet: an empty slot with the collection's emblem, never the photo
-                  <div className={styles.slot} aria-hidden="true">
-                    <span>
-                      <EmblemIcon emblem={collection.emblem} />
-                    </span>
-                  </div>
-                ) : noPhoto ? (
-                  <div className={styles.photoFallback}>
-                    <ImageIcon aria-hidden />
-                    <span>{name}</span>
-                  </div>
-                ) : (
-                  <>
-                    {letterbox && (
-                      // eslint-disable-next-line @next/next/no-img-element -- see below
-                      <img className={styles.photoBackdrop} src={card.photo.src} {...imageLoading} alt="" aria-hidden="true" />
-                    )}
-                    {/* Plain <img>: the catalogue import already produces 400 and 800 px
-                        WebP files, so next/image would only re-encode them. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className={styles.photoImage}
-                      src={card.photo.src}
-                      {...imageLoading}
-                      alt={name}
-                      onError={() => setPhotoFailed(true)}
-                    />
-                  </>
-                )}
-              </div>
-              {!large && !missing && !noPhoto && (
-                <button
-                  type="button"
-                  className={styles.infoButton}
-                  aria-label={t('photoCredit')}
-                  aria-expanded={showCredit}
-                  onClick={(event) => {
-                    stop(event);
-                    setShowCredit((value) => !value);
-                  }}
-                >
-                  <span>
-                    <Info aria-hidden />
-                  </span>
-                </button>
-              )}
-              {action && <div className={styles.action}>{action}</div>}
-              {visited && <VisitStamp visitedAt={visited} size={large ? 'large' : 'grid'} />}
-              {showCredit && !large && (
-                <div className={styles.creditOverlay}>
-                  {t.rich('photoOverlay', { author, license: card.photo.license, licenseLink, link: commonsLink })}
+          <div className={styles.windowArea}>
+            {/* The photo in an arched window, leaded in ink. .washed: the design
+                system's softened photo treatment */}
+            <div className={`washed ${styles.window}`}>
+              {missing ? (
+                // Not owned yet: striped glass with the collection's emblem, never the photo
+                <div className={styles.slot} aria-hidden="true">
+                  <EmblemIcon emblem={collection.emblem} />
                 </div>
-              )}
-              {shiny && (
-                <span className={styles.shinySticker}>
-                  <Sparkles aria-hidden />
-                  {large ? <span>{t('shiny')}</span> : <span className="sr-only">{t('shiny')}</span>}
-                </span>
+              ) : noPhoto ? (
+                // No photo: the window's glass in the rarity's colors, with the emblem
+                <div className={styles.glass} aria-hidden="true">
+                  <EmblemIcon emblem={collection.emblem} />
+                </div>
+              ) : (
+                <>
+                  {letterbox && (
+                    // eslint-disable-next-line @next/next/no-img-element -- see below
+                    <img className={styles.photoBackdrop} src={card.photo.src} {...imageLoading} alt="" aria-hidden="true" />
+                  )}
+                  {/* Plain <img>: the catalogue import already produces 400 and 800 px
+                      WebP files, so next/image would only re-encode them. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className={styles.photoImage}
+                    src={card.photo.src}
+                    {...imageLoading}
+                    alt={name}
+                    onError={() => setPhotoFailed(true)}
+                  />
+                </>
               )}
             </div>
+            {!large && !missing && !noPhoto && (
+              <button
+                type="button"
+                className={styles.infoButton}
+                aria-label={t('photoCredit')}
+                aria-expanded={showCredit}
+                onClick={(event) => {
+                  stop(event);
+                  setShowCredit((value) => !value);
+                }}
+              >
+                <span>
+                  <Info aria-hidden />
+                </span>
+              </button>
+            )}
+            {action && <div className={styles.action}>{action}</div>}
+            {showCredit && !large && (
+              <div className={styles.creditOverlay}>
+                {t.rich('photoOverlay', { author, license: card.photo.license, licenseLink, link: commonsLink })}
+              </div>
+            )}
+            {shiny && (
+              <span className={styles.shinySticker}>
+                <Sparkles aria-hidden />
+                {large ? <span>{t('shiny')}</span> : <span className="sr-only">{t('shiny')}</span>}
+              </span>
+            )}
+            <RarityPill rarity={card.rarity} label={rarityLabel} showLabel={large} />
+            {visited && <VisitStamp visitedAt={visited} size={large ? 'large' : 'grid'} />}
+          </div>
 
-            {large && !missing && (
+          <h3 className={styles.name}>
+            {href ? (
+              <Link href={href} className={styles.nameLink} onClick={stop}>
+                {name}
+              </Link>
+            ) : (
+              name
+            )}
+          </h3>
+          {/* A large card tells its place, its protection, its photo's credit and its series */}
+          {large && !missing && (
+            <>
+              {place && (
+                <div className={styles.place}>
+                  <MapPin aria-hidden />
+                  <span>{place}</span>
+                </div>
+              )}
+              {badges.length > 0 && (
+                <div className={styles.badges}>
+                  {badges.map((badge) => (
+                    <span key={badge.key} className={styles.badge} data-badge={badge.key}>
+                      {badge.label}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className={styles.credit}>
                 <Camera aria-hidden />
                 <span>
@@ -282,42 +307,13 @@ export function Card({
                   })}
                 </span>
               </div>
-            )}
-
-            <div className={styles.text}>
-              <h3 className={styles.name}>
-                {href ? (
-                  <Link href={href} className={styles.nameLink} onClick={stop}>
-                    {name}
-                  </Link>
-                ) : (
-                  name
-                )}
-              </h3>
-              {/* A missing card shows its name and rarity only */}
-              {!missing && place && (
-                <div className={styles.place}>
-                  <MapPin aria-hidden />
-                  <span>{place}</span>
-                </div>
-              )}
-              {!missing && badges.length > 0 && (
-                <div className={styles.badges}>
-                  {badges.map((badge) => (
-                    <span key={badge.key} className={styles.badge} data-badge={badge.key}>
-                      {badge.label}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className={styles.footer}>
-              {emblem}
-              <span className={styles.seriesName}>{card.series?.name}</span>
-              <span className={styles.number}>{number}</span>
-            </div>
-          </div>
-          <RarityBand rarity={card.rarity} label={rarityLabel} />
+              <div className={styles.footer}>
+                {emblem}
+                <span className={styles.seriesName}>{card.series?.name}</span>
+                <span className={styles.number}>{number}</span>
+              </div>
+            </>
+          )}
           {shiny && <div className={styles.shine} aria-hidden="true" />}
         </div>
 
@@ -355,7 +351,6 @@ export function Card({
                 <span>{number}</span>
               </div>
             </div>
-            <RarityBand rarity={card.rarity} label={rarityLabel} />
           </div>
         )}
       </div>
@@ -374,7 +369,7 @@ export function Card({
         </button>
       )}
       {isNew && !missing && <span className={styles.newBadge}>{t('new')}</span>}
-      {copies > 1 && !large && !missing && (
+      {copies > 1 && !missing && (
         <span className={styles.copiesBadge}>
           <span aria-hidden="true">×{copies}</span>
           <span className="sr-only">{t('copiesBadge', { count: copies })}</span>

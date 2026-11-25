@@ -47,7 +47,7 @@
   justify-content: space-between;
   gap: 6px 16px;
   padding: 14px 20px;
-  border-top: 1px solid var(--color-divider);
+  border-top: 2px solid var(--ink);
 }
 
 .entry:first-child {

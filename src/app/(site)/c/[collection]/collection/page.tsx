@@ -79,17 +79,22 @@ export default async function CollectionPage({ params, searchParams }: PageProps
       <header className={`${phone.head} phone-only`}>
         <div className={phone.headTitles}>
           <h1>{t('heading')}</h1>
-          <span className={phone.headAside}>
-            {number(counts.owned)} / {number(counts.all)}
+          {/* The share of the collection owned, as a leaded bar */}
+          <span className={phone.headProgress}>
+            <span className={phone.headBar} aria-hidden="true">
+              <span style={{ width: `${counts.all ? (counts.owned / counts.all) * 100 : 0}%` }} />
+            </span>
+            <span className={phone.headAside}>
+              {number(counts.owned)} / {number(counts.all)}
+            </span>
           </span>
         </div>
         <Link href={paths.map} className={phone.pill}>
           <MapIcon aria-hidden />
           {t('map')}
         </Link>
-        <Link href={paths.market} className={phone.ghost}>
+        <Link href={paths.market} className={phone.iconAction} aria-label={t('market')}>
           <Gavel aria-hidden />
-          {t('market')}
         </Link>
       </header>
       <header className={`${styles.header} wide-only`}>

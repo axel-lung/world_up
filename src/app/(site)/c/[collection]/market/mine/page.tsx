@@ -47,7 +47,7 @@ export default async function MyAuctionsPage({ params }: PageProps<'/c/[collecti
         {tiles.length === 0 ? (
           <p className={styles.muted}>{empty}</p>
         ) : (
-          <ul className={styles.grid}>
+          <ul className={`${styles.grid} ${styles.auctions}`}>
             {tiles.map((tile) => (
               <li key={tile.href}>
                 <AuctionTile {...tile} collection={collection} serverNow={now.toISOString()} />

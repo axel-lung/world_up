@@ -6,8 +6,8 @@
   min-height: 44px;
   padding: 4px 0;
   cursor: pointer;
-  font-size: 13.5px;
-  line-height: 1.45;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .input {
@@ -19,23 +19,24 @@
 
 .box {
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   display: grid;
   place-items: center;
-  border-radius: 7px;
-  border: 2px solid var(--color-text-muted);
+  border-radius: 8px;
+  border: 2px solid var(--color-line);
+  background: var(--color-bg-deep);
   color: var(--color-on-accent);
 }
 
 .tick {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   visibility: hidden;
 }
 
 .input:checked + .box {
-  border-color: var(--color-accent);
+  border-color: var(--ink);
   background: var(--color-accent);
 }
 
@@ -44,7 +45,7 @@
 }
 
 .input:focus-visible + .box {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-accent-strong);
   outline-offset: 2px;
 }
 
